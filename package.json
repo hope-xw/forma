@@ -3,6 +3,7 @@
   "version": "0.10.0",
   "description": "Forma — Web & 移动 H5 设计与 React/TypeScript 工程交付工作台",
   "author": "Forma Team",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "main": "electron/main.mjs",
