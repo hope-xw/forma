@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-22",
+  "version": "0.8.0",
+  "platform": "macOS Apple Silicon",
+  "dmg": "Forma-0.8.0-arm64.dmg",
+  "bytes": 122308735,
+  "sha256": "19e1f97f2601505398f416be52f260bfbf5804f89b3671f3bca8ef8c1ee70032",
+  "signature": "ad-hoc, codesign --verify --deep --strict passed",
+  "entry": "Mounted DMG -> packaged Electron open-file -> review -> independent local file -> reload -> stored source SHA-256",
+  "fixtures": [
+    {
+      "version": "0.8.0",
+      "filename": "fixture-cdn.sketch",
+      "sha256": "25f08782f870235a33b8589dc812d54c915d7a5928ba3a8efd9a8c5e964b7204",
+      "format": "Sketch",
+      "pages": 2,
+      "sourceNodes": 517
+    },
+    {
+      "version": "0.8.0",
+      "filename": "Artboard Template Inspiration-1F9A2024-2A9F-4A2B-8A38-30E23A1892D3.sketch",
+      "sha256": "25f6438de5fb7a537f70faf744c1cbb4bc62adeb1961d18974ebb7c822ee3f2e",
+      "format": "Sketch",
+      "pages": 8,
+      "sourceNodes": 353
+    },
+    {
+      "version": "0.8.0",
+      "filename": "components.fig",
+      "sha256": "1fbdc089f3ab1ad5f7866d7ee37c096de34cb3c07ec26222991f4954dc022437",
+      "format": "Figma",
+      "pages": 4,
+      "sourceNodes": 19
+    },
+    {
+      "version": "0.8.0",
+      "filename": "figma-simple-design-system.fig",
+      "sha256": "baf0a1b1154a8e4ad98b2143482fddbcbeee13415f7fd672af71d973a67e1c2b",
+      "format": "Figma",
+      "pages": 30,
+      "sourceNodes": 9586
+    },
+    {
+      "version": "0.8.0",
+      "filename": "OpenFigs.fig",
+      "sha256": "eecd50d4d4135ab4b146bbbb7079b7b0743ee0325f2b8e6f2b37454b59c79c4b",
+      "format": "Figma",
+      "pages": 1,
+      "sourceNodes": 5
+    }
+  ],
+  "formaOpenFiles": {
+    "version": "0.8.0",
+    "docs": [
+      "Aura Studio · SaaS 产品与营销界面",
+      "Forma Mobile · 界面研究室"
+    ]
+  }
+}

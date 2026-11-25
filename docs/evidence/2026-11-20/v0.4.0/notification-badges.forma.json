@@ -1,0 +1,706 @@
+{
+  "schemaVersion": 1,
+  "id": "authored-variant-demo",
+  "name": "通知状态",
+  "revision": 17,
+  "nodes": [
+    {
+      "id": "dashboard",
+      "parentId": null,
+      "type": "frame",
+      "name": "通知面板",
+      "text": "",
+      "style": {
+        "width": 400,
+        "height": 200,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "master",
+      "parentId": null,
+      "type": "frame",
+      "name": "通知徽标",
+      "text": "",
+      "style": {
+        "width": 140,
+        "height": 44,
+        "x": 520,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "label",
+      "parentId": "master",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "就绪",
+      "style": {
+        "width": 120,
+        "height": 32,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "other-build",
+      "parentId": null,
+      "type": "frame",
+      "name": "警示徽标",
+      "text": "",
+      "style": {
+        "width": 190,
+        "height": 44,
+        "x": 1100,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "other-label",
+      "parentId": "other-build",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "注意",
+      "style": {
+        "width": 140,
+        "height": 44,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "1b3d53e6-0663-4344-adde-522cf216e482",
+      "parentId": null,
+      "type": "frame",
+      "name": "通知徽标 · Busy / Regular",
+      "text": "",
+      "style": {
+        "width": 140,
+        "height": 44,
+        "x": 692,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "2e388fd7-5958-4693-8f63-b5796b97780d",
+      "parentId": "1b3d53e6-0663-4344-adde-522cf216e482",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "就绪",
+      "style": {
+        "width": 120,
+        "height": 32,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "9b9fef23-c9ef-43d9-ac76-6af50e6b112e",
+      "parentId": null,
+      "type": "frame",
+      "name": "通知徽标 · Busy / 宽版",
+      "text": "",
+      "style": {
+        "width": 232,
+        "height": 44,
+        "x": 864,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "c7be02ef-c387-4e0a-9bb9-bd298782e6ca",
+      "parentId": "9b9fef23-c9ef-43d9-ac76-6af50e6b112e",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "就绪",
+      "style": {
+        "width": 120,
+        "height": 32,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "3151b3b8-2ec9-49b8-be32-9f8124fa6106",
+      "parentId": "dashboard",
+      "type": "frame",
+      "name": "通知徽标 · Busy / 宽版",
+      "text": "",
+      "style": {
+        "width": 232,
+        "height": 44,
+        "x": 24,
+        "y": 24,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "templateKey": "root",
+      "instance": {
+        "libraryId": "b83d8aea-49ff-44c5-91b6-2be310942c3a",
+        "componentId": "component",
+        "variantId": "7031eb9f-c26b-43c5-99a0-b17fff36029e"
+      }
+    },
+    {
+      "id": "187d65a1-69e2-4bc7-a580-dcae8dde3484",
+      "parentId": "3151b3b8-2ec9-49b8-be32-9f8124fa6106",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "待发送",
+      "style": {
+        "width": 120,
+        "height": 32,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "templateKey": "root/徽标文字:0"
+    },
+    {
+      "id": "004a68af-047d-4558-aabc-aea935d15a81",
+      "parentId": null,
+      "type": "frame",
+      "name": "队列标签组",
+      "text": "",
+      "style": {
+        "width": 140,
+        "height": 44,
+        "x": 520,
+        "y": 76,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "85d58af8-7bce-4620-b969-612a802a12b9",
+      "parentId": "004a68af-047d-4558-aabc-aea935d15a81",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "就绪",
+      "style": {
+        "width": 120,
+        "height": 32,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ca44594b-d0bb-4e00-b644-c2b64f817671",
+      "parentId": "dashboard",
+      "type": "frame",
+      "name": "警示徽标",
+      "text": "",
+      "style": {
+        "width": 190,
+        "height": 44,
+        "x": 24,
+        "y": 24,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "templateKey": "root",
+      "instance": {
+        "libraryId": "66b8416a-36c9-4082-9634-ee35e0818acd",
+        "componentId": "component",
+        "variantId": "fc5df03c-d2f2-4b3e-aa18-e0a639d108ba"
+      }
+    },
+    {
+      "id": "eb0e1282-ae33-4428-994a-61df12fdfd7b",
+      "parentId": "ca44594b-d0bb-4e00-b644-c2b64f817671",
+      "type": "text",
+      "name": "徽标文字",
+      "text": "注意",
+      "style": {
+        "width": 140,
+        "height": 44,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202536",
+        "radius": 5,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "templateKey": "root/徽标文字:0"
+    }
+  ],
+  "libraries": {
+    "b83d8aea-49ff-44c5-91b6-2be310942c3a": {
+      "format": "forma/library",
+      "version": 1,
+      "id": "b83d8aea-49ff-44c5-91b6-2be310942c3a",
+      "name": "我的组件 · 通知徽标",
+      "description": "从当前设计创建的自定义组件库",
+      "revision": 9,
+      "images": {},
+      "source": {
+        "name": "用户创建",
+        "license": "用户自有资源"
+      },
+      "components": [
+        {
+          "id": "component",
+          "name": "通知徽标",
+          "category": "自定义",
+          "exposed": [
+            {
+              "id": "871b1d1a-9740-4c13-9731-5ff25b7b7ddf",
+              "name": "文案",
+              "kind": "text",
+              "target": "root/徽标文字:0"
+            }
+          ],
+          "master": {
+            "documentId": "authored-variant-demo",
+            "nodeId": "master"
+          },
+          "description": "",
+          "variants": [
+            {
+              "id": "default",
+              "name": "Normal / Regular",
+              "properties": {
+                "State": "Normal",
+                "尺寸": "Regular"
+              },
+              "nodes": [
+                {
+                  "id": "master",
+                  "parentId": null,
+                  "type": "frame",
+                  "name": "通知徽标",
+                  "text": "",
+                  "style": {
+                    "width": 140,
+                    "height": 44,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root"
+                },
+                {
+                  "id": "label",
+                  "parentId": "master",
+                  "type": "text",
+                  "name": "徽标文字",
+                  "text": "就绪",
+                  "style": {
+                    "width": 120,
+                    "height": 32,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root/徽标文字:0"
+                }
+              ]
+            },
+            {
+              "id": "5c53217b-48ee-4e43-b676-5c749cea1459",
+              "name": "Busy / Regular",
+              "masterNodeId": "1b3d53e6-0663-4344-adde-522cf216e482",
+              "properties": {
+                "State": "Busy",
+                "尺寸": "Regular"
+              },
+              "nodes": [
+                {
+                  "id": "1b3d53e6-0663-4344-adde-522cf216e482",
+                  "parentId": null,
+                  "type": "frame",
+                  "name": "通知徽标 · Busy / Regular",
+                  "text": "",
+                  "style": {
+                    "width": 140,
+                    "height": 44,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root"
+                },
+                {
+                  "id": "2e388fd7-5958-4693-8f63-b5796b97780d",
+                  "parentId": "1b3d53e6-0663-4344-adde-522cf216e482",
+                  "type": "text",
+                  "name": "徽标文字",
+                  "text": "就绪",
+                  "style": {
+                    "width": 120,
+                    "height": 32,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root/徽标文字:0"
+                }
+              ]
+            },
+            {
+              "id": "7031eb9f-c26b-43c5-99a0-b17fff36029e",
+              "name": "Busy / 宽版",
+              "masterNodeId": "9b9fef23-c9ef-43d9-ac76-6af50e6b112e",
+              "properties": {
+                "State": "Busy",
+                "尺寸": "宽版"
+              },
+              "nodes": [
+                {
+                  "id": "9b9fef23-c9ef-43d9-ac76-6af50e6b112e",
+                  "parentId": null,
+                  "type": "frame",
+                  "name": "通知徽标 · Busy / 宽版",
+                  "text": "",
+                  "style": {
+                    "width": 232,
+                    "height": 44,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root"
+                },
+                {
+                  "id": "c7be02ef-c387-4e0a-9bb9-bd298782e6ca",
+                  "parentId": "9b9fef23-c9ef-43d9-ac76-6af50e6b112e",
+                  "type": "text",
+                  "name": "徽标文字",
+                  "text": "就绪",
+                  "style": {
+                    "width": 120,
+                    "height": 32,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root/徽标文字:0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "66b8416a-36c9-4082-9634-ee35e0818acd": {
+      "format": "forma/library",
+      "version": 1,
+      "id": "66b8416a-36c9-4082-9634-ee35e0818acd",
+      "name": "队列标签组",
+      "description": "从当前设计创建的自定义组件库",
+      "revision": 1,
+      "images": {},
+      "source": {
+        "name": "用户创建",
+        "license": "用户自有资源"
+      },
+      "components": [
+        {
+          "id": "component",
+          "name": "队列标签组",
+          "category": "自定义",
+          "exposed": [
+            {
+              "id": "430615f7-7c6a-4c0f-b040-53c30d63da08",
+              "name": "文案",
+              "kind": "text",
+              "target": "root/徽标文字:0"
+            }
+          ],
+          "master": {
+            "documentId": "authored-variant-demo",
+            "nodeId": "004a68af-047d-4558-aabc-aea935d15a81"
+          },
+          "description": "",
+          "variants": [
+            {
+              "id": "14a81789-7ca5-4814-b3f9-a1f24f2cdce7",
+              "name": "Idle",
+              "properties": {
+                "Tone": "Idle"
+              },
+              "nodes": [
+                {
+                  "id": "004a68af-047d-4558-aabc-aea935d15a81",
+                  "parentId": null,
+                  "type": "frame",
+                  "name": "队列标签组",
+                  "text": "",
+                  "style": {
+                    "width": 140,
+                    "height": 44,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root"
+                },
+                {
+                  "id": "85d58af8-7bce-4620-b969-612a802a12b9",
+                  "parentId": "004a68af-047d-4558-aabc-aea935d15a81",
+                  "type": "text",
+                  "name": "徽标文字",
+                  "text": "就绪",
+                  "style": {
+                    "width": 120,
+                    "height": 32,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root/徽标文字:0"
+                }
+              ]
+            },
+            {
+              "id": "fc5df03c-d2f2-4b3e-aa18-e0a639d108ba",
+              "name": "Warning",
+              "masterNodeId": "other-build",
+              "properties": {
+                "Tone": "Warning"
+              },
+              "nodes": [
+                {
+                  "id": "other-build",
+                  "parentId": null,
+                  "type": "frame",
+                  "name": "警示徽标",
+                  "text": "",
+                  "style": {
+                    "width": 190,
+                    "height": 44,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root"
+                },
+                {
+                  "id": "other-label",
+                  "parentId": "other-build",
+                  "type": "text",
+                  "name": "徽标文字",
+                  "text": "注意",
+                  "style": {
+                    "width": 140,
+                    "height": 44,
+                    "x": 0,
+                    "y": 0,
+                    "fill": "#ffffff",
+                    "color": "#202536",
+                    "radius": 5,
+                    "fontSize": 16,
+                    "padding": 0,
+                    "gap": 0,
+                    "layout": "free"
+                  },
+                  "hidden": false,
+                  "locked": false,
+                  "templateKey": "root/徽标文字:0"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tokens": {}
+}

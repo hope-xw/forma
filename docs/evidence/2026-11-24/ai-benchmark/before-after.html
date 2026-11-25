@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<style>
+  body { margin: 0; padding: 24px; background: #0b0d12; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 6px; }
+  p.sub { color: #94a3b8; font-size: 12.5px; margin: 0 0 18px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 280px); gap: 16px; align-items: start; }
+  .card { background: #141821; border: 1px solid #262d3d; border-radius: 14px; padding: 12px; }
+  .card.fix { border-color: #22c55e66; }
+  .card h2 { font-size: 12.5px; margin: 0 0 8px; line-height: 1.4; }
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 99px; font-size: 10px; margin-bottom: 6px; }
+  .tag.bad { background: #7f1d1d; color: #fecaca; }
+  .tag.good { background: #14532d; color: #bbf7d0; }
+  .card img { width: 100%; border-radius: 10px; border: 1px solid #2a3245; display: block; }
+  .note { margin-top: 8px; font-size: 11px; color: #94a3b8; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <h1>真网实测驱动的编译器修复前后对比（DeepSeek-V4.1-Flash）</h1>
+  <p class="sub">修复子容器默认透明背景、父布局感知 hug/fill 尺寸归一化与 strokeSides / fill:"none" 容错前后的真实画布渲染差异</p>
+  <div class="grid">
+    <div class="card">
+      <span class="tag bad">修复前 · 条件 A</span>
+      <h2>纯文本基线（旧编译器）</h2>
+      <img src="before-fix-A-text-only.png" />
+      <div class="note">无显式填充的子 Frame 被默认填为纯白 <code>#ffffff</code> + <code>padding:16</code>，遮盖深绿渐变 Hero 横幅，导致白字几乎不可读。</div>
+    </div>
+    <div class="card fix">
+      <span class="tag good">修复后 · 条件 A</span>
+      <h2>纯文本基线（新编译器）</h2>
+      <img src="A-text-only.png" />
+      <div class="note">子容器默认透明、内边距归零，Hero 深烘底色与浅米色卡片层次完整呈现，零白块伪影。</div>
+    </div>
+    <div class="card">
+      <span class="tag bad">修复前 · 条件 B</span>
+      <h2>参考图 + 文本（旧编译器）</h2>
+      <img src="before-fix-B-image-plus-text.png" />
+      <div class="note">行内搜索占位文案未获得水平 <code>fill</code> 伸缩，被压成单字竖排并顶出顶部地址栏；底栏图标文字错位。</div>
+    </div>
+    <div class="card fix">
+      <span class="tag good">修复后 · 条件 B</span>
+      <h2>参考图 + 文本（新编译器）</h2>
+      <img src="B-image-plus-text.png" />
+      <div class="note">父布局感知 <code>hug/fill</code> 生效：搜索栏横向舒展，完整迁移 Aura 深空炭黑与琥珀金视觉语言，129 层 95% AutoLayout。</div>
+    </div>
+  </div>
+</body>
+</html>

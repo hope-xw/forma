@@ -1,0 +1,13 @@
+{
+  "manifestSha256": "735d21e0692bfdb019b53e4278530eb406dbf45dda6ce746aefec4df3071b89e",
+  "pages": 46,
+  "layers": 10657,
+  "explicitlyUnnamed": 11,
+  "textLayers": 1807,
+  "instances": 4101,
+  "mismatchCount": 0,
+  "examples": [],
+  "portableBytes": 411299399,
+  "portableSha256": "ab637f18b7ae54de9fd45804ab4c0e638b9ba4d2d4365a48f852b83c93c4e1c1",
+  "collector": "read-only Figma Desktop plugin traversal of authored nodes. Instance internals verified independently by source master ID."
+}

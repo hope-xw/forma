@@ -1,0 +1,224 @@
+{
+  "format": "sketch",
+  "sourceSha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+  "sourceBytes": 207834444,
+  "renderer": "sketchtool Version 2026.3.1 (234013)",
+  "samples": [
+    {
+      "name": "cover",
+      "sourceSize": [
+        640,
+        640
+      ],
+      "renderedSize": [
+        640,
+        640
+      ],
+      "metrics": {
+        "width": 640,
+        "height": 640,
+        "over16": 25051,
+        "total": 409600,
+        "pct": 6.115966796875,
+        "max": 174
+      },
+      "withinProposedHalfPercent": false
+    },
+    {
+      "name": "alert",
+      "sourceSize": [
+        402,
+        874
+      ],
+      "renderedSize": [
+        402,
+        874
+      ],
+      "metrics": {
+        "width": 402,
+        "height": 874,
+        "over16": 5276,
+        "total": 351348,
+        "pct": 1.5016450926147296,
+        "max": 241
+      },
+      "withinProposedHalfPercent": false
+    },
+    {
+      "name": "button",
+      "sourceSize": [
+        72,
+        50
+      ],
+      "renderedSize": [
+        71.65625,
+        50
+      ],
+      "metrics": {
+        "width": 72,
+        "height": 50,
+        "over16": 181,
+        "total": 3600,
+        "pct": 5.027777777777778,
+        "max": 125
+      },
+      "withinProposedHalfPercent": false
+    },
+    {
+      "name": "picker",
+      "sourceSize": [
+        360,
+        300
+      ],
+      "renderedSize": [
+        360,
+        300
+      ],
+      "metrics": {
+        "width": 360,
+        "height": 300,
+        "over16": 514,
+        "total": 108000,
+        "pct": 0.4759259259259259,
+        "max": 221
+      },
+      "withinProposedHalfPercent": true
+    },
+    {
+      "name": "keyboard",
+      "sourceSize": [
+        1210,
+        428
+      ],
+      "renderedSize": [
+        1210,
+        428
+      ],
+      "metrics": {
+        "width": 1210,
+        "height": 428,
+        "over16": 15407,
+        "total": 517880,
+        "pct": 2.9750135166447826,
+        "max": 220
+      },
+      "withinProposedHalfPercent": false
+    },
+    {
+      "name": "toggle",
+      "sourceSize": [
+        64,
+        28
+      ],
+      "renderedSize": [
+        64,
+        28
+      ],
+      "metrics": {
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 9
+      },
+      "withinProposedHalfPercent": true
+    }
+  ],
+  "phases": [
+    "review",
+    "new-file",
+    "reload",
+    "portable-open-in-clean-profile",
+    "six-source-comparisons",
+    "unicode-master-rename-and-undo",
+    "full-project-downloaded"
+  ],
+  "engine": "chromium",
+  "browser": "158.0.8127.36",
+  "servedEntry": "/assets/index-DF7MHMko.js",
+  "servedEntrySha256": "8125b0bd269682c7f5cebc10a751fcac1a0dd8acf647bd4d1566e0cb779bfe4e",
+  "servedWorker": "/assets/worker-Diapw93b.js",
+  "servedWorkerSha256": "30797e12251f6f73b7b05ff5abe9cf410b3e53a0f3c9ec82413c47c290302ff8",
+  "analysisMs": 11452,
+  "saveAndOpenMs": 8497,
+  "reloadMs": 5879,
+  "portableBytes": 359586987,
+  "structure": {
+    "unsupportedStyleDefinitions": 0,
+    "mismatchedVariableDefinitions": 0,
+    "missingSourceFonts": 0,
+    "missingSourcePngHashes": 0,
+    "expanded": 44969,
+    "types": {
+      "frame": 22769,
+      "rectangle": 2535,
+      "text": 14012,
+      "group": 1060,
+      "vector": 3691,
+      "ellipse": 902
+    },
+    "linkedInstances": 4798,
+    "duplicateIds": 0,
+    "missingParents": 0,
+    "invalidInstanceRef": 0,
+    "masterDefinitions": 1919,
+    "sharedStyles": 194,
+    "variables": 111,
+    "images": 156,
+    "fonts": 5,
+    "issues": 5589,
+    "sourceNodes": 13914,
+    "sha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+    "mismatches": {
+      "missing": 0,
+      "parent": 0,
+      "name": 0,
+      "text": 0,
+      "master": 0,
+      "instanceTarget": 0,
+      "siblingOrders": 0
+    },
+    "pages": 36
+  },
+  "cleanProfileNativeOpenMs": 13276,
+  "project": {
+    "exportMs": 21882,
+    "zipBytes": 357131418,
+    "entryScreen": "74C0D863-BCC3-493B-A6B3-1C0BCA50C124",
+    "sha256": "1c58a2e8992629e71f72f05f6409727cacce6007963db67d9c7a1eb340590c8c"
+  },
+  "browserErrors": [],
+  "portableSha256": "62988b1b5d67eafbd33ad7a56586ef2be5fc674bb63a0e1f8f9986c17bbd7a42",
+  "diagnostics": {
+    "实例尺寸与主件不同，内部约束及自适应布局需复核": 2813,
+    "Plus Darker 图层混合需在目标浏览器核对": 563,
+    "嵌套默认换件保留当前实例快照": 537,
+    "阴影含独立混合模式，需核对目标浏览器的合成外观": 414,
+    "覆盖路径引用的图层已不在原档": 387,
+    "Liquid Glass 折射、色散及光照参数已保留，当前以背景模糊、色调和阴影近似显示": 384,
+    "换件主件未随原档提供，依原厂隐藏该槽": 95,
+    "超大圆角按当前矩形实际可见半径映射": 69,
+    "共享样式缺失": 44,
+    "负内边距或负间距栈保留源子层坐标": 40,
+    "整体着色保留当前色变量值": 38,
+    "覆盖路径不在当前主件分支": 33,
+    "色变量透明度保留在引用图层，变量值采用 RGB": 25,
+    "小于 1 的图层边界以 1 作为命中范围，路径坐标保留": 23,
+    "图片下方还有填充，透明区域需核对": 18,
+    "复合路径运算按源子层保留，外观需复核": 17,
+    "栈子项相对尺寸按源图层初始宽高保留": 16,
+    "多重填色覆盖采用色变量当前值": 15,
+    "栈子项的独立交叉轴对齐需复核": 12,
+    "当前蒙版链含多个作用域或不支持的源，需复核": 11,
+    "Sketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核": 10,
+    "未映射覆盖": 8,
+    "共享样式引用缺少颜色变量": 4,
+    "多重描边仅映射最上方启用的描边": 4,
+    "环绕或均匀分布的栈间距需复核": 3,
+    "渐进模糊保留峰值半径，渐变范围需复核": 2,
+    "渐变中心或范围需与原稿对照": 2,
+    "单页 PDF 图像保留为透明 PNG": 1
+  },
+  "environment": "macOS 27.2.1 arm64, 1600 x 1200 CSS px, DPR 1, clean browser contexts."
+}

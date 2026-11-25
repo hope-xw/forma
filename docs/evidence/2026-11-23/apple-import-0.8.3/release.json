@@ -1,0 +1,109 @@
+{
+  "version": "0.8.3",
+  "system": "macOS 27.2.1 (26B131), Apple Silicon",
+  "electron": "45.4.1",
+  "signature": "ad hoc, codesign --verify --deep --strict",
+  "readOnlyDmg": true,
+  "desktopSystemOpenAndReopen": [
+    {
+      "version": "0.8.3",
+      "filename": "Apple iOS 27 UI Kit.sketch",
+      "protocol": "forma:",
+      "pageNodes": 44969,
+      "components": 1919,
+      "instances": 4798,
+      "pdfRasters": 1,
+      "images": 156,
+      "fonts": 5,
+      "storageFormat": "parts-v1",
+      "sha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+      "format": "Sketch",
+      "pages": 36,
+      "sourceNodes": 13914,
+      "portableBytes": 368908473,
+      "portableReopened": true
+    },
+    {
+      "version": "0.8.3",
+      "filename": "iOS and iPadOS 27 (Community).fig",
+      "protocol": "forma:",
+      "pageNodes": 38747,
+      "components": 2576,
+      "instances": 4101,
+      "pdfRasters": 0,
+      "images": 420,
+      "fonts": 0,
+      "storageFormat": "parts-v1",
+      "sha256": "d6a0a6370b17f5c109d5ef227915ef6d59bf0da23076292e09fb87fd5e63a11a",
+      "format": "Figma",
+      "pages": 46,
+      "sourceNodes": 37738,
+      "portableBytes": 411299399,
+      "portableReopened": true
+    }
+  ],
+  "distribution": [
+    {
+      "filename": "Forma-0.8.3-arm64.dmg",
+      "bytes": 124706665,
+      "sha256": "3bdc81cb9be91839f848c0668291c90fa9ad303436870aaff4e58809911d75b5"
+    },
+    {
+      "filename": "Forma-0.8.3-arm64.zip",
+      "bytes": 120309324,
+      "sha256": "9af5af5beda48d75586aae02ce1a691881906f1938c94f1a3753dd53b2b61846"
+    }
+  ],
+  "matchingWebAndApp": {
+    "dist/favicon.svg": "509f8a28c3655e3d6d8fbc960670a4aed2f27090726482ed8c796c11f8a0d838",
+    "dist/index.html": "0be52a3d607c1ae70f75763a82fa07f6281363ccd54362067c2f16d007891171",
+    "dist/examples/aura-showcase.forma.json": "c3a0e6a619edb26ddc8b98e713203d828ddf1a51e6d0058675862da19bd03970",
+    "dist/examples/mobile-studio.forma.json": "eccabd591b7ae856b7969104b582d16642d25de5f8b4554588c4f815b0560372",
+    "dist/assets/AssetsPanel-Dy86PmKK.js": "c031f9b5e40efaa71c39cc70dd72696b0c63869e74b523769ac42b485838288a",
+    "dist/assets/DesignSystemDialog-CTqhNzfk.js": "5b594fd234313e06dbd87567728666a7ad2d8efe4f9f40a184f8dce7bc72a841",
+    "dist/assets/dist-DG1INu-i.js": "021dabdcbbb58194bc033e71ace7b3fab47fbbe95d3b3f8c991170efccfab192",
+    "dist/assets/harfbuzz-CODTKW78.wasm": "6eeed8e1bc9ad7773038e48ff8f9e07e0ad228572c594b45e5357e9c2f7a0b2e",
+    "dist/assets/index-Bk22I7Pn.js": "fab5e69ed824640f089886abb1526d7c208322d9a22539ebe1a3890b5e4b9197",
+    "dist/assets/index-CkjtXxXy.css": "1a690fbc0590322e8acca05dad2d36715b769efaabaf1e8d5dae04bfb27ad17d",
+    "dist/assets/pdfium-BJ2Yip8Q.wasm": "5e4cd023c3dad4a895b3571ca573d3fc51bac6de48360d95283134385b954eaa",
+    "dist/assets/worker-PyroXFXA.js": "31a21612c3cf2b12e15bf9ccab03392a9781f6253445d67fd435571e04904e06"
+  },
+  "savedEditableFiles": [
+    {
+      "filename": "Apple iOS 27 UI Kit.forma.json",
+      "bytes": 368937353,
+      "sha256": "847597f99db001f725a6629fa709967abfc69d70b5cb0c6c0d1c018737f6f9fb"
+    },
+    {
+      "filename": "apple-figma.forma.json",
+      "bytes": 411299399,
+      "sha256": "ab637f18b7ae54de9fd45804ab4c0e638b9ba4d2d4365a48f852b83c93c4e1c1"
+    }
+  ],
+  "independentProjects": [
+    {
+      "format": "Sketch",
+      "zip": {
+        "filename": "apple-kit-react-file.zip",
+        "bytes": 362193604,
+        "sha256": "8ee444f49f853b5037abcdb2d2e3123fedb23668897642183173df6c3fc3e1af"
+      },
+      "checksumsVerified": 1080,
+      "routes": 1976,
+      "runtimeErrors": []
+    },
+    {
+      "format": "Figma",
+      "zip": {
+        "filename": "apple-figma-react.zip",
+        "bytes": 355381164,
+        "sha256": "d7680d4507aa712030cc9813c9c5be9451ab487d5341ae025426ce577ccd5b39"
+      },
+      "sha256": "d7680d4507aa712030cc9813c9c5be9451ab487d5341ae025426ce577ccd5b39",
+      "bytes": 355381164,
+      "entries": 796,
+      "generatedDigests": 789,
+      "directoryScreens": 735
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+export async function submitEmail(email: string): Promise<string> {
+  try {
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return response.ok ? "已收到反馈" : "提交失败，请重试";
+  } catch {
+    return "暂时无法连接";
+  }
+}

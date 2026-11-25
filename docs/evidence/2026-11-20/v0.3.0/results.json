@@ -1,0 +1,3988 @@
+{
+  "version": "0.3.0",
+  "date": "2026-11-20",
+  "environment": {
+    "os": "27.2.1",
+    "arch": "arm64",
+    "node": "v25.8.0",
+    "npm": "11.11.0",
+    "modelGateway": "empty",
+    "mode": "production Vite preview on localhost",
+    "screenshotComparison": {
+      "dpr": 1,
+      "editorViewport": [
+        2000,
+        2500
+      ],
+      "stageAndProject": "design width and height",
+      "geometryToleranceCssPx": 1,
+      "text": "number of rendered line rectangles of direct text spans",
+      "pixelGate": "fraction of pixels with any RGB channel difference >16 must be <=0.0001"
+    }
+  },
+  "verification": {
+    "unitPassed": 114,
+    "typecheckBuild": true,
+    "format": true
+  },
+  "browsers": {
+    "Chrome 158": {
+      "ui": [
+        "designer-delivery",
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "images",
+        "vector",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "exportedBuilds": [
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "fiveWidthForm": {
+        "samples": [
+          [
+            375,
+            104,
+            112
+          ],
+          [
+            390,
+            104,
+            112
+          ],
+          [
+            768,
+            108,
+            120
+          ],
+          [
+            1024,
+            108,
+            120
+          ],
+          [
+            1440,
+            108,
+            120
+          ]
+        ],
+        "verified": "designer edit, undo, reopen, update, conflict and preview"
+      },
+      "geometryAndPaint": [
+        {
+          "engine": "chromium",
+          "id": "mkt-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 2120,
+            "differentPixels": 163658,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 11
+          },
+          "canvasToPreview": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "mkt-mobile",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 980,
+            "differentPixels": 10550,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 1
+          },
+          "canvasToPreview": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "ws-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 900,
+            "differentPixels": 4801,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 3
+          },
+          "canvasToPreview": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "ws-deploy-modal",
+          "previewProjectPixels": {
+            "width": 440,
+            "height": 410,
+            "differentPixels": 1585,
+            "over16": 3,
+            "over16Pct": 0.002,
+            "maxChannelDelta": 56
+          },
+          "canvasToPreview": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 130493,
+            "over16": 9,
+            "over16Pct": 0.001,
+            "maxChannelDelta": 42
+          },
+          "canvasToPreview": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 124,
+            "over16": 12,
+            "over16Pct": 0.001,
+            "maxChannelDelta": 23
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 131,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 7
+          },
+          "canvasToPreview": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 121,
+            "over16": 8,
+            "over16Pct": 0.001,
+            "maxChannelDelta": 19
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 40,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 14
+          },
+          "canvasToPreview": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+          "previewProjectPixels": {
+            "width": 402,
+            "height": 730,
+            "differentPixels": 132,
+            "over16": 8,
+            "over16Pct": 0.003,
+            "maxChannelDelta": 23
+          },
+          "canvasToPreview": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 15,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 19
+          },
+          "canvasToPreview": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 13,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 19
+          },
+          "canvasToPreview": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 817,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 20
+          },
+          "canvasToPreview": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 286,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 20
+          },
+          "canvasToPreview": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "77f272c8-b198-4143-922d-44014c89e546",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 394558,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 9
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 392715,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 9
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-tablet-root",
+          "previewProjectPixels": {
+            "width": 1180,
+            "height": 820,
+            "differentPixels": 26,
+            "over16": 1,
+            "over16Pct": 0,
+            "maxChannelDelta": 57
+          },
+          "canvasToPreview": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-phone-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 21,
+            "over16": 1,
+            "over16Pct": 0,
+            "maxChannelDelta": 50
+          },
+          "canvasToPreview": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-note-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-sheet-root",
+          "previewProjectPixels": {
+            "width": 348,
+            "height": 246,
+            "differentPixels": 2,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 1
+          },
+          "canvasToPreview": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        }
+      ],
+      "componentPreviewVariantIds": [
+        [
+          "button",
+          "Light-Primary-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Primary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Primary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Primary-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Primary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Primary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Primary-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Primary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Primary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Light-Secondary-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Secondary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Secondary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Secondary-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Secondary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Secondary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Secondary-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Secondary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Secondary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Light-Plain-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Plain-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Plain-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Plain-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Plain-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Plain-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Plain-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Plain-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Plain-Large-Disabled"
+        ],
+        [
+          "button",
+          "Light-Destructive-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Destructive-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Destructive-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Destructive-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Destructive-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Destructive-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Destructive-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Destructive-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Destructive-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Primary-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Primary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Primary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Primary-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Primary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Primary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Primary-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Primary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Primary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Plain-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Plain-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Plain-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Plain-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Plain-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Plain-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Plain-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Plain-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Plain-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Large-Disabled"
+        ],
+        [
+          "icon-button",
+          "Light-Default-Medium"
+        ],
+        [
+          "icon-button",
+          "Light-Default-Large"
+        ],
+        [
+          "icon-button",
+          "Light-Disabled-Medium"
+        ],
+        [
+          "icon-button",
+          "Light-Disabled-Large"
+        ],
+        [
+          "icon-button",
+          "Dark-Default-Medium"
+        ],
+        [
+          "icon-button",
+          "Dark-Default-Large"
+        ],
+        [
+          "icon-button",
+          "Dark-Disabled-Medium"
+        ],
+        [
+          "icon-button",
+          "Dark-Disabled-Large"
+        ],
+        [
+          "toggle",
+          "Light-On-Default"
+        ],
+        [
+          "toggle",
+          "Light-On-Disabled"
+        ],
+        [
+          "toggle",
+          "Light-Off-Default"
+        ],
+        [
+          "toggle",
+          "Light-Off-Disabled"
+        ],
+        [
+          "toggle",
+          "Dark-On-Default"
+        ],
+        [
+          "toggle",
+          "Dark-On-Disabled"
+        ],
+        [
+          "toggle",
+          "Dark-Off-Default"
+        ],
+        [
+          "toggle",
+          "Dark-Off-Disabled"
+        ],
+        [
+          "checkbox",
+          "Light-On-Default"
+        ],
+        [
+          "checkbox",
+          "Light-On-Disabled"
+        ],
+        [
+          "checkbox",
+          "Light-Off-Default"
+        ],
+        [
+          "checkbox",
+          "Light-Off-Disabled"
+        ],
+        [
+          "checkbox",
+          "Dark-On-Default"
+        ],
+        [
+          "checkbox",
+          "Dark-On-Disabled"
+        ],
+        [
+          "checkbox",
+          "Dark-Off-Default"
+        ],
+        [
+          "checkbox",
+          "Dark-Off-Disabled"
+        ],
+        [
+          "segmented",
+          "Light-Overview"
+        ],
+        [
+          "segmented",
+          "Light-Activity"
+        ],
+        [
+          "segmented",
+          "Light-Files"
+        ],
+        [
+          "segmented",
+          "Dark-Overview"
+        ],
+        [
+          "segmented",
+          "Dark-Activity"
+        ],
+        [
+          "segmented",
+          "Dark-Files"
+        ],
+        [
+          "text-field",
+          "Light-Default"
+        ],
+        [
+          "text-field",
+          "Light-Filled"
+        ],
+        [
+          "text-field",
+          "Light-Error"
+        ],
+        [
+          "text-field",
+          "Light-Disabled"
+        ],
+        [
+          "text-field",
+          "Dark-Default"
+        ],
+        [
+          "text-field",
+          "Dark-Filled"
+        ],
+        [
+          "text-field",
+          "Dark-Error"
+        ],
+        [
+          "text-field",
+          "Dark-Disabled"
+        ],
+        [
+          "search",
+          "Light-Default"
+        ],
+        [
+          "search",
+          "Light-Filled"
+        ],
+        [
+          "search",
+          "Dark-Default"
+        ],
+        [
+          "search",
+          "Dark-Filled"
+        ],
+        [
+          "slider",
+          "Light-25-Default"
+        ],
+        [
+          "slider",
+          "Light-25-Disabled"
+        ],
+        [
+          "slider",
+          "Light-50-Default"
+        ],
+        [
+          "slider",
+          "Light-50-Disabled"
+        ],
+        [
+          "slider",
+          "Light-75-Default"
+        ],
+        [
+          "slider",
+          "Light-75-Disabled"
+        ],
+        [
+          "slider",
+          "Dark-25-Default"
+        ],
+        [
+          "slider",
+          "Dark-25-Disabled"
+        ],
+        [
+          "slider",
+          "Dark-50-Default"
+        ],
+        [
+          "slider",
+          "Dark-50-Disabled"
+        ],
+        [
+          "slider",
+          "Dark-75-Default"
+        ],
+        [
+          "slider",
+          "Dark-75-Disabled"
+        ],
+        [
+          "stepper",
+          "Light-Default"
+        ],
+        [
+          "stepper",
+          "Light-Disabled"
+        ],
+        [
+          "stepper",
+          "Dark-Default"
+        ],
+        [
+          "stepper",
+          "Dark-Disabled"
+        ],
+        [
+          "progress",
+          "Light-25"
+        ],
+        [
+          "progress",
+          "Light-50"
+        ],
+        [
+          "progress",
+          "Light-100"
+        ],
+        [
+          "progress",
+          "Dark-25"
+        ],
+        [
+          "progress",
+          "Dark-50"
+        ],
+        [
+          "progress",
+          "Dark-100"
+        ],
+        [
+          "popup-button",
+          "Light"
+        ],
+        [
+          "popup-button",
+          "Dark"
+        ],
+        [
+          "color-picker",
+          "Light"
+        ],
+        [
+          "color-picker",
+          "Dark"
+        ],
+        [
+          "date-picker",
+          "Light"
+        ],
+        [
+          "date-picker",
+          "Dark"
+        ],
+        [
+          "keyboard",
+          "Light-Alphabet"
+        ],
+        [
+          "keyboard",
+          "Light-Numeric"
+        ],
+        [
+          "keyboard",
+          "Dark-Alphabet"
+        ],
+        [
+          "keyboard",
+          "Dark-Numeric"
+        ],
+        [
+          "time-picker",
+          "Light-24h"
+        ],
+        [
+          "time-picker",
+          "Light-12h"
+        ],
+        [
+          "time-picker",
+          "Dark-24h"
+        ],
+        [
+          "time-picker",
+          "Dark-12h"
+        ],
+        [
+          "navigation",
+          "Light-Large-Solid"
+        ],
+        [
+          "navigation",
+          "Light-Large-Glass"
+        ],
+        [
+          "navigation",
+          "Light-Inline-Solid"
+        ],
+        [
+          "navigation",
+          "Light-Inline-Glass"
+        ],
+        [
+          "navigation",
+          "Dark-Large-Solid"
+        ],
+        [
+          "navigation",
+          "Dark-Large-Glass"
+        ],
+        [
+          "navigation",
+          "Dark-Inline-Solid"
+        ],
+        [
+          "navigation",
+          "Dark-Inline-Glass"
+        ],
+        [
+          "tab-bar",
+          "Light-Home-Solid"
+        ],
+        [
+          "tab-bar",
+          "Light-Home-Glass"
+        ],
+        [
+          "tab-bar",
+          "Light-Explore-Solid"
+        ],
+        [
+          "tab-bar",
+          "Light-Explore-Glass"
+        ],
+        [
+          "tab-bar",
+          "Light-Profile-Solid"
+        ],
+        [
+          "tab-bar",
+          "Light-Profile-Glass"
+        ],
+        [
+          "tab-bar",
+          "Dark-Home-Solid"
+        ],
+        [
+          "tab-bar",
+          "Dark-Home-Glass"
+        ],
+        [
+          "tab-bar",
+          "Dark-Explore-Solid"
+        ],
+        [
+          "tab-bar",
+          "Dark-Explore-Glass"
+        ],
+        [
+          "tab-bar",
+          "Dark-Profile-Solid"
+        ],
+        [
+          "tab-bar",
+          "Dark-Profile-Glass"
+        ],
+        [
+          "toolbar",
+          "Light-Solid"
+        ],
+        [
+          "toolbar",
+          "Light-Glass"
+        ],
+        [
+          "toolbar",
+          "Dark-Solid"
+        ],
+        [
+          "toolbar",
+          "Dark-Glass"
+        ],
+        [
+          "sidebar",
+          "Light-Solid"
+        ],
+        [
+          "sidebar",
+          "Light-Glass"
+        ],
+        [
+          "sidebar",
+          "Dark-Solid"
+        ],
+        [
+          "sidebar",
+          "Dark-Glass"
+        ],
+        [
+          "list-row",
+          "Light-Chevron"
+        ],
+        [
+          "list-row",
+          "Light-Subtitle"
+        ],
+        [
+          "list-row",
+          "Light-Toggle"
+        ],
+        [
+          "list-row",
+          "Dark-Chevron"
+        ],
+        [
+          "list-row",
+          "Dark-Subtitle"
+        ],
+        [
+          "list-row",
+          "Dark-Toggle"
+        ],
+        [
+          "card",
+          "Light-Solid"
+        ],
+        [
+          "card",
+          "Light-Glass"
+        ],
+        [
+          "card",
+          "Dark-Solid"
+        ],
+        [
+          "card",
+          "Dark-Glass"
+        ],
+        [
+          "alert",
+          "Light-Two"
+        ],
+        [
+          "alert",
+          "Light-One"
+        ],
+        [
+          "alert",
+          "Dark-Two"
+        ],
+        [
+          "alert",
+          "Dark-One"
+        ],
+        [
+          "action-sheet",
+          "Light"
+        ],
+        [
+          "action-sheet",
+          "Dark"
+        ],
+        [
+          "sheet",
+          "Light-Medium"
+        ],
+        [
+          "sheet",
+          "Light-Large"
+        ],
+        [
+          "sheet",
+          "Dark-Medium"
+        ],
+        [
+          "sheet",
+          "Dark-Large"
+        ],
+        [
+          "menu",
+          "Light-Solid"
+        ],
+        [
+          "menu",
+          "Light-Glass"
+        ],
+        [
+          "menu",
+          "Dark-Solid"
+        ],
+        [
+          "menu",
+          "Dark-Glass"
+        ],
+        [
+          "context-menu",
+          "Light"
+        ],
+        [
+          "context-menu",
+          "Dark"
+        ],
+        [
+          "popover",
+          "Light"
+        ],
+        [
+          "popover",
+          "Dark"
+        ],
+        [
+          "activity-view",
+          "Light"
+        ],
+        [
+          "activity-view",
+          "Dark"
+        ],
+        [
+          "notification",
+          "Light-Compact"
+        ],
+        [
+          "notification",
+          "Light-Expanded"
+        ],
+        [
+          "notification",
+          "Dark-Compact"
+        ],
+        [
+          "notification",
+          "Dark-Expanded"
+        ],
+        [
+          "empty-state",
+          "Light"
+        ],
+        [
+          "empty-state",
+          "Dark"
+        ],
+        [
+          "page-control",
+          "Light-1"
+        ],
+        [
+          "page-control",
+          "Light-2"
+        ],
+        [
+          "page-control",
+          "Light-3"
+        ],
+        [
+          "page-control",
+          "Dark-1"
+        ],
+        [
+          "page-control",
+          "Dark-2"
+        ],
+        [
+          "page-control",
+          "Dark-3"
+        ],
+        [
+          "status-bar",
+          "Light"
+        ],
+        [
+          "status-bar",
+          "Dark"
+        ],
+        [
+          "home-indicator",
+          "Light"
+        ],
+        [
+          "home-indicator",
+          "Dark"
+        ],
+        [
+          "menu-bar",
+          "Light"
+        ],
+        [
+          "menu-bar",
+          "Dark"
+        ],
+        [
+          "widget",
+          "Light-Small"
+        ],
+        [
+          "widget",
+          "Light-Medium"
+        ],
+        [
+          "widget",
+          "Dark-Small"
+        ],
+        [
+          "widget",
+          "Dark-Medium"
+        ],
+        [
+          "app-tile",
+          "Light"
+        ],
+        [
+          "app-tile",
+          "Dark"
+        ],
+        [
+          "authentication",
+          "Light-Ready"
+        ],
+        [
+          "authentication",
+          "Light-Success"
+        ],
+        [
+          "authentication",
+          "Dark-Ready"
+        ],
+        [
+          "authentication",
+          "Dark-Success"
+        ],
+        [
+          "window",
+          "Light-Regular"
+        ],
+        [
+          "window",
+          "Light-Compact"
+        ],
+        [
+          "window",
+          "Dark-Regular"
+        ],
+        [
+          "window",
+          "Dark-Compact"
+        ],
+        [
+          "media-album",
+          "Light-Dusk"
+        ],
+        [
+          "media-album",
+          "Light-Forest"
+        ],
+        [
+          "media-album",
+          "Light-Coast"
+        ],
+        [
+          "media-album",
+          "Light-Ember"
+        ],
+        [
+          "media-album",
+          "Light-Violet"
+        ],
+        [
+          "media-album",
+          "Dark-Dusk"
+        ],
+        [
+          "media-album",
+          "Dark-Forest"
+        ],
+        [
+          "media-album",
+          "Dark-Coast"
+        ],
+        [
+          "media-album",
+          "Dark-Ember"
+        ],
+        [
+          "media-album",
+          "Dark-Violet"
+        ],
+        [
+          "media-navigation",
+          "Light-home-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-home-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-grid-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-grid-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-radio-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-radio-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-heart-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-heart-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-clock-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-clock-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-download-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-download-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-folder-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-folder-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-home-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-home-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-grid-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-grid-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-radio-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-radio-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-heart-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-heart-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-clock-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-clock-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-download-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-download-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-folder-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-folder-Selected"
+        ],
+        [
+          "media-track",
+          "Light-Default"
+        ],
+        [
+          "media-track",
+          "Light-Playing"
+        ],
+        [
+          "media-track",
+          "Dark-Default"
+        ],
+        [
+          "media-track",
+          "Dark-Playing"
+        ],
+        [
+          "media-feature",
+          "Light-Dusk"
+        ],
+        [
+          "media-feature",
+          "Light-Forest"
+        ],
+        [
+          "media-feature",
+          "Dark-Dusk"
+        ],
+        [
+          "media-feature",
+          "Dark-Forest"
+        ],
+        [
+          "media-focus",
+          "Light"
+        ],
+        [
+          "media-focus",
+          "Dark"
+        ],
+        [
+          "media-player",
+          "Light"
+        ],
+        [
+          "media-player",
+          "Dark"
+        ]
+      ],
+      "insertedAndReopenedComponentTypes": 44,
+      "touchEmulation": "iPhone 13 browser profile, Atlas phone screen to note to share, cancel and back",
+      "standaloneComponentBusinessIntegration": "two toggles, independent values, onAction id and value verified",
+      "afterPrototypeReferenceFix": [
+        "library-tokens",
+        "cross-page",
+        "designer-delivery"
+      ],
+      "afterPrototypeReferenceFixExportedBuilds": [
+        "designer-delivery",
+        "cross"
+      ]
+    },
+    "Playwright WebKit 27.2": {
+      "ui": [
+        "designer-delivery",
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "images",
+        "vector",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "exportedBuilds": [
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "fiveWidthForm": {
+        "samples": [
+          [
+            375,
+            104,
+            112
+          ],
+          [
+            390,
+            104,
+            112
+          ],
+          [
+            768,
+            108,
+            120
+          ],
+          [
+            1024,
+            108,
+            120
+          ],
+          [
+            1440,
+            108,
+            120
+          ]
+        ],
+        "verified": "designer edit, undo, reopen, update, conflict and preview"
+      },
+      "geometryAndPaint": [
+        {
+          "engine": "webkit",
+          "id": "mkt-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 2120,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "mkt-mobile",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 980,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "ws-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 900,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "ws-deploy-modal",
+          "previewProjectPixels": {
+            "width": 440,
+            "height": 410,
+            "differentPixels": 730,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 9
+          },
+          "canvasToPreview": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+          "previewProjectPixels": {
+            "width": 402,
+            "height": 730,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "77f272c8-b198-4143-922d-44014c89e546",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 7377,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 1
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-tablet-root",
+          "previewProjectPixels": {
+            "width": 1180,
+            "height": 820,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-phone-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-note-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-sheet-root",
+          "previewProjectPixels": {
+            "width": 348,
+            "height": 246,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        }
+      ],
+      "componentPreviewVariantIds": [
+        [
+          "button",
+          "Light-Primary-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Primary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Primary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Primary-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Primary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Primary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Primary-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Primary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Primary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Light-Secondary-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Secondary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Secondary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Secondary-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Secondary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Secondary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Secondary-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Secondary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Secondary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Light-Plain-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Plain-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Plain-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Plain-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Plain-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Plain-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Plain-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Plain-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Plain-Large-Disabled"
+        ],
+        [
+          "button",
+          "Light-Destructive-Medium-Default"
+        ],
+        [
+          "button",
+          "Light-Destructive-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Light-Destructive-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Light-Destructive-Small-Default"
+        ],
+        [
+          "button",
+          "Light-Destructive-Small-Pressed"
+        ],
+        [
+          "button",
+          "Light-Destructive-Small-Disabled"
+        ],
+        [
+          "button",
+          "Light-Destructive-Large-Default"
+        ],
+        [
+          "button",
+          "Light-Destructive-Large-Pressed"
+        ],
+        [
+          "button",
+          "Light-Destructive-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Primary-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Primary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Primary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Primary-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Primary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Primary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Primary-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Primary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Primary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Secondary-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Plain-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Plain-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Plain-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Plain-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Plain-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Plain-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Plain-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Plain-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Plain-Large-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Medium-Default"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Medium-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Medium-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Small-Default"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Small-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Small-Disabled"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Large-Default"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Large-Pressed"
+        ],
+        [
+          "button",
+          "Dark-Destructive-Large-Disabled"
+        ],
+        [
+          "icon-button",
+          "Light-Default-Medium"
+        ],
+        [
+          "icon-button",
+          "Light-Default-Large"
+        ],
+        [
+          "icon-button",
+          "Light-Disabled-Medium"
+        ],
+        [
+          "icon-button",
+          "Light-Disabled-Large"
+        ],
+        [
+          "icon-button",
+          "Dark-Default-Medium"
+        ],
+        [
+          "icon-button",
+          "Dark-Default-Large"
+        ],
+        [
+          "icon-button",
+          "Dark-Disabled-Medium"
+        ],
+        [
+          "icon-button",
+          "Dark-Disabled-Large"
+        ],
+        [
+          "toggle",
+          "Light-On-Default"
+        ],
+        [
+          "toggle",
+          "Light-On-Disabled"
+        ],
+        [
+          "toggle",
+          "Light-Off-Default"
+        ],
+        [
+          "toggle",
+          "Light-Off-Disabled"
+        ],
+        [
+          "toggle",
+          "Dark-On-Default"
+        ],
+        [
+          "toggle",
+          "Dark-On-Disabled"
+        ],
+        [
+          "toggle",
+          "Dark-Off-Default"
+        ],
+        [
+          "toggle",
+          "Dark-Off-Disabled"
+        ],
+        [
+          "checkbox",
+          "Light-On-Default"
+        ],
+        [
+          "checkbox",
+          "Light-On-Disabled"
+        ],
+        [
+          "checkbox",
+          "Light-Off-Default"
+        ],
+        [
+          "checkbox",
+          "Light-Off-Disabled"
+        ],
+        [
+          "checkbox",
+          "Dark-On-Default"
+        ],
+        [
+          "checkbox",
+          "Dark-On-Disabled"
+        ],
+        [
+          "checkbox",
+          "Dark-Off-Default"
+        ],
+        [
+          "checkbox",
+          "Dark-Off-Disabled"
+        ],
+        [
+          "segmented",
+          "Light-Overview"
+        ],
+        [
+          "segmented",
+          "Light-Activity"
+        ],
+        [
+          "segmented",
+          "Light-Files"
+        ],
+        [
+          "segmented",
+          "Dark-Overview"
+        ],
+        [
+          "segmented",
+          "Dark-Activity"
+        ],
+        [
+          "segmented",
+          "Dark-Files"
+        ],
+        [
+          "text-field",
+          "Light-Default"
+        ],
+        [
+          "text-field",
+          "Light-Filled"
+        ],
+        [
+          "text-field",
+          "Light-Error"
+        ],
+        [
+          "text-field",
+          "Light-Disabled"
+        ],
+        [
+          "text-field",
+          "Dark-Default"
+        ],
+        [
+          "text-field",
+          "Dark-Filled"
+        ],
+        [
+          "text-field",
+          "Dark-Error"
+        ],
+        [
+          "text-field",
+          "Dark-Disabled"
+        ],
+        [
+          "search",
+          "Light-Default"
+        ],
+        [
+          "search",
+          "Light-Filled"
+        ],
+        [
+          "search",
+          "Dark-Default"
+        ],
+        [
+          "search",
+          "Dark-Filled"
+        ],
+        [
+          "slider",
+          "Light-25-Default"
+        ],
+        [
+          "slider",
+          "Light-25-Disabled"
+        ],
+        [
+          "slider",
+          "Light-50-Default"
+        ],
+        [
+          "slider",
+          "Light-50-Disabled"
+        ],
+        [
+          "slider",
+          "Light-75-Default"
+        ],
+        [
+          "slider",
+          "Light-75-Disabled"
+        ],
+        [
+          "slider",
+          "Dark-25-Default"
+        ],
+        [
+          "slider",
+          "Dark-25-Disabled"
+        ],
+        [
+          "slider",
+          "Dark-50-Default"
+        ],
+        [
+          "slider",
+          "Dark-50-Disabled"
+        ],
+        [
+          "slider",
+          "Dark-75-Default"
+        ],
+        [
+          "slider",
+          "Dark-75-Disabled"
+        ],
+        [
+          "stepper",
+          "Light-Default"
+        ],
+        [
+          "stepper",
+          "Light-Disabled"
+        ],
+        [
+          "stepper",
+          "Dark-Default"
+        ],
+        [
+          "stepper",
+          "Dark-Disabled"
+        ],
+        [
+          "progress",
+          "Light-25"
+        ],
+        [
+          "progress",
+          "Light-50"
+        ],
+        [
+          "progress",
+          "Light-100"
+        ],
+        [
+          "progress",
+          "Dark-25"
+        ],
+        [
+          "progress",
+          "Dark-50"
+        ],
+        [
+          "progress",
+          "Dark-100"
+        ],
+        [
+          "popup-button",
+          "Light"
+        ],
+        [
+          "popup-button",
+          "Dark"
+        ],
+        [
+          "color-picker",
+          "Light"
+        ],
+        [
+          "color-picker",
+          "Dark"
+        ],
+        [
+          "date-picker",
+          "Light"
+        ],
+        [
+          "date-picker",
+          "Dark"
+        ],
+        [
+          "keyboard",
+          "Light-Alphabet"
+        ],
+        [
+          "keyboard",
+          "Light-Numeric"
+        ],
+        [
+          "keyboard",
+          "Dark-Alphabet"
+        ],
+        [
+          "keyboard",
+          "Dark-Numeric"
+        ],
+        [
+          "time-picker",
+          "Light-24h"
+        ],
+        [
+          "time-picker",
+          "Light-12h"
+        ],
+        [
+          "time-picker",
+          "Dark-24h"
+        ],
+        [
+          "time-picker",
+          "Dark-12h"
+        ],
+        [
+          "navigation",
+          "Light-Large-Solid"
+        ],
+        [
+          "navigation",
+          "Light-Large-Glass"
+        ],
+        [
+          "navigation",
+          "Light-Inline-Solid"
+        ],
+        [
+          "navigation",
+          "Light-Inline-Glass"
+        ],
+        [
+          "navigation",
+          "Dark-Large-Solid"
+        ],
+        [
+          "navigation",
+          "Dark-Large-Glass"
+        ],
+        [
+          "navigation",
+          "Dark-Inline-Solid"
+        ],
+        [
+          "navigation",
+          "Dark-Inline-Glass"
+        ],
+        [
+          "tab-bar",
+          "Light-Home-Solid"
+        ],
+        [
+          "tab-bar",
+          "Light-Home-Glass"
+        ],
+        [
+          "tab-bar",
+          "Light-Explore-Solid"
+        ],
+        [
+          "tab-bar",
+          "Light-Explore-Glass"
+        ],
+        [
+          "tab-bar",
+          "Light-Profile-Solid"
+        ],
+        [
+          "tab-bar",
+          "Light-Profile-Glass"
+        ],
+        [
+          "tab-bar",
+          "Dark-Home-Solid"
+        ],
+        [
+          "tab-bar",
+          "Dark-Home-Glass"
+        ],
+        [
+          "tab-bar",
+          "Dark-Explore-Solid"
+        ],
+        [
+          "tab-bar",
+          "Dark-Explore-Glass"
+        ],
+        [
+          "tab-bar",
+          "Dark-Profile-Solid"
+        ],
+        [
+          "tab-bar",
+          "Dark-Profile-Glass"
+        ],
+        [
+          "toolbar",
+          "Light-Solid"
+        ],
+        [
+          "toolbar",
+          "Light-Glass"
+        ],
+        [
+          "toolbar",
+          "Dark-Solid"
+        ],
+        [
+          "toolbar",
+          "Dark-Glass"
+        ],
+        [
+          "sidebar",
+          "Light-Solid"
+        ],
+        [
+          "sidebar",
+          "Light-Glass"
+        ],
+        [
+          "sidebar",
+          "Dark-Solid"
+        ],
+        [
+          "sidebar",
+          "Dark-Glass"
+        ],
+        [
+          "list-row",
+          "Light-Chevron"
+        ],
+        [
+          "list-row",
+          "Light-Subtitle"
+        ],
+        [
+          "list-row",
+          "Light-Toggle"
+        ],
+        [
+          "list-row",
+          "Dark-Chevron"
+        ],
+        [
+          "list-row",
+          "Dark-Subtitle"
+        ],
+        [
+          "list-row",
+          "Dark-Toggle"
+        ],
+        [
+          "card",
+          "Light-Solid"
+        ],
+        [
+          "card",
+          "Light-Glass"
+        ],
+        [
+          "card",
+          "Dark-Solid"
+        ],
+        [
+          "card",
+          "Dark-Glass"
+        ],
+        [
+          "alert",
+          "Light-Two"
+        ],
+        [
+          "alert",
+          "Light-One"
+        ],
+        [
+          "alert",
+          "Dark-Two"
+        ],
+        [
+          "alert",
+          "Dark-One"
+        ],
+        [
+          "action-sheet",
+          "Light"
+        ],
+        [
+          "action-sheet",
+          "Dark"
+        ],
+        [
+          "sheet",
+          "Light-Medium"
+        ],
+        [
+          "sheet",
+          "Light-Large"
+        ],
+        [
+          "sheet",
+          "Dark-Medium"
+        ],
+        [
+          "sheet",
+          "Dark-Large"
+        ],
+        [
+          "menu",
+          "Light-Solid"
+        ],
+        [
+          "menu",
+          "Light-Glass"
+        ],
+        [
+          "menu",
+          "Dark-Solid"
+        ],
+        [
+          "menu",
+          "Dark-Glass"
+        ],
+        [
+          "context-menu",
+          "Light"
+        ],
+        [
+          "context-menu",
+          "Dark"
+        ],
+        [
+          "popover",
+          "Light"
+        ],
+        [
+          "popover",
+          "Dark"
+        ],
+        [
+          "activity-view",
+          "Light"
+        ],
+        [
+          "activity-view",
+          "Dark"
+        ],
+        [
+          "notification",
+          "Light-Compact"
+        ],
+        [
+          "notification",
+          "Light-Expanded"
+        ],
+        [
+          "notification",
+          "Dark-Compact"
+        ],
+        [
+          "notification",
+          "Dark-Expanded"
+        ],
+        [
+          "empty-state",
+          "Light"
+        ],
+        [
+          "empty-state",
+          "Dark"
+        ],
+        [
+          "page-control",
+          "Light-1"
+        ],
+        [
+          "page-control",
+          "Light-2"
+        ],
+        [
+          "page-control",
+          "Light-3"
+        ],
+        [
+          "page-control",
+          "Dark-1"
+        ],
+        [
+          "page-control",
+          "Dark-2"
+        ],
+        [
+          "page-control",
+          "Dark-3"
+        ],
+        [
+          "status-bar",
+          "Light"
+        ],
+        [
+          "status-bar",
+          "Dark"
+        ],
+        [
+          "home-indicator",
+          "Light"
+        ],
+        [
+          "home-indicator",
+          "Dark"
+        ],
+        [
+          "menu-bar",
+          "Light"
+        ],
+        [
+          "menu-bar",
+          "Dark"
+        ],
+        [
+          "widget",
+          "Light-Small"
+        ],
+        [
+          "widget",
+          "Light-Medium"
+        ],
+        [
+          "widget",
+          "Dark-Small"
+        ],
+        [
+          "widget",
+          "Dark-Medium"
+        ],
+        [
+          "app-tile",
+          "Light"
+        ],
+        [
+          "app-tile",
+          "Dark"
+        ],
+        [
+          "authentication",
+          "Light-Ready"
+        ],
+        [
+          "authentication",
+          "Light-Success"
+        ],
+        [
+          "authentication",
+          "Dark-Ready"
+        ],
+        [
+          "authentication",
+          "Dark-Success"
+        ],
+        [
+          "window",
+          "Light-Regular"
+        ],
+        [
+          "window",
+          "Light-Compact"
+        ],
+        [
+          "window",
+          "Dark-Regular"
+        ],
+        [
+          "window",
+          "Dark-Compact"
+        ],
+        [
+          "media-album",
+          "Light-Dusk"
+        ],
+        [
+          "media-album",
+          "Light-Forest"
+        ],
+        [
+          "media-album",
+          "Light-Coast"
+        ],
+        [
+          "media-album",
+          "Light-Ember"
+        ],
+        [
+          "media-album",
+          "Light-Violet"
+        ],
+        [
+          "media-album",
+          "Dark-Dusk"
+        ],
+        [
+          "media-album",
+          "Dark-Forest"
+        ],
+        [
+          "media-album",
+          "Dark-Coast"
+        ],
+        [
+          "media-album",
+          "Dark-Ember"
+        ],
+        [
+          "media-album",
+          "Dark-Violet"
+        ],
+        [
+          "media-navigation",
+          "Light-home-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-home-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-grid-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-grid-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-radio-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-radio-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-heart-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-heart-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-clock-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-clock-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-download-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-download-Selected"
+        ],
+        [
+          "media-navigation",
+          "Light-folder-Default"
+        ],
+        [
+          "media-navigation",
+          "Light-folder-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-home-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-home-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-grid-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-grid-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-radio-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-radio-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-heart-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-heart-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-clock-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-clock-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-download-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-download-Selected"
+        ],
+        [
+          "media-navigation",
+          "Dark-folder-Default"
+        ],
+        [
+          "media-navigation",
+          "Dark-folder-Selected"
+        ],
+        [
+          "media-track",
+          "Light-Default"
+        ],
+        [
+          "media-track",
+          "Light-Playing"
+        ],
+        [
+          "media-track",
+          "Dark-Default"
+        ],
+        [
+          "media-track",
+          "Dark-Playing"
+        ],
+        [
+          "media-feature",
+          "Light-Dusk"
+        ],
+        [
+          "media-feature",
+          "Light-Forest"
+        ],
+        [
+          "media-feature",
+          "Dark-Dusk"
+        ],
+        [
+          "media-feature",
+          "Dark-Forest"
+        ],
+        [
+          "media-focus",
+          "Light"
+        ],
+        [
+          "media-focus",
+          "Dark"
+        ],
+        [
+          "media-player",
+          "Light"
+        ],
+        [
+          "media-player",
+          "Dark"
+        ]
+      ],
+      "insertedAndReopenedComponentTypes": 44,
+      "touchEmulation": "iPhone 13 browser profile, Atlas phone screen to note to share, cancel and back",
+      "standaloneComponentBusinessIntegration": "two toggles, independent values, onAction id and value verified",
+      "afterPrototypeReferenceFix": [
+        "library-tokens",
+        "cross-page",
+        "designer-delivery"
+      ],
+      "afterPrototypeReferenceFixExportedBuilds": [
+        "designer-delivery",
+        "cross"
+      ]
+    }
+  },
+  "screenshots": [
+    {
+      "width": 1440,
+      "height": 900,
+      "selection": "Logo 图标框",
+      "visibleExport": true
+    },
+    {
+      "width": 1024,
+      "height": 480,
+      "selection": "Logo 图标框",
+      "visibleExport": true
+    },
+    {
+      "width": 721,
+      "height": 600,
+      "selection": "Logo 图标框",
+      "visibleExport": true
+    }
+  ],
+  "macSafari": {
+    "version": "27.2",
+    "method": "native accessibility in independent private window",
+    "flow": [
+      "Aura marketing",
+      "mobile landing",
+      "workspace",
+      "deployment overlay",
+      "cancel and restore trigger focus",
+      "close preview to document"
+    ]
+  },
+  "composition": {
+    "engine": "Chrome",
+    "method": "CDP Input.imeSetComposition + commitText",
+    "candidates": [
+      "she",
+      "设计",
+      "设计工具"
+    ],
+    "committed": "设计工具",
+    "undo": true
+  },
+  "bitmaps": {
+    "images": 8,
+    "width": 2048,
+    "height": 2048,
+    "changes": 96,
+    "undoRedoPairs": 12,
+    "previewReloads": 3,
+    "elapsedSeconds": 7
+  },
+  "performance": {
+    "viewport": [
+      1460,
+      960
+    ],
+    "engine": "Chrome 158",
+    "current": [
+      {
+        "check": "layer-tree",
+        "result": [
+          {
+            "count": 100,
+            "importMs": 64,
+            "selectMs": 123,
+            "mountedRows": 100,
+            "treeScroll": 2127,
+            "zoomMs": 69,
+            "dragMs": 123,
+            "nativeDownloadMs": 60,
+            "reactDownloadMs": 77,
+            "heapMiB": 14
+          },
+          {
+            "count": 1000,
+            "importMs": 85,
+            "selectMs": 59,
+            "mountedRows": 35,
+            "treeScroll": 27327,
+            "zoomMs": 71,
+            "dragMs": 126,
+            "nativeDownloadMs": 42,
+            "reactDownloadMs": 83,
+            "heapMiB": 19
+          },
+          {
+            "count": 10000,
+            "importMs": 410,
+            "selectMs": 91,
+            "mountedRows": 35,
+            "treeScroll": 279327,
+            "zoomMs": 73,
+            "dragMs": 224,
+            "nativeDownloadMs": 41,
+            "reactDownloadMs": 276,
+            "heapMiB": 57
+          }
+        ]
+      },
+      {
+        "check": "complex",
+        "result": [
+          {
+            "layers": 259,
+            "boards": 4,
+            "vectors": 130,
+            "instances": 6,
+            "importMs": 146,
+            "dragSamplesMs": [
+              251,
+              237,
+              239,
+              240,
+              240,
+              239
+            ],
+            "dragP50": 239,
+            "dragP95": 251,
+            "rafSamples": 85,
+            "rafMax": 17,
+            "rafOver25ms": 0,
+            "rafP50": 17,
+            "rafP95": 17,
+            "heapMiB": 24
+          },
+          {
+            "layers": 8288,
+            "boards": 128,
+            "vectors": 4160,
+            "instances": 192,
+            "importMs": 1059,
+            "dragSamplesMs": [
+              242,
+              240,
+              238,
+              241,
+              239,
+              238
+            ],
+            "dragP50": 239,
+            "dragP95": 242,
+            "rafSamples": 84,
+            "rafMax": 17,
+            "rafOver25ms": 0,
+            "rafP50": 17,
+            "rafP95": 17,
+            "heapMiB": 59
+          }
+        ]
+      }
+    ],
+    "priorBundledInputInCurrentBuild": [
+      {
+        "check": "complex",
+        "result": [
+          {
+            "layers": 259,
+            "boards": 4,
+            "vectors": 130,
+            "instances": 6,
+            "importMs": 138,
+            "dragSamplesMs": [
+              240,
+              237,
+              239,
+              238,
+              238,
+              240
+            ],
+            "dragP50": 238,
+            "dragP95": 240,
+            "rafSamples": 84,
+            "rafMax": 17,
+            "rafOver25ms": 0,
+            "rafP50": 17,
+            "rafP95": 17,
+            "heapMiB": 28
+          },
+          {
+            "layers": 8288,
+            "boards": 128,
+            "vectors": 4160,
+            "instances": 192,
+            "importMs": 1058,
+            "dragSamplesMs": [
+              236,
+              240,
+              240,
+              239,
+              240,
+              239
+            ],
+            "dragP50": 239,
+            "dragP95": 240,
+            "rafSamples": 84,
+            "rafMax": 17,
+            "rafOver25ms": 0,
+            "rafP50": 17,
+            "rafP95": 17,
+            "heapMiB": 66
+          }
+        ]
+      }
+    ],
+    "priorBundledInputSha256": "afb3516f50a4b1eebf881c7cc9c16c257265439d1f7b22289c6e290ea67cc944"
+  },
+  "sourceFiles": {
+    "mobile-studio": {
+      "sha256": "eccabd591b7ae856b7969104b582d16642d25de5f8b4554588c4f815b0560372",
+      "pages": [
+        {
+          "id": "ipad",
+          "artboards": 6,
+          "layers": 452,
+          "instances": 1,
+          "nodesWithDirectVariableBindings": 147,
+          "nodesWithGradientStopBindings": 0
+        },
+        {
+          "id": "iphone",
+          "artboards": 4,
+          "layers": 242,
+          "instances": 38,
+          "nodesWithDirectVariableBindings": 227,
+          "nodesWithGradientStopBindings": 0
+        },
+        {
+          "id": "sound",
+          "artboards": 2,
+          "layers": 622,
+          "instances": 40,
+          "nodesWithDirectVariableBindings": 268,
+          "nodesWithGradientStopBindings": 0
+        },
+        {
+          "id": "atlas",
+          "artboards": 4,
+          "layers": 259,
+          "instances": 6,
+          "nodesWithDirectVariableBindings": 236,
+          "nodesWithGradientStopBindings": 0
+        }
+      ]
+    },
+    "aura-showcase": {
+      "sha256": "c3a0e6a619edb26ddc8b98e713203d828ddf1a51e6d0058675862da19bd03970",
+      "pages": [
+        {
+          "id": "marketing",
+          "artboards": 2,
+          "layers": 125,
+          "instances": 0,
+          "nodesWithDirectVariableBindings": 77,
+          "nodesWithGradientStopBindings": 1
+        },
+        {
+          "id": "workspace",
+          "artboards": 2,
+          "layers": 128,
+          "instances": 0,
+          "nodesWithDirectVariableBindings": 68,
+          "nodesWithGradientStopBindings": 2
+        }
+      ]
+    }
+  },
+  "libraryUpgrade": {
+    "source": "mobile-studio.forma.json extracted from the 0.2.1 macOS binary",
+    "fromRevision": 1,
+    "toRevision": 2,
+    "affectedMobileInstances": 79,
+    "reopen": true,
+    "followPrototypeTargetsAfterMasterRevision": "changed generated target follows master, explicit local action remains, stale revision rejects"
+  },
+  "desktop": {
+    "warm": {
+      "version": "0.3.0",
+      "docs": [
+        {
+          "url": "forma://app/",
+          "name": "未命名设计文件"
+        },
+        {
+          "url": "forma://app/",
+          "name": "Aura Studio · SaaS 产品与营销界面"
+        },
+        {
+          "url": "forma://app/",
+          "name": "Forma Mobile · 界面研究室"
+        }
+      ]
+    },
+    "cold": {
+      "launch": "macOS LaunchServices cold open",
+      "documents": [
+        "Aura Studio · SaaS 产品与营销界面",
+        "Forma Mobile · 界面研究室"
+      ]
+    },
+    "signing": "ad hoc, codesign --verify --deep --strict passed",
+    "dmgCRC": "verified   CRC32 $65DB1FD3",
+    "zipIntegrity": "No errors detected in compressed data of release/Forma-0.3.0-arm64.zip."
+  },
+  "deliverableSHA256": {
+    "release/Forma-0.3.0-arm64.dmg": "163cca776275c4ccf6e976b16bf189e8643c08f6da3805a2cfc1072d2b085c88",
+    "release/Forma-0.3.0-arm64.zip": "6f7e5496d31e77fedfd993b06f8c0bc4ad6f0466009721a791cc819652162390",
+    "docs/evidence/2026-11-20/v0.3.0/feedback-react.zip": "dd87e2e23e20c01f6784ecae90fb3be8e9a119888fc209400ddc1d9bd90eda2b",
+    "docs/evidence/2026-11-20/v0.3.0/mobile-studio-react.zip": "6c2ef9886d880f5b7ca663d7fe107cb3bdf5d6cfb26b376f9ace9bf2efb77450"
+  },
+  "unverified": [
+    "physical phone and native IME candidate UI",
+    "two-hour session with high-resolution image collection",
+    "Firefox local profile startup",
+    "real model quality",
+    "same-document Figma performance",
+    "visual equivalence to every Apple-supplied variant"
+  ]
+}

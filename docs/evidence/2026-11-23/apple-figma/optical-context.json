@@ -1,0 +1,537 @@
+{
+  "source": "d6a0a6370b17f5c109d5ef227915ef6d59bf0da23076292e09fb87fd5e63a11a",
+  "sourceRenderer": "Figma Desktop exportAsync PNG, SCALE 1, useAbsoluteBounds=true",
+  "limits": {
+    "channel": 16,
+    "percent": 0.5
+  },
+  "isolatedDevelopmentStudy": {
+    "engine": "158.0.8127.36",
+    "candidate": "importFigma(full original) → resolveNode → runtimeNodes → DesignNodeView on an sRGB white surface, 1 CSS px per output pixel",
+    "main": [
+      {
+        "tag": "cover",
+        "width": 1920,
+        "height": 1080,
+        "over16": 0,
+        "total": 2073600,
+        "pct": 0,
+        "max": 1,
+        "referenceSHA256": "1341d11bb4e15f464646ce2b8660ebb2f1698de64756b7eb0a9554807d2599bb",
+        "candidateSHA256": "d40c560d6787ae6ded5b1bf710e568c32a9ffe8f0d9b5dd6f8fcacff61f78904"
+      },
+      {
+        "tag": "button",
+        "width": 73,
+        "height": 50,
+        "over16": 16,
+        "total": 3650,
+        "pct": 0.4383561643835616,
+        "max": 32,
+        "referenceSHA256": "2943ed24a48415abd9b50eb952ce7a9e3ef899be89f1fd083747dbb8ea1bda9f",
+        "candidateSHA256": "1a73efa1aa76d908bdbca93e1f18e49eb219793699232a5ebd9b9d78de0ba8ee"
+      },
+      {
+        "tag": "toggle-on",
+        "width": 64,
+        "height": 28,
+        "over16": 4,
+        "total": 1792,
+        "pct": 0.22321428571428573,
+        "max": 26,
+        "referenceSHA256": "0205ff15a7c560becbf0b5d7e6f8b3f5aa719dc83779b232a4fa0838501a124e",
+        "candidateSHA256": "0e041d2522069143d0ec740b7720d96f9ab107ea0cc146bbbea27cad44554dbe"
+      },
+      {
+        "tag": "toggle-off",
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 5,
+        "referenceSHA256": "ccf1fce19159601d3ad8f131dcf4a9c3ec9e8383e0f6b83258a6bd8dfc932f9f",
+        "candidateSHA256": "567d60b45709381145e17c31e32bc7aa3dafb384c74ac1435dc9a775fc3ad08a"
+      },
+      {
+        "tag": "alert-button",
+        "width": 86,
+        "height": 48,
+        "over16": 6,
+        "total": 4128,
+        "pct": 0.14534883720930233,
+        "max": 29,
+        "referenceSHA256": "2be06ddba63e3876e003fd2bf3164098d03523b464004804056ae810e61f9d94",
+        "candidateSHA256": "22a09e7814fa5d97d43a6d929cf66bd4fc55f0ef1b71b5689bbbe4875ff32713"
+      },
+      {
+        "tag": "alert",
+        "width": 300,
+        "height": 307,
+        "over16": 274,
+        "total": 92100,
+        "pct": 0.2975027144408252,
+        "max": 49,
+        "referenceSHA256": "9235f3cbc83d2da28e18ce82aa21cbe69a644cff49505f1d2133738506464064",
+        "candidateSHA256": "21c1ae31fe2e7e6f823a6ccff90365cc2616df4de43bf9d90e9cf4826b408984"
+      }
+    ],
+    "controls": [
+      {
+        "tag": "dark-pressed-on",
+        "sourceNode": "5433:20196",
+        "width": 64,
+        "height": 28,
+        "over16": 5,
+        "total": 1792,
+        "pct": 0.27901785714285715,
+        "max": 27,
+        "referenceSHA256": "62ae88483d71576922590e6ad830f817495d421585664d42b5f2b58deae35aa7",
+        "candidateSHA256": "7937186156aee12b61711ef6099d1867a0b4a903e2e84b2548e3ecb75de7d5f8"
+      },
+      {
+        "tag": "dark-idle-off",
+        "sourceNode": "5433:20197",
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 1,
+        "referenceSHA256": "cf99183f80a69cef62d85f4b3c7dc9b96bff9eb1061a517435dfe7ed80f0627a",
+        "candidateSHA256": "fc94ec74fd8d9800820c51108deaa2ad6e7798b23861a930a3f82abce82cf30f"
+      },
+      {
+        "tag": "pressed-off",
+        "sourceNode": "10456:1236",
+        "width": 64,
+        "height": 28,
+        "over16": 15,
+        "total": 1792,
+        "pct": 0.8370535714285714,
+        "max": 24,
+        "referenceSHA256": "b1310b0a5d0ccc638f8474f61fca4100c0e5a550bb03c19f38d81fb8b3e8ad47",
+        "candidateSHA256": "4e5edc3047c07a10acdc8389c989923bfac866d90a40a2d21ef9dce1fbb33d92"
+      },
+      {
+        "tag": "pressed-on",
+        "sourceNode": "10456:1240",
+        "width": 64,
+        "height": 28,
+        "over16": 15,
+        "total": 1792,
+        "pct": 0.8370535714285714,
+        "max": 26,
+        "referenceSHA256": "b55447144a3b3dcff11bb09b763e7c875ff058dcf92e218dda5ad68855b07b6b",
+        "candidateSHA256": "0b6f21f857a80dbb763a09b2911526d0c5de2389787251375d6d5a69d38ddb45"
+      },
+      {
+        "tag": "idle-on",
+        "sourceNode": "27:68905",
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 15,
+        "referenceSHA256": "f857f066608efa3b6b8cbc35b42461858cc4120ca672da2139bc8048eb80534e",
+        "candidateSHA256": "84ee8fd7bb565c18eb8234fe2f2548770954a78d83b4dd042a210a6b05111455"
+      }
+    ]
+  },
+  "completeReactProject": {
+    "nativeInput": "fresh importFigma, parseDocument, nativeDocumentBlob, readNativeDocument; freeze 2026-11-23",
+    "nativeBytes": 410582803,
+    "nativeSHA256": "4bdbe81ba715bdf2d207ce0d247f634f67b0ba171c5701db37e9f52795da497a",
+    "pages": 46,
+    "render": "Full React + TypeScript project compiled, Vite production preview. One CSS pixel per image pixel, 2200×1500 viewport. Individual real scene nodes clipped to the Figma absolute export bounds and compared on white.",
+    "reproduce": "node scripts/check-figma-glass-controls.mjs <standalone-react-url> <root-of-source-and-material-controls> <output-directory>",
+    "threshold": "over16 * 200 <= total, max RGB after compositing on sRGB white",
+    "measurements": [
+      {
+        "engine": "chromium",
+        "version": "158.0.8127.36",
+        "tag": "toggle-on",
+        "route": "fig-5433-19060",
+        "id": "fig-5433-19060",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 2,
+          "total": 1792,
+          "pct": 0.11160714285714286,
+          "max": 17
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "0205ff15a7c560becbf0b5d7e6f8b3f5aa719dc83779b232a4fa0838501a124e",
+        "candidateSHA256": "cad49658b6ff08f19a3f06e1e3e52621e320ce4fa83a1e739797d16f6abbf936"
+      },
+      {
+        "engine": "chromium",
+        "version": "158.0.8127.36",
+        "tag": "dark-pressed-on",
+        "route": "fig-5433-20196",
+        "id": "fig-5433-20196",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 3,
+          "total": 1792,
+          "pct": 0.16741071428571427,
+          "max": 21
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "62ae88483d71576922590e6ad830f817495d421585664d42b5f2b58deae35aa7",
+        "candidateSHA256": "5e8313337b77afe9bcb1e5f92c15ae7ee68fc879dd873ebb25d27ed08280dc8c"
+      },
+      {
+        "engine": "chromium",
+        "version": "158.0.8127.36",
+        "tag": "dark-idle-off",
+        "route": "fig-5433-20197",
+        "id": "fig-5433-20197",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 0,
+          "total": 1792,
+          "pct": 0,
+          "max": 1
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "cf99183f80a69cef62d85f4b3c7dc9b96bff9eb1061a517435dfe7ed80f0627a",
+        "candidateSHA256": "0bb96ab1869d788e77e57088aacffa831c8c5e8fad1382c2b022f215e8aade44"
+      },
+      {
+        "engine": "chromium",
+        "version": "158.0.8127.36",
+        "tag": "pressed-off",
+        "route": "fig-29-56814",
+        "id": "fig-10456-1236",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 3,
+          "total": 1792,
+          "pct": 0.16741071428571427,
+          "max": 18
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "b1310b0a5d0ccc638f8474f61fca4100c0e5a550bb03c19f38d81fb8b3e8ad47",
+        "candidateSHA256": "183e404a7102f681da6b68c95a1567e27b5f8227cf77eeb4509ee231a4dcb191"
+      },
+      {
+        "engine": "chromium",
+        "version": "158.0.8127.36",
+        "tag": "idle-on",
+        "route": "fig-29-56814",
+        "id": "fig-27-68905",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 0,
+          "total": 1792,
+          "pct": 0,
+          "max": 14
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "f857f066608efa3b6b8cbc35b42461858cc4120ca672da2139bc8048eb80534e",
+        "candidateSHA256": "fee839d42f21bd155fb7f476dd82a00ec80531c1aeca1e682290e7d437525c36"
+      },
+      {
+        "engine": "chromium",
+        "version": "158.0.8127.36",
+        "tag": "pressed-on",
+        "route": "fig-29-56814",
+        "id": "fig-10456-1240",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 5,
+          "total": 1792,
+          "pct": 0.27901785714285715,
+          "max": 19
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "b55447144a3b3dcff11bb09b763e7c875ff058dcf92e218dda5ad68855b07b6b",
+        "candidateSHA256": "75598a46ba54dd0b811dc6ffe72acca9a929e836f268b3cbd4adc1d78fe89237"
+      },
+      {
+        "engine": "firefox",
+        "version": "159.0",
+        "tag": "toggle-on",
+        "route": "fig-5433-19060",
+        "id": "fig-5433-19060",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 1,
+          "total": 1792,
+          "pct": 0.05580357142857143,
+          "max": 18
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "0205ff15a7c560becbf0b5d7e6f8b3f5aa719dc83779b232a4fa0838501a124e",
+        "candidateSHA256": "fb976fa84a55a1ace55e32eda046f443f307d4d39b57d784652ad69f9ff6e956"
+      },
+      {
+        "engine": "firefox",
+        "version": "159.0",
+        "tag": "dark-pressed-on",
+        "route": "fig-5433-20196",
+        "id": "fig-5433-20196",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 2,
+          "total": 1792,
+          "pct": 0.11160714285714286,
+          "max": 22
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "62ae88483d71576922590e6ad830f817495d421585664d42b5f2b58deae35aa7",
+        "candidateSHA256": "f77417a9efd69ee99f88c7d1087f58f8a6cfebaa7abfd0a5b97f893386a1a29a"
+      },
+      {
+        "engine": "firefox",
+        "version": "159.0",
+        "tag": "dark-idle-off",
+        "route": "fig-5433-20197",
+        "id": "fig-5433-20197",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 0,
+          "total": 1792,
+          "pct": 0,
+          "max": 2
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "cf99183f80a69cef62d85f4b3c7dc9b96bff9eb1061a517435dfe7ed80f0627a",
+        "candidateSHA256": "a6ac6c9d71559c4d2d97c9ed3508dac25f5f8deb2b6a0fdbc24bbfc0c0cc88cc"
+      },
+      {
+        "engine": "firefox",
+        "version": "159.0",
+        "tag": "pressed-off",
+        "route": "fig-29-56814",
+        "id": "fig-10456-1236",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 2,
+          "total": 1792,
+          "pct": 0.11160714285714286,
+          "max": 17
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "b1310b0a5d0ccc638f8474f61fca4100c0e5a550bb03c19f38d81fb8b3e8ad47",
+        "candidateSHA256": "f5902b7f35544f3d3328b80ecf187cd0f3c77b3f59300ba3e4549015ff0e1c88"
+      },
+      {
+        "engine": "firefox",
+        "version": "159.0",
+        "tag": "idle-on",
+        "route": "fig-29-56814",
+        "id": "fig-27-68905",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 2,
+          "total": 1792,
+          "pct": 0.11160714285714286,
+          "max": 25
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "f857f066608efa3b6b8cbc35b42461858cc4120ca672da2139bc8048eb80534e",
+        "candidateSHA256": "ca00161362d548351b1774870ed4a72c05043798d22ee50ae0789dd5a13c719f"
+      },
+      {
+        "engine": "firefox",
+        "version": "159.0",
+        "tag": "pressed-on",
+        "route": "fig-29-56814",
+        "id": "fig-10456-1240",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 7,
+          "total": 1792,
+          "pct": 0.390625,
+          "max": 20
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "b55447144a3b3dcff11bb09b763e7c875ff058dcf92e218dda5ad68855b07b6b",
+        "candidateSHA256": "de22398b14041f6bab386d299f468e316a47aca475e084b68d41c52c3525e45e"
+      },
+      {
+        "engine": "webkit",
+        "version": "27.2",
+        "tag": "toggle-on",
+        "route": "fig-5433-19060",
+        "id": "fig-5433-19060",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 2,
+          "total": 1792,
+          "pct": 0.11160714285714286,
+          "max": 18
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "0205ff15a7c560becbf0b5d7e6f8b3f5aa719dc83779b232a4fa0838501a124e",
+        "candidateSHA256": "76a3efbdcf13f19089d1d92d8d09a966454a61d993f54cdebfc1ffb6adc3cf83"
+      },
+      {
+        "engine": "webkit",
+        "version": "27.2",
+        "tag": "dark-pressed-on",
+        "route": "fig-5433-20196",
+        "id": "fig-5433-20196",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 1,
+          "total": 1792,
+          "pct": 0.05580357142857143,
+          "max": 18
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "62ae88483d71576922590e6ad830f817495d421585664d42b5f2b58deae35aa7",
+        "candidateSHA256": "6ea857ad9c9756d5f1d3133a1a276887c0c65502fa2f3351377d9a91a1c250ef"
+      },
+      {
+        "engine": "webkit",
+        "version": "27.2",
+        "tag": "dark-idle-off",
+        "route": "fig-5433-20197",
+        "id": "fig-5433-20197",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 0,
+          "total": 1792,
+          "pct": 0,
+          "max": 1
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "cf99183f80a69cef62d85f4b3c7dc9b96bff9eb1061a517435dfe7ed80f0627a",
+        "candidateSHA256": "01ff2feb08cafc6c4951318c1c67b95e02531f3de74d5d5072128a3938b2623d"
+      },
+      {
+        "engine": "webkit",
+        "version": "27.2",
+        "tag": "pressed-off",
+        "route": "fig-29-56814",
+        "id": "fig-10456-1236",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 5,
+          "total": 1792,
+          "pct": 0.27901785714285715,
+          "max": 18
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "b1310b0a5d0ccc638f8474f61fca4100c0e5a550bb03c19f38d81fb8b3e8ad47",
+        "candidateSHA256": "15fc65e02fc4675540923c3b7515074f479a80193a482407659a0f25c8aa61a4"
+      },
+      {
+        "engine": "webkit",
+        "version": "27.2",
+        "tag": "idle-on",
+        "route": "fig-29-56814",
+        "id": "fig-27-68905",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 0,
+          "total": 1792,
+          "pct": 0,
+          "max": 14
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "f857f066608efa3b6b8cbc35b42461858cc4120ca672da2139bc8048eb80534e",
+        "candidateSHA256": "d795e19ff10775238e1c2a4069e26d1f2bafdf7e3226b05d9f4fd90b1c574642"
+      },
+      {
+        "engine": "webkit",
+        "version": "27.2",
+        "tag": "pressed-on",
+        "route": "fig-29-56814",
+        "id": "fig-10456-1240",
+        "pixels": {
+          "width": 64,
+          "height": 28,
+          "over16": 5,
+          "total": 1792,
+          "pct": 0.27901785714285715,
+          "max": 18
+        },
+        "sourceSize": [
+          64,
+          28
+        ],
+        "referenceSHA256": "b55447144a3b3dcff11bb09b763e7c875ff058dcf92e218dda5ad68855b07b6b",
+        "candidateSHA256": "317a501c513000f5f6952d74642504657622afa486b7a1e42a7f8981b7a30848"
+      }
+    ],
+    "ablations": {
+      "webkitIgnoranceOfSVGBackdropFilter": "On the full light pressed control removing its original half-pixel stroke left the WebKit and Firefox images identical to their before images; the coverage-aware foreground pigment pair restored the stroke.",
+      "subpixelBlur": "After the stroke and editable capsule restoration, Chromium and WebKit differed by more than 10 channels on 122/1792 pixels for the light pressed scene. Disabling only CSS blur(0.8px) on the traced rounded plate reduced this to 7. The final coverage mask integrates the source geometry and uses the given Gaussian standard deviation.",
+      "translucentSurface": "Root floor uses the single surface. The refraction sample sees both transmitting layers. On this file black at 10% gives direct #e5e5e5 and sampled #cecece. Opaque black/white references are unchanged.",
+      "specular": "All 1,944 covered pixels in each of three independent 58×38 native Specular Light layers have RGB(255,255,255). Suppressing duplicated inner additive highlights on an isolated opaque white Multiply brush keeps the original alpha and avoids a second edge."
+    }
+  }
+}

@@ -1,0 +1,14 @@
+/node_modules/
+/dist/
+/release/
+/tmp/
+.env
+.env.*
+!.env.example
+/.playwright-cli/
+/output/playwright/
+/output/release-state/
+/out-electron/
+**/.release-*
+.DS_Store
+*.tsbuildinfo

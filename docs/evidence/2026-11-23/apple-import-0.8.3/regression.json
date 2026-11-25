@@ -1,0 +1,384 @@
+{
+  "unitTests": 223,
+  "formatCheck": "pass",
+  "build": "pass",
+  "browserChecks": [
+    "color-profile",
+    "professional-editor",
+    "container-rules",
+    "mixed-materials",
+    "mixed-instances",
+    "keyboard-authoring",
+    "designer-delivery",
+    "aura",
+    "editing-workflow",
+    "atlas",
+    "cross-page",
+    "responsive-player",
+    "shapes",
+    "smart-selection",
+    "wires",
+    "optional-gateway",
+    "library-tokens",
+    "library-subscription",
+    "library-publish",
+    "component-properties",
+    "variant-authoring",
+    "canvas-component-set",
+    "nested-instances",
+    "size-limits",
+    "strokes",
+    "stroke-paints",
+    "figma-capsule",
+    "files",
+    "storage",
+    "studio",
+    "editor-panels",
+    "inspector-layout",
+    "panel-dialogs",
+    "release-notes",
+    "panel-parity",
+    "panel-gestures",
+    "panel-data-safety",
+    "sizing",
+    "wrap",
+    "responsive",
+    "prototype",
+    "prototype-input",
+    "images",
+    "image-paint",
+    "group-tint",
+    "source-layout",
+    "vector",
+    "vector-network",
+    "booleans",
+    "rich-text",
+    "text-position",
+    "mask",
+    "guides",
+    "asset-import",
+    "figma-new-panels",
+    "agent-canvas-chat"
+  ],
+  "independentlyBuiltProjects": [
+    "color-profile",
+    "color-profile-srgb",
+    "vector-network",
+    "variant-authoring",
+    "forwarded-instances",
+    "nested-instances",
+    "component-properties",
+    "container-rules",
+    "image-paint",
+    "text-position",
+    "professional-editor",
+    "designer-delivery",
+    "span",
+    "atlas",
+    "studio-file",
+    "renamed-library",
+    "route-upgrade",
+    "file",
+    "shapes",
+    "limits",
+    "sizing",
+    "wrap",
+    "rich",
+    "image",
+    "stroke-paints",
+    "stroke",
+    "mask",
+    "vector",
+    "boolean",
+    "responsive",
+    "responsive-player",
+    "prototype",
+    "prototype-input",
+    "cross",
+    "aura"
+  ],
+  "benchmark": [
+    {
+      "check": "layer-tree",
+      "result": [
+        {
+          "count": 100,
+          "importMs": 66,
+          "selectMs": 140,
+          "mountedRows": 100,
+          "treeScroll": 1850,
+          "zoomMs": 65,
+          "dragMs": 125,
+          "nativeDownloadMs": 85,
+          "reactDownloadMs": 100,
+          "heapMiB": 24
+        },
+        {
+          "count": 1000,
+          "importMs": 79,
+          "selectMs": 75,
+          "mountedRows": 39,
+          "treeScroll": 25250,
+          "zoomMs": 68,
+          "dragMs": 126,
+          "nativeDownloadMs": 43,
+          "reactDownloadMs": 98,
+          "heapMiB": 28
+        },
+        {
+          "count": 10000,
+          "importMs": 494,
+          "selectMs": 100,
+          "mountedRows": 39,
+          "treeScroll": 259250,
+          "zoomMs": 103,
+          "dragMs": 275,
+          "nativeDownloadMs": 96,
+          "reactDownloadMs": 241,
+          "heapMiB": 85
+        }
+      ]
+    },
+    {
+      "check": "complex",
+      "result": [
+        {
+          "layers": 259,
+          "boards": 4,
+          "vectors": 130,
+          "instances": 6,
+          "importMs": 193,
+          "dragSamplesMs": [
+            246,
+            239,
+            239,
+            238,
+            239,
+            239
+          ],
+          "dragP50": 239,
+          "dragP95": 246,
+          "rafSamples": 84,
+          "rafMax": 17,
+          "rafOver25ms": 0,
+          "rafP50": 17,
+          "rafP95": 17,
+          "heapMiB": 44
+        },
+        {
+          "layers": 8288,
+          "boards": 128,
+          "vectors": 4160,
+          "instances": 192,
+          "importMs": 1292,
+          "dragSamplesMs": [
+            248,
+            239,
+            239,
+            240,
+            239,
+            239
+          ],
+          "dragP50": 239,
+          "dragP95": 248,
+          "rafSamples": 85,
+          "rafMax": 17,
+          "rafOver25ms": 0,
+          "rafP50": 17,
+          "rafP95": 17,
+          "heapMiB": 123
+        }
+      ]
+    }
+  ],
+  "otherFormatFixtures": [
+    {
+      "format": "sketch",
+      "sourceSha256": "25f08782f870235a33b8589dc812d54c915d7a5928ba3a8efd9a8c5e964b7204",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "invalid-input-preserves-original",
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-text-style-propagation",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "issueCount": 43,
+      "counts": {
+        "pages": [
+          "Page 1",
+          "Symbols"
+        ],
+        "nodes": 1401,
+        "instances": 68,
+        "components": 48,
+        "variants": 48,
+        "styles": 3,
+        "variables": 3
+      },
+      "portableBytes": 14011687
+    },
+    {
+      "format": "fig",
+      "sourceSha256": "1fbdc089f3ab1ad5f7866d7ee37c096de34cb3c07ec26222991f4954dc022437",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "master-propagation-and-local-override",
+        "reset-override-and-undo",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "components",
+          "components-set",
+          "instances",
+          "instances-with-overrides"
+        ],
+        "nodes": 13,
+        "instances": 8,
+        "components": 3,
+        "variants": 4,
+        "styles": 0,
+        "variables": 0
+      },
+      "portableBytes": 19369
+    },
+    {
+      "format": "sds",
+      "sourceSha256": "baf0a1b1154a8e4ad98b2143482fddbcbeee13415f7fd672af71d973a67e1c2b",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "preview",
+        "independent-react"
+      ],
+      "issueCount": 369,
+      "counts": {
+        "pages": [
+          "Cover",
+          "---",
+          "Foundations",
+          "Icons",
+          "---",
+          "Examples",
+          "Composition guide",
+          "---",
+          "Accordion",
+          "AI Chat",
+          "Avatars",
+          "Buttons",
+          "Calendar",
+          "Cards",
+          "Dialog",
+          "Inputs",
+          "Menu",
+          "Navigation",
+          "Notification",
+          "Pagination",
+          "Tabs",
+          "Tags",
+          "Text",
+          "Tooltip",
+          "---",
+          "Forms",
+          "Sections",
+          "---",
+          "Utilities",
+          "Component Playground"
+        ],
+        "nodes": 18360,
+        "instances": 1078,
+        "components": 2332,
+        "variants": 2720,
+        "styles": 313,
+        "variables": 436
+      },
+      "portableBytes": 109918814
+    },
+    {
+      "format": "paint",
+      "sourceSha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-fill-and-stroke",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "色板"
+        ],
+        "nodes": 2,
+        "instances": 0,
+        "components": 0,
+        "variants": 0,
+        "styles": 1,
+        "variables": 0
+      },
+      "portableBytes": 2233
+    }
+  ],
+  "gradientAndMaterial": {
+    "chromium": {
+      "gradient": "4 affine gradients × 2 aspect ratios × 3 outputs, with vector holes and sampled colors, passed.",
+      "blend": [
+        "plus-darker light [ 128, 95, 160 ] [ 129, 95, 160 ]",
+        "plus-darker dark [ 204, 81, 49 ] [ 205, 81, 49 ]",
+        "plus-lighter light [ 191, 145, 203 ] [ 192, 145, 203 ]",
+        "plus-lighter dark [ 240, 182, 123 ] [ 241, 182, 123 ]",
+        "multiply light [ 135, 100, 161 ] [ 135, 100, 161 ]",
+        "multiply dark [ 207, 92, 59 ] [ 207, 92, 59 ]"
+      ]
+    },
+    "firefox": {
+      "gradient": "4 affine gradients × 2 aspect ratios × 3 outputs, with vector holes and sampled colors, passed.",
+      "blend": [
+        "plus-darker light [ 126, 93, 159 ] [ 129, 95, 160 ]",
+        "plus-darker dark [ 204, 81, 49 ] [ 205, 81, 49 ]",
+        "plus-lighter light [ 189, 143, 203 ] [ 192, 145, 203 ]",
+        "plus-lighter dark [ 241, 181, 123 ] [ 241, 182, 123 ]",
+        "multiply light [ 134, 100, 161 ] [ 135, 100, 161 ]",
+        "multiply dark [ 207, 92, 59 ] [ 207, 92, 59 ]"
+      ]
+    },
+    "webkit": {
+      "gradient": "4 affine gradients × 2 aspect ratios × 3 outputs, with vector holes and sampled colors, passed.",
+      "blend": [
+        "plus-darker light [ 128, 95, 159 ] [ 129, 95, 160 ]",
+        "plus-darker dark [ 203, 81, 49 ] [ 205, 81, 49 ]",
+        "plus-lighter light [ 191, 145, 203 ] [ 192, 145, 203 ]",
+        "plus-lighter dark [ 240, 182, 124 ] [ 241, 182, 123 ]",
+        "multiply light [ 134, 100, 161 ] [ 135, 100, 161 ]",
+        "multiply dark [ 208, 93, 60 ] [ 207, 92, 59 ]"
+      ]
+    }
+  }
+}

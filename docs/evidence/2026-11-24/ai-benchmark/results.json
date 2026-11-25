@@ -1,0 +1,838 @@
+{
+  "timestamp": "2026-11-24T04:42:30.666Z",
+  "model": "deepseek-flash",
+  "modelLabel": "deepseek-flash (DeepSeek-V4.1-Flash)",
+  "capabilities": {
+    "protocol": "openai-chat",
+    "supportsStreaming": true,
+    "supportsVision": true,
+    "supportsTools": true,
+    "isReasoning": true,
+    "maxContextTokens": 1048576,
+    "maxOutputTokens": 393216,
+    "temperatureMode": "omit",
+    "tokenLimitParam": "max_tokens",
+    "structuredOutput": "json_object",
+    "capabilitySource": "provider-api",
+    "visionKnown": true,
+    "contextKnown": true
+  },
+  "compatMatrix": [
+    {
+      "id": "better-colors",
+      "name": "better-colors",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 7,
+      "resourceCounts": {
+        "markdown": 7,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [
+        "其中的视觉、配色与排版规范将自动映射为 Forma 原生图层与设计系统属性"
+      ],
+      "sampleResources": [
+        "color-formats.md",
+        "color-usage.md",
+        "contrast.md",
+        "palette-generation.md",
+        "palette-structure.md"
+      ]
+    },
+    {
+      "id": "better-interface",
+      "name": "better-interface",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 1,
+      "resourceCounts": {
+        "markdown": 1,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [],
+      "sampleResources": [
+        "review-format.md"
+      ]
+    },
+    {
+      "id": "better-typography",
+      "name": "better-typography",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 7,
+      "resourceCounts": {
+        "markdown": 7,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [
+        "其中的视觉、配色与排版规范将自动映射为 Forma 原生图层与设计系统属性"
+      ],
+      "sampleResources": [
+        "choosing-fonts.md",
+        "css-cheat-sheet.md",
+        "details-and-accessibility.md",
+        "reporting.md",
+        "spacing-and-sizing.md"
+      ]
+    },
+    {
+      "id": "brand-guidelines",
+      "name": "brand-guidelines",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 0,
+      "resourceCounts": {
+        "markdown": 0,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [],
+      "sampleResources": []
+    },
+    {
+      "id": "build-design",
+      "name": "build-design",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 1,
+      "resourceCounts": {
+        "markdown": 1,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [],
+      "sampleResources": [
+        "figma.md"
+      ]
+    },
+    {
+      "id": "frontend-design",
+      "name": "frontend-design",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 0,
+      "resourceCounts": {
+        "markdown": 0,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [
+        "其中的视觉、配色与排版规范将自动映射为 Forma 原生图层与设计系统属性"
+      ],
+      "sampleResources": []
+    },
+    {
+      "id": "theme-factory",
+      "name": "theme-factory",
+      "compatibilityLevel": "native",
+      "compatibilityLabel": "完全兼容",
+      "resourcesIndexed": 10,
+      "resourceCounts": {
+        "markdown": 10,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [],
+      "sampleResources": [
+        "themes/arctic-frost.md",
+        "themes/botanical-garden.md",
+        "themes/desert-rose.md",
+        "themes/forest-canopy.md",
+        "themes/golden-hour.md"
+      ]
+    },
+    {
+      "id": "ui-ux-pro-max",
+      "name": "ui-ux-pro-max",
+      "compatibilityLevel": "adapted",
+      "compatibilityLabel": "本地检索适配",
+      "resourcesIndexed": 26,
+      "resourceCounts": {
+        "markdown": 0,
+        "data": 26,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [
+        "已安全禁用本地脚本，模型可通过内置只读检索工具查询本地 data/themes/references 数据"
+      ],
+      "sampleResources": [
+        "data/app-interface.csv",
+        "data/catalog-summary.json",
+        "data/charts.csv",
+        "data/colors.csv",
+        "data/data-provenance.json"
+      ]
+    },
+    {
+      "id": "web-design-guidelines",
+      "name": "web-design-guidelines",
+      "compatibilityLevel": "limited",
+      "compatibilityLabel": "外部依赖受限",
+      "resourcesIndexed": 0,
+      "resourceCounts": {
+        "markdown": 0,
+        "data": 0,
+        "other": 0
+      },
+      "hasScripts": false,
+      "notes": [
+        "该技能要求联网拉取远端规则且未包含本地参考文件；可补充本地参考文档后离线使用"
+      ],
+      "sampleResources": []
+    }
+  ],
+  "conditions": [
+    {
+      "key": "A-text-only",
+      "title": "A · 纯文本基线（无参考图 / 无 Skill）",
+      "elapsedMs": 164957,
+      "modelUsed": "deepseek-flash",
+      "mode": "generate",
+      "summary": "生成 390×844 精品咖啡订阅点单 H5 首页完整画板",
+      "stats": {
+        "created": 112,
+        "updated": 0,
+        "removed": 0,
+        "componentsInserted": 0,
+        "tokensBound": 0
+      },
+      "metrics": {
+        "found": true,
+        "rootId": "ai-lumina-home-0b795171",
+        "rootSize": "390x844",
+        "rootFill": "#f7f2ea",
+        "layerCount": 112,
+        "autoLayoutContainers": 43,
+        "totalContainers": 50,
+        "autoLayoutRatio": 86,
+        "textLayers": 44,
+        "uniqueFills": [
+          "#f7f2ea",
+          "#ffffff",
+          "#2a211b",
+          "#efe0cc",
+          "#e2e8f0",
+          "#77685c",
+          "#fbefe4",
+          "#e8b98a",
+          "#f2dfc6",
+          "#b4552b",
+          "#f8eee3",
+          "#fdfaf5"
+        ],
+        "lintIssues": 40,
+        "lintSummary": [
+          "unbound-color: 文字/前景色 #b4552b 未绑定，可替换为变量 Atlas/orange",
+          "low-contrast: 文字对比度 4.41:1 未达 WCAG AA 标准（需 ≥ 4.5:1）",
+          "unbound-color: 填充色 #ffffff 未绑定，可替换为变量 Color/Light/surface",
+          "unbound-color: 填充色 #e2e8f0 未绑定，可替换为变量 Color/Light/border",
+          "unbound-color: 填充色 #ffffff 未绑定，可替换为变量 Color/Light/surface",
+          "unbound-color: 文字/前景色 #fdf8f3 未绑定，可替换为变量 Atlas/paper"
+        ],
+        "lintTotal": 100,
+        "lintBreakdown": {
+          "lowContrast": 2,
+          "outOfBounds": 13,
+          "overlap": 0,
+          "emptyText": 0,
+          "unboundColor": 85,
+          "structuralTotal": 15
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "get_design_system",
+          "status": "ok",
+          "summary": "匹配 55 项",
+          "durationMs": 1
+        },
+        {
+          "name": "search_components",
+          "status": "ok",
+          "summary": "匹配 19 项",
+          "durationMs": 0
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "error",
+          "summary": "[\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [],\n    \"message\": \"Invalid input: expected object, received array\"\n  }\n]",
+          "durationMs": 72
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "创建 390×844 精品咖啡订阅点单 H5 首页画板",
+          "durationMs": 208
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "error",
+          "summary": "目标容器不存在或无法容纳子层：ai-lumina-home-3e51dee9 用 search_nodes 查找画板",
+          "durationMs": 1
+        },
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "search_nodes",
+          "status": "ok",
+          "summary": "匹配 10 项",
+          "durationMs": 1
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "生成 390×844 精品咖啡订阅点单 H5 首页完整画板",
+          "durationMs": 119
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 103 项",
+          "durationMs": 8
+        },
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        }
+      ],
+      "activatedSkills": [],
+      "diagnosticsCount": 0,
+      "diagnostics": [],
+      "screenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-A-text-only.png"
+    },
+    {
+      "key": "B-image-plus-text",
+      "title": "B · 参考图 + 文本（多模态识图 / 无 Skill）",
+      "elapsedMs": 122662,
+      "modelUsed": "deepseek-flash",
+      "mode": "generate",
+      "summary": "创建 390×844 微光烘焙 H5 首页：暗夜质感、当季手冲主视觉、风味胶囊、两款单品豆卡与底部导航",
+      "stats": {
+        "created": 120,
+        "updated": 0,
+        "removed": 0,
+        "componentsInserted": 1,
+        "tokensBound": 0
+      },
+      "metrics": {
+        "found": true,
+        "rootId": "ai-home-screen-3f4b3c41",
+        "rootSize": "390x844",
+        "rootFill": "#0f1115",
+        "layerCount": 129,
+        "autoLayoutContainers": 57,
+        "totalContainers": 60,
+        "autoLayoutRatio": 95,
+        "textLayers": 50,
+        "uniqueFills": [
+          "#0f1115",
+          "#202734",
+          "#f5f7fc",
+          "#a0acc0",
+          "#ffffff",
+          "#191d25",
+          "#f1f5f9",
+          "#e9b872",
+          "#161a22",
+          "#e2e8f0",
+          "#8e97a7",
+          "#242b36"
+        ],
+        "lintIssues": 40,
+        "lintSummary": [
+          "unbound-color: 填充色 #0f1115 未绑定，可替换为变量 Color/Dark/canvas",
+          "unbound-color: 文字/前景色 #7e8798 未绑定，可替换为变量 Color/Light/muted",
+          "unbound-color: 文字/前景色 #f6f4ef 未绑定，可替换为变量 Atlas/paper",
+          "unbound-color: 填充色 #f1f5f9 未绑定，可替换为变量 Color/Light/canvas",
+          "unbound-color: 填充色 #161a22 未绑定，可替换为变量 Color/Dark/canvas",
+          "unbound-color: 描边色 #262c37 未绑定，可替换为变量 Color/Dark/surface"
+        ],
+        "lintTotal": 97,
+        "lintBreakdown": {
+          "lowContrast": 0,
+          "outOfBounds": 3,
+          "overlap": 1,
+          "emptyText": 0,
+          "unboundColor": 93,
+          "structuralTotal": 4
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "get_design_system",
+          "status": "ok",
+          "summary": "匹配 68 项",
+          "durationMs": 0
+        },
+        {
+          "name": "search_components",
+          "status": "ok",
+          "summary": "匹配 19 项",
+          "durationMs": 0
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "error",
+          "summary": "[\n  {\n    \"expected\": \"number\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"top\"\n    ],\n    \"message\": \"Invalid input: expected number, received boolean\"\n  }\n]",
+          "durationMs": 46
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "创建 390×844 微光烘焙 H5 首页：暗夜质感、当季手冲主视觉、风味胶囊、两款单品豆卡与底部导航",
+          "durationMs": 185
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 97 项",
+          "durationMs": 7
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 97 项",
+          "durationMs": 7
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 97 项",
+          "durationMs": 7
+        },
+        {
+          "name": "get_node_details",
+          "status": "ok",
+          "summary": "匹配 2 项",
+          "durationMs": 1
+        },
+        {
+          "name": "search_nodes",
+          "status": "ok",
+          "summary": "匹配 5 项",
+          "durationMs": 1
+        },
+        {
+          "name": "search_nodes",
+          "status": "ok",
+          "summary": "匹配 1 项",
+          "durationMs": 0
+        }
+      ],
+      "activatedSkills": [],
+      "diagnosticsCount": 0,
+      "diagnostics": [],
+      "screenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-B-image-plus-text.png"
+    },
+    {
+      "key": "C-text-plus-oss-skills",
+      "title": "C · 纯文本 + 开源社区设计 Skill（frontend-design + ui-ux-pro-max + better-colors）",
+      "elapsedMs": 235138,
+      "modelUsed": "deepseek-flash",
+      "mode": "generate",
+      "summary": "创建 1 个 390×844 微光烘焙 H5 首页画板：暗豆袋底 + 纸签式当季手冲主视觉、风味筛选胶囊、两款带烘焙度刻度的豆卡、文字化底部导航，单一琥珀金行动色，全量 WCAG AA 对比。",
+      "stats": {
+        "created": 136,
+        "updated": 0,
+        "removed": 0,
+        "componentsInserted": 1,
+        "tokensBound": 0
+      },
+      "metrics": {
+        "found": true,
+        "rootId": "ai-lumina-home-7d93af62",
+        "rootSize": "390x844",
+        "rootFill": "#ffffff",
+        "layerCount": 145,
+        "autoLayoutContainers": 64,
+        "totalContainers": 65,
+        "autoLayoutRatio": 98,
+        "textLayers": 52,
+        "uniqueFills": [
+          "#ffffff",
+          "#202734",
+          "#f5f7fc",
+          "#a0acc0",
+          "#2a1f18",
+          "#241a13",
+          "#e2e8f0",
+          "#bfae93",
+          "#453325",
+          "#e9a83e",
+          "#f4ebd9",
+          "#221a14"
+        ],
+        "lintIssues": 40,
+        "lintSummary": [
+          "out-of-bounds: 子层超出父容器",
+          "out-of-bounds: 子层超出父容器",
+          "unbound-color: 颜色 #2a1f18 未绑定设计变量",
+          "unbound-color: 颜色 #f2e4ce 未绑定设计变量",
+          "unbound-color: 颜色 #9c8a77 未绑定设计变量",
+          "unbound-color: 颜色 #f5ede1 未绑定设计变量"
+        ],
+        "lintTotal": 100,
+        "lintBreakdown": {
+          "lowContrast": 0,
+          "outOfBounds": 27,
+          "overlap": 0,
+          "emptyText": 0,
+          "unboundColor": 73,
+          "structuralTotal": 27
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_skill_resources",
+          "status": "ok",
+          "summary": "已检索 1 份资源，命中 8 项",
+          "durationMs": 2
+        },
+        {
+          "name": "get_design_system",
+          "status": "ok",
+          "summary": "匹配 68 项",
+          "durationMs": 1
+        },
+        {
+          "name": "search_skill_resources",
+          "status": "ok",
+          "summary": "已检索 26 份资源，命中 8 项",
+          "durationMs": 24
+        },
+        {
+          "name": "search_components",
+          "status": "ok",
+          "summary": "匹配 0 项",
+          "durationMs": 1
+        },
+        {
+          "name": "search_skill_resources",
+          "status": "ok",
+          "summary": "已检索 0 份资源，命中 0 项",
+          "durationMs": 0
+        },
+        {
+          "name": "search_components",
+          "status": "ok",
+          "summary": "匹配 19 项",
+          "durationMs": 0
+        },
+        {
+          "name": "search_skill_resources",
+          "status": "ok",
+          "summary": "已检索 26 份资源，命中 6 项",
+          "durationMs": 18
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "创建 1 个 390×844 微光烘焙 H5 首页画板：暗豆袋底 + 纸签式当季手冲主视觉、风味筛选胶囊、两款带烘焙度刻度的豆卡、文字化底部导航，单一琥珀金行动色，全量 WCAG AA 对比。",
+          "durationMs": 243
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 118 项",
+          "durationMs": 9
+        },
+        {
+          "name": "get_node_details",
+          "status": "ok",
+          "summary": "匹配 14 项",
+          "durationMs": 1
+        }
+      ],
+      "activatedSkills": [
+        "frontend-design",
+        "ui-ux-pro-max",
+        "better-colors"
+      ],
+      "diagnosticsCount": 0,
+      "diagnostics": [],
+      "screenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-C-text-plus-oss-skills.png"
+    },
+    {
+      "key": "D-image-plus-oss-and-forma-skills",
+      "title": "D · 参考图 + 文本 + 社区设计 Skill + Forma 设计系统技能",
+      "elapsedMs": 180111,
+      "modelUsed": "deepseek-flash",
+      "mode": "generate",
+      "summary": "创建 390×844 移动 H5 咖啡订阅点单首页：暖褐+炉火琥珀色系、宋体展示标题、主视觉横幅、风味胶囊、两张豆卡与底部导航",
+      "stats": {
+        "created": 90,
+        "updated": 0,
+        "removed": 0,
+        "componentsInserted": 2,
+        "tokensBound": 0
+      },
+      "metrics": {
+        "found": true,
+        "rootId": "ai-home-screen-9e8f9660",
+        "rootSize": "390x844",
+        "rootFill": "#14100e",
+        "layerCount": 101,
+        "autoLayoutContainers": 43,
+        "totalContainers": 45,
+        "autoLayoutRatio": 96,
+        "textLayers": 44,
+        "uniqueFills": [
+          "#14100e",
+          "#202734",
+          "#f5f7fc",
+          "#a0acc0",
+          "#ffffff",
+          "#1e1715",
+          "#1d1614",
+          "#251c18",
+          "#f2b15c",
+          "#4f5b3a",
+          "#2a201c",
+          "#261d19"
+        ],
+        "lintIssues": 40,
+        "lintSummary": [
+          "unbound-color: 文字/前景色 #fdf6ec 未绑定，可替换为变量 Atlas/paper",
+          "unbound-color: 文字/前景色 #fdf6ec 未绑定，可替换为变量 Atlas/paper",
+          "unbound-color: 文字/前景色 #fdf6ec 未绑定，可替换为变量 Atlas/paper",
+          "unbound-color: 文字/前景色 #fdf6ec 未绑定，可替换为变量 Atlas/paper",
+          "unbound-color: 文字/前景色 #fdf6ec 未绑定，可替换为变量 Atlas/paper",
+          "unbound-color: 文字/前景色 #fdf6ec 未绑定，可替换为变量 Atlas/paper"
+        ],
+        "lintTotal": 84,
+        "lintBreakdown": {
+          "lowContrast": 0,
+          "outOfBounds": 14,
+          "overlap": 1,
+          "emptyText": 0,
+          "unboundColor": 69,
+          "structuralTotal": 15
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "get_design_system",
+          "status": "ok",
+          "summary": "匹配 68 项",
+          "durationMs": 0
+        },
+        {
+          "name": "search_components",
+          "status": "ok",
+          "summary": "匹配 19 项",
+          "durationMs": 0
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "创建 390×844 移动 H5 咖啡订阅点单首页：暖褐+炉火琥珀色系、宋体展示标题、主视觉横幅、风味胶囊、两张豆卡与底部导航",
+          "durationMs": 229
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 88 项",
+          "durationMs": 5
+        },
+        {
+          "name": "get_node_details",
+          "status": "ok",
+          "summary": "匹配 26 项",
+          "durationMs": 1
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "error",
+          "summary": "update：目标节点不存在：ai-home-screen-4f5eceb0 用 search_nodes 查找。候选：无",
+          "durationMs": 1
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "error",
+          "summary": "模型返回格式无效，请重试",
+          "durationMs": 3
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "创建 390×844 移动 H5 咖啡订阅点单首页：暖褐+炉火琥珀色系、宋体展示标题、主视觉横幅、风味胶囊、两张豆卡与底部导航",
+          "durationMs": 204
+        }
+      ],
+      "activatedSkills": [
+        "frontend-design",
+        "ui-ux-pro-max",
+        "forma-design-system-craft"
+      ],
+      "diagnosticsCount": 0,
+      "diagnostics": [],
+      "screenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-D-image-plus-oss-and-forma-skills.png"
+    },
+    {
+      "key": "E-theme-factory-golden-hour",
+      "title": "E · 社区 theme-factory 主题定向迁移（Golden Hour）",
+      "elapsedMs": 82317,
+      "modelUsed": "deepseek-flash",
+      "mode": "generate",
+      "summary": "按 Golden Hour 色板创建 390×844 精品咖啡订阅首页，含顶栏/主视觉/风味分类/双豆单卡/底栏",
+      "stats": {
+        "created": 76,
+        "updated": 0,
+        "removed": 0,
+        "componentsInserted": 0,
+        "tokensBound": 0
+      },
+      "metrics": {
+        "found": true,
+        "rootId": "ai-lumina-home-29966f7e",
+        "rootSize": "390x844",
+        "rootFill": "#f6ede1",
+        "layerCount": 76,
+        "autoLayoutContainers": 40,
+        "totalContainers": 40,
+        "autoLayoutRatio": 100,
+        "textLayers": 35,
+        "uniqueFills": [
+          "#f6ede1",
+          "#ffffff",
+          "#f4a900",
+          "#4a403a",
+          "#fffdf9",
+          "#d4b896"
+        ],
+        "lintIssues": 40,
+        "lintSummary": [
+          "low-contrast: 文字对比度 4.48:1 未达 WCAG AA 标准（需 ≥ 4.5:1）",
+          "unbound-color: 文字/前景色 #fff8ee 未绑定，可替换为变量 Atlas/paper",
+          "low-contrast: 文字对比度 3.25:1 未达 WCAG AA 标准（需 ≥ 4.5:1）",
+          "low-contrast: 文字对比度 4.48:1 未达 WCAG AA 标准（需 ≥ 4.5:1）",
+          "unbound-color: 填充色 #fffdf9 未绑定，可替换为变量 Color/Light/surface",
+          "unbound-color: 填充色 #fffdf9 未绑定，可替换为变量 Color/Light/surface"
+        ],
+        "lintTotal": 59,
+        "lintBreakdown": {
+          "lowContrast": 5,
+          "outOfBounds": 1,
+          "overlap": 0,
+          "emptyText": 0,
+          "unboundColor": 53,
+          "structuralTotal": 6
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "activate_skill",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "get_canvas_overview",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "read_skill_resource",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "get_design_system",
+          "status": "ok",
+          "summary": "匹配 68 项",
+          "durationMs": 0
+        },
+        {
+          "name": "search_components",
+          "status": "ok",
+          "summary": "匹配 19 项",
+          "durationMs": 0
+        },
+        {
+          "name": "propose_design_changes",
+          "status": "ok",
+          "summary": "按 Golden Hour 色板创建 390×844 精品咖啡订阅首页，含顶栏/主视觉/风味分类/双豆单卡/底栏",
+          "durationMs": 90
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 59 项",
+          "durationMs": 5
+        },
+        {
+          "name": "lint_design",
+          "status": "ok",
+          "summary": "匹配 59 项",
+          "durationMs": 6
+        },
+        {
+          "name": "get_node_details",
+          "status": "ok",
+          "summary": "匹配 2 项",
+          "durationMs": 0
+        }
+      ],
+      "activatedSkills": [
+        "theme-factory"
+      ],
+      "diagnosticsCount": 0,
+      "diagnostics": [],
+      "screenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-E-theme-factory-golden-hour.png"
+    }
+  ],
+  "editabilityCheck": {
+    "tested": true,
+    "document": "D-image-plus-oss-and-forma-skills.forma.json",
+    "nodeId": "32d02320-3a88-4c46-90ce-5c863ad0c7a7",
+    "nodeName": "9:41",
+    "origText": "9:41",
+    "editedText": "微光烘焙 · 已手动编辑",
+    "undoneText": "9:41",
+    "editSucceeded": true,
+    "undoSucceeded": true
+  }
+}

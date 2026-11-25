@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "id": "99c536c1-a178-492c-87f0-222add145dce",
+  "name": "DeepSeek 局部复测",
+  "revision": 1,
+  "nodes": [
+    {
+      "id": "ai-58376b7d",
+      "parentId": null,
+      "type": "frame",
+      "name": "横幅与搜索栏",
+      "text": "",
+      "style": {
+        "width": 390,
+        "height": 844,
+        "x": 80,
+        "y": 80,
+        "fill": "#ffffff",
+        "color": "#0f172a",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 20,
+        "gap": 12,
+        "layout": "column"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-db9117b1",
+      "parentId": "ai-58376b7d",
+      "type": "frame",
+      "name": "当季手冲横幅",
+      "text": "",
+      "style": {
+        "width": 320,
+        "height": 220,
+        "widthMode": "fill",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#0f172a",
+        "radius": 24,
+        "fontSize": 16,
+        "padding": 0,
+        "insets": {
+          "top": 18,
+          "right": 20,
+          "bottom": 18,
+          "left": 20
+        },
+        "gap": 12,
+        "layout": "column",
+        "gradient": {
+          "type": "linear",
+          "angle": 140,
+          "stops": [
+            {
+              "offset": 0,
+              "color": "#16362a",
+              "opacity": 1
+            },
+            {
+              "offset": 0.55,
+              "color": "#275440",
+              "opacity": 1
+            },
+            {
+              "offset": 1,
+              "color": "#487a55",
+              "opacity": 1
+            }
+          ]
+        },
+        "stroke": "#2c5340",
+        "strokeWidth": 1,
+        "clipContent": true
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-8e78dfc5",
+      "parentId": "ai-db9117b1",
+      "type": "frame",
+      "name": "横幅文案",
+      "text": "",
+      "style": {
+        "width": 320,
+        "height": 120,
+        "widthMode": "fill",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#0f172a",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 8,
+        "layout": "column",
+        "fillOpacity": 0
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-fa9bd43c",
+      "parentId": "ai-8e78dfc5",
+      "type": "text",
+      "name": "横幅主标题",
+      "text": "晨曦花魁",
+      "style": {
+        "width": 108,
+        "height": 28,
+        "widthMode": "fill",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#fbf9f4",
+        "radius": 0,
+        "fontSize": 26,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fontWeight": 700,
+        "lineHeight": 32,
+        "letterSpacing": 1
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-0e0ef1d6",
+      "parentId": "ai-8e78dfc5",
+      "type": "text",
+      "name": "产地产区",
+      "text": "埃塞俄比亚 · 古吉 日晒 G1",
+      "style": {
+        "width": 159,
+        "height": 28,
+        "widthMode": "fill",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#a9c7b2",
+        "radius": 0,
+        "fontSize": 11,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fontWeight": 500,
+        "lineHeight": 15,
+        "letterSpacing": 1
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-f3348131",
+      "parentId": "ai-8e78dfc5",
+      "type": "text",
+      "name": "风味描述",
+      "text": "茉莉、白桃与佛手柑，明亮的花果酸甜，像清晨第一束光。",
+      "style": {
+        "width": 312,
+        "height": 28,
+        "widthMode": "fill",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#d8e4d6",
+        "radius": 0,
+        "fontSize": 12,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "lineHeight": 18
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-93243ee8",
+      "parentId": "ai-58376b7d",
+      "type": "frame",
+      "name": "搜索栏",
+      "text": "",
+      "style": {
+        "width": 350,
+        "height": 48,
+        "x": 0,
+        "y": 0,
+        "fill": "#15121c",
+        "color": "#0f172a",
+        "radius": 16,
+        "fontSize": 16,
+        "padding": 16,
+        "gap": 10,
+        "layout": "row",
+        "alignY": "center",
+        "stroke": "#2a2436",
+        "strokeWidth": 1
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-fbb8ebdc",
+      "parentId": "ai-93243ee8",
+      "type": "frame",
+      "name": "搜索图标",
+      "text": "",
+      "style": {
+        "width": 16,
+        "height": 16,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#0f172a",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fillOpacity": 0
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-a28d195f",
+      "parentId": "ai-fbb8ebdc",
+      "type": "ellipse",
+      "name": "镜片",
+      "text": "",
+      "style": {
+        "width": 11,
+        "height": 11,
+        "x": 1,
+        "y": 1,
+        "fill": "#e2e8f0",
+        "color": "#0f172a",
+        "radius": 24,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fillOpacity": 0,
+        "stroke": "#9c93aa",
+        "strokeWidth": 1.4
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-6da867a7",
+      "parentId": "ai-fbb8ebdc",
+      "type": "rectangle",
+      "name": "手柄",
+      "text": "",
+      "style": {
+        "width": 5,
+        "height": 1.4,
+        "x": 10,
+        "y": 11,
+        "fill": "#9c93aa",
+        "color": "#0f172a",
+        "radius": 0.7,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-549ba8be",
+      "parentId": "ai-93243ee8",
+      "type": "text",
+      "name": "搜索占位",
+      "text": "搜索豆子、产区或风味",
+      "style": {
+        "width": 135,
+        "height": 28,
+        "widthMode": "fill",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#857c92",
+        "radius": 0,
+        "fontSize": 13.5,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "lineHeight": 20
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-7ec56f1a",
+      "parentId": "ai-93243ee8",
+      "type": "frame",
+      "name": "筛选胶囊",
+      "text": "",
+      "style": {
+        "width": 320,
+        "height": 120,
+        "widthMode": "hug",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#221b2e",
+        "color": "#0f172a",
+        "radius": 999,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "row",
+        "alignY": "center"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "ai-7b05994c",
+      "parentId": "ai-7ec56f1a",
+      "type": "text",
+      "name": "筛选文字",
+      "text": "筛选",
+      "style": {
+        "width": 21,
+        "height": 28,
+        "widthMode": "hug",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#d8c9e8",
+        "radius": 0,
+        "fontSize": 10.5,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fontWeight": 600,
+        "lineHeight": 14
+      },
+      "hidden": false,
+      "locked": false
+    }
+  ],
+  "tokens": {
+    "brand": {
+      "name": "品牌 / 主色",
+      "value": "#635bff"
+    }
+  }
+}

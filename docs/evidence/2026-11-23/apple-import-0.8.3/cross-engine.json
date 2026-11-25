@@ -1,0 +1,473 @@
+{
+  "figma": {
+    "sourceSha256": "d6a0a6370b17f5c109d5ef227915ef6d59bf0da23076292e09fb87fd5e63a11a",
+    "projectSha256": "d7680d4507aa712030cc9813c9c5be9451ab487d5341ae025426ce577ccd5b39",
+    "servedEntrySha256": "fab5e69ed824640f089886abb1526d7c208322d9a22539ebe1a3890b5e4b9197",
+    "engines": {
+      "firefox": {
+        "editor": {
+          "cover": {
+            "box": {
+              "x": 140,
+              "y": 232,
+              "width": 1920,
+              "height": 1080
+            },
+            "sha256": "cc6688563cca345ec3b201eaca56edfcee5524d297516f46fa6d4e8672500d30",
+            "pixels": {
+              "width": 1920,
+              "height": 1080,
+              "over16": 32,
+              "total": 2073600,
+              "pct": 0.0015432098765432098,
+              "max": 31
+            }
+          },
+          "button": {
+            "box": {
+              "x": 825,
+              "y": 437,
+              "width": 73,
+              "height": 50
+            },
+            "sha256": "04134331fc996f4dca0418853be1d9ba9b744240b4b042959995968509d265e8",
+            "pixels": {
+              "width": 73,
+              "height": 50,
+              "over16": 6,
+              "total": 3650,
+              "pct": 0.1643835616438356,
+              "max": 32
+            }
+          },
+          "toggle-on": {
+            "box": {
+              "x": 1068,
+              "y": 758,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "fb976fa84a55a1ace55e32eda046f443f307d4d39b57d784652ad69f9ff6e956",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 1,
+              "total": 1792,
+              "pct": 0.05580357142857143,
+              "max": 18
+            }
+          },
+          "toggle-off": {
+            "box": {
+              "x": 1068,
+              "y": 758,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "0cde5413685c40d58cdf6698265009d329331d872cd64b7e99aaf071538525fb",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 0,
+              "total": 1792,
+              "pct": 0,
+              "max": 8
+            }
+          },
+          "alert-button": {
+            "box": {
+              "x": 1006,
+              "y": 844,
+              "width": 86,
+              "height": 48
+            },
+            "sha256": "9243ddd6f9b6d5fa34d156974420d52dbbb755a1e577c37dbf80ad285b390faa",
+            "pixels": {
+              "width": 86,
+              "height": 48,
+              "over16": 6,
+              "total": 4128,
+              "pct": 0.14534883720930233,
+              "max": 29
+            }
+          },
+          "alert": {
+            "box": {
+              "x": 1115,
+              "y": 552,
+              "width": 300,
+              "height": 307
+            },
+            "sha256": "d6939ed940bbdf93cecce4d791e73a73763504c7f56eb8cc656e28826b967328",
+            "pixels": {
+              "width": 300,
+              "height": 307,
+              "over16": 150,
+              "total": 92100,
+              "pct": 0.16286644951140064,
+              "max": 50
+            }
+          }
+        },
+        "react": {
+          "cover": {
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "sha256": "cc6688563cca345ec3b201eaca56edfcee5524d297516f46fa6d4e8672500d30",
+            "pixels": {
+              "width": 1920,
+              "height": 1080,
+              "over16": 32,
+              "total": 2073600,
+              "pct": 0.0015432098765432098,
+              "max": 31
+            }
+          },
+          "button": {
+            "box": {
+              "x": 200,
+              "y": 200,
+              "width": 73,
+              "height": 50
+            },
+            "sha256": "04134331fc996f4dca0418853be1d9ba9b744240b4b042959995968509d265e8",
+            "pixels": {
+              "width": 73,
+              "height": 50,
+              "over16": 6,
+              "total": 3650,
+              "pct": 0.1643835616438356,
+              "max": 32
+            }
+          },
+          "toggle-on": {
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "fb976fa84a55a1ace55e32eda046f443f307d4d39b57d784652ad69f9ff6e956",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 1,
+              "total": 1792,
+              "pct": 0.05580357142857143,
+              "max": 18
+            }
+          },
+          "toggle-off": {
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "0cde5413685c40d58cdf6698265009d329331d872cd64b7e99aaf071538525fb",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 0,
+              "total": 1792,
+              "pct": 0,
+              "max": 8
+            }
+          },
+          "alert-button": {
+            "box": {
+              "x": 16,
+              "y": 208,
+              "width": 86,
+              "height": 48
+            },
+            "sha256": "9243ddd6f9b6d5fa34d156974420d52dbbb755a1e577c37dbf80ad285b390faa",
+            "pixels": {
+              "width": 86,
+              "height": 48,
+              "over16": 6,
+              "total": 4128,
+              "pct": 0.14534883720930233,
+              "max": 29
+            }
+          },
+          "alert": {
+            "box": {
+              "x": 350,
+              "y": 20,
+              "width": 300,
+              "height": 307
+            },
+            "sha256": "a587df1ca44dff527eaeda2f3aa1c2ff93cb014902eca2abc34903bcbbf6eb9b",
+            "pixels": {
+              "width": 300,
+              "height": 307,
+              "over16": 150,
+              "total": 92100,
+              "pct": 0.16286644951140064,
+              "max": 50
+            }
+          }
+        },
+        "errors": [],
+        "browser": "159.0"
+      },
+      "webkit": {
+        "editor": {
+          "cover": {
+            "box": {
+              "x": 140,
+              "y": 232,
+              "width": 1920,
+              "height": 1080
+            },
+            "sha256": "b2b23f4c90e795cdd8fe0918a430322f55db7a93c15acc1548f6113752d6afb2",
+            "pixels": {
+              "width": 1920,
+              "height": 1080,
+              "over16": 6871,
+              "total": 2073600,
+              "pct": 0.33135609567901236,
+              "max": 57
+            }
+          },
+          "button": {
+            "box": {
+              "x": 825,
+              "y": 437,
+              "width": 73,
+              "height": 50
+            },
+            "sha256": "49feac4927ce84aa461a1a96be528f914ccc1f7cc469324e2536d059e07ca3ee",
+            "pixels": {
+              "width": 73,
+              "height": 50,
+              "over16": 3,
+              "total": 3650,
+              "pct": 0.0821917808219178,
+              "max": 32
+            }
+          },
+          "toggle-on": {
+            "box": {
+              "x": 1068,
+              "y": 758,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "76a3efbdcf13f19089d1d92d8d09a966454a61d993f54cdebfc1ffb6adc3cf83",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 2,
+              "total": 1792,
+              "pct": 0.11160714285714286,
+              "max": 18
+            }
+          },
+          "toggle-off": {
+            "box": {
+              "x": 1068,
+              "y": 758,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "d6cab767b75d291a5a035a5badb0769a799916db4079ee5dae387d9efa2f0654",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 0,
+              "total": 1792,
+              "pct": 0,
+              "max": 5
+            }
+          },
+          "alert-button": {
+            "box": {
+              "x": 1006,
+              "y": 844,
+              "width": 86,
+              "height": 48
+            },
+            "sha256": "954005b8482a758e0b7c861360463b9316cf9bdbe50633ed460362f6fc1883bc",
+            "pixels": {
+              "width": 86,
+              "height": 48,
+              "over16": 5,
+              "total": 4128,
+              "pct": 0.12112403100775193,
+              "max": 29
+            }
+          },
+          "alert": {
+            "box": {
+              "x": 1115,
+              "y": 552,
+              "width": 300,
+              "height": 307
+            },
+            "sha256": "1e3fc60870310dfb8d86556413979d5482ced3dcf3578c7a736f5ba393c04223",
+            "pixels": {
+              "width": 300,
+              "height": 307,
+              "over16": 162,
+              "total": 92100,
+              "pct": 0.1758957654723127,
+              "max": 46
+            }
+          }
+        },
+        "react": {
+          "cover": {
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "sha256": "b2b23f4c90e795cdd8fe0918a430322f55db7a93c15acc1548f6113752d6afb2",
+            "pixels": {
+              "width": 1920,
+              "height": 1080,
+              "over16": 6871,
+              "total": 2073600,
+              "pct": 0.33135609567901236,
+              "max": 57
+            }
+          },
+          "button": {
+            "box": {
+              "x": 200,
+              "y": 200,
+              "width": 73,
+              "height": 50
+            },
+            "sha256": "49feac4927ce84aa461a1a96be528f914ccc1f7cc469324e2536d059e07ca3ee",
+            "pixels": {
+              "width": 73,
+              "height": 50,
+              "over16": 3,
+              "total": 3650,
+              "pct": 0.0821917808219178,
+              "max": 32
+            }
+          },
+          "toggle-on": {
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "76a3efbdcf13f19089d1d92d8d09a966454a61d993f54cdebfc1ffb6adc3cf83",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 2,
+              "total": 1792,
+              "pct": 0.11160714285714286,
+              "max": 18
+            }
+          },
+          "toggle-off": {
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 64,
+              "height": 28
+            },
+            "sha256": "d6cab767b75d291a5a035a5badb0769a799916db4079ee5dae387d9efa2f0654",
+            "pixels": {
+              "width": 64,
+              "height": 28,
+              "over16": 0,
+              "total": 1792,
+              "pct": 0,
+              "max": 5
+            }
+          },
+          "alert-button": {
+            "box": {
+              "x": 16,
+              "y": 208,
+              "width": 86,
+              "height": 48
+            },
+            "sha256": "954005b8482a758e0b7c861360463b9316cf9bdbe50633ed460362f6fc1883bc",
+            "pixels": {
+              "width": 86,
+              "height": 48,
+              "over16": 5,
+              "total": 4128,
+              "pct": 0.12112403100775193,
+              "max": 29
+            }
+          },
+          "alert": {
+            "box": {
+              "x": 350,
+              "y": 20,
+              "width": 300,
+              "height": 307
+            },
+            "sha256": "ca42a7ad391834a9b334f2a449533f4e7356a812ad9769a79f83ccbf2b322e53",
+            "pixels": {
+              "width": 300,
+              "height": 307,
+              "over16": 162,
+              "total": 92100,
+              "pct": 0.1758957654723127,
+              "max": 46
+            }
+          }
+        },
+        "errors": [],
+        "browser": "27.2"
+      }
+    }
+  },
+  "sketchStructure": {
+    "firefox": {
+      "browser": "159.0",
+      "phases": [
+        "review",
+        "new-file",
+        "reload",
+        "portable-open-in-clean-profile",
+        "unicode-master-rename-and-undo"
+      ],
+      "mismatches": {
+        "missing": 0,
+        "parent": 0,
+        "name": 0,
+        "text": 0,
+        "master": 0,
+        "instanceTarget": 0,
+        "siblingOrders": 0
+      }
+    },
+    "webkit": {
+      "browser": "27.2",
+      "phases": [
+        "review",
+        "new-file",
+        "reload",
+        "portable-open-in-clean-profile",
+        "unicode-master-rename-and-undo"
+      ],
+      "mismatches": {
+        "missing": 0,
+        "parent": 0,
+        "name": 0,
+        "text": 0,
+        "master": 0,
+        "instanceTarget": 0,
+        "siblingOrders": 0
+      }
+    }
+  }
+}

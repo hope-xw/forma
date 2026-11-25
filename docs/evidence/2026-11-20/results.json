@@ -1,0 +1,387 @@
+{
+  "version": "0.2.1",
+  "date": "2026-11-20",
+  "environment": {
+    "os": "macOS 27.2.1 arm64",
+    "node": "25.8.0",
+    "npm": "11.11.0",
+    "productionPreview": true,
+    "modelConfigured": false
+  },
+  "unit": {
+    "passed": 111,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheckAndBuild": "pass",
+  "format": "pass",
+  "browsers": {
+    "Chrome 158": {
+      "passedUiScenarios": [
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "images",
+        "vector",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "passedIndependentExports": [
+        "span",
+        "atlas",
+        "studio-file",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "workflowMeasurements": {
+        "aura": {
+          "theme": "Cloud Light",
+          "mobileFlow": true,
+          "navigation": "marketing → workspace → overlay → workspace → marketing"
+        },
+        "editing-workflow": {
+          "mixedChannels": [
+            "rgba(18, 52, 86, 0.4)",
+            "rgba(21, 103, 137, 0.8)"
+          ],
+          "span": [
+            210,
+            220,
+            50
+          ],
+          "compactWidth": 721,
+          "disabledCommand": true
+        },
+        "optional-gateway": {
+          "modelRequests": 0,
+          "manualEditor": true
+        }
+      }
+    },
+    "Playwright WebKit 27.2": {
+      "passedUiScenarios": [
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "images",
+        "vector",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "passedIndependentExports": [
+        "span",
+        "atlas",
+        "studio-file",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "workflowMeasurements": {
+        "aura": {
+          "theme": "Cloud Light",
+          "mobileFlow": true,
+          "navigation": "marketing → workspace → overlay → workspace → marketing"
+        },
+        "editing-workflow": {
+          "mixedChannels": [
+            "rgba(18, 52, 86, 0.4)",
+            "rgba(21, 103, 137, 0.8)"
+          ],
+          "span": [
+            210,
+            220,
+            50
+          ],
+          "compactWidth": 721,
+          "disabledCommand": true
+        },
+        "optional-gateway": {
+          "modelRequests": 0,
+          "manualEditor": true
+        }
+      }
+    }
+  },
+  "headerGeometryChrome": {
+    "viewportWidthsPx": [
+      375,
+      390,
+      620,
+      721,
+      949,
+      950,
+      1024
+    ],
+    "horizontalDocumentOverflow": false,
+    "visibleHeaderButtonsOutsideRightEdge": 0
+  },
+  "performance": {
+    "layer-tree": [
+      {
+        "count": 100,
+        "importMs": 73,
+        "selectMs": 122,
+        "mountedRows": 100,
+        "treeScroll": 2127,
+        "zoomMs": 67,
+        "dragMs": 126,
+        "nativeDownloadMs": 55,
+        "reactDownloadMs": 51,
+        "heapMiB": 18
+      },
+      {
+        "count": 1000,
+        "importMs": 79,
+        "selectMs": 59,
+        "mountedRows": 35,
+        "treeScroll": 27327,
+        "zoomMs": 71,
+        "dragMs": 125,
+        "nativeDownloadMs": 43,
+        "reactDownloadMs": 71,
+        "heapMiB": 17
+      },
+      {
+        "count": 10000,
+        "importMs": 414,
+        "selectMs": 91,
+        "mountedRows": 35,
+        "treeScroll": 279327,
+        "zoomMs": 73,
+        "dragMs": 223,
+        "nativeDownloadMs": 40,
+        "reactDownloadMs": 266,
+        "heapMiB": 67
+      }
+    ],
+    "complex": [
+      {
+        "layers": 259,
+        "boards": 4,
+        "vectors": 130,
+        "instances": 6,
+        "importMs": 135,
+        "dragSamplesMs": [
+          235,
+          239,
+          240,
+          240,
+          241,
+          240
+        ],
+        "dragP50": 240,
+        "dragP95": 241,
+        "rafSamples": 84,
+        "rafMax": 17,
+        "rafOver25ms": 0,
+        "rafP50": 17,
+        "rafP95": 17,
+        "heapMiB": 27
+      },
+      {
+        "layers": 8288,
+        "boards": 128,
+        "vectors": 4160,
+        "instances": 192,
+        "importMs": 999,
+        "dragSamplesMs": [
+          245,
+          240,
+          239,
+          241,
+          240,
+          241
+        ],
+        "dragP50": 240,
+        "dragP95": 245,
+        "rafSamples": 85,
+        "rafMax": 17,
+        "rafOver25ms": 0,
+        "rafP50": 17,
+        "rafP95": 17,
+        "heapMiB": 63
+      }
+    ]
+  },
+  "externalAgent": {
+    "tools": [
+      "read_design",
+      "list_components",
+      "propose_design"
+    ],
+    "scope": "one board",
+    "applied": true,
+    "undo": true
+  },
+  "desktop": {
+    "hot": {
+      "version": "0.2.1",
+      "docs": [
+        {
+          "url": "forma://app/",
+          "name": "未命名设计文件"
+        },
+        {
+          "url": "forma://app/",
+          "name": "Aura Studio · SaaS 产品与营销界面"
+        },
+        {
+          "url": "forma://app/",
+          "name": "Forma Mobile · 界面研究室"
+        }
+      ]
+    },
+    "cold": {
+      "launch": "macOS LaunchServices cold open",
+      "documents": [
+        "Aura Studio · SaaS 产品与营销界面",
+        "Forma Mobile · 界面研究室"
+      ]
+    },
+    "adHocDeepSignature": "pass",
+    "dmgCRC": "B7A06C3E",
+    "zipIntegrity": "pass",
+    "sha256": {
+      "Forma-0.2.1-arm64.dmg": "a324cc1c0d4741f2e4b3703d14ee92e9f80382fb3956e25664ac7199ef39538b",
+      "Forma-0.2.1-arm64.zip": "08528fd168566061e47d4c567486e57ec2ddd1a26a23292345202d5178301fa0"
+    }
+  },
+  "samples": {
+    "aura-showcase": {
+      "sha256": "b566c07910ff4293795fdd02a88af4d1bc5fd17971b7b10804dc0d02b4ab2968",
+      "pages": [
+        {
+          "pageId": "marketing",
+          "nodes": 125,
+          "boards": 2,
+          "vectors": 2,
+          "instances": 0,
+          "directVariableBoundNodes": 77
+        },
+        {
+          "pageId": "workspace",
+          "nodes": 128,
+          "boards": 2,
+          "vectors": 11,
+          "instances": 0,
+          "directVariableBoundNodes": 68
+        }
+      ]
+    },
+    "mobile-studio": {
+      "sha256": "afb3516f50a4b1eebf881c7cc9c16c257265439d1f7b22289c6e290ea67cc944",
+      "pages": [
+        {
+          "pageId": "ipad",
+          "nodes": 452,
+          "boards": 6,
+          "vectors": 125,
+          "instances": 1,
+          "directVariableBoundNodes": 139
+        },
+        {
+          "pageId": "iphone",
+          "nodes": 242,
+          "boards": 4,
+          "vectors": 52,
+          "instances": 38,
+          "directVariableBoundNodes": 0
+        },
+        {
+          "pageId": "sound",
+          "nodes": 622,
+          "boards": 2,
+          "vectors": 188,
+          "instances": 40,
+          "directVariableBoundNodes": 0
+        },
+        {
+          "pageId": "atlas",
+          "nodes": 259,
+          "boards": 4,
+          "vectors": 130,
+          "instances": 6,
+          "directVariableBoundNodes": 0
+        }
+      ]
+    }
+  },
+  "coverageLimits": {
+    "Firefox 159": "New Playwright installation failed before navigation: Could not find profile folder.",
+    "Safari app": "Native WebDriver refused to create a session because Allow remote automation is disabled.",
+    "notExercised": [
+      "system Chinese IME",
+      "physical touch device",
+      "multi-hour session with large bitmaps",
+      "real model generation",
+      "same-content Figma performance"
+    ]
+  }
+}

@@ -1,0 +1,363 @@
+{
+  "date": "2026-11-23",
+  "sourceSha256": "d6a0a6370b17f5c109d5ef227915ef6d59bf0da23076292e09fb87fd5e63a11a",
+  "sourceBytes": 160736706,
+  "sourceVersion": 106,
+  "editorEntry": {
+    "path": "/assets/index-Bk22I7Pn.js",
+    "sha256": "fab5e69ed824640f089886abb1526d7c208322d9a22539ebe1a3890b5e4b9197"
+  },
+  "importWorker": {
+    "path": "/assets/worker-PyroXFXA.js",
+    "sha256": "31a21612c3cf2b12e15bf9ccab03392a9781f6253445d67fd435571e04904e06"
+  },
+  "nativeFile": {
+    "bytes": 411299399,
+    "sha256": "ab637f18b7ae54de9fd45804ab4c0e638b9ba4d2d4365a48f852b83c93c4e1c1"
+  },
+  "reactProject": {
+    "sha256": "d7680d4507aa712030cc9813c9c5be9451ab487d5341ae025426ce577ccd5b39",
+    "bytes": 355381164,
+    "entries": 796,
+    "generatedDigests": 789,
+    "directoryScreens": 735
+  },
+  "structure": {
+    "pages": 46,
+    "components": 2551,
+    "variants": 4749,
+    "auxiliaryComponents": 25,
+    "totalVariants": 5046,
+    "styles": {
+      "text": 111,
+      "paint": 120,
+      "effect": 2
+    },
+    "bindings": 2532,
+    "nativeEmptySections": 11,
+    "variables": 530,
+    "nodes": 38747,
+    "instances": 4101,
+    "strokeStacks": 286,
+    "sharedStrokeStacks": 134,
+    "sharedDoublePaints": 75,
+    "textNodes": 11441,
+    "sourceGlyphLayers": 10066,
+    "images": 420,
+    "issues": 2343
+  },
+  "phases": [
+    "source-imported",
+    "portable-structure-verified",
+    "portable-reopened-clean-profile",
+    "unicode-text-edit-glyph-invalidation-and-undo",
+    "variable-mode-alias-and-undo",
+    "unicode-edit-and-undo",
+    "project-downloaded",
+    "six-original-visual-comparisons",
+    "independent-react-built-and-rendered"
+  ],
+  "pixels": {
+    "rule": "PNG sRGB on white; largest absolute RGB channel difference >16; at most 0.5% per layer and surface",
+    "deviceScaleFactor": 1,
+    "browserViewport": [
+      2200,
+      1500
+    ],
+    "sources": {
+      "cover": {
+        "id": "fig-2401-4",
+        "size": [
+          1920,
+          1080
+        ],
+        "sha256": "1341d11bb4e15f464646ce2b8660ebb2f1698de64756b7eb0a9554807d2599bb"
+      },
+      "button": {
+        "id": "fig-5-108579",
+        "size": [
+          73,
+          50
+        ],
+        "sha256": "2943ed24a48415abd9b50eb952ce7a9e3ef899be89f1fd083747dbb8ea1bda9f"
+      },
+      "toggle-on": {
+        "id": "fig-5433-19060",
+        "size": [
+          64,
+          28
+        ],
+        "sha256": "0205ff15a7c560becbf0b5d7e6f8b3f5aa719dc83779b232a4fa0838501a124e"
+      },
+      "toggle-off": {
+        "id": "fig-5433-20192",
+        "size": [
+          64,
+          28
+        ],
+        "sha256": "ccf1fce19159601d3ad8f131dcf4a9c3ec9e8383e0f6b83258a6bd8dfc932f9f"
+      },
+      "alert-button": {
+        "id": "fig-5446-6654",
+        "size": [
+          86,
+          48
+        ],
+        "sha256": "2be06ddba63e3876e003fd2bf3164098d03523b464004804056ae810e61f9d94"
+      },
+      "alert": {
+        "id": "fig-65-57149",
+        "size": [
+          300,
+          307
+        ],
+        "sha256": "9235f3cbc83d2da28e18ce82aa21cbe69a644cff49505f1d2133738506464064"
+      }
+    },
+    "browsers": {
+      "chromium": {
+        "version": "158.0.8127.36",
+        "editor": {
+          "cover": {
+            "over16": 0,
+            "total": 2073600,
+            "pct": 0,
+            "max": 1
+          },
+          "button": {
+            "over16": 4,
+            "total": 3650,
+            "pct": 0.1095890410958904,
+            "max": 32
+          },
+          "toggle-on": {
+            "over16": 2,
+            "total": 1792,
+            "pct": 0.11160714285714286,
+            "max": 18
+          },
+          "toggle-off": {
+            "over16": 0,
+            "total": 1792,
+            "pct": 0,
+            "max": 5
+          },
+          "alert-button": {
+            "over16": 3,
+            "total": 4128,
+            "pct": 0.07267441860465117,
+            "max": 30
+          },
+          "alert": {
+            "over16": 233,
+            "total": 92100,
+            "pct": 0.252985884907709,
+            "max": 46
+          }
+        },
+        "react": {
+          "cover": {
+            "over16": 0,
+            "total": 2073600,
+            "pct": 0,
+            "max": 1
+          },
+          "button": {
+            "over16": 4,
+            "total": 3650,
+            "pct": 0.1095890410958904,
+            "max": 32
+          },
+          "toggle-on": {
+            "over16": 2,
+            "total": 1792,
+            "pct": 0.11160714285714286,
+            "max": 17
+          },
+          "toggle-off": {
+            "over16": 0,
+            "total": 1792,
+            "pct": 0,
+            "max": 5
+          },
+          "alert-button": {
+            "over16": 3,
+            "total": 4128,
+            "pct": 0.07267441860465117,
+            "max": 30
+          },
+          "alert": {
+            "over16": 233,
+            "total": 92100,
+            "pct": 0.252985884907709,
+            "max": 46
+          }
+        }
+      },
+      "firefox": {
+        "version": "159.0",
+        "editor": {
+          "cover": {
+            "over16": 32,
+            "total": 2073600,
+            "pct": 0.0015432098765432098,
+            "max": 31
+          },
+          "button": {
+            "over16": 6,
+            "total": 3650,
+            "pct": 0.1643835616438356,
+            "max": 32
+          },
+          "toggle-on": {
+            "over16": 1,
+            "total": 1792,
+            "pct": 0.05580357142857143,
+            "max": 18
+          },
+          "toggle-off": {
+            "over16": 0,
+            "total": 1792,
+            "pct": 0,
+            "max": 8
+          },
+          "alert-button": {
+            "over16": 6,
+            "total": 4128,
+            "pct": 0.14534883720930233,
+            "max": 29
+          },
+          "alert": {
+            "over16": 150,
+            "total": 92100,
+            "pct": 0.16286644951140064,
+            "max": 50
+          }
+        },
+        "react": {
+          "cover": {
+            "over16": 32,
+            "total": 2073600,
+            "pct": 0.0015432098765432098,
+            "max": 31
+          },
+          "button": {
+            "over16": 6,
+            "total": 3650,
+            "pct": 0.1643835616438356,
+            "max": 32
+          },
+          "toggle-on": {
+            "over16": 1,
+            "total": 1792,
+            "pct": 0.05580357142857143,
+            "max": 18
+          },
+          "toggle-off": {
+            "over16": 0,
+            "total": 1792,
+            "pct": 0,
+            "max": 8
+          },
+          "alert-button": {
+            "over16": 6,
+            "total": 4128,
+            "pct": 0.14534883720930233,
+            "max": 29
+          },
+          "alert": {
+            "over16": 150,
+            "total": 92100,
+            "pct": 0.16286644951140064,
+            "max": 50
+          }
+        }
+      },
+      "webkit": {
+        "version": "27.2",
+        "editor": {
+          "cover": {
+            "over16": 6871,
+            "total": 2073600,
+            "pct": 0.33135609567901236,
+            "max": 57
+          },
+          "button": {
+            "over16": 3,
+            "total": 3650,
+            "pct": 0.0821917808219178,
+            "max": 32
+          },
+          "toggle-on": {
+            "over16": 2,
+            "total": 1792,
+            "pct": 0.11160714285714286,
+            "max": 18
+          },
+          "toggle-off": {
+            "over16": 0,
+            "total": 1792,
+            "pct": 0,
+            "max": 5
+          },
+          "alert-button": {
+            "over16": 5,
+            "total": 4128,
+            "pct": 0.12112403100775193,
+            "max": 29
+          },
+          "alert": {
+            "over16": 162,
+            "total": 92100,
+            "pct": 0.1758957654723127,
+            "max": 46
+          }
+        },
+        "react": {
+          "cover": {
+            "over16": 6871,
+            "total": 2073600,
+            "pct": 0.33135609567901236,
+            "max": 57
+          },
+          "button": {
+            "over16": 3,
+            "total": 3650,
+            "pct": 0.0821917808219178,
+            "max": 32
+          },
+          "toggle-on": {
+            "over16": 2,
+            "total": 1792,
+            "pct": 0.11160714285714286,
+            "max": 18
+          },
+          "toggle-off": {
+            "over16": 0,
+            "total": 1792,
+            "pct": 0,
+            "max": 5
+          },
+          "alert-button": {
+            "over16": 5,
+            "total": 4128,
+            "pct": 0.12112403100775193,
+            "max": 29
+          },
+          "alert": {
+            "over16": 162,
+            "total": 92100,
+            "pct": 0.1758957654723127,
+            "max": 46
+          }
+        }
+      }
+    }
+  },
+  "nativeLayerInventory": {
+    "sha256": "735d21e0692bfdb019b53e4278530eb406dbf45dda6ce746aefec4df3071b89e",
+    "pages": 46,
+    "layerRows": 10657,
+    "emptySectionNames": 11
+  }
+}

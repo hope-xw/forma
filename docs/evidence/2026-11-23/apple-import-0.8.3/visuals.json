@@ -1,0 +1,310 @@
+{
+  "browser": "158.0.8127.36",
+  "deviceScaleFactor": 1,
+  "background": "white sRGB",
+  "metric": "count any RGB channel difference > 16",
+  "maximumPerObject": 0.005,
+  "nativeFigmaExportSha256": "767a0e4c2bf82ea6eab15b7872ff9aa8c6a506d3a9e01d06fe373f2500af8927",
+  "objects": [
+    {
+      "format": "Sketch",
+      "tag": "cover",
+      "sourceId": "74C0D863-BCC3-493B-A6B3-1C0BCA50C124",
+      "sourceSize": [
+        640,
+        640
+      ],
+      "preview": {
+        "width": 640,
+        "height": 640,
+        "over16": 1302,
+        "total": 409600,
+        "pct": 0.31787109375,
+        "max": 98
+      },
+      "react": {
+        "width": 640,
+        "height": 640,
+        "over16": 1302,
+        "total": 409600,
+        "pct": 0.31787109375,
+        "max": 98
+      }
+    },
+    {
+      "format": "Sketch",
+      "tag": "alert",
+      "sourceId": "882FF902-BC06-4B27-B3E0-0F2AACA07039",
+      "sourceSize": [
+        402,
+        874
+      ],
+      "preview": {
+        "width": 402,
+        "height": 874,
+        "over16": 1656,
+        "total": 351348,
+        "pct": 0.4713275726630008,
+        "max": 221
+      },
+      "react": {
+        "width": 402,
+        "height": 874,
+        "over16": 1633,
+        "total": 351348,
+        "pct": 0.46478135637601464,
+        "max": 221
+      }
+    },
+    {
+      "format": "Sketch",
+      "tag": "button",
+      "sourceId": "D3BBDD64-2CF9-4025-9E94-68E3917DB5D3",
+      "sourceSize": [
+        72,
+        50
+      ],
+      "preview": {
+        "width": 72,
+        "height": 50,
+        "over16": 0,
+        "total": 3600,
+        "pct": 0,
+        "max": 10
+      },
+      "react": {
+        "width": 72,
+        "height": 50,
+        "over16": 0,
+        "total": 3600,
+        "pct": 0,
+        "max": 10
+      }
+    },
+    {
+      "format": "Sketch",
+      "tag": "picker",
+      "sourceId": "F01E4A31-B2B4-47A3-A1B4-02DCE1F5CF29",
+      "sourceSize": [
+        360,
+        300
+      ],
+      "preview": {
+        "width": 360,
+        "height": 300,
+        "over16": 16,
+        "total": 108000,
+        "pct": 0.014814814814814815,
+        "max": 110
+      },
+      "react": {
+        "width": 360,
+        "height": 300,
+        "over16": 16,
+        "total": 108000,
+        "pct": 0.014814814814814815,
+        "max": 110
+      }
+    },
+    {
+      "format": "Sketch",
+      "tag": "keyboard",
+      "sourceId": "8186ACD4-BF89-40A7-A2F9-FF2D8564F4E9",
+      "sourceSize": [
+        1210,
+        428
+      ],
+      "preview": {
+        "width": 1210,
+        "height": 428,
+        "over16": 710,
+        "total": 517880,
+        "pct": 0.13709739708040472,
+        "max": 160
+      },
+      "react": {
+        "width": 1210,
+        "height": 428,
+        "over16": 710,
+        "total": 517880,
+        "pct": 0.13709739708040472,
+        "max": 160
+      }
+    },
+    {
+      "format": "Sketch",
+      "tag": "toggle",
+      "sourceId": "3110AB65-4DCE-4E0F-812A-B6680573C3BF",
+      "sourceSize": [
+        64,
+        28
+      ],
+      "preview": {
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 9
+      },
+      "react": {
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 9
+      }
+    },
+    {
+      "format": "Figma",
+      "tag": "cover",
+      "sourceId": "2401:4",
+      "sourceSize": [
+        1920,
+        1080
+      ],
+      "preview": {
+        "width": 1920,
+        "height": 1080,
+        "over16": 0,
+        "total": 2073600,
+        "pct": 0,
+        "max": 1
+      },
+      "react": {
+        "width": 1920,
+        "height": 1080,
+        "over16": 0,
+        "total": 2073600,
+        "pct": 0,
+        "max": 1
+      }
+    },
+    {
+      "format": "Figma",
+      "tag": "button",
+      "sourceId": "5:108579",
+      "sourceSize": [
+        73,
+        50
+      ],
+      "preview": {
+        "width": 73,
+        "height": 50,
+        "over16": 4,
+        "total": 3650,
+        "pct": 0.1095890410958904,
+        "max": 32
+      },
+      "react": {
+        "width": 73,
+        "height": 50,
+        "over16": 4,
+        "total": 3650,
+        "pct": 0.1095890410958904,
+        "max": 32
+      }
+    },
+    {
+      "format": "Figma",
+      "tag": "toggle-on",
+      "sourceId": "5433:19060",
+      "sourceSize": [
+        64,
+        28
+      ],
+      "preview": {
+        "width": 64,
+        "height": 28,
+        "over16": 2,
+        "total": 1792,
+        "pct": 0.11160714285714286,
+        "max": 18
+      },
+      "react": {
+        "width": 64,
+        "height": 28,
+        "over16": 2,
+        "total": 1792,
+        "pct": 0.11160714285714286,
+        "max": 17
+      }
+    },
+    {
+      "format": "Figma",
+      "tag": "toggle-off",
+      "sourceId": "5433:20192",
+      "sourceSize": [
+        64,
+        28
+      ],
+      "preview": {
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 5
+      },
+      "react": {
+        "width": 64,
+        "height": 28,
+        "over16": 0,
+        "total": 1792,
+        "pct": 0,
+        "max": 5
+      }
+    },
+    {
+      "format": "Figma",
+      "tag": "alert-button",
+      "sourceId": "5446:6654",
+      "sourceSize": [
+        86,
+        48
+      ],
+      "preview": {
+        "width": 86,
+        "height": 48,
+        "over16": 3,
+        "total": 4128,
+        "pct": 0.07267441860465117,
+        "max": 30
+      },
+      "react": {
+        "width": 86,
+        "height": 48,
+        "over16": 3,
+        "total": 4128,
+        "pct": 0.07267441860465117,
+        "max": 30
+      }
+    },
+    {
+      "format": "Figma",
+      "tag": "alert",
+      "sourceId": "65:57149",
+      "sourceSize": [
+        300,
+        307
+      ],
+      "preview": {
+        "width": 300,
+        "height": 307,
+        "over16": 233,
+        "total": 92100,
+        "pct": 0.252985884907709,
+        "max": 46
+      },
+      "react": {
+        "width": 300,
+        "height": 307,
+        "over16": 233,
+        "total": 92100,
+        "pct": 0.252985884907709,
+        "max": 46
+      }
+    }
+  ]
+}

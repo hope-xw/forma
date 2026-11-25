@@ -1,0 +1,101 @@
+{
+  "Chrome": {
+    "original": {
+      "css": "rgb(255, 0, 0)",
+      "bytes": [
+        234,
+        51,
+        35,
+        255
+      ]
+    },
+    "assigned": {
+      "css": "color(display-p3 1 0 0)",
+      "bytes": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "converted": {
+      "css": "color(display-p3 0.917647 0.2 0.137255)",
+      "bytes": [
+        234,
+        51,
+        35,
+        255
+      ]
+    },
+    "preview": {
+      "css": "color(display-p3 0.917647 0.2 0.137255)",
+      "bytes": [
+        234,
+        51,
+        35,
+        255
+      ]
+    },
+    "bitmap": "8×8 P3 PNG",
+    "convertedHex": "EA3323",
+    "exports": [
+      "file",
+      "srgb"
+    ],
+    "newFile": "display-p3",
+    "downloadedProjects": [
+      "color-profile · install, build and browser passed",
+      "color-profile-srgb · install, build and browser passed"
+    ]
+  },
+  "macOS DMG": {
+    "original": {
+      "css": "rgb(255, 0, 0)",
+      "bytes": [
+        234,
+        51,
+        35,
+        255
+      ]
+    },
+    "assigned": {
+      "css": "color(display-p3 1 0 0)",
+      "bytes": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "converted": {
+      "css": "color(display-p3 0.917647 0.2 0.137255)",
+      "bytes": [
+        234,
+        51,
+        35,
+        255
+      ]
+    },
+    "preview": {
+      "css": "color(display-p3 0.917647 0.2 0.137255)",
+      "bytes": [
+        234,
+        51,
+        35,
+        255
+      ]
+    },
+    "bitmap": "8×8 P3 PNG",
+    "convertedHex": "EA3323",
+    "exports": [
+      "file",
+      "srgb"
+    ],
+    "newFile": "display-p3",
+    "downloadedProjects": [
+      "color-profile · install, build and browser passed",
+      "color-profile-srgb · install, build and browser passed"
+    ]
+  },
+  "DMG SHA-256": "fd11feb4be681f71d24d805bbec3051a844970d41f6bbe950b28642a0984cbfc"
+}

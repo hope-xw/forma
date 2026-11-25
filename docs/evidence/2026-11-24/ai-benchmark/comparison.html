@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>Forma Real AI Generation A/B/C/D/E Visual Comparison (DeepSeek-V4.1-Flash)</title>
+<style>
+  body { margin: 0; padding: 28px; background: #0b0d12; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p.sub { color: #94a3b8; font-size: 13px; margin: 0 0 22px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 260px); gap: 18px; align-items: start; }
+  .card { background: #141821; border: 1px solid #262d3d; border-radius: 14px; padding: 12px; }
+  .card.winner { border-color: #eab308aa; box-shadow: 0 0 0 1px #eab30833; }
+  .card h2 { font-size: 12.5px; line-height: 1.4; margin: 0 0 8px; min-height: 36px; color: #f8fafc; }
+  .card img { width: 100%; border-radius: 10px; border: 1px solid #2a3245; display: block; background: #0f172a; }
+  .meta { margin-top: 8px; font-size: 11px; color: #94a3b8; line-height: 1.55; }
+  .meta b { color: #e2e8f0; }
+  .good { color: #4ade80 !important; }
+  .warn { color: #fbbf24 !important; }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 99px; font-size: 10px; background: #1e293b; color: #7dd3fc; margin: 2px 4px 2px 0; }
+  .badge.skill { background: #312e81; color: #c7d2fe; }
+</style>
+</head>
+<body>
+  <h1>Forma 真实 AI 生成效果对比评测（DeepSeek-V4.1-Flash · 实拍画布渲染）</h1>
+  <p class="sub">同一 390×844 移动 H5 精品咖啡订阅首页需求 · 相同 Forma 设计系统底座 · 真实云端 API 实时生成并在 Chromium 100% 实拍</p>
+  <div class="grid">
+    <div class="card">
+      <h2>视觉参考图（B / D 输入）<br/>Aura Mobile H5</h2>
+      <img src="ref-aura-mobile.png" />
+      <div class="meta">作为条件 B 和 D 的多模态视觉参考输入（390px 移动深色界面）</div>
+    </div>
+    <div class="card ">
+      <h2>A · 纯文本基线（无参考图 / 无 Skill）</h2>
+      <img src="A-text-only.png" />
+      <div class="meta">
+        <div><b>112</b> 图层 · AutoLayout <b>86%</b> · 耗时 <b>165.0s</b></div>
+        <div>组件复用 <b>0</b> · 结构/对比度问题 <b class="warn">15</b></div>
+        <div>（对比度 2 · 越界 13 · 重叠 0 · 空文 0）</div>
+        <div><span class="badge">get_canvas_overview</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">search_nodes</span><span class="badge">lint_design</span></div>
+      </div>
+    </div><div class="card ">
+      <h2>B · 参考图 + 文本（多模态识图 / 无 Skill）</h2>
+      <img src="B-image-plus-text.png" />
+      <div class="meta">
+        <div><b>129</b> 图层 · AutoLayout <b>95%</b> · 耗时 <b>122.7s</b></div>
+        <div>组件复用 <b>1</b> · 结构/对比度问题 <b class="warn">4</b></div>
+        <div>（对比度 0 · 越界 3 · 重叠 1 · 空文 0）</div>
+        <div><span class="badge">get_canvas_overview</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span><span class="badge">search_nodes</span></div>
+      </div>
+    </div><div class="card ">
+      <h2>C · 纯文本 + 开源社区设计 Skill（frontend-design + ui-ux-pro-max + better-colors）</h2>
+      <img src="C-text-plus-oss-skills.png" />
+      <div class="meta">
+        <div><b>145</b> 图层 · AutoLayout <b>98%</b> · 耗时 <b>235.1s</b></div>
+        <div>组件复用 <b>1</b> · 结构/对比度问题 <b class="warn">27</b></div>
+        <div>（对比度 0 · 越界 27 · 重叠 0 · 空文 0）</div>
+        <div><span class="badge skill">Skill: frontend-design</span><span class="badge skill">Skill: ui-ux-pro-max</span><span class="badge skill">Skill: better-colors</span><span class="badge">get_canvas_overview</span><span class="badge">search_skill_resources</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span></div>
+      </div>
+    </div><div class="card winner">
+      <h2>D · 参考图 + 文本 + 社区设计 Skill + Forma 设计系统技能</h2>
+      <img src="D-image-plus-oss-and-forma-skills.png" />
+      <div class="meta">
+        <div><b>101</b> 图层 · AutoLayout <b>96%</b> · 耗时 <b>180.1s</b></div>
+        <div>组件复用 <b>2</b> · 结构/对比度问题 <b class="warn">15</b></div>
+        <div>（对比度 0 · 越界 14 · 重叠 1 · 空文 0）</div>
+        <div><span class="badge skill">Skill: frontend-design</span><span class="badge skill">Skill: ui-ux-pro-max</span><span class="badge skill">Skill: forma-design-system-craft</span><span class="badge">get_canvas_overview</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span></div>
+      </div>
+    </div><div class="card winner">
+      <h2>E · 社区 theme-factory 主题定向迁移（Golden Hour）</h2>
+      <img src="E-theme-factory-golden-hour.png" />
+      <div class="meta">
+        <div><b>76</b> 图层 · AutoLayout <b>100%</b> · 耗时 <b>82.3s</b></div>
+        <div>组件复用 <b>0</b> · 结构/对比度问题 <b class="warn">6</b></div>
+        <div>（对比度 5 · 越界 1 · 重叠 0 · 空文 0）</div>
+        <div><span class="badge skill">Skill: theme-factory</span><span class="badge">activate_skill</span><span class="badge">get_canvas_overview</span><span class="badge">read_skill_resource</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

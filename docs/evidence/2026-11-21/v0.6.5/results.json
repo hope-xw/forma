@@ -1,0 +1,1016 @@
+{
+  "date": "2026-11-21",
+  "appVersion": "0.6.5",
+  "platform": "macOS 27.2.1 arm64, Apple M1 Max",
+  "engines": {
+    "chrome": "158.0.8127.36",
+    "firefox": "159.0",
+    "webkit": "Playwright WebKit 27.2",
+    "mac": "Electron 45.4.1"
+  },
+  "viewportCssPx": [
+    1460,
+    960
+  ],
+  "measurements": "editDelta and commitDelta are the largest absolute differences in any character Range x, y, width or height in CSS px compared with display. changedInkPixels counts neutral text pixels (RGB <= 199) where a channel changes by more than one level after hiding selection chrome and the caret. Null indicates geometry only. A separate Chrome run uses deviceScaleFactor=2.",
+  "baselineChrome064": [
+    {
+      "id": "ws-modal-h",
+      "zoom": "198%",
+      "editDelta": 1.979766845703125,
+      "commitDelta": 0,
+      "changedInkPixels": null
+    },
+    {
+      "id": "fixed",
+      "zoom": "50%",
+      "editDelta": 0.5,
+      "commitDelta": 0,
+      "changedInkPixels": 270
+    },
+    {
+      "id": "wrapped",
+      "zoom": "50%",
+      "editDelta": 4.5,
+      "commitDelta": 0,
+      "changedInkPixels": 784
+    },
+    {
+      "id": "clamped",
+      "zoom": "50%",
+      "editDelta": 0.5,
+      "commitDelta": 0,
+      "changedInkPixels": 721
+    },
+    {
+      "id": "rich",
+      "zoom": "50%",
+      "editDelta": 0.5615234375,
+      "commitDelta": 0,
+      "changedInkPixels": 332
+    },
+    {
+      "id": "action",
+      "zoom": "50%",
+      "editDelta": 0.01983642578125,
+      "commitDelta": 0,
+      "changedInkPixels": 206
+    },
+    {
+      "id": "trailing",
+      "zoom": "50%",
+      "editDelta": 10,
+      "commitDelta": 0,
+      "changedInkPixels": 250
+    },
+    {
+      "id": "fixed",
+      "zoom": "100%",
+      "editDelta": 1,
+      "commitDelta": 0,
+      "changedInkPixels": 846
+    },
+    {
+      "id": "wrapped",
+      "zoom": "100%",
+      "editDelta": 9,
+      "commitDelta": 0,
+      "changedInkPixels": 2578
+    },
+    {
+      "id": "clamped",
+      "zoom": "100%",
+      "editDelta": 1,
+      "commitDelta": 0,
+      "changedInkPixels": 3237
+    },
+    {
+      "id": "rich",
+      "zoom": "100%",
+      "editDelta": 1.1229248046875,
+      "commitDelta": 0,
+      "changedInkPixels": 736
+    },
+    {
+      "id": "action",
+      "zoom": "100%",
+      "editDelta": 0.0240478515625,
+      "commitDelta": 0,
+      "changedInkPixels": 435
+    },
+    {
+      "id": "trailing",
+      "zoom": "100%",
+      "editDelta": 20,
+      "commitDelta": 0,
+      "changedInkPixels": 814
+    },
+    {
+      "id": "fixed",
+      "zoom": "200%",
+      "editDelta": 2,
+      "commitDelta": 0,
+      "changedInkPixels": 2945
+    },
+    {
+      "id": "wrapped",
+      "zoom": "200%",
+      "editDelta": 18,
+      "commitDelta": 0,
+      "changedInkPixels": 9319
+    },
+    {
+      "id": "clamped",
+      "zoom": "200%",
+      "editDelta": 2,
+      "commitDelta": 0,
+      "changedInkPixels": 10094
+    },
+    {
+      "id": "rich",
+      "zoom": "200%",
+      "editDelta": 2.261474609375,
+      "commitDelta": 0,
+      "changedInkPixels": 3586
+    },
+    {
+      "id": "action",
+      "zoom": "200%",
+      "editDelta": 0.032470703125,
+      "commitDelta": 0,
+      "changedInkPixels": 1320
+    },
+    {
+      "id": "trailing",
+      "zoom": "200%",
+      "editDelta": 40,
+      "commitDelta": 0,
+      "changedInkPixels": 2846
+    }
+  ],
+  "fix": {
+    "chrome": {
+      "samples": [
+        {
+          "id": "ws-modal-h",
+          "zoom": "198%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": null
+        },
+        {
+          "id": "fixed",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        }
+      ],
+      "trailingLine": {
+        "canvasTop": 0,
+        "previewTop": 0
+      },
+      "multilineUndoRedo": true
+    },
+    "firefox": {
+      "samples": [
+        {
+          "id": "ws-modal-h",
+          "zoom": "198%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": null
+        },
+        {
+          "id": "fixed",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        }
+      ],
+      "trailingLine": {
+        "canvasTop": -2,
+        "previewTop": -2
+      },
+      "multilineUndoRedo": true
+    },
+    "webkit": {
+      "samples": [
+        {
+          "id": "ws-modal-h",
+          "zoom": "198%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": null
+        },
+        {
+          "id": "fixed",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        }
+      ],
+      "trailingLine": {
+        "canvasTop": 0.484375,
+        "previewTop": 0.484375
+      },
+      "multilineUndoRedo": true
+    },
+    "mac": {
+      "samples": [
+        {
+          "id": "ws-modal-h",
+          "zoom": "193%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": null
+        },
+        {
+          "id": "fixed",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        }
+      ],
+      "trailingLine": {
+        "canvasTop": 0,
+        "previewTop": 0
+      },
+      "multilineUndoRedo": true
+    },
+    "chrome2x": {
+      "samples": [
+        {
+          "id": "ws-modal-h",
+          "zoom": "198%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": null
+        },
+        {
+          "id": "fixed",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "50%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "100%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "fixed",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "wrapped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "clamped",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "rich",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "action",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        },
+        {
+          "id": "trailing",
+          "zoom": "200%",
+          "editDelta": 0,
+          "commitDelta": 0,
+          "changedInkPixels": 0
+        }
+      ],
+      "trailingLine": {
+        "canvasTop": 0,
+        "previewTop": 0
+      },
+      "multilineUndoRedo": true
+    }
+  },
+  "composition": {
+    "method": "Chrome CDP Input.imeSetComposition / Input.insertText",
+    "events": [
+      "compositionstart",
+      "compositionend"
+    ],
+    "committed": "你好",
+    "undoRestored": "新建 React 生产部署任务",
+    "redo": true
+  },
+  "checks": {
+    "unit": 139,
+    "format": "pass",
+    "build": "pass",
+    "browserScenarios": {
+      "chrome": [
+        "color-profile",
+        "professional-editor",
+        "container-rules",
+        "mixed-materials",
+        "mixed-instances",
+        "keyboard-authoring",
+        "designer-delivery",
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "library-subscription",
+        "library-publish",
+        "component-properties",
+        "variant-authoring",
+        "canvas-component-set",
+        "nested-instances",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "inspector-layout",
+        "panel-dialogs",
+        "panel-parity",
+        "panel-gestures",
+        "panel-data-safety",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "prototype-input",
+        "images",
+        "image-paint",
+        "vector",
+        "vector-network",
+        "booleans",
+        "rich-text",
+        "text-position",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "firefox": [
+        "text-position",
+        "rich-text",
+        "keyboard-authoring",
+        "professional-editor",
+        "panel-data-safety"
+      ],
+      "webkit": [
+        "text-position",
+        "rich-text",
+        "keyboard-authoring",
+        "professional-editor",
+        "panel-data-safety"
+      ],
+      "mac": [
+        "text-position",
+        "rich-text",
+        "keyboard-authoring",
+        "professional-editor",
+        "panel-data-safety"
+      ]
+    },
+    "installedBuiltAndOpenedExports": {
+      "chrome": [
+        "color-profile",
+        "color-profile-srgb",
+        "vector-network",
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "image-paint",
+        "text-position",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "renamed-library",
+        "route-upgrade",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "prototype-input",
+        "cross",
+        "aura"
+      ],
+      "firefox": [
+        "text-position",
+        "rich",
+        "professional-editor"
+      ],
+      "webkit": [
+        "text-position",
+        "rich",
+        "professional-editor"
+      ],
+      "mac": [
+        "professional-editor",
+        "text-position"
+      ]
+    }
+  },
+  "desktop": {
+    "sha256": "e374cdd92a062c745eefa7837ba81a327be4df52fb23a9e4b87b17037f028287",
+    "dmgVerify": "valid",
+    "macSignature": "ad hoc, codesign --verify --deep --strict passed",
+    "testInstall": "offscreen copy from read-only mounted DMG"
+  },
+  "evidenceSha256": {
+    "0.6.4-editing.png": "002d09242450942f8a2232c39faf3a5aea576685de09e95deda54dcc5b600b3e",
+    "0.6.5-editing.png": "a0d6b431de6ed5c61b30ebb0016c1e71ba710fd2c87f5384121b338189c24fa5",
+    "display.png": "a0d6b431de6ed5c61b30ebb0016c1e71ba710fd2c87f5384121b338189c24fa5",
+    "text-position.forma.json": "0910eaa45765bb006b6375dc17643feabdaa2316e163a4a706a4f0939e6bae42"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "version": "0.9.0",
+  "date": "2026-11-24",
+  "electron": "45.4.1",
+  "plistVersion": "0.9.0",
+  "signature": "ad hoc, codesign --verify --deep --strict",
+  "readOnlyDmg": true,
+  "previousDmgIntact": true,
+  "distribution": [
+    {
+      "filename": "Forma-0.9.0-arm64.dmg",
+      "bytes": 124877534,
+      "sha256": "26e51be6520559cbbfed734608b18acb81d98b67c4e9f9b682ac127a414551d6"
+    },
+    {
+      "filename": "Forma-0.9.0-arm64.zip",
+      "bytes": 120473083,
+      "sha256": "98fa10a482b62329d014c81c789e6997ee1f18ecd3d14f81df1abaeeed21d5f0"
+    }
+  ],
+  "matchingWebAndApp": {
+    "dist/assets/AssetsPanel-DeUXWDLS.js": "56460f22182bf65a8b933e83065c24e9e0917e2930d1f48758dbf25c87fffaab",
+    "dist/assets/DesignSystemDialog-DmVdpsTy.js": "de64ab53be3c88b008891060974b3e7013b8c0f46773a2b7954cabf599a37558",
+    "dist/assets/dist-DG1INu-i.js": "021dabdcbbb58194bc033e71ace7b3fab47fbbe95d3b3f8c991170efccfab192",
+    "dist/assets/harfbuzz-CODTKW78.wasm": "6eeed8e1bc9ad7773038e48ff8f9e07e0ad228572c594b45e5357e9c2f7a0b2e",
+    "dist/assets/index-CnQ-TeWC.js": "bd5ba0fb77f9ddaf215af9c89d0574e79d3f725db72d26a4dcb4c03b3ccbb8ef",
+    "dist/assets/index-CqjxOrhR.css": "b91f886028d041633c36f0f00643f78866a12495e3c03ae754eb255ee2cda5ee",
+    "dist/assets/pdfium-BJ2Yip8Q.wasm": "5e4cd023c3dad4a895b3571ca573d3fc51bac6de48360d95283134385b954eaa",
+    "dist/assets/worker-Duu6t15U.js": "c4ec0e541f0626ddb8940751e90ac93a1aff5c515cf87b5c2af8e2127e61e662",
+    "dist/examples/aura-showcase.forma.json": "c3a0e6a619edb26ddc8b98e713203d828ddf1a51e6d0058675862da19bd03970",
+    "dist/examples/mobile-studio.forma.json": "eccabd591b7ae856b7969104b582d16642d25de5f8b4554588c4f815b0560372",
+    "dist/favicon.svg": "509f8a28c3655e3d6d8fbc960670a4aed2f27090726482ed8c796c11f8a0d838",
+    "dist/index.html": "8e713849c4a317a8c9b99e39e130a60f33f3ab4ca736114c20abfbb680d02911"
+  },
+  "bundledServices": {
+    "out-electron/agent-service.mjs": {
+      "bytes": 2560801,
+      "sha256": "ebd8e51d8bdac0f34c1206ab5a820e2bae8959c715b26e98576572516c5ce4f5"
+    },
+    "out-electron/library-service.mjs": {
+      "bytes": 818668,
+      "sha256": "f9a00d48cc3a5bb75ac72dfdc2956458f7cc5e8e4ee73eed55e6300186d1988a"
+    }
+  },
+  "releaseNotesChecked": true,
+  "releaseNotesResult": {
+    "versions": 14,
+    "themes": ["dark", "light"],
+    "selection": "ws-modal-h"
+  },
+  "agentServiceChecks": {
+    "protocol": "forma:",
+    "providersStatus": 200,
+    "providerCount": 13,
+    "statusOk": true,
+    "configuredInCleanProfile": false,
+    "skillsStatus": 200,
+    "builtinSkillsCount": 2,
+    "totalSkillsCount": 2,
+    "critiqueRouteStatus": 400,
+    "critiqueRouteHasErrorField": true
+  },
+  "desktopOpenFileResult": {
+    "version": "0.9.0",
+    "filename": "shared-paint.fig",
+    "protocol": "forma:",
+    "pageNodes": 2,
+    "components": 0,
+    "instances": 0,
+    "pdfRasters": 0,
+    "images": 0,
+    "fonts": 0,
+    "storageFormat": "single",
+    "sha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+    "format": "Figma",
+    "pages": 1,
+    "sourceNodes": 6
+  }
+}

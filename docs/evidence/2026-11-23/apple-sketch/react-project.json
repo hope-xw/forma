@@ -1,0 +1,60 @@
+{
+  "zipBytes": 357131418,
+  "sha256": "1c58a2e8992629e71f72f05f6409727cacce6007963db67d9c7a1eb340590c8c",
+  "screens": [
+    {
+      "tag": "cover",
+      "width": 640,
+      "height": 640,
+      "layers": 8,
+      "photos": [
+        [
+          1024,
+          1024
+        ]
+      ]
+    },
+    {
+      "tag": "alert",
+      "width": 402,
+      "height": 874,
+      "layers": 27,
+      "photos": []
+    },
+    {
+      "tag": "button",
+      "width": 72,
+      "height": 50,
+      "layers": 2,
+      "photos": []
+    },
+    {
+      "tag": "picker",
+      "width": 360,
+      "height": 300,
+      "layers": 131,
+      "photos": []
+    },
+    {
+      "tag": "keyboard",
+      "width": 1210,
+      "height": 428,
+      "layers": 123,
+      "photos": []
+    },
+    {
+      "tag": "toggle",
+      "width": 64,
+      "height": 28,
+      "layers": 4,
+      "photos": []
+    }
+  ],
+  "pageErrors": [],
+  "entries": 1087,
+  "verifiedDigests": 1080,
+  "assetFiles": 161,
+  "nativeFileBytes": 359586987,
+  "defaultScreen": "Library Preview",
+  "directoryScreens": 1976
+}

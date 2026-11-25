@@ -1,0 +1,729 @@
+{
+  "version": "0.8.0",
+  "date": "2026-11-22",
+  "productionAssetsSha256": {
+    "assets/AssetsPanel-DGIYR005.js": "2cb8d7460c53fff5e6d71bae2343cd65f1f181b2e41a64af0afb876013f19ac2",
+    "assets/DesignSystemDialog-Dpz9NGOm.js": "bb286f1338979d3dc93001cf969125bfbe88c791f01cbb73a9850e0e0fcbe108",
+    "assets/index-DJBQM-zB.css": "42258a1282f854b5d8e2fcf124e91f944b7a464d8ae980164443be126b66f5d9",
+    "assets/index-DW-HeRfy.js": "1f803c69e706300cda736843afcd31b15ba44a1f29e94b79005a2d90cf993e36",
+    "assets/worker-CEnNFFhx.js": "f1a93d6fd2909a07c2a223ee51d2e462c0c1d68701f593fe2bd419a01de5674e"
+  },
+  "environment": {
+    "os": "macOS 27.2.1 arm64",
+    "node": "25.8.0",
+    "npm": "11.11.0",
+    "viewport": [
+      1460,
+      960
+    ],
+    "dpr": 1
+  },
+  "entries": [
+    {
+      "format": "sds",
+      "sourceSha256": "baf0a1b1154a8e4ad98b2143482fddbcbeee13415f7fd672af71d973a67e1c2b",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nfigma-simple-design-system.fig\n\nFigma · 9,586 个源记录\n\n页面\n30\n可选图层\n18,360\n组件\n2,332\n实例\n1,078\n样式\n313\n图片\n26\n兼容性说明\nColour\n额外填充颜色变量保留图层当前值\nColour\n额外填充颜色变量保留图层当前值\nColour\n额外填充颜色变量保留图层当前值\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nSECTION\n尺寸超出 Forma 1–10000 px，已限制\nIcon Button\n原型交互尚未迁移\nVariant=Neutral, State=Default, Size=Medium\n原型交互尚未迁移\nIcon Button\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nfig-34-12127\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nfig-34-12123\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nVariant=Subtle, State=Default, Size=Medium\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nVariant=Primary, State=Default, Size=Medium\n原型交互尚未迁移\nfig-9762-5083\n原型交互尚未迁移\nCard Grid\n变量字段已按图层值导入 STACK_COUNTER_SPACING\nIcon Button\n原型交互尚未迁移\nIcon Button\n原型交互尚未迁移\nVariant=Subtle, State=Default, Size=Small\n原型交互尚未迁移\nCard Grid\n变量字段已按图层值导入 STACK_COUNTER_SPACING\nText Strong\n共享样式无法在本文件解析 styleIdForText\nButton\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID ",
+      "issueCount": 402,
+      "counts": {
+        "pages": [
+          "Cover",
+          "---",
+          "Foundations",
+          "Icons",
+          "---",
+          "Examples",
+          "Composition guide",
+          "---",
+          "Accordion",
+          "AI Chat",
+          "Avatars",
+          "Buttons",
+          "Calendar",
+          "Cards",
+          "Dialog",
+          "Inputs",
+          "Menu",
+          "Navigation",
+          "Notification",
+          "Pagination",
+          "Tabs",
+          "Tags",
+          "Text",
+          "Tooltip",
+          "---",
+          "Forms",
+          "Sections",
+          "---",
+          "Utilities",
+          "Component Playground"
+        ],
+        "nodes": 18360,
+        "instances": 1078,
+        "components": 2332,
+        "variants": 2720,
+        "styles": 313,
+        "variables": 436
+      },
+      "portableBytes": 80774519,
+      "thumbnailVisual": {
+        "width": 400,
+        "height": 225,
+        "over16": 3058,
+        "total": 90000,
+        "percent": 3.397777777777778,
+        "maximum": 129,
+        "sourceBounds": {
+          "x": 0,
+          "y": -2.2737367544323206e-13,
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "projectGlyphLayers": 3,
+      "project": {
+        "bytes": 25981643,
+        "files": 203,
+        "width": 1920,
+        "height": 1080,
+        "fill": "rgb(0, 0, 0)",
+        "background": "none",
+        "text": 20
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "sketch",
+      "sourceSha256": "25f08782f870235a33b8589dc812d54c915d7a5928ba3a8efd9a8c5e964b7204",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "invalid-input-preserves-original",
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-text-style-propagation",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nwith-color-variables.sketch\n\nSketch · 517 个源记录\n\n页面\n2\n可选图层\n1,401\n组件\n48\n实例\n68\n样式\n3\n图片\n14\n兼容性说明\nSample Button\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nCombined Shape Copy 3\n复合路径运算按源子层保留，外观需复核\nBars/Header/.Resources/Roaster Level\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Regular/.Resources/Left\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nBars/Filter\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Filters/Regular\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nBars/Header/.Resources/Price Tag\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nViews/Outline\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nViews/Outline/.Resources/Item\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nPrice\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nCombined Shape\n当前蒙版链含多个作用域或不支持的源，需复核\nButtons/Combo/Regular\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Regular/.Resources/Right\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Regular/Primary\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Small/.Resources/Left\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Regular/Secondary\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nComponent/Card\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需",
+      "issueCount": 40,
+      "counts": {
+        "pages": [
+          "Page 1",
+          "Symbols"
+        ],
+        "nodes": 1401,
+        "instances": 68,
+        "components": 48,
+        "variants": 48,
+        "styles": 3,
+        "variables": 3
+      },
+      "portableBytes": 13987910,
+      "sourceVisual": {
+        "width": 375,
+        "height": 1725,
+        "over16": 16277,
+        "total": 646875,
+        "percent": 2.5162512077294688,
+        "maximum": 245,
+        "referenceSha256": "7a3ba86c339af90d9f5793aee36f3e39a5ef7a12a4c86e32e2d233008480169d",
+        "withinProposedThreshold": false
+      },
+      "project": {
+        "bytes": 17925952,
+        "files": 82,
+        "width": 375,
+        "height": 1725,
+        "fill": "rgb(255, 255, 255)",
+        "background": "none",
+        "text": 599
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "fig",
+      "sourceSha256": "1fbdc089f3ab1ad5f7866d7ee37c096de34cb3c07ec26222991f4954dc022437",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "master-propagation-and-local-override",
+        "reset-override-and-undo",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\ncomponents.fig\n\nFigma · 19 个源记录\n\n页面\n4\n可选图层\n13\n组件\n3\n实例\n8\n样式\n0\n图片\n0\n转换检查完成\n取消\n导入为新文件",
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "components",
+          "components-set",
+          "instances",
+          "instances-with-overrides"
+        ],
+        "nodes": 13,
+        "instances": 8,
+        "components": 3,
+        "variants": 4,
+        "styles": 0,
+        "variables": 0
+      },
+      "portableBytes": 18900,
+      "project": {
+        "bytes": 31896,
+        "files": 24,
+        "width": 100,
+        "height": 100,
+        "fill": "rgba(0, 0, 255, 0.5)",
+        "background": "none",
+        "text": 0
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "paint",
+      "sourceSha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-fill-and-stroke",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nshared-paint.fig\n\nFigma · 6 个源记录\n\n页面\n1\n可选图层\n2\n组件\n0\n实例\n0\n样式\n1\n图片\n0\n转换检查完成\n取消\n导入为新文件",
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "色板"
+        ],
+        "nodes": 2,
+        "instances": 0,
+        "components": 0,
+        "variants": 0,
+        "styles": 1,
+        "variables": 0
+      },
+      "portableBytes": 2200,
+      "projectPixelProbes": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          0,
+          204,
+          68,
+          255
+        ],
+        [
+          0,
+          204,
+          68,
+          255
+        ]
+      ],
+      "project": {
+        "bytes": 24046,
+        "files": 18,
+        "width": 160,
+        "height": 160,
+        "fill": "rgb(0, 204, 68)",
+        "background": "none",
+        "text": 0
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "sds",
+      "sourceSha256": "baf0a1b1154a8e4ad98b2143482fddbcbeee13415f7fd672af71d973a67e1c2b",
+      "engine": "firefox",
+      "browser": "159.0",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nfigma-simple-design-system.fig\n\nFigma · 9,586 个源记录\n\n页面\n30\n可选图层\n18,360\n组件\n2,332\n实例\n1,078\n样式\n313\n图片\n26\n兼容性说明\nColour\n额外填充颜色变量保留图层当前值\nColour\n额外填充颜色变量保留图层当前值\nColour\n额外填充颜色变量保留图层当前值\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nSECTION\n尺寸超出 Forma 1–10000 px，已限制\nIcon Button\n原型交互尚未迁移\nVariant=Neutral, State=Default, Size=Medium\n原型交互尚未迁移\nIcon Button\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nfig-34-12127\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nfig-34-12123\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nVariant=Subtle, State=Default, Size=Medium\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nVariant=Primary, State=Default, Size=Medium\n原型交互尚未迁移\nfig-9762-5083\n原型交互尚未迁移\nCard Grid\n变量字段已按图层值导入 STACK_COUNTER_SPACING\nIcon Button\n原型交互尚未迁移\nIcon Button\n原型交互尚未迁移\nVariant=Subtle, State=Default, Size=Small\n原型交互尚未迁移\nCard Grid\n变量字段已按图层值导入 STACK_COUNTER_SPACING\nText Strong\n共享样式无法在本文件解析 styleIdForText\nButton\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID ",
+      "issueCount": 402,
+      "counts": {
+        "pages": [
+          "Cover",
+          "---",
+          "Foundations",
+          "Icons",
+          "---",
+          "Examples",
+          "Composition guide",
+          "---",
+          "Accordion",
+          "AI Chat",
+          "Avatars",
+          "Buttons",
+          "Calendar",
+          "Cards",
+          "Dialog",
+          "Inputs",
+          "Menu",
+          "Navigation",
+          "Notification",
+          "Pagination",
+          "Tabs",
+          "Tags",
+          "Text",
+          "Tooltip",
+          "---",
+          "Forms",
+          "Sections",
+          "---",
+          "Utilities",
+          "Component Playground"
+        ],
+        "nodes": 18360,
+        "instances": 1078,
+        "components": 2332,
+        "variants": 2720,
+        "styles": 313,
+        "variables": 436
+      },
+      "portableBytes": 80774534,
+      "thumbnailVisual": {
+        "width": 400,
+        "height": 225,
+        "over16": 2123,
+        "total": 90000,
+        "percent": 2.358888888888889,
+        "maximum": 189,
+        "sourceBounds": {
+          "x": 0,
+          "y": -2.2737367544323206e-13,
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "projectGlyphLayers": 3,
+      "project": {
+        "bytes": 25981581,
+        "files": 203,
+        "width": 1920,
+        "height": 1080,
+        "fill": "rgb(0, 0, 0)",
+        "background": "none",
+        "text": 20
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "sketch",
+      "sourceSha256": "25f08782f870235a33b8589dc812d54c915d7a5928ba3a8efd9a8c5e964b7204",
+      "engine": "firefox",
+      "browser": "159.0",
+      "phases": [
+        "invalid-input-preserves-original",
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-text-style-propagation",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nwith-color-variables.sketch\n\nSketch · 517 个源记录\n\n页面\n2\n可选图层\n1,401\n组件\n48\n实例\n68\n样式\n3\n图片\n14\n兼容性说明\nSample Button\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nCombined Shape Copy 3\n复合路径运算按源子层保留，外观需复核\nBars/Header/.Resources/Roaster Level\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Regular/.Resources/Left\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nBars/Filter\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Filters/Regular\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nBars/Header/.Resources/Price Tag\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nViews/Outline\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nViews/Outline/.Resources/Item\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nPrice\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nCombined Shape\n当前蒙版链含多个作用域或不支持的源，需复核\nButtons/Combo/Regular\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Regular/.Resources/Right\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Regular/Primary\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Small/.Resources/Left\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Regular/Secondary\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nComponent/Card\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需",
+      "issueCount": 40,
+      "counts": {
+        "pages": [
+          "Page 1",
+          "Symbols"
+        ],
+        "nodes": 1401,
+        "instances": 68,
+        "components": 48,
+        "variants": 48,
+        "styles": 3,
+        "variables": 3
+      },
+      "portableBytes": 13988119,
+      "project": {
+        "bytes": 17926149,
+        "files": 82,
+        "width": 375,
+        "height": 1725,
+        "fill": "rgb(255, 255, 255)",
+        "background": "none",
+        "text": 599
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "fig",
+      "sourceSha256": "1fbdc089f3ab1ad5f7866d7ee37c096de34cb3c07ec26222991f4954dc022437",
+      "engine": "firefox",
+      "browser": "159.0",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "master-propagation-and-local-override",
+        "reset-override-and-undo",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\ncomponents.fig\n\nFigma · 19 个源记录\n\n页面\n4\n可选图层\n13\n组件\n3\n实例\n8\n样式\n0\n图片\n0\n转换检查完成\n取消\n导入为新文件",
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "components",
+          "components-set",
+          "instances",
+          "instances-with-overrides"
+        ],
+        "nodes": 13,
+        "instances": 8,
+        "components": 3,
+        "variants": 4,
+        "styles": 0,
+        "variables": 0
+      },
+      "portableBytes": 18900,
+      "project": {
+        "bytes": 31895,
+        "files": 24,
+        "width": 100,
+        "height": 100,
+        "fill": "rgba(0, 0, 255, 0.5)",
+        "background": "none",
+        "text": 0
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "paint",
+      "sourceSha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+      "engine": "firefox",
+      "browser": "159.0",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-fill-and-stroke",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nshared-paint.fig\n\nFigma · 6 个源记录\n\n页面\n1\n可选图层\n2\n组件\n0\n实例\n0\n样式\n1\n图片\n0\n转换检查完成\n取消\n导入为新文件",
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "色板"
+        ],
+        "nodes": 2,
+        "instances": 0,
+        "components": 0,
+        "variants": 0,
+        "styles": 1,
+        "variables": 0
+      },
+      "portableBytes": 2200,
+      "projectPixelProbes": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          0,
+          204,
+          68,
+          255
+        ],
+        [
+          0,
+          204,
+          68,
+          255
+        ]
+      ],
+      "project": {
+        "bytes": 24045,
+        "files": 18,
+        "width": 160,
+        "height": 160,
+        "fill": "rgb(0, 204, 68)",
+        "background": "none",
+        "text": 0
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "sds",
+      "sourceSha256": "baf0a1b1154a8e4ad98b2143482fddbcbeee13415f7fd672af71d973a67e1c2b",
+      "engine": "webkit",
+      "browser": "27.2",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nfigma-simple-design-system.fig\n\nFigma · 9,586 个源记录\n\n页面\n30\n可选图层\n18,360\n组件\n2,332\n实例\n1,078\n样式\n313\n图片\n26\n兼容性说明\n\nColour\n额外填充颜色变量保留图层当前值\nColour\n额外填充颜色变量保留图层当前值\nColour\n额外填充颜色变量保留图层当前值\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\n负间距按 0 px 排布\n变量模式值超出属性范围 gap\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nIcon\n尺寸超出 Forma 1–10000 px，已限制\nSECTION\n尺寸超出 Forma 1–10000 px，已限制\nIcon Button\n原型交互尚未迁移\nVariant=Neutral, State=Default, Size=Medium\n原型交互尚未迁移\nIcon Button\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nfig-34-12127\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nfig-34-12123\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nVariant=Subtle, State=Default, Size=Medium\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nVariant=Primary, State=Default, Size=Medium\n原型交互尚未迁移\nfig-9762-5083\n原型交互尚未迁移\nCard Grid\n变量字段已按图层值导入 STACK_COUNTER_SPACING\nIcon Button\n原型交互尚未迁移\nIcon Button\n原型交互尚未迁移\nVariant=Subtle, State=Default, Size=Small\n原型交互尚未迁移\nCard Grid\n变量字段已按图层值导入 STACK_COUNTER_SPACING\nText Strong\n共享样式无法在本文件解析 styleIdForText\nButton\n原型交互尚未迁移\nButton\n原型交互尚未迁移\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID 在源快照中缺失 fig-2142-11404 [stackChildPrimaryGrow]\nCard\n覆盖路径的 GUID",
+      "issueCount": 402,
+      "counts": {
+        "pages": [
+          "Cover",
+          "---",
+          "Foundations",
+          "Icons",
+          "---",
+          "Examples",
+          "Composition guide",
+          "---",
+          "Accordion",
+          "AI Chat",
+          "Avatars",
+          "Buttons",
+          "Calendar",
+          "Cards",
+          "Dialog",
+          "Inputs",
+          "Menu",
+          "Navigation",
+          "Notification",
+          "Pagination",
+          "Tabs",
+          "Tags",
+          "Text",
+          "Tooltip",
+          "---",
+          "Forms",
+          "Sections",
+          "---",
+          "Utilities",
+          "Component Playground"
+        ],
+        "nodes": 18360,
+        "instances": 1078,
+        "components": 2332,
+        "variants": 2720,
+        "styles": 313,
+        "variables": 436
+      },
+      "portableBytes": 80774519,
+      "thumbnailVisual": {
+        "width": 400,
+        "height": 225,
+        "over16": 3157,
+        "total": 90000,
+        "percent": 3.5077777777777777,
+        "maximum": 104,
+        "sourceBounds": {
+          "x": 0,
+          "y": -2.2737367544323206e-13,
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "projectGlyphLayers": 3,
+      "project": {
+        "bytes": 25981558,
+        "files": 203,
+        "width": 1920,
+        "height": 1080,
+        "fill": "rgb(0, 0, 0)",
+        "background": "none",
+        "text": 20
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "sketch",
+      "sourceSha256": "25f08782f870235a33b8589dc812d54c915d7a5928ba3a8efd9a8c5e964b7204",
+      "engine": "webkit",
+      "browser": "27.2",
+      "phases": [
+        "invalid-input-preserves-original",
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-text-style-propagation",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nwith-color-variables.sketch\n\nSketch · 517 个源记录\n\n页面\n2\n可选图层\n1,401\n组件\n48\n实例\n68\n样式\n3\n图片\n14\n兼容性说明\n\nSample Button\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nCombined Shape Copy 3\n复合路径运算按源子层保留，外观需复核\nBars/Header/.Resources/Roaster Level\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Regular/.Resources/Left\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nBars/Filter\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Filters/Regular\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nBars/Header/.Resources/Price Tag\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nViews/Outline\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nViews/Outline/.Resources/Item\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nPrice\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nCombined Shape\n当前蒙版链含多个作用域或不支持的源，需复核\nButtons/Combo/Regular\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Regular/.Resources/Right\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Regular/Primary\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Combo/Small/.Resources/Left\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nButtons/Regular/Secondary\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局需复核\nComponent/Card\nSketch 布局 MSImmutableInferredGroupLayout 已保留当前尺寸，动态布局",
+      "issueCount": 40,
+      "counts": {
+        "pages": [
+          "Page 1",
+          "Symbols"
+        ],
+        "nodes": 1401,
+        "instances": 68,
+        "components": 48,
+        "variants": 48,
+        "styles": 3,
+        "variables": 3
+      },
+      "portableBytes": 13988160,
+      "project": {
+        "bytes": 17926299,
+        "files": 82,
+        "width": 375,
+        "height": 1725,
+        "fill": "rgb(255, 255, 255)",
+        "background": "none",
+        "text": 580
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "fig",
+      "sourceSha256": "1fbdc089f3ab1ad5f7866d7ee37c096de34cb3c07ec26222991f4954dc022437",
+      "engine": "webkit",
+      "browser": "27.2",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "master-propagation-and-local-override",
+        "reset-override-and-undo",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\ncomponents.fig\n\nFigma · 19 个源记录\n\n页面\n4\n可选图层\n13\n组件\n3\n实例\n8\n样式\n0\n图片\n0\n转换检查完成\n取消\n导入为新文件",
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "components",
+          "components-set",
+          "instances",
+          "instances-with-overrides"
+        ],
+        "nodes": 13,
+        "instances": 8,
+        "components": 3,
+        "variants": 4,
+        "styles": 0,
+        "variables": 0
+      },
+      "portableBytes": 18900,
+      "project": {
+        "bytes": 31903,
+        "files": 24,
+        "width": 100,
+        "height": 100,
+        "fill": "rgba(0, 0, 255, 0.5)",
+        "background": "none",
+        "text": 0
+      },
+      "workflowPassed": true
+    },
+    {
+      "format": "paint",
+      "sourceSha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+      "engine": "webkit",
+      "browser": "27.2",
+      "phases": [
+        "review",
+        "native-structure",
+        "reload",
+        "portable-file-in-clean-storage",
+        "original-preserved",
+        "shared-fill-and-stroke",
+        "rename-unicode-and-undo",
+        "preview",
+        "independent-react"
+      ],
+      "report": "导入设计文件\nshared-paint.fig\n\nFigma · 6 个源记录\n\n页面\n1\n可选图层\n2\n组件\n0\n实例\n0\n样式\n1\n图片\n0\n转换检查完成\n取消\n导入为新文件",
+      "issueCount": 0,
+      "counts": {
+        "pages": [
+          "色板"
+        ],
+        "nodes": 2,
+        "instances": 0,
+        "components": 0,
+        "variants": 0,
+        "styles": 1,
+        "variables": 0
+      },
+      "portableBytes": 2200,
+      "projectPixelProbes": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          0,
+          204,
+          68,
+          255
+        ],
+        [
+          0,
+          204,
+          68,
+          255
+        ]
+      ],
+      "project": {
+        "bytes": 24042,
+        "files": 18,
+        "width": 160,
+        "height": 160,
+        "fill": "rgb(0, 204, 68)",
+        "background": "none",
+        "text": 0
+      },
+      "workflowPassed": true
+    }
+  ]
+}

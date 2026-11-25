@@ -1,0 +1,2098 @@
+{
+  "sourceFile": "Figma_Design_Platform_Research.pdf",
+  "sha256": "1e0fdf7306714bfdc66c0b6979c4c9210b798326eff532e1d8db4ce644003a48",
+  "pages": 77,
+  "researchAsOf": "2026-11-06",
+  "notice": "PDF research is evidence, not approved scope or proof of implementation. Vendor claims have not been independently retested.",
+  "requirements": [
+    {
+      "id": "F01",
+      "title": "组织、工作区、团队层级",
+      "page": 22,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：从文件浏览器选择组织；管理员建立工作区并归组团队。\n行为规格：组织汇集团队；Enterprise 的 Workspace 在组织与团队之间增加导航和管理层。\n边界与限制：工作区管理仅组织/工作区管理员；商业套餐中 Workspace 属 Enterprise。团队/文件权限与席位分开。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-045 · SRC-125 · SRC-086",
+      "sourceIds": [
+        "SRC-045",
+        "SRC-125",
+        "SRC-086"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F02",
+      "title": "Folder 取代 Project 与权限继承",
+      "page": 22,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：创建、嵌套、分享文件夹；选择继承或限制访问。\n行为规格：自 2026-08-03 起旧项目自动改为 Folder，旧链接有效；子文件夹继承父访问。\n边界与限制：付费版无限文件夹、最多 10 层；Starter 仅 1 个。Org/Enterprise 可限制任意层；Pro 只能限制顶层。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-116",
+      "sourceIds": [
+        "SRC-116"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F03",
+      "title": "文件类型、Drafts 与容量",
+      "page": 22,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：从文件浏览器创建 Design 文件，在 Drafts 试验，再移入 Folder。\n行为规格：不同产品以不同文件类型/图标管理；Drafts 与文件夹构成不同工作入口。\n边界与限制：付费版无限文件；Starter 文件夹中 Design+Sites 合计 3 个，其他产品各 3 个，Drafts 无限。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-045 · SRC-048",
+      "sourceIds": [
+        "SRC-045",
+        "SRC-048"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F04",
+      "title": "文件权限与产品席位双重门槛",
+      "page": 23,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：在 Share 中邀请用户、设 can view/can edit/访问范围。\n行为规格：文件权限决定可对该文件做什么；产品席位决定是否拥有所需产品编辑能力。\n边界与限制：can edit 不自动赋予 Design 编辑席位；付费计划 Design 编辑需 Full。Viewer 可评注，复制/导出可被限制。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-066 · SRC-086",
+      "sourceIds": [
+        "SRC-066",
+        "SRC-086"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F05",
+      "title": "Page 管理与跨页移动",
+      "page": 23,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：新增/复制/重命名/拖动页面；选图层后 Move to page。\n行为规格：每页拥有独立画布；跨页移动保持坐标及附着评论；空页名称以 - 开头可作分隔。\n边界与限制：Starter 团队文件最多 3 页；页面画布并非数学无限，文档给出每轴约 -130000 至 +130000。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-069",
+      "sourceIds": [
+        "SRC-069"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F06",
+      "title": "Section 组织与可寻址范围",
+      "page": 23,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：Shift+S 框选区域，或将选区 Wrap in new section；复制 Section 链接。\n行为规格：命名区域聚合设计，可嵌套 Section、承载交付状态；原型连到 Section 可回到上次访问的 Frame。\n边界与限制：Section 可以包含各类图层但不能放在 Frame/Group 内；Ready for dev 并不锁定内容。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-126",
+      "sourceIds": [
+        "SRC-126"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F07",
+      "title": "Frame 与 Group 语义",
+      "page": 23,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：按 F/A 建 Frame，选择尺寸预设或包裹现有图层；可嵌套 Frame。\n行为规格：Frame 是有自身尺寸、裁剪、布局/约束/原型语义的容器；子图层保持父子关系。\n边界与限制：Group 与 Frame 不可等价处理；需要布局/裁剪/原型容器时必须保留 Frame 语义。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-105 · SRC-078",
+      "sourceIds": [
+        "SRC-105",
+        "SRC-078"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F08",
+      "title": "检索、收藏与深链接",
+      "page": 24,
+      "researchText": "产品：Figma | 模块：信息架构与权限\n用户操作：在文件浏览器搜索或 Star；从分享面板复制文件/原型链接并设受众。\n行为规格：搜索按文件/文件夹/团队等类型过滤；链接直达对象或流程并复用访问控制。\n边界与限制：链接本身不绕过权限；企业可以限制公开分享，Enterprise 可设链接到期。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-045 · SRC-099",
+      "sourceIds": [
+        "SRC-045",
+        "SRC-099"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F09",
+      "title": "新版左侧导航与工作视图",
+      "page": 24,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：切换 File、Agents、Assets、Tools、Variables 入口。\n行为规格：最左导航栏选择工作域，邻接左面板显示相应内容；文件提醒集中在导航底部。\n边界与限制：Variables 已从旧右栏入口迁出；只读用户视图受限；不能照抄旧 UI3 截图当当前完整 IA。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-076",
+      "sourceIds": [
+        "SRC-076"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F10",
+      "title": "上下文属性面板",
+      "page": 24,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：选中/取消选中图层；切换 Design/Prototype。\n行为规格：右栏随对象类型、选择及访问权显示可编辑属性、原型设置或查看属性/评论。\n边界与限制：Viewer 是 Comment/Properties 模式，可看属性、基础代码和导出；不等于拥有完整 Dev Mode。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-077",
+      "sourceIds": [
+        "SRC-077"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F11",
+      "title": "选择穿透与层级导航",
+      "page": 24,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：画布点击、双击/Enter 下钻、修饰键深选，或右键 Select layer。\n行为规格：默认选择父容器；可准确命中嵌套子层；键盘可在父子/相邻层间切换。\n边界与限制：锁定层不能常规点击选择，但可从层级菜单选；隐藏层需先显示。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-094",
+      "sourceIds": [
+        "SRC-094"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F12",
+      "title": "多选与匹配层批量修改",
+      "page": 25,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：Shift 多选/框选；对重复画面执行 Select matching layers。\n行为规格：为多个对象同时变更属性，减少逐页修改。\n边界与限制：匹配选择需 edit；匹配依赖名称/层级等规则，Section 内对象只与同 Section 匹配。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-094",
+      "sourceIds": [
+        "SRC-094"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F13",
+      "title": "画布平移、缩放与观察偏好",
+      "page": 25,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：用 Hand/按住 Space 平移；Zoom to fit/调整缩放；开关多人光标。\n行为规格：缩放定位当前页内容，平移不改变对象；光标可隐藏。\n边界与限制：缩放偏好只影响该文件当前标签页；画布缩放与浏览器/桌面 UI 缩放不同。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-104 · SRC-103",
+      "sourceIds": [
+        "SRC-104",
+        "SRC-103"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F14",
+      "title": "Smart selection 与 Tidy up",
+      "page": 25,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：选择一组对象，Tidy up 后拖粉色间距/中心把手。\n行为规格：均匀调间距、重排，增删对象时其余对象补位。\n边界与限制：基于选区，不是持续的 Auto layout；需满足等距及轴重叠条件；重排不改变 Layers 层级。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-096",
+      "sourceIds": [
+        "SRC-096"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F15",
+      "title": "Actions 命令入口",
+      "page": 25,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：Cmd/Ctrl+K，输入 align、export、matching 等关键词。\n行为规格：统一检索操作、资产、插件；执行对当前选区的命令。\n边界与限制：文档中部分 AI 旧入口尚未完全更新；生成设计应以当前 Agents 流程为准。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-057 · SRC-110",
+      "sourceIds": [
+        "SRC-057",
+        "SRC-110"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F16",
+      "title": "精确尺寸、对齐和分布",
+      "page": 26,
+      "researchText": "产品：Figma | 模块：编辑器与操作\n用户操作：输入位置/尺寸/旋转，或对多对象执行对齐、分布、Tidy up。\n行为规格：数值输入与画布结果同步；分布调整一轴间距，Tidy up 可同时整理两轴。\n边界与限制：开启像素吸附时文档允许约 1 px 的间距舍入；不能把显示值直接当全部几何精度。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-081",
+      "sourceIds": [
+        "SRC-081"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F17",
+      "title": "Auto layout 建立与建议",
+      "page": 26,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：选择 Frame/对象后 Shift+A；复杂选区用 Suggest auto layout。\n行为规格：创建布局 Frame 或推断多个嵌套布局，尽量保留已有位置。\n边界与限制：只支持 Frame；普通选区会新增包裹 Frame。建议功能适合中等复杂度，大画面应分批。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-124",
+      "sourceIds": [
+        "SRC-124"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F18",
+      "title": "横向、纵向及 Wrap",
+      "page": 26,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：设 Horizontal/Vertical，开启 Wrap，改变容器尺寸或增删内容。\n行为规格：子项沿主轴排布；空间不足转入下一行或列。\n边界与限制：纵向 Wrap 需要可用高度边界，按顺序填列，不是瀑布流。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-064",
+      "sourceIds": [
+        "SRC-064"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F19",
+      "title": "Padding、Gap 与分布",
+      "page": 26,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：改四边/成对 Padding、Gap 或 Auto spacing。\n行为规格：内容与边缘/兄弟之间的空间按规则更新，可用 Between/Around/Evenly。\n边界与限制：Around/Evenly 官方仍标明分批推出；参与者可能尚未同时获得。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-098 · SRC-064",
+      "sourceIds": [
+        "SRC-098",
+        "SRC-064"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F20",
+      "title": "Hug、Fill、Fixed 与尺寸边界",
+      "page": 27,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：按轴设 Hug contents/Fill container/Fixed，追加 Min/Max。\n行为规格：父容器依内容收缩、子项占可用空间，或维持定值；Min/Max 约束可叠加。\n边界与限制：Fill 仅适用布局子项；同轴子项 Fill 会使父 Hug 转 Fixed；手工改宽高会切成 Fixed。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-098",
+      "sourceIds": [
+        "SRC-098"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F21",
+      "title": "Grid 二维布局",
+      "page": 27,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：设置列/行、轨道宽高/fr；拖子项跨格，开关自动定位。\n行为规格：单元格可跨多行列；轨道按固定/内容/比例伸缩；Auto 行数随内容变化。\n边界与限制：Grid 与 Layout guide 不同；Span 要求子项 Fill；手动定位可保留空格。删轨道与减少轨道数的内容处理不同。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-065",
+      "sourceIds": [
+        "SRC-065"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F22",
+      "title": "Ignore auto layout",
+      "page": 27,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：将某子层设 Ignore auto layout，或修饰键拖入。\n行为规格：对象脱离流式排布，仍归属于原容器，可绝对定位并使用 Constraints。\n边界与限制：旧名称 Absolute position；该层不再使用普通流式项的布局/伸缩设置。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-098",
+      "sourceIds": [
+        "SRC-098"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F23",
+      "title": "Constraints",
+      "page": 27,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：对普通 Frame 子层设置左右/上下/居中/Scale，然后缩放父 Frame。\n行为规格：保持边距、中心位置或相对比例；双边约束可改变子项尺寸。\n边界与限制：通常不适用于 Auto layout 流内子项；Ignore auto layout 是例外。修饰键缩放可临时忽略约束。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-084 · SRC-098",
+      "sourceIds": [
+        "SRC-084",
+        "SRC-098"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F24",
+      "title": "Layout guides 与约束配合",
+      "page": 28,
+      "researchText": "产品：Figma | 模块：布局与响应\n用户操作：为 Frame 添加网格/行列辅助线，并设置固定或 Stretch。\n行为规格：辅助对齐并与 Constraints 协同确定尺寸变化时的位置关系。\n边界与限制：自 2025-05 起原 Layout grid 改称 Layout guide；不是 Auto layout Grid 引擎。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-085",
+      "sourceIds": [
+        "SRC-085"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F25",
+      "title": "文本创建、编辑和多编辑",
+      "page": 28,
+      "researchText": "产品：Figma | 模块：文本与字体\n用户操作：T 后单击或拖出文本框；双击/Enter 编辑；选多个文本 Multi-edit。\n行为规格：生成可编辑文本图层，支持内容、富文本属性、链接/列表等。\n边界与限制：单击与拖拽创建方式影响默认尺寸策略；普通文本填充只作用字形，背景需用 Frame。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-079",
+      "sourceIds": [
+        "SRC-079"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F26",
+      "title": "文本排版尺寸与截断",
+      "page": 28,
+      "researchText": "产品：Figma | 模块：文本与字体\n用户操作：设置文本尺寸策略、Wrap style、Truncate 与最大行数。\n行为规格：控制自动延展、换行、行分布及省略；Scale 可同时缩放边界和字号。\n边界与限制：手工拖边界会转 Fixed；Auto width 仅显式换行，Wrap style 无效；最大高度与最大行数不能同时固定。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-063 · SRC-080 · SRC-098",
+      "sourceIds": [
+        "SRC-063",
+        "SRC-080",
+        "SRC-098"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F27",
+      "title": "字体属性、OpenType 与可变字体",
+      "page": 28,
+      "researchText": "产品：Figma | 模块：文本与字体\n用户操作：调字号/行高/字距/段距；在 Type settings 选择字体特性与轴。\n行为规格：所选文字或文本层更新；悬停特性显示示例预览。\n边界与限制：OpenType 特性与可变轴取决于所用字体；不能假设所有字体有同样控制。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-080",
+      "sourceIds": [
+        "SRC-080"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F28",
+      "title": "CJK 输入与字形回退",
+      "page": 29,
+      "researchText": "产品：Figma | 模块：文本与字体\n用户操作：输入中日韩文字，选择 Noto SC/TC/JP/KR 或相应字体。\n行为规格：缺失字符按字符回退到 Noto；可显式选地区字形。\n边界与限制：自动回退可能选错地区字形；CJK 可用不等于已验证所有中文排版细节。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-093",
+      "sourceIds": [
+        "SRC-093"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F29",
+      "title": "本地字体与组织共享字体",
+      "page": 29,
+      "researchText": "产品：Figma | 模块：文本与字体\n用户操作：桌面使用已安装字体；浏览器安装 Font Helper；组织上传共享字体。\n行为规格：文本可采用本地或组织字体，跨设计使用统一字库。\n边界与限制：支持 TTF/OTF；组织共享字体为 Org/Enterprise 等指定计划；字体版本不一致可能导致重排或缺字体。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-079 · SRC-093",
+      "sourceIds": [
+        "SRC-079",
+        "SRC-093"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F30",
+      "title": "基础图形及媒体图层",
+      "page": 29,
+      "researchText": "产品：Figma | 模块：矢量与视觉\n用户操作：从 Shape 选矩形/线/椭圆/多边形/星形，或放置图像。\n行为规格：生成可编辑图形；导入图像作为形状填充而非独立像素画布。\n边界与限制：基本绘制需要 edit；媒体与矢量应保留不同属性模型。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-103",
+      "sourceIds": [
+        "SRC-103"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F31",
+      "title": "Pen、Vector network 和路径编辑",
+      "page": 29,
+      "researchText": "产品：Figma | 模块：矢量与视觉\n用户操作：P 放点、拖曳曲线；Enter 进入向量编辑移动节点。\n行为规格：支持分叉路径网络与贝塞尔控制，可继续修改网络。\n边界与限制：不是仅闭合单路径模型；Draw 的笔刷、可变宽度等增强工具单列边界。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-095 · SRC-083",
+      "sourceIds": [
+        "SRC-095",
+        "SRC-083"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F32",
+      "title": "非破坏 Boolean",
+      "page": 30,
+      "researchText": "产品：Figma | 模块：矢量与视觉\n用户操作：选至少两个支持图层，执行 Union/Subtract/Intersect/Exclude。\n行为规格：生成共享视觉属性的 Boolean group，底层形状仍可改几何。\n边界与限制：可用于形状/路径/文字，不适用于 Frame/Section；组内单层不能独立改 fill/stroke/effect/opacity。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-082",
+      "sourceIds": [
+        "SRC-082"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F33",
+      "title": "Alpha、Vector、Luminance Mask",
+      "page": 30,
+      "researchText": "产品：Figma | 模块：矢量与视觉\n用户操作：将遮罩层置于被遮层后，Use as mask；切换遮罩类型。\n行为规格：生成 mask group，按透明度/轮廓/亮度裁切显示。\n边界与限制：默认 Alpha；Vector 不保留中间透明度语义，三种遮罩不能视为同一种剪裁。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-097",
+      "sourceIds": [
+        "SRC-097"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F34",
+      "title": "多重 Fill 与 Stroke",
+      "page": 30,
+      "researchText": "产品：Figma | 模块：矢量与视觉\n用户操作：向对象添加多个填充/描边，改类型、透明度、排序或可见性。\n行为规格：每项独立属性，可混合纯色、渐变、图案、图片等。\n边界与限制：填充仅闭合图形内部可见；描边适用开放路径；视频填充有付费边界。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-101",
+      "sourceIds": [
+        "SRC-101"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F35",
+      "title": "Main component 与 Instance",
+      "page": 30,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：把设计创建为 Component，再从 Assets 拖实例到画面。\n行为规格：实例链接主组件，接收主定义更新；支持嵌套复用。\n边界与限制：文件内本地组件所有计划可用；跨文件共享通过付费 Library。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-070 · SRC-067",
+      "sourceIds": [
+        "SRC-070",
+        "SRC-067"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F36",
+      "title": "实例覆盖与结构边界",
+      "page": 31,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：对实例改文字/视觉属性/嵌套实例，再切换 Variant。\n行为规格：记录 Overrides，切换实例或 Variant 时尽力保留用户改动。\n边界与限制：普通实例不能随意重排结构、约束和位置；需要改主组件、Detach，或使用 Slot 的受控自由区。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-072 · SRC-111",
+      "sourceIds": [
+        "SRC-072",
+        "SRC-111"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F37",
+      "title": "Variants 和 Component set",
+      "page": 31,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：将相关组件组合，定义 state/size 等属性和值。\n行为规格：同一 Component set 用属性组合检索和切换具体变体。\n边界与限制：每个 Variant 应是唯一组合；无需穷举所有组合，不宜把无关图标堆成状态集。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-107",
+      "sourceIds": [
+        "SRC-107"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F38",
+      "title": "组件属性控件",
+      "page": 31,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：为主组件声明 Boolean/Text/Instance swap/Variant/Slot 属性。\n行为规格：使用者在集中 Properties 控件中改可配置内容；可给可替换实例设推荐项。\n边界与限制：Boolean 当前控制层可见性；Variant 属性属于组件集。Simplified instances 自 2026-03-23 废弃。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-122",
+      "sourceIds": [
+        "SRC-122"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F39",
+      "title": "Slot 内容扩展与告警",
+      "page": 31,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：把主组件内部 Frame 转 Slot；在实例中增删、重排内容，设置数量/推荐实例。\n行为规格：保留组件关联，同时允许自由内容；可重置 Slot；超限显示提示与橙色标记。\n边界与限制：数量限制是软提示；实例不能改 Slot 自身布局流/约束；移除主 Slot 可能重置实例内容。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-111",
+      "sourceIds": [
+        "SRC-111"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F40",
+      "title": "Library 发布与范围",
+      "page": 32,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：将有组件/样式/变量的文件移到 Folder，选择资产、写描述并 Publish。\n行为规格：形成跨文件复用的库；可选择发布范围，隐藏不应公开的资产。\n边界与限制：付费计划；Drafts 需先移出。Org 可团队/组织，Enterprise 还可 Workspace；访问权限必须匹配范围。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-067",
+      "sourceIds": [
+        "SRC-067"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F41",
+      "title": "Library 更新分发与消费",
+      "page": 32,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：维护者发布改动；消费者看到更新标记后 Review 并接受/忽略。\n行为规格：文件间更新经过发布与消费确认，更新实例而保留设计工作上下文。\n边界与限制：本地改主组件不等于跨文件立即生效；消费者需 edit 才能接受库更新。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-102",
+      "sourceIds": [
+        "SRC-102"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F42",
+      "title": "复合 Style 定义与复用",
+      "page": 32,
+      "researchText": "产品：Figma | 模块：组件与设计系统\n用户操作：从对象属性创建 Color/Text/Effect/Layout guide Style，命名并应用。\n行为规格：以一个 Style 复用一组属性，而非仅原子值。\n边界与限制：本地可用，跨文件发布受 Library 限制；Animation Style 属 Motion 扩展，不计入静态基线。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-071 · SRC-067",
+      "sourceIds": [
+        "SRC-071",
+        "SRC-067"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F43",
+      "title": "变量类型、集合与组",
+      "page": 32,
+      "researchText": "产品：Figma | 模块：变量与规范\n用户操作：创建 Color/Number/String/Boolean，按 Collection/Group 组织并绑定设计属性。\n行为规格：保存可复用原子值，集合同时管理 Modes。\n边界与限制：每集合最多 5000 变量；当前共享模型另有 Timing/Easing，专用于 Motion，不能混称旧四类型或当静态属性。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-047",
+      "sourceIds": [
+        "SRC-047"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F44",
+      "title": "Alias 与 Scope",
+      "page": 33,
+      "researchText": "产品：Figma | 模块：变量与规范\n用户操作：给变量引用同类型变量；限定可应用到的属性范围。\n行为规格：支持原始值到语义值的引用关系；Scope 过滤属性选择器。\n边界与限制：Alias 不能跨类型；Scope 支持 Number/Color/String，不是任意约束执行器。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-050",
+      "sourceIds": [
+        "SRC-050"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F45",
+      "title": "Modes、默认值与继承",
+      "page": 33,
+      "researchText": "产品：Figma | 模块：变量与规范\n用户操作：新增/重排模式，在页面/Section/Frame/Layer 指定模式。\n行为规格：同一结构随模式改主题、文案或尺寸值；未显式指定时使用默认/继承上下文。\n边界与限制：多模式为付费等指定计划；当前 Pro 10、Org 20；Enterprise 借 extended collections 支持无限。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-054 · SRC-091",
+      "sourceIds": [
+        "SRC-054",
+        "SRC-091"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F46",
+      "title": "DTCG JSON 导入与模式导出",
+      "page": 33,
+      "researchText": "产品：Figma | 模块：变量与规范\n用户操作：拖入 token JSON，或对已有模式 Import mode；导出单模式/集合。\n行为规格：新文件映射为模式，同名同类型变量更新；可输出 JSON。\n边界与限制：不是任意 JSON：遵循 DTCG 支持子集；多文件须共有且同类型 token；Dimension 仅 px，Font family 单字符\n串。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-054",
+      "sourceIds": [
+        "SRC-054"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F47",
+      "title": "变量 Code syntax",
+      "page": 33,
+      "researchText": "产品：Figma | 模块：变量与规范\n用户操作：为变量填写 Web/Android/iOS 的代码名称。\n行为规格：Dev Mode 输出 CSS/SwiftUI/Compose 片段时使用平台命名。\n边界与限制：每平台一个，最多三套；命名映射不代表自动完成整个 token 编译/发布链路。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-050",
+      "sourceIds": [
+        "SRC-050"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F48",
+      "title": "Check designs 规范校验",
+      "page": 34,
+      "researchText": "产品：Figma | 模块：变量与规范\n用户操作：选设计并运行检查，指定库，预览/批量应用建议。\n行为规格：检出硬编码值、不合适的库来源和对比度问题；可替换变量/样式建议。\n边界与限制：Org/Enterprise 等指定计划；单页、最多 25000 层；组件问题仅标出需手动替换；官方明确不是 LLM 功能。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-113",
+      "sourceIds": [
+        "SRC-113"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F49",
+      "title": "Flow 起点与连线",
+      "page": 34,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：在 Prototype 拖热点到目标 Frame，添加多个 Flow starting point。\n行为规格：同页保存多条流程；第一条连接可自动生成起点；可分享流程链接。\n边界与限制：目标通常为顶层 Frame；同一顶层 Frame 只设一个起点但可参与多流程。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-089",
+      "sourceIds": [
+        "SRC-089"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F50",
+      "title": "Trigger、Action 与动画配置",
+      "page": 34,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：选择 Click/Tap/Drag/Hover/Press/键盘/Delay 等触发并设 Action。\n行为规格：按触发执行导航、打开链接等行为，并套用过渡/时长/缓动。\n边界与限制：Hover/Press 有返回原状态语义；视频触发依赖视频；旧 Mouse move 触发不可新建。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-088 · SRC-089",
+      "sourceIds": [
+        "SRC-088",
+        "SRC-089"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F51",
+      "title": "Overlay 与滚动",
+      "page": 34,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：建立 Open/Swap overlay；给超出边界的 Frame 设滚动及 Fixed/Sticky。\n行为规格：弹层可设位置/背景/点外关闭；滚动可横/纵/双向并控制子层位置。\n边界与限制：Overlay swap 不入返回历史；滚动需溢出内容；流内 Auto layout 子项设 Fixed 需先 Ignore auto layout。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-073 · SRC-074",
+      "sourceIds": [
+        "SRC-073",
+        "SRC-074"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F52",
+      "title": "Smart animate",
+      "page": 35,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：连接匹配画面后选 Smart animate，设置时长和缓动。\n行为规格：按名称及层级匹配图层，对支持属性差异插值。\n边界与限制：不匹配或不支持属性可退成溶解；阴影/形状变形等有边界，不等同任意时间轴动画。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-075",
+      "sourceIds": [
+        "SRC-075"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F53",
+      "title": "Interactive components 与状态",
+      "page": 35,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：在同一组件集 Variant 间建立 Change to，再把实例放入页面。\n行为规格：实例继承内部交互；跨画面可保留/共享匹配实例状态。\n边界与限制：仅同一组件集变体；实例上同触发器的页面交互会覆盖变体交互；可 Reset component state。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-108",
+      "sourceIds": [
+        "SRC-108"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F54",
+      "title": "变量状态及表达式",
+      "page": 35,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：绑定变量后在交互中 Set variable，输入同类型值或表达式。\n行为规格：运行时改变文字、尺寸、可见性等状态；表达式支持基础运算以减少画面复制。\n边界与限制：付费等指定计划；需要先创建和绑定变量，输入类型必须匹配；不是完整业务运行时。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-046 · SRC-053",
+      "sourceIds": [
+        "SRC-046",
+        "SRC-053"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F55",
+      "title": "多动作与条件分支",
+      "page": 35,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：在一个触发器堆叠 Actions，或添加 Conditional 的 if/else。\n行为规格：按条件执行不同动作；多动画顺序执行；错误表达式标红。\n边界与限制：付费等指定计划；仅支持规定的表达式语法，Else 可留空。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-051",
+      "sourceIds": [
+        "SRC-051"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F56",
+      "title": "演示、分享及离线预载",
+      "page": 36,
+      "researchText": "产品：Figma | 模块：传统原型\n用户操作：选择设备/背景，Present 并分享原型；需要离线时提前预载。\n行为规格：在 Presentation view 运行流程并收集评论；可发完整原型或起点链接。\n边界与限制：离线须在线预载且保持演示标签页；移动端不支持离线原型，大文件受浏览器下载限制。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-089 · SRC-061",
+      "sourceIds": [
+        "SRC-089",
+        "SRC-061"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F57",
+      "title": "多人光标与 Spotlight",
+      "page": 36,
+      "researchText": "产品：Figma | 模块：协同与版本\n用户操作：共同进入文件；显示协作者光标；点击头像跟随或 Spotlight me。\n行为规格：共享画布位置/缩放/换页视角，支持演示与评审。\n边界与限制：Spotlight 不共享工具栏/侧栏/屏幕外操作；不等同远程控制整个编辑器。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-104 · SRC-090",
+      "sourceIds": [
+        "SRC-104",
+        "SRC-090"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F58",
+      "title": "画布评论与闭环",
+      "page": 36,
+      "researchText": "产品：Figma | 模块：协同与版本\n用户操作：C 进入评论模式，在点/区域评论、@、回复、Resolve。\n行为规格：评论定位到画布并可聚合；侧栏按未读/日期/线程筛选，点击跳到所在页。\n边界与限制：Viewer 也能评论；评论模式不编辑对象；Resolve 隐藏线程但不等于删除。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-106",
+      "sourceIds": [
+        "SRC-106"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F59",
+      "title": "自动保存与版本快照",
+      "page": 36,
+      "researchText": "产品：Figma | 模块：协同与版本\n用户操作：查看 Version history，命名版本、复制版本或 Restore。\n行为规格：约每 30 分钟形成历史 checkpoint；恢复前保留当前版本，可找回旧设计。\n边界与限制：Starter 或 Drafts 最多可访问 30 天；付费团队历史无限。恢复不移除后续评论，也不能复活已删评论。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-068 · SRC-091",
+      "sourceIds": [
+        "SRC-068",
+        "SRC-091"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F60",
+      "title": "Branch、Review、Merge",
+      "page": 37,
+      "researchText": "产品：Figma | 模块：协同与版本\n用户操作：从主文件分支，更新主线，提交评审，以并排/叠加检查冲突并合并。\n行为规格：分支隔离改动；合并后归档并建立历史检查点。\n边界与限制：Org/Enterprise 等指定计划；无选择性合并，分支评论不回主线，库只能从主文件发布。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-109 · SRC-123",
+      "sourceIds": [
+        "SRC-109",
+        "SRC-123"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F61",
+      "title": "断网工作及重连恢复",
+      "page": 37,
+      "researchText": "产品：Figma | 模块：协同与版本\n用户操作：已打开文件断网后继续编辑；恢复网络后同步。\n行为规格：把增量改动存到本浏览器 IndexedDB，重连合并；提示未同步状态。\n边界与限制：仅已加载页面可用；库检索/多人/历史等不可用；并非完整离线产品，清缓存可能丢未同步改动。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-092",
+      "sourceIds": [
+        "SRC-092"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F62",
+      "title": "Dev Mode 检查与代码属性",
+      "page": 37,
+      "researchText": "产品：Figma | 模块：开发交付\n用户操作：Shift+D 进入 Dev Mode，选图层，切换 Code/List/语言与单位。\n行为规格：显示尺寸、布局、变量、组件元数据与代码片段，支持资产下载。\n边界与限制：完整 Dev Mode 需付费计划 Full/Dev；基础测量、基本代码和导出并非其独占。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-049 · SRC-086 · SRC-077",
+      "sourceIds": [
+        "SRC-049",
+        "SRC-086",
+        "SRC-077"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F63",
+      "title": "Ready/Completed/Changed 状态",
+      "page": 37,
+      "researchText": "产品：Figma | 模块：开发交付\n用户操作：将 Section/Frame/Component 标记 Ready for dev；完成后 Completed，改动后确认更新。\n行为规格：设计交付状态驱动列表与通知，Changed 由系统检测触发。\n边界与限制：Completed/变更确认等属 Org/Enterprise；库实例更新、已绑定变量值或样式值变化不会触发 Changed。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-062",
+      "sourceIds": [
+        "SRC-062"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F64",
+      "title": "交付总览与 Focus/diff",
+      "page": 38,
+      "researchText": "产品：Figma | 模块：开发交付\n用户操作：在 Ready for dev 视图筛选/排序，再点具体设计进入 Focus 并比较。\n行为规格：从画布探索转为交付任务导航，集中当前设计和历史差异。\n边界与限制：总览为 Org/Enterprise 等指定计划，View 可看；Focus 及完整检查需 Full/Dev；文件至少有一项状态。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-059 · SRC-049",
+      "sourceIds": [
+        "SRC-059",
+        "SRC-049"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F65",
+      "title": "持久测量与 Annotation",
+      "page": 38,
+      "researchText": "产品：Figma | 模块：开发交付\n用户操作：Shift+M 拖测量；Shift+T 给层加文字/属性注释并分类。\n行为规格：属性型注释随设计更新，开发者可见尺寸与意图。\n边界与限制：添加需付费 Full+edit；查看需 Full/Dev+view。Alt/Option 临时量距所有计划可用，但不能持久共享。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-056",
+      "sourceIds": [
+        "SRC-056"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F66",
+      "title": "Code Connect UI 与 CLI",
+      "page": 38,
+      "researchText": "产品：Figma | 模块：开发交付\n用户操作：把设计组件连到仓库路径/组件；CLI 发布带属性映射的模板。\n行为规格：UI 给 MCP 代码引用/指令；CLI 提供设计系统实际使用代码片段供 Inspect。\n边界与限制：Pro/Org/Enterprise 的 Full/Dev；Pro 限一个活跃库和框架。UI 映射不直接在 Inspect 展示自定义片段。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-011 · SRC-010",
+      "sourceIds": [
+        "SRC-011",
+        "SRC-010"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F67",
+      "title": "组件 Playground 与开发资源",
+      "page": 38,
+      "researchText": "产品：Figma | 模块：开发交付\n用户操作：对组件 Explore behavior；绑定 Jira/GitHub/Storybook 等资源链接。\n行为规格：在沙盒试 Variant/属性/模式而不改设计；组件上的开发链接传到实例。\n边界与限制：需要相应 Dev Mode 权益/外部服务访问；链接和样例代码不是自动生成完整生产系统。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-049",
+      "sourceIds": [
+        "SRC-049"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F68",
+      "title": "静态资源导出配置与批量",
+      "page": 39,
+      "researchText": "产品：Figma | 模块：导入导出\n用户操作：给层/Frame/Section/Slice 加多个 Export 配置，设格式/倍率/后缀后批量导出。\n行为规格：输出 PNG/JPG/SVG/PDF；Slice 精确定义裁切区域；斜杠命名可形成目录。\n边界与限制：Viewer 导出取决于 owner 是否允许复制/共享；创建 Slice 需 edit。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-087 · SRC-044",
+      "sourceIds": [
+        "SRC-087",
+        "SRC-044"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F69",
+      "title": "SVG 与跨工具保真边界",
+      "page": 39,
+      "researchText": "产品：Figma | 模块：导入导出\n用户操作：选择 SVG 导出并调整 Outline text/Simplify stroke 等开关。\n行为规格：可转字形轮廓保外观或保文本可编辑性，处理不同描边模型。\n边界与限制：默认文字描边化；SVG/PDF 仅 1x 导出；SVG 对背景模糊/内外描边有格式限制，非无损源文件互换。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-044",
+      "sourceIds": [
+        "SRC-044"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F70",
+      "title": "本地文件导入及 .fig 快照",
+      "page": 39,
+      "researchText": "产品：Figma | 模块：导入导出\n用户操作：文件浏览器 Import/拖入 .fig、.sketch 等；需要时保存 .fig。\n行为规格：外部文件进入 Drafts 或有权限的 Folder；本地快照可再次作为新文件导入。\n边界与限制：Org/Enterprise 导入共享目录需付费席位及目录 edit；快照不含原评论/历史，断网快照也缺未加载页。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-100 · SRC-092",
+      "sourceIds": [
+        "SRC-100",
+        "SRC-092"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F71",
+      "title": "Plugin 与 Widget 扩展模型",
+      "page": 39,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：运行插件或插入 Widget，在当前文件读写图层并接入工具。\n行为规格：Plugin 是用户会话中的扩展；Widget 常驻画布可供多人交互。\n边界与限制：主要读写当前已打开文件；跨文件要额外 REST 或逐文件触发，不能当作无限后台写入服务。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-009",
+      "sourceIds": [
+        "SRC-009"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F72",
+      "title": "REST、PAT 与 OAuth",
+      "page": 40,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：自有工具用用户授权 PAT/OAuth 读取文件、资产或变量等。\n行为规格：可在没有打开编辑器时运行自动化；以用户权限访问资源。\n边界与限制：REST 主要只读，写入例外主要为评论/变量/开发资源；非通用画布 CRUD。Private OAuth 与公开应用审核路\n径不同。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-009 · SRC-013",
+      "sourceIds": [
+        "SRC-009",
+        "SRC-013"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F73",
+      "title": "官方 MCP 读取与 Write to canvas",
+      "page": 40,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：支持的客户端连接远程 MCP，传设计 URL，读取上下文或让 use_figma 写入。\n行为规格：向 agent 提供结构信息；写入真实 Frame/组件/变量/Auto layout，可用已有设计系统。\n边界与限制：仅 catalog 客户端，新客户端需申请；写入仍 beta、暂免费后续按用量；共享文件写入需 Full，桌面 MCP 不\n支持写。\n状态：读取已文档化；写入 beta | 证据：官方文档研究，未实际操作验证\n发布状态补充：读取已文档化；写入 beta\n来源：SRC-112 · SRC-012",
+      "sourceIds": [
+        "SRC-112",
+        "SRC-012"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F74",
+      "title": "Code to canvas / HTML 捕获",
+      "page": 40,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：扩展或 generate_figma_design 捕获运行 UI；html_to_figma 可导入 HTML。\n行为规格：生成可编辑设计层；具匹配变量库时，可按代码命名/作用域绑定 Color/Number/String。\n边界与限制：不是完整组件语义往返：不自动映射库组件/Styles；Canvas/复杂滚动/虚拟列表可能失真，需复核变量匹配。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-114 · SRC-117",
+      "sourceIds": [
+        "SRC-114",
+        "SRC-117"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F75",
+      "title": "Design agent 上下文生成与编辑",
+      "page": 40,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：选图层 Cmd/Ctrl+Enter，或 Agents 面板输入；连库并 @组件/变量/样式。\n行为规格：生成/修改设计、批量处理与反馈；可并行多个 prompt，查看进度、停止和 Undo。\n边界与限制：Design agent 于 2026-10-06 GA 并计 AI credits；共享文件编辑需 Full+edit，其他席位可问答，Drafts 可试。 \n手工向量/Draw 编辑仍标 Coming soon；图片矢量化不等于完整路径编辑。\n状态：GA（2026-10-06） | 证据：官方文档研究，未实际操作验证\n发布状态补充：GA（2026-10-06）\n来源：SRC-110 · SRC-118",
+      "sourceIds": [
+        "SRC-110",
+        "SRC-118"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F76",
+      "title": "单项 AI 内容操作",
+      "page": 41,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：对选区调用重写/翻译/替换内容、图层命名、图像生成/去背景等。\n行为规格：对文字/图像/图层执行定向修改，也可由 Design agent 调用。\n边界与限制：功能随产品、席位、管理开关和 credits 而异；旧 First Draft 入口正由 agent 替代，不能把旧菜单当当前基线。\n状态：文档确认 | 证据：官方文档研究，未实际操作验证\n发布状态补充：官方文档已列出；未在主文档标注 beta\n来源：SRC-057 · SRC-058 · SRC-060",
+      "sourceIds": [
+        "SRC-057",
+        "SRC-058",
+        "SRC-060"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "F77",
+      "title": "Code layers：代码与设计同画布",
+      "page": 41,
+      "researchText": "产品：Figma | 模块：扩展与 AI\n用户操作：B 新建/由 Frame Build selection；导入代码项目；Play、Point and edit、Extract designs。\n行为规格：可并排运行代码原型，提取当前状态/元素/流程为设计层，再把改动推回代码层；可连接仓库形成 PR。\n边界与限制：Open beta；不支持需 VPN/白名单的仓库、需登录的私有 npm 包或原生应用；Git 仓库 <3GB，本地 ≤1GB \n且无 GitHub push/PR；MCP 导入需 Full，导入免费，后续 agent 修改耗 credits。\n状态：open beta | 证据：官方文档研究，未实际操作验证\n发布状态补充：open beta\n来源：SRC-120 · SRC-121",
+      "sourceIds": [
+        "SRC-120",
+        "SRC-121"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-01",
+      "title": "团队、项目、文件",
+      "page": 42,
+      "researchText": "产品：MasterGo | 模块：信息架构\n用户操作：工作台选择团队并打开项目\n行为规格：团队列表与个人草稿分区；项目容纳文件；工作台提供新建、导入、最近打开入口\n边界与限制：项目是组织容器；文件数量与版本权益不能从结构说明推断\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-166",
+      "sourceIds": [
+        "SRC-166"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-02",
+      "title": "项目权限",
+      "page": 42,
+      "researchText": "产品：MasterGo | 模块：信息架构\n用户操作：在项目中授予编辑或查看权限\n行为规格：编辑者可编辑内容及执行管理操作；查看者可查看、评论、复制和分享，不能编辑、重命名或删除\n边界与限制：所有者、团队角色和项目授权需共同核验；不把查看等同无复制能力\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-166",
+      "sourceIds": [
+        "SRC-166"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-03",
+      "title": "项目分组",
+      "page": 42,
+      "researchText": "产品：MasterGo | 模块：信息架构\n用户操作：按所有者或自定义组查看；拖拽项目到组\n行为规格：提供平铺、所有者、自定义分组；自定义排序可为用户个人状态\n边界与限制：自定义组管理受角色约束；不是多级文件夹证明\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-166",
+      "sourceIds": [
+        "SRC-166"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-04",
+      "title": "搜索与排序",
+      "page": 42,
+      "researchText": "产品：MasterGo | 模块：信息架构\n用户操作：工作台输入文件名并切换排序\n行为规格：文件名实时筛选；按名称、更新、创建等排序；最近打开入口\n边界与限制：已核验文件名搜索，未核验跨全文、图层语义检索\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-166",
+      "sourceIds": [
+        "SRC-166"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-05",
+      "title": "新建与自动保存",
+      "page": 43,
+      "researchText": "产品：MasterGo | 模块：文件\n用户操作：新建文件、重命名、执行编辑\n行为规格：打开新标签页；默认新文件名；自动增量保存，保存中/已保存状态可视\n边界与限制：保存状态是文档说明，未实测高频编辑或大文件\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-165",
+      "sourceIds": [
+        "SRC-165"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-06",
+      "title": "断网缓存",
+      "page": 43,
+      "researchText": "产品：MasterGo | 模块：文件\n用户操作：离线编辑后重新联网\n行为规格：文档说明浏览器本地缓存未同步内容，联网上传，关闭标签后保留待同步数据\n边界与限制：未测试冲突合并、浏览器清缓存、跨设备离线冲突；不能据此承诺无丢失\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-165",
+      "sourceIds": [
+        "SRC-165"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-07",
+      "title": "导入外部文件",
+      "page": 43,
+      "researchText": "产品：MasterGo | 模块：文件\n用户操作：拖入或通过导入入口选择文件\n行为规格：工作台支持 fig/sketch/xd 和多种图片；新手文档还提供 Axure 与 Figma 授权/链接导入流程\n边界与限制：不同入口和设计/原型文档类型有区别；未验证复杂组件、字体、原型无损转换\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-166 · SRC-165 · SRC-169",
+      "sourceIds": [
+        "SRC-166",
+        "SRC-165",
+        "SRC-169"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-08",
+      "title": "导出资产",
+      "page": 43,
+      "researchText": "产品：MasterGo | 模块：文件\n用户操作：选中图层并设置导出\n行为规格：右侧面板提供 PNG/JPG/PDF/WebP/SVG 导出\n边界与限制：导出图像/矢量资源不等于导出可维护应用；批量与切图参数待实测\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-158",
+      "sourceIds": [
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-09",
+      "title": "上下文属性面板",
+      "page": 43,
+      "researchText": "产品：MasterGo | 模块：编辑器\n用户操作：切换设计、原型、标注或改变选中对象\n行为规格：右侧随选择显示位置、尺寸、对齐、填充、描边、效果等；未选择时显示画布/文件属性\n边界与限制：面板显隐和混合选择行为需实际验证\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-158",
+      "sourceIds": [
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-10",
+      "title": "画布导航",
+      "page": 44,
+      "researchText": "产品：MasterGo | 模块：编辑器\n用户操作：缩放、触控板捏合、切换像素网格\n行为规格：提供缩放比例、像素网格、协作光标等视图控制\n边界与限制：没有本研究实测帧率、最大图层数或设备性能数据\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-158 · SRC-150",
+      "sourceIds": [
+        "SRC-158",
+        "SRC-150"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-11",
+      "title": "标尺与辅助线",
+      "page": 44,
+      "researchText": "产品：MasterGo | 模块：编辑器\n用户操作：Shift+R；从标尺拖出辅助线；方向键微调\n行为规格：显示画布或根容器坐标；拖入容器形成容器辅助线；方向键 1px、Shift+方向键 10px\n边界与限制：快捷键会受系统与偏好影响；精确命中和辅助线持久性待验证\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-158",
+      "sourceIds": [
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-12",
+      "title": "页面与图层树",
+      "page": 44,
+      "researchText": "产品：MasterGo | 模块：编辑器\n用户操作：在左侧切换页面并选中图层\n行为规格：官方帮助设置图层操作、画布基础专节；图层是选择、层级与容器操作的入口\n边界与限制：本次仅核验入口与信息架构，未完整核对多选、锁定、隐藏、跨页移动细节\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148 · SRC-159",
+      "sourceIds": [
+        "SRC-148",
+        "SRC-159"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-13",
+      "title": "智能容器",
+      "page": 44,
+      "researchText": "产品：MasterGo | 模块：创意表达\n用户操作：创建或使用智能容器\n行为规格：官方设计目录把智能容器用于 Shader 特效或 3D 模型，与自动布局分设入口。\n边界与限制：不能从“智能容器”名称推断它与自动布局等同；完整模型操作与导出行为未实测。\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-160 · SRC-148",
+      "sourceIds": [
+        "SRC-160",
+        "SRC-148"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-14",
+      "title": "自动布局",
+      "page": 45,
+      "researchText": "产品：MasterGo | 模块：布局\n用户操作：为容器设置自动布局与子项属性\n行为规格：选中容器或多选图层创建自动布局；支持横/纵、间距与内边距、对齐、Fixed/Fill/Hug 和嵌套，间距可绑定变量。\n边界与限制：锁定容器不能直接拖入对象；子项固定尺寸与裁切会影响溢出。嵌套极值、换行等复杂情况仍需样本核验。\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-149 · SRC-152",
+      "sourceIds": [
+        "SRC-149",
+        "SRC-152"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-15",
+      "title": "约束与布局网格",
+      "page": 45,
+      "researchText": "产品：MasterGo | 模块：布局\n用户操作：为子图层设置约束，给容器设置网格\n行为规格：官方提供约束专节；界面文档说明网格用于容器\n边界与限制：本次约束行为未逐项实测；不能直接等同浏览器 CSS 响应式语义\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-155 · SRC-158",
+      "sourceIds": [
+        "SRC-155",
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-16",
+      "title": "钢笔与布尔运算",
+      "page": 45,
+      "researchText": "产品：MasterGo | 模块：矢量\n用户操作：使用钢笔或选择形状执行布尔操作\n行为规格：官方帮助将钢笔矢量与布尔运算列为原生编辑功能\n边界与限制：未核验节点编辑、曲线手柄、嵌套布尔与导出路径保真\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148",
+      "sourceIds": [
+        "SRC-148"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-17",
+      "title": "填充描边与效果",
+      "page": 45,
+      "researchText": "产品：MasterGo | 模块：样式\n用户操作：选中对象修改填充、描边、阴影、模糊\n行为规格：右侧设计面板提供对应属性\n边界与限制：组合效果、特殊混合与浏览器渲染一致性待验证\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-158",
+      "sourceIds": [
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-18",
+      "title": "样式资源",
+      "page": 46,
+      "researchText": "产品：MasterGo | 模块：样式\n用户操作：创建或应用样式\n行为规格：官方样式专节；变量指南区分样式多属性封装与变量单值复用\n边界与限制：未完整核验样式类型、跨库更新或权限细则\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148 · SRC-162",
+      "sourceIds": [
+        "SRC-148",
+        "SRC-162"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-19",
+      "title": "创建主组件",
+      "page": 46,
+      "researchText": "产品：MasterGo | 模块：组件\n用户操作：选中图层/组，创建组件或 Cmd/Ctrl+Alt+K\n行为规格：主组件以紫色实心菱形区分；可作为重复界面的来源\n边界与限制：默认命名、嵌套主件和跨文件编辑权限待验证\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-151",
+      "sourceIds": [
+        "SRC-151"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-20",
+      "title": "实例与传播",
+      "page": 46,
+      "researchText": "产品：MasterGo | 模块：组件\n用户操作：Alt+拖动或复制粘贴组件创建实例；修改主组件\n行为规格：实例显示空心菱形；主组件修改传播到关联实例\n边界与限制：传播与覆盖的优先级需结合实例规则；不能承诺任意修改自动无冲突合并\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-151 · SRC-152",
+      "sourceIds": [
+        "SRC-151",
+        "SRC-152"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-21",
+      "title": "覆盖、重置、解除关联",
+      "page": 46,
+      "researchText": "产品：MasterGo | 模块：组件\n用户操作：修改实例允许的属性；重置单项/全部或解除关联\n行为规格：文字、填充、描边、效果、可见性等可覆盖；面板标记覆盖；解除关联后变普通图层\n边界与限制：被主组件控制的灰色属性不可编辑；解除关联不再接受主组件更新\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-152 · SRC-151",
+      "sourceIds": [
+        "SRC-152",
+        "SRC-151"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-22",
+      "title": "组件属性",
+      "page": 46,
+      "researchText": "产品：MasterGo | 模块：组件\n用户操作：将子图层属性暴露为组件参数，编辑实例参数\n行为规格：组件属性提供状态、显示开关、嵌套实例替换和文本内容；组件集可组合不同状态。\n边界与限制：状态属性只能从组件集父层创建；组件集至少保留一个状态属性。高级参数组合与覆盖迁移仍需实测。\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-153",
+      "sourceIds": [
+        "SRC-153"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-23",
+      "title": "组件变体",
+      "page": 47,
+      "researchText": "产品：MasterGo | 模块：组件\n用户操作：把相关组件组织为变体集合并在实例切换\n行为规格：官方提供组件变体专节，和组件属性作为不同功能\n边界与限制：本次未逐项核验变体命名、属性匹配与交互状态转换细节\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-154",
+      "sourceIds": [
+        "SRC-154"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-24",
+      "title": "类型、集合与绑定",
+      "page": 47,
+      "researchText": "产品：MasterGo | 模块：变量\n用户操作：创建变量集合与变量，绑定设计属性\n行为规格：颜色、数字、字符串、布尔；可绑定填充、描边、效果、间距、内边距、字号等；可发布跨文件库\n边界与限制：变量单值与样式多属性不同；表达式、别名深度与导出 Token 一致性待验证\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-162",
+      "sourceIds": [
+        "SRC-162"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-25",
+      "title": "变量模式",
+      "page": 47,
+      "researchText": "产品：MasterGo | 模块：变量\n用户操作：在变量集合中配置与切换模式\n行为规格：一个变量可定义多个模式值；在集合面板全局切换，或在图层/实例属性中指定模式，作用于当前图层及后代。\n边界与限制：全局切换与局部覆盖作用域不同；各商业版本模式配额未核验。\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-161",
+      "sourceIds": [
+        "SRC-161"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-26",
+      "title": "发布、订阅与 Token",
+      "page": 47,
+      "researchText": "产品：MasterGo | 模块：设计系统\n用户操作：发布/订阅资源库，使用设计系统管理和 Token 导出入口\n行为规格：发布时区分新增、修改、移除资源，可勾选组件、样式和变量，写版本说明并选团队范围；发布更新生成版本并\n通知订阅者。\n边界与限制：需团队成员及编辑权限；未勾选样式可能导致消费不完整。完整 DSM、Token 格式与代码仓库同步仍待核实。\n状态：文档确认（发布）/入口（DSM） | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-156 · SRC-157 · SRC-148",
+      "sourceIds": [
+        "SRC-156",
+        "SRC-157",
+        "SRC-148"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-27",
+      "title": "设计文件连线交互",
+      "page": 48,
+      "researchText": "产品：MasterGo | 模块：原型\n用户操作：在设计文件中连接界面并设置触发与交互组件\n行为规格：官方设计文档覆盖连线、触发器、交互组件、转场\n边界与限制：未核验具体触发器全集、条件表达式和状态持久化\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148",
+      "sourceIds": [
+        "SRC-148"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-28",
+      "title": "独立原型文件",
+      "page": 48,
+      "researchText": "产品：MasterGo | 模块：原型\n用户操作：工作台新建原型，使用表单/表格/图表或导入 Axure\n行为规格：设计文件 .mg 与原型文件 .mxgp 是不同文档类型；原型支持 Axure HTML zip/mxgp 导入\n边界与限制：不要将独立原型能力全部归入设计文件；导入质量未实测\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-169",
+      "sourceIds": [
+        "SRC-169"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-29",
+      "title": "预览、移动端与滚动",
+      "page": 48,
+      "researchText": "产品：MasterGo | 模块：原型\n用户操作：启动原型预览、设置滚动溢出并查看移动端\n行为规格：官方目录包含预览、移动端、滚动溢出与转场专节\n边界与限制：未实测触摸、键盘、浏览器历史与设备适配\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148",
+      "sourceIds": [
+        "SRC-148"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-30",
+      "title": "实时协作、评论与通知",
+      "page": 48,
+      "researchText": "产品：MasterGo | 模块：协同\n用户操作：分享文件后多人打开、添加评论\n行为规格：官方目录覆盖实时协作、评论、通知；界面可显示协作光标\n边界与限制：本次未实测并发冲突、评论锚点随图层删除/移动后的行为\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148 · SRC-158",
+      "sourceIds": [
+        "SRC-148",
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-31",
+      "title": "链接分享与定向邀请",
+      "page": 49,
+      "researchText": "产品：MasterGo | 模块：协同\n用户操作：复制链接或通过邮箱/手机/用户搜索邀请\n行为规格：文件分享可分配查看或编辑；个人草稿也可分享，文件可移动到团队项目\n边界与限制：链接范围和企业外部分享策略需结合团队管理权限核验\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-165 · SRC-166",
+      "sourceIds": [
+        "SRC-165",
+        "SRC-166"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-32",
+      "title": "历史版本与回收站",
+      "page": 49,
+      "researchText": "产品：MasterGo | 模块：协同\n用户操作：打开历史版本，或在工作台恢复删除文件\n行为规格：官方有历史版本入口；个人/团队回收站支持恢复和永久删除\n边界与限制：历史保留期、版本差异、恢复权限与各版本配额未核验\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-148 · SRC-166",
+      "sourceIds": [
+        "SRC-148",
+        "SRC-166"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-33",
+      "title": "研发模式与标注",
+      "page": 49,
+      "researchText": "产品：MasterGo | 模块：研发交付\n用户操作：切换标注/研发模式，选中对象查看属性\n行为规格：读取尺寸、间距、颜色、字体、效果；文档展示 CSS/Vue/React/Android 等研发相关输出入口\n边界与限制：页面不同区域列出的语言范围不同，需在产品内逐项核对；标注代码不等于成品应用\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-163 · SRC-158",
+      "sourceIds": [
+        "SRC-163",
+        "SRC-158"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-34",
+      "title": "交付区域与工作台",
+      "page": 49,
+      "researchText": "产品：MasterGo | 模块：研发交付\n用户操作：组织交付区域/版本并由开发者查看\n行为规格：研发文档覆盖交付区域、版本、开发者快照、研发工作台及 VS Code 集成入口\n边界与限制：本次未验证交付状态流转、通知与变更比对的具体交互\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-163",
+      "sourceIds": [
+        "SRC-163"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-35",
+      "title": "D2C 代码生成",
+      "page": 50,
+      "researchText": "产品：MasterGo | 模块：研发交付\n用户操作：从设计进入 D2C 及预览流程\n行为规格：官方提供 Vue/React 等代码生成路径并提及 Ant Design/Element；文档宣传可用于生产的代码\n边界与限制：生产可用性为厂商主张，未检验语义、可访问性、状态管理、测试与仓库维护成本\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-163",
+      "sourceIds": [
+        "SRC-163"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-36",
+      "title": "D2C PRO 自定义生成",
+      "page": 50,
+      "researchText": "产品：MasterGo | 模块：研发交付\n用户操作：配置组件/样式解析器、渲染器与格式规则\n行为规格：官方目录覆盖快速入门、预览、自定义属性、样式映射、样式解析、组件解析、渲染器、示例与视频\n边界与限制：需要接入与规则维护；不等于开箱匹配企业任意代码规范\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-163",
+      "sourceIds": [
+        "SRC-163"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-37",
+      "title": "助手、快搭与局部编辑",
+      "page": 50,
+      "researchText": "产品：MasterGo | 模块：AI\n用户操作：管理员启用 AI，使用生成/理解设计系统/局部修改等入口\n行为规格：AI 文档覆盖助手、快搭、设计生成、局部编辑、图片、浮窗；助手/快搭涉及积分，MCP 文档称不消耗积分\n边界与限制：AI 模型、额度、私有部署可用性与企业审批需另核验；总览对 MCP 读写描述存在旧口径\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-145",
+      "sourceIds": [
+        "SRC-145"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-38",
+      "title": "Magic MCP",
+      "page": 50,
+      "researchText": "产品：MasterGo | 模块：AI/MCP\n用户操作：在 IDE/CLI 配置 @mastergo/magic-mcp 并授权团队文件\n行为规格：文档面向设计 DSL 读取和设计转代码；要求 Node >=18、npm >=8；团队版及以上且有文件权限/PAT\n边界与限制：Magic 与 Vibe 不应合并成单一 MCP 能力；授权范围与有效期需核验\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-146",
+      "sourceIds": [
+        "SRC-146"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-39",
+      "title": "Vibe MCP",
+      "page": 51,
+      "researchText": "产品：MasterGo | 模块：AI/MCP\n用户操作：打开桌面端文件，连接 MCP，读取选区/资源并指令修改或同步到画布\n行为规格：本地客户端连接兼容 IDE/CLI，支持选区代码/图片、团队库读取、节点增改删、变量管理和母版/组件集创建；\n另提供差异比较与显式 HTML 全量同步。\n边界与限制：桌面文件在线及权限是前提；静态 HTML 全量同步不同于任意 React 双向更新；不能沿用总览只读说法\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-147",
+      "sourceIds": [
+        "SRC-147"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-40",
+      "title": "角色、组织与安全配置",
+      "page": 51,
+      "researchText": "产品：MasterGo | 模块：企业治理\n用户操作：管理员管理成员、组织、SAML SSO、域名/IP 和安全策略\n行为规格：企业可统一管理成员、外部协作者、隐藏团队、跨团队库、字体、日志和资产交接；设计/产品/研发/查看席位\n与文件权限分离。\n边界与限制：能力受企业版本与策略影响；管理员身份不自动替代文件授权或商业席位。具体 SSO 配置与合同权益需复核。\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-144",
+      "sourceIds": [
+        "SRC-144"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-41",
+      "title": "私有化部署",
+      "page": 51,
+      "researchText": "产品：MasterGo | 模块：企业治理\n用户操作：采购并实施企业内网部署\n行为规格：商业私有部署需取得部署包与许可证，并配置服务器、存储与身份服务；官方有安装、备份和升级路径。\n边界与限制：AI local 模式的模型、硬件与能力覆盖未完整披露；私有版与 SaaS 更新节奏不同，SLA 按合同。\n状态：文档确认 | 证据：官方公开资料；未登录逐项实测\n来源：SRC-168 · SRC-167",
+      "sourceIds": [
+        "SRC-168",
+        "SRC-167"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "MG-42",
+      "title": "插件与开放平台",
+      "page": 51,
+      "researchText": "产品：MasterGo | 模块：扩展\n用户操作：从工作台/帮助进入插件与开放平台\n行为规格：官方新手文档设置插件与开放平台入口，支持扩展工作流的产品方向\n边界与限制：未完整阅读 API 权限、读写数据模型、分发审核和私有插件部署；第三方插件宣传不作为原生能力证明\n状态：仅确认入口 | 证据：官方公开资料；未登录逐项实测\n发布状态补充：documented_entry_only\n来源：SRC-164",
+      "sourceIds": [
+        "SRC-164"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-01",
+      "title": "原生专业设计编辑器",
+      "page": 52,
+      "researchText": "产品：Ardot | 模块：定位与界面\n行为规格：浏览器和桌面客户端；原生图层、矢量和组件系统；工作区以左侧页面/图层、中间画布、右侧属性为主。\n边界与限制：TGFX 是官方对引擎的说明；未做性能或兼容性测试。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-025 · SRC-035",
+      "sourceIds": [
+        "SRC-025",
+        "SRC-035"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-02",
+      "title": "组织—团队—项目—文件—页面",
+      "page": 52,
+      "researchText": "产品：Ardot | 模块：文件组织\n行为规格：组织管理成员与资源，团队内项目组织文件；个人草稿为独立私有入口；文件内部有多个页面。\n边界与限制：组织管理权、产品席位、具体文件权限是不同维度。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-032 · SRC-014 · SRC-016 · SRC-015",
+      "sourceIds": [
+        "SRC-032",
+        "SRC-014",
+        "SRC-016",
+        "SRC-015"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-03",
+      "title": "草稿进入协作项目",
+      "page": 52,
+      "researchText": "产品：Ardot | 模块：文件管理\n行为规格：可把草稿文件移入项目；项目文件继承项目访问范围；支持收藏与回收站。\n边界与限制：回收站文档为30天；永久删除不可恢复。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-014",
+      "sourceIds": [
+        "SRC-014"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-04",
+      "title": "自动保存与命名版本",
+      "page": 52,
+      "researchText": "产品：Ardot | 模块：版本\n行为规格：编辑自动保存，可手动命名版本；通过文件菜单版本历史预览、恢复。\n边界与限制：未核实保存间隔、保留期、分支合并或多人恢复冲突策略。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-032",
+      "sourceIds": [
+        "SRC-032"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-05",
+      "title": "浅层选择、逐层深入与穿透",
+      "page": 52,
+      "researchText": "产品：Ardot | 模块：选取\n行为规格：点选父层；双击或 Enter 深入；Cmd/Ctrl 穿透；图层面板悬停会高亮画布对象；Shift 增减选区。\n边界与限制：锁定对象不能普通画布点选；深度选取与父子同时多选有规则。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-036",
+      "sourceIds": [
+        "SRC-036"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-06",
+      "title": "形状、钢笔、布尔、蒙版",
+      "page": 53,
+      "researchText": "产品：Ardot | 模块：矢量\n行为规格：基础形状、贝塞尔钢笔、布尔运算、蒙版、填充描边效果均属原生设计功能。\n边界与限制：没有据此推定所有 Figma Draw 专业插画能力等价。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-035",
+      "sourceIds": [
+        "SRC-035"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-07",
+      "title": "边界框与字体缩放",
+      "page": 53,
+      "researchText": "产品：Ardot | 模块：文本\n行为规格：拖边界调整文本框；手动调整会切为固定尺寸；缩放工具可同时缩放字号和边界。\n边界与限制：缩放可能产生小数字号和亚像素位置；改变框尺寸与改变字号是两种操作。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-038",
+      "sourceIds": [
+        "SRC-038"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-08",
+      "title": "横向、纵向、换行与嵌套",
+      "page": 53,
+      "researchText": "产品：Ardot | 模块：自动布局\n行为规格：Shift+A 或面板创建自动布局；支持横/纵排列、换行和嵌套。\n边界与限制：官网宣传 Grid，但本次深层帮助只核实横纵/wrap；不能写已完整验证 CSS Grid。\n状态：已文档化，Grid待验证 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化，Grid待验证\n来源：SRC-026 · SRC-001",
+      "sourceIds": [
+        "SRC-026",
+        "SRC-001"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-09",
+      "title": "固定、适应内容、填充与边界",
+      "page": 53,
+      "researchText": "产品：Ardot | 模块：自动布局\n行为规格：固定/适应内容/填充容器；最小最大尺寸可使用变量；手动拉伸转换为固定尺寸。\n边界与限制：填充容器只适用于自动布局内的子元素；不能忽略父子尺寸约束。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-026",
+      "sourceIds": [
+        "SRC-026"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-10",
+      "title": "间距、内边距与插入反馈",
+      "page": 53,
+      "researchText": "产品：Ardot | 模块：布局交互\n行为规格：间距支持手动/Auto；内边距可按轴或四边；拖入出现绿色插入指示；拖动或键盘调整顺序。\n边界与限制：实例内部不能任意重排结构；隐藏移出布局，透明度为0仍占位。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-027",
+      "sourceIds": [
+        "SRC-027"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-11",
+      "title": "主组件与实例",
+      "page": 54,
+      "researchText": "产品：Ardot | 模块：组件\n行为规格：从选择创建主组件；复制生成实例；资产面板可定位来源、跳到主组件，再返回实例。\n边界与限制：实例结构修改受约束；解除关联转为普通容器，需用撤销恢复。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-029",
+      "sourceIds": [
+        "SRC-029"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-12",
+      "title": "覆盖与传播",
+      "page": 54,
+      "researchText": "产品：Ardot | 模块：组件\n行为规格：文本、颜色、显隐、嵌套实例等可覆盖；未覆盖属性跟随主组件更新；可重置覆盖。\n边界与限制：实例不能任意增删子层/改内部结构；替换时主要按层名及类型匹配，需检查保留结果。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-030",
+      "sourceIds": [
+        "SRC-030"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-13",
+      "title": "组件集与变体",
+      "page": 54,
+      "researchText": "产品：Ardot | 模块：组件\n行为规格：单组件添加变体，或将多个组件合成组件集；通过状态、尺寸等属性下拉选择具体实例版本。\n边界与限制：变体是设计状态组织能力，不能据此当作原型交互状态机已支持。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-031",
+      "sourceIds": [
+        "SRC-031"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-14",
+      "title": "组件属性与嵌套暴露",
+      "page": 54,
+      "researchText": "产品：Ardot | 模块：组件\n行为规格：支持文本、布尔显隐、实例替换、暴露内层实例属性；绑定后出现紫色标签，实例面板直接修改。\n边界与限制：要在正确组件层级定义属性；已有图层属性与组件属性需要显式关联。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-028",
+      "sourceIds": [
+        "SRC-028"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-15",
+      "title": "变量类型、集合、别名",
+      "page": 54,
+      "researchText": "产品：Ardot | 模块：设计系统\n行为规格：颜色/数值/字符串/布尔四类；集合组织，斜杠分组，同类型别名；可绑定样式、文本、显隐等。\n边界与限制：别名不得循环；删除变量会保留最后值并提示失联，需重新绑定。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-040",
+      "sourceIds": [
+        "SRC-040"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-16",
+      "title": "模式与作用范围",
+      "page": 55,
+      "researchText": "产品：Ardot | 模块：设计系统\n行为规格：同集合可建立多个模式；对框架选择模式驱动后代；scope 控制变量在何种属性选择器出现。\n边界与限制：删除模式回落默认；没有核实商业档位对应的模式数量上限。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-039",
+      "sourceIds": [
+        "SRC-039"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-17",
+      "title": "共享与权限请求",
+      "page": 55,
+      "researchText": "产品：Ardot | 模块：协作\n行为规格：分享按查看/评论/编辑授权，邀请指定成员；无编辑权限可发起申请，协作有头像光标。\n边界与限制：链接权限与组织外部共享政策并存；没有将宣传同步速度当实测。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-037 · SRC-008",
+      "sourceIds": [
+        "SRC-037",
+        "SRC-008"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-18",
+      "title": "画布定位评论",
+      "page": 55,
+      "researchText": "产品：Ardot | 模块：评审\n行为规格：C 进入评论，在画布落点、回复、解决；评论列表支持定位设计语境。\n边界与限制：未核实正式审批签核、复杂状态流或评论跨版本锚点保真。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-037",
+      "sourceIds": [
+        "SRC-037"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-19",
+      "title": "检查属性与开发模式",
+      "page": 55,
+      "researchText": "产品：Ardot | 模块：开发交付\n行为规格：只读选取仍能展示图层、父组件、布局和颜色信息；官方说明支持开发代码与资源取用。\n边界与限制：CSS/iOS/Android 是产品页宣称；本次未逐项验证代码生成完整度及开发席位细分权益。\n状态：部分文档化，细项待验证 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：部分文档化，细项待验证\n来源：SRC-036 · SRC-001 · SRC-042",
+      "sourceIds": [
+        "SRC-036",
+        "SRC-001",
+        "SRC-042"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-20",
+      "title": "文生 UI、图片分层及辅助编辑",
+      "page": 55,
+      "researchText": "产品：Ardot | 模块：AI\n行为规格：官网列文生 UI、图转可编辑图层、重命名、图像生成、链接转 UI 等入口。\n边界与限制：质量和复杂页面可编辑程度未测；官网营销数字不采纳。\n状态：厂商功能声明 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：厂商功能声明\n来源：SRC-001 · SRC-002",
+      "sourceIds": [
+        "SRC-001",
+        "SRC-002"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-21",
+      "title": "设计结构读写",
+      "page": 56,
+      "researchText": "产品：Ardot | 模块：MCP\n行为规格：Agent 读写 frame、组件实例、文本、布局、样式、变量和资源，并可导出图像/SVG。\n边界与限制：有能力不代表 Agent 会自动保持所有手工修改；须定义操作范围。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-018",
+      "sourceIds": [
+        "SRC-018"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-22",
+      "title": "云端开放接入",
+      "page": 56,
+      "researchText": "产品：Ardot | 模块：MCP\n行为规格：云服务 https://ardot.tencent.com/mcp；MCP 兼容 Agent 可经 OAuth 接入，无须安装桌面客户端。\n边界与限制：不是只允许腾讯自有 Agent；仍受账户、权限与服务限制。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-020",
+      "sourceIds": [
+        "SRC-020"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-23",
+      "title": "本地客户端接入",
+      "page": 56,
+      "researchText": "产品：Ardot | 模块：MCP\n行为规格：桌面客户端打开文件后运行本地服务；Agent 连接当前文件，可执行创建或修改。\n边界与限制：本地 MCP 不等于全套产品私有化，也不证明设计数据完全离线。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-017",
+      "sourceIds": [
+        "SRC-017"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-24",
+      "title": "调用权限与用量",
+      "page": 56,
+      "researchText": "产品：Ardot | 模块：MCP\n行为规格：编辑授权可读写，查看授权只能读取；远程 beta 免费，600次/日/用户、20次/分钟；本地 MCP 当前不计费。\n边界与限制：官方写明远程后续收费；不得用于推定长期成本。\n状态：已文档化，价格可变 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化，价格可变\n来源：SRC-019",
+      "sourceIds": [
+        "SRC-019"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-25",
+      "title": "HTML与画布双向工作流",
+      "page": 56,
+      "researchText": "产品：Ardot | 模块：C2D/D2C\n行为规格：官方 HMI 案例：HTML 经 WorkBuddy+MCP 回到可编辑矢量稿；设计稿可转 HTML/React/Vue，预览或下载代\n码包。\n边界与限制：官方案例明确列出待建设项：细节精度尚不能直接支撑生产交付；暂不支持绑定变量表导出，Token/变量双向\n映射尚未打通。未证实任意业务代码无损往返或持续冲突合并。\n状态：官方案例，未实测 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：官方案例，未实测\n来源：SRC-021",
+      "sourceIds": [
+        "SRC-021"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-26",
+      "title": "设计上下文与代码校准",
+      "page": 57,
+      "researchText": "产品：Ardot | 模块：AI交付\n行为规格：CodeBuddy 案例使用节点链接、组件与 Token 规则、浏览器真实元素定位，分模块生成并迭代预览。\n边界与限制：文章明确原型仍需工程完善；案例百分比与耗时不可外推成通用保证。\n状态：官方案例，未实测 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：官方案例，未实测\n来源：SRC-022 · SRC-023",
+      "sourceIds": [
+        "SRC-022",
+        "SRC-023"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-27",
+      "title": "Figma与图片导入",
+      "page": 57,
+      "researchText": "产品：Ardot | 模块：迁移\n行为规格：支持 .fig 以及常见位图、SVG；文档描述保留图层/组件结构，并显示导入进度和失败重试。\n边界与限制：Figma 原型交互链接、私有插件数据不导入；字体缺失需处理；大文件建议拆分。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-034",
+      "sourceIds": [
+        "SRC-034"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-28",
+      "title": "CoDesign只读导入",
+      "page": 57,
+      "researchText": "产品：Ardot | 模块：迁移\n行为规格：输入 CoDesign 分享链接/密码并选目标项目；可查看与标注旧设计。\n边界与限制：因源数据不足，导入结果不能编辑；不支持 CoDesign 原型/白板。\n状态：已文档化，关键限制 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化，关键限制\n来源：SRC-033",
+      "sourceIds": [
+        "SRC-033"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-29",
+      "title": "原生热点与交互",
+      "page": 57,
+      "researchText": "产品：Ardot | 模块：原型\n行为规格：官方 FAQ 明确目前不支持原型交互，仍在规划。\n边界与限制：不能把变体、动效或生成前端 demo 计作原生原型连线能力。\n状态：未支持/规划中 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：未支持/规划中\n来源：SRC-024",
+      "sourceIds": [
+        "SRC-024"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-30",
+      "title": "原生源文件导出",
+      "page": 57,
+      "researchText": "产品：Ardot | 模块：可迁出性\n行为规格：官方 FAQ 写暂不支持导出本地原文件，Ardot 文件格式在规划。\n边界与限制：图像/SVG 导出与完整可恢复源文件不是同一能力。\n状态：未支持/规划中 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：未支持/规划中\n来源：SRC-024",
+      "sourceIds": [
+        "SRC-024"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-31",
+      "title": "离职资产、访客、字体和审计",
+      "page": 58,
+      "researchText": "产品：Ardot | 模块：企业治理\n行为规格：企业控制台管理访客、团队、外部分享、共享字体和未归属草稿；组织文档另列审计导出。\n边界与限制：治理菜单有文档；具体套餐、数据驻留和审计保留期未核实。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-008 · SRC-015",
+      "sourceIds": [
+        "SRC-008",
+        "SRC-015"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-32",
+      "title": "设计、开发、查看角色",
+      "page": 58,
+      "researchText": "产品：Ardot | 模块：企业席位\n行为规格：企业团队文件编辑需有效设计席位及文件编辑授权；开发席位不提供设计编辑；查看/评论默认无须购买这两类\n席位。\n边界与限制：管理员身份不能代替席位；AI还涉及 WorkBuddy 功能、授权及积分条件。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-042",
+      "sourceIds": [
+        "SRC-042"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-33",
+      "title": "WorkBuddy绑定及私有化待核实",
+      "page": 58,
+      "researchText": "产品：Ardot | 模块：商业与部署\n行为规格：企业席位领取/分配基于有效 WorkBuddy 旗舰版权益；2026限时0元赠送/增购存在截止。\n边界与限制：赠送最晚2026-12-31且受WorkBuddy有效期约束；文档排除私有化适用范围，但未取得可采购私有化规格。\n状态：限时政策，部署待确认 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：限时政策，部署待确认\n来源：SRC-042",
+      "sourceIds": [
+        "SRC-042"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "ARD-34",
+      "title": "版本与规划区分",
+      "page": 58,
+      "researchText": "产品：Ardot | 模块：成熟度\n行为规格：版本日志已到 v2.27（2026-11-03）；正在持续完善查看者、字体、MCP、组件等能力。\n边界与限制：快速入门的全流程/零成本迁移表述需由具体功能页校正，不能覆盖 FAQ 的当前缺口。\n状态：当前发布记录 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：当前发布记录\n来源：SRC-041 · SRC-024",
+      "sourceIds": [
+        "SRC-041",
+        "SRC-024"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "COD-01",
+      "title": "设计交付协作平台",
+      "page": 59,
+      "researchText": "产品：Tencent CoDesign | 模块：产品身份\n行为规格：以外部设计稿上传、预览、评审、标注切图、版本和资产管理为核心。\n边界与限制：不是据现有证据可认定的原生 Figma 级矢量创作器。\n状态：历史产品 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：历史产品\n来源：SRC-005 · SRC-007",
+      "sourceIds": [
+        "SRC-005",
+        "SRC-007"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "COD-02",
+      "title": "退役时间",
+      "page": 59,
+      "researchText": "产品：Tencent CoDesign | 模块：生命周期\n行为规格：2025-12-31停售，2026-06-30结束全面支持，2028-12-31结束所有服务。\n边界与限制：截至本报告日期已过全面支持截止；不能当成新采购主推荐。\n状态：官方退役公告 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：官方退役公告\n来源：SRC-003",
+      "sourceIds": [
+        "SRC-003"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "COD-03",
+      "title": "多工具上传、项目及画布",
+      "page": 59,
+      "researchText": "产品：Tencent CoDesign | 模块：导入与组织\n行为规格：设计源通过插件或图片进入项目；支持画布/列表、分组排序、标注线及文字说明。\n边界与限制：2026插件页列Sketch、XD、Photoshop、Figma、Axure、即时设计、MasterGo、Pixso；来源不是原生统一\n语义。\n状态：历史功能文档 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：历史功能文档\n来源：SRC-007 · SRC-004",
+      "sourceIds": [
+        "SRC-007",
+        "SRC-004"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "COD-04",
+      "title": "自动标注、切图、代码及版本",
+      "page": 59,
+      "researchText": "产品：Tencent CoDesign | 模块：交付\n行为规格：开发点击元素查看样式、复制代码、下载资源；评审评论可以依版本进行；设计源备份为可选。\n边界与限制：不要把标注代码片段当完整业务前端；迁入 Ardot 后只读。\n状态：历史功能文档 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：历史功能文档\n来源：SRC-006 · SRC-033",
+      "sourceIds": [
+        "SRC-006",
+        "SRC-033"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "COD-05",
+      "title": "会议内设计评审",
+      "page": 60,
+      "researchText": "产品：Tencent CoDesign | 模块：协作\n行为规格：腾讯会议集成允许围绕设计项目音视频讨论和共享预览。\n边界与限制：旧集成帮助不能证明当前退役过程中服务承诺。\n状态：历史集成文档 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：历史集成文档\n来源：SRC-171 · SRC-003",
+      "sourceIds": [
+        "SRC-171",
+        "SRC-003"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-01",
+      "title": "HTML/CSS原生与文件组织",
+      "page": 61,
+      "researchText": "产品：Paper | 模块：技术与结构\n行为规格：画布以 HTML/CSS 表达设计；团队文件、文件夹/子文件夹、页面与画板/图层；MCP可管理文件和目录。\n边界与限制：这是一种设计文档模型；不等于任意现有React应用可原样运行和双向编辑。\n状态：已发布/文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已发布/文档化\n来源：SRC-173 · SRC-172",
+      "sourceIds": [
+        "SRC-173",
+        "SRC-172"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-02",
+      "title": "Flex与矢量路径",
+      "page": 61,
+      "researchText": "产品：Paper | 模块：手动编辑\n行为规格：支持Flex/wrap、深浅选取、属性修改；可导入SVG并编辑路径/控制点、填充描边，或钢笔新建路径。\n边界与限制：CSS Grid仍planned；专业向量的布尔/转路径等在对应路线图中，不能认为已有Figma等价完备性。\n状态：部分已发布，部分规划 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：部分已发布，部分规划\n来源：SRC-176 · SRC-177 · SRC-179",
+      "sourceIds": [
+        "SRC-176",
+        "SRC-177",
+        "SRC-179"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-03",
+      "title": "富文本与Token",
+      "page": 61,
+      "researchText": "产品：Paper | 模块：文本与设计系统\n行为规格：2026-10已发布逐字符富文本；Token支持颜色、间距、半径、容器、断点和字体属性，手动或MCP创建。\n边界与限制：旧paste文档仍写不支持富文本，应以较新发布记录校正；跨文件复制Token不联动，多主题仍规划。\n状态：已发布但文档有滞后 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已发布但文档有滞后\n来源：SRC-172 · SRC-178 · SRC-175",
+      "sourceIds": [
+        "SRC-172",
+        "SRC-178",
+        "SRC-175"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-04",
+      "title": "代码组件与槽位",
+      "page": 61,
+      "researchText": "产品：Paper | 模块：组件\n行为规格：路线图将code components列in progress、components with slots列coming soon。\n边界与限制：不要把合作组件kit或复制Figma槽位当成已完成主组件/实例/变体系统。\n状态：进行中/将推出 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：进行中/将推出\n来源：SRC-179",
+      "sourceIds": [
+        "SRC-179"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-05",
+      "title": "HTML与Figma粘贴",
+      "page": 61,
+      "researchText": "产品：Paper | 模块：导入\n行为规格：HTML/DOM片段可转可编辑层；Figma复制粘贴，含图需授权可访问源文件的账户。\n边界与限制：HTML仅inline样式，class/selector样式丢失，input转frame；Figma组件/实例/变量会脱离，mask存在限制。\n状态：已文档化，有损转换 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化，有损转换\n来源：SRC-175 · SRC-174",
+      "sourceIds": [
+        "SRC-175",
+        "SRC-174"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-06",
+      "title": "桌面MCP读写与代码输出",
+      "page": 62,
+      "researchText": "产品：Paper | 模块：Agent与交付\n行为规格：桌面应用启动MCP，Agent可经CLI stdio接入；画布可复制React CSS/Tailwind代码。\n边界与限制：远程MCP最近公开发布日志仍列coming soon；浏览器WebMCP另有发布，不应混同云端MCP。\n状态：本地已发布，远程待确认 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：本地已发布，远程待确认\n来源：SRC-173 · SRC-172",
+      "sourceIds": [
+        "SRC-173",
+        "SRC-172"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-07",
+      "title": "评论、免费查看者与权限进度",
+      "page": 62,
+      "researchText": "产品：Paper | 模块：协作与治理\n行为规格：已发布定位评论、回复/解决、筛选；免费查看者角色可访问团队文件且无编辑权。\n边界与限制：全套共享设置仍in progress；逐文件权限在9月日志列coming soon，未找到后来完工证据。\n状态：基础协作已发布 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：基础协作已发布\n来源：SRC-172 · SRC-179",
+      "sourceIds": [
+        "SRC-172",
+        "SRC-179"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PAP-08",
+      "title": "私有部署证据",
+      "page": 62,
+      "researchText": "产品：Paper | 模块：部署\n行为规格：此次官方资料未取得完整自部署发行包或可嵌入编辑器SDK的许可与部署规格。\n边界与限制：本地MCP是Agent连接方式，不能据此得出可以私有化整个平台。\n状态：未确认 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：未确认\n来源：SRC-173 · SRC-179",
+      "sourceIds": [
+        "SRC-173",
+        "SRC-179"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-01",
+      "title": "Dashboard、Workspace、View",
+      "page": 63,
+      "researchText": "产品：Penpot | 模块：信息架构\n行为规格：Dashboard管理文件；Workspace包括页面、层树、无限画布、Board、资产与Tokens；右侧\nDesign/Prototype/Inspect；View用于播放/评审。\n边界与限制：模式拆分能减少开发误改；未实际测量可发现性与操作耗时。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-134",
+      "sourceIds": [
+        "SRC-134"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-02",
+      "title": "SVG语义与真实Flex/Grid",
+      "page": 63,
+      "researchText": "产品：Penpot | 模块：图形与布局\n行为规格：设计支持矢量及可导出的SVG；Flex/wrap与Grid二维轨道、fr/auto/px、区域、嵌套均有操作文档。\n边界与限制：2.19另有可选WebGL渲染；SVG语义/格式不等于所有版本仅使用SVG渲染。\n状态：已文档化/发布 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化/发布\n来源：SRC-132 · SRC-182 · SRC-133",
+      "sourceIds": [
+        "SRC-132",
+        "SRC-182",
+        "SRC-133"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-03",
+      "title": "组件/实例与共享Token",
+      "page": 63,
+      "researchText": "产品：Penpot | 模块：设计系统\n行为规格：主组件和实例，局部覆盖、重置、替换；Token支持别名/数学表达式，2.19已可经共享库跨文件同步。\n边界与限制：涉及共享库更新确认与来源管理，不能以复制样式代替完整关系。\n状态：已文档化/发布 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化/发布\n来源：SRC-130 · SRC-131 · SRC-182",
+      "sourceIds": [
+        "SRC-130",
+        "SRC-131",
+        "SRC-182"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-04",
+      "title": "连线、触发、浮层与多流程",
+      "page": 63,
+      "researchText": "产品：Penpot | 模块：原型\n行为规格：选择图层拖线到Board；点击/进入/离开/延时触发；跳转、浮层、返回、URL和转场；多flow独立分享。\n边界与限制：原型事件/转场不等于业务逻辑执行；不要推定Figma高级条件/变量原型等价。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-135",
+      "sourceIds": [
+        "SRC-135"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-05",
+      "title": "只读Inspect及HTML/CSS/SVG",
+      "page": 64,
+      "researchText": "产品：Penpot | 模块：开发交付\n行为规格：Workspace与View均可Inspect；点选悬停测距，复制单属性/组属性，导出资源或获取HTML/SVG标记及CSS。\n边界与限制：代码片段不含完整应用数据流；资源导出与设计源文件需分清。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-133",
+      "sourceIds": [
+        "SRC-133"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-06",
+      "title": "本地与远程读写",
+      "page": 64,
+      "researchText": "产品：Penpot | 模块：MCP\n行为规格：任意兼容Agent；远程在账户Integrations启用并生成key；打开文件后连接MCP插件，读写组件/变量/图层。\n边界与限制：单活动标签页/当前焦点页面；休眠会阻断；远程无本地路径图片导入及本地导出能力。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-128",
+      "sourceIds": [
+        "SRC-128"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-07",
+      "title": "自部署与开源",
+      "page": 64,
+      "researchText": "产品：Penpot | 模块：私有化与许可\n行为规格：官方Docker/Kubernetes自部署；官方主仓库LICENSE为MPL2.0；另有商业企业版与治理能力。\n边界与限制：用户约束不允许整套开源直接部署，因此只作架构/规格参照；不能把开源等同零运维或企业版权益全免。\n状态：已文档化 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：已文档化\n来源：SRC-129 · SRC-181 · SRC-043",
+      "sourceIds": [
+        "SRC-129",
+        "SRC-181",
+        "SRC-043"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "PEN-08",
+      "title": "2.19与交互细节",
+      "page": 64,
+      "researchText": "产品：Penpot | 模块：成熟度\n行为规格：2026-10-28版本有共享库Token、自定义快捷键、路径编辑改进、独立边框及可选WebGL。\n边界与限制：发布说明中的更快/更顺滑为厂商声称，未基准测试。\n状态：当前发布记录 | 证据：官方文档/官网，未登录编辑器实测\n发布状态补充：当前发布记录\n来源：SRC-182",
+      "sourceIds": [
+        "SRC-182"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-01",
+      "title": "云端协作与自动保存",
+      "page": 65,
+      "researchText": "产品：即时设计 | 模块：协作与存储\n用户操作：打开云端文件并分享协作者\n行为规格：官方介绍支持文件实时更新、自动保存与备份。\n边界与限制：未实测离线冲突、恢复粒度或并发性能；不沿用旧教程的免费权益承诺。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-141",
+      "sourceIds": [
+        "SRC-141"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-02",
+      "title": "页面、图层与上下文属性",
+      "page": 65,
+      "researchText": "产品：即时设计 | 模块：信息架构\n用户操作：切换左侧图层/组件/资源/AI，选中对象\n行为规格：左栏组织页面与图层、引用库和资源；右栏随选区显示属性；顶部提供分享、预览及保存状态。\n边界与限制：依据官方入门文章，具体布局可能随版本变化。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-139",
+      "sourceIds": [
+        "SRC-139"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-03",
+      "title": "工具入口与位置设置",
+      "page": 65,
+      "researchText": "产品：即时设计 | 模块：编辑器\n用户操作：选择基本绘图工具或调整工具栏\n行为规格：提供形状、钢笔、铅笔、画板、文本、图片、切片、评论和插件；工具栏支持位置与顺序调整。\n边界与限制：本研究未实测自定义布局的持久性、跨设备同步或工具全集。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-140",
+      "sourceIds": [
+        "SRC-140"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-04",
+      "title": "创建自动布局",
+      "page": 65,
+      "researchText": "产品：即时设计 | 模块：布局\n用户操作：Shift+A、属性面板或右键添加\n行为规格：可从画板、组件、组或多选创建；不在画板内的对象会被包入自动布局画板。\n边界与限制：自动布局以画板为作用容器；未验证任意 CSS 转译一致性。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-142",
+      "sourceIds": [
+        "SRC-142"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-05",
+      "title": "插入、重排与嵌套",
+      "page": 66,
+      "researchText": "产品：即时设计 | 模块：布局\n用户操作：将单个或多个对象拖入自动布局\n行为规格：插入位置有紫色指示；支持排序和嵌套，内容变化可驱动容器与相邻对象重排。\n边界与限制：拖动命中与复杂嵌套性能未实测；隐藏与透明度为零对占位的影响需区分。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-142",
+      "sourceIds": [
+        "SRC-142"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-06",
+      "title": "连线、触发与演示",
+      "page": 66,
+      "researchText": "产品：即时设计 | 模块：原型\n用户操作：切换原型，从对象拖出连接并设置事件\n行为规格：官方教程给出页面跳转、返回、浮层、外链和点击/悬停等事件，配置动画并进入演示分享。\n边界与限制：原型播放与图片/PDF导出不同；未验证复杂条件、状态持久化和移动端完整行为。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-137 · SRC-136",
+      "sourceIds": [
+        "SRC-137",
+        "SRC-136"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-07",
+      "title": "快捷键与层级选择",
+      "page": 66,
+      "researchText": "产品：即时设计 | 模块：操作效率\n用户操作：用快捷键选择子层、退出或撤销\n行为规格：官方提供选择、编辑、分组、布局与视图快捷键参考及产品内帮助。\n边界与限制：已读取的是官方索引，未逐个执行；系统与版本差异需核对。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-143",
+      "sourceIds": [
+        "SRC-143"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    },
+    {
+      "id": "JS-08",
+      "title": "Figma 文件与链接导入",
+      "page": 66,
+      "researchText": "产品：即时设计 | 模块：迁移\n用户操作：上传/拖入文件，或授权后输入 Figma URL\n行为规格：官方说明可导入后继续编辑，并提供向 Sketch 格式迁出的路径。\n边界与限制：厂商还原率与“全面覆盖”是营销主张，本研究未采用；组件/变量/交互保真需样本验收。\n状态：官方教程确认 | 证据：官方帮助或教程正文；未登录执行任务。较旧页面只用于机制说明，不作为当前收费依据。\n来源：SRC-138",
+      "sourceIds": [
+        "SRC-138"
+      ],
+      "implementationStatus": "not_started",
+      "acceptanceStatus": "not_defined"
+    }
+  ]
+}

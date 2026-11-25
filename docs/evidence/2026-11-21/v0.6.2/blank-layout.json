@@ -1,0 +1,24 @@
+{
+  "viewport": {
+    "width": 1531,
+    "height": 972
+  },
+  "canvas": {
+    "x": 296,
+    "y": 72,
+    "width": 943,
+    "height": 900
+  },
+  "navigation": {
+    "x": 0,
+    "y": 40,
+    "width": 48,
+    "height": 932
+  },
+  "left": {
+    "x": 0,
+    "y": 40,
+    "width": 296,
+    "height": 932
+  }
+}

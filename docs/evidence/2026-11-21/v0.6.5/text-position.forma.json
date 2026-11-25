@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "id": "text-position",
+  "name": "Text position",
+  "revision": 6,
+  "nodes": [
+    {
+      "id": "paper",
+      "parentId": null,
+      "type": "frame",
+      "name": "paper",
+      "text": "",
+      "style": {
+        "width": 420,
+        "height": 310,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "fixed",
+      "parentId": "paper",
+      "type": "text",
+      "name": "fixed",
+      "text": "正文 Text AV 123",
+      "style": {
+        "width": 185.5,
+        "height": 36,
+        "x": 48.25,
+        "y": 24.5,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "lineHeight": 24
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "wrapped",
+      "parentId": "paper",
+      "type": "text",
+      "name": "wrapped",
+      "text": "换行 Type example 123\n中文 AV text",
+      "style": {
+        "width": 122.75,
+        "height": 95,
+        "x": 102.5,
+        "y": 77.25,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "stroke": "#dddddd",
+        "strokeWidth": 2,
+        "lineHeight": 25,
+        "textTransform": "uppercase",
+        "verticalAlign": "middle",
+        "textAlign": "center"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "clamped",
+      "parentId": "paper",
+      "type": "text",
+      "name": "clamped",
+      "text": "最多显示两行文字，底部对齐\n第三行继续编辑。",
+      "style": {
+        "width": 122,
+        "height": 90,
+        "x": 256,
+        "y": 65.5,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "lineHeight": 21,
+        "verticalAlign": "bottom",
+        "maxLines": 2,
+        "textAlign": "right"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "empty",
+      "parentId": "paper",
+      "type": "text",
+      "name": "empty",
+      "text": "第一行\nSecond line",
+      "style": {
+        "width": 120,
+        "height": 35,
+        "x": 55,
+        "y": 150,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "trailing",
+      "parentId": "paper",
+      "type": "text",
+      "name": "trailing",
+      "text": "最后一行\n",
+      "style": {
+        "width": 150,
+        "height": 42,
+        "x": 250,
+        "y": 148,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "lineHeight": 21,
+        "verticalAlign": "bottom"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "hug-end",
+      "parentId": "paper",
+      "type": "text",
+      "name": "hug-end",
+      "text": "Hug\n",
+      "style": {
+        "width": 110,
+        "height": 310,
+        "heightMode": "hug",
+        "x": 256,
+        "y": 10,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "lineHeight": 21
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "tilted",
+      "parentId": "paper",
+      "type": "frame",
+      "name": "tilted",
+      "text": "",
+      "style": {
+        "width": 270,
+        "height": 100,
+        "x": 44,
+        "rotation": 7,
+        "y": 189,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 12.5,
+        "gap": 6.5,
+        "layout": "column",
+        "alignX": "end"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "rich",
+      "parentId": "tilted",
+      "type": "text",
+      "name": "rich",
+      "text": "混排 Title 23",
+      "textRuns": [
+        {
+          "start": 0,
+          "end": 2,
+          "style": {
+            "fontWeight": 700,
+            "letterSpacing": 1,
+            "fontSize": 23
+          }
+        }
+      ],
+      "style": {
+        "width": 420,
+        "height": 310,
+        "widthMode": "hug",
+        "heightMode": "hug",
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fontStyle": "italic"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "action",
+      "parentId": "tilted",
+      "type": "button",
+      "name": "action",
+      "text": "确认 Okay",
+      "style": {
+        "width": 153,
+        "height": 34,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#202020",
+        "radius": 0,
+        "fontSize": 17,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "fontWeight": 600
+      },
+      "hidden": false,
+      "locked": false
+    }
+  ],
+  "tokens": {}
+}

@@ -1,0 +1,76 @@
+{
+  "captured": "2026-11-23",
+  "sourceSha256": "d6a0a6370b17f5c109d5ef227915ef6d59bf0da23076292e09fb87fd5e63a11a",
+  "method": "Independent React TypeScript/Vite production build generated from all 46 pages of the saved Forma document. Browser opened the full routes and captured the source-identified descendant.",
+  "viewport": [2200, 1500],
+  "deviceScaleFactor": 1,
+  "metric": "Composite on white in 8-bit sRGB. Count pixels where max(abs(delta R), abs(delta G), abs(delta B)) > 16. Each image passes at or below 0.5%.",
+  "build": {
+    "entry": "index-CobfgWnN.js",
+    "sha256": "ab89ed5bca657060ea73ce27ef61db2adb2d30453166c45bb60b14a2836abf9c"
+  },
+  "references": [
+    {
+      "tag": "alert",
+      "route": "63:57121",
+      "node": "65:57149",
+      "sourcePngSha256": "9235f3cbc83d2da28e18ce82aa21cbe69a644cff49505f1d2133738506464064"
+    },
+    {
+      "tag": "alert-button",
+      "route": "5446:6653",
+      "node": "5446:6654",
+      "sourcePngSha256": "2be06ddba63e3876e003fd2bf3164098d03523b464004804056ae810e61f9d94"
+    }
+  ],
+  "results": [
+    {
+      "engine": "chromium",
+      "tag": "alert",
+      "pixels": 92100,
+      "over16": 233,
+      "percent": 0.252985884907709,
+      "meanMaxChannelDifference": 1.4490553745928338
+    },
+    {
+      "engine": "chromium",
+      "tag": "alert-button",
+      "pixels": 4128,
+      "over16": 3,
+      "percent": 0.07267441860465117,
+      "meanMaxChannelDifference": 0.4326550387596899
+    },
+    {
+      "engine": "firefox",
+      "tag": "alert",
+      "pixels": 92100,
+      "over16": 179,
+      "percent": 0.19435396308360478,
+      "meanMaxChannelDifference": 1.3004125950054288
+    },
+    {
+      "engine": "firefox",
+      "tag": "alert-button",
+      "pixels": 4128,
+      "over16": 3,
+      "percent": 0.07267441860465117,
+      "meanMaxChannelDifference": 1.2100290697674418
+    },
+    {
+      "engine": "webkit",
+      "tag": "alert",
+      "pixels": 92100,
+      "over16": 180,
+      "percent": 0.19543973941368079,
+      "meanMaxChannelDifference": 1.274071661237785
+    },
+    {
+      "engine": "webkit",
+      "tag": "alert-button",
+      "pixels": 4128,
+      "over16": 5,
+      "percent": 0.12112403100775193,
+      "meanMaxChannelDifference": 1.2255329457364341
+    }
+  ]
+}

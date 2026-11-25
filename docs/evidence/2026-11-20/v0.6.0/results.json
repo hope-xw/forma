@@ -1,0 +1,4447 @@
+{
+  "version": "0.6.0",
+  "date": "2026-11-20",
+  "rendererFilesByteIdentical": 9,
+  "macExecution": "LSBackgroundOnly test copy of mounted DMG, prohibited activation policy, hidden offscreen Electron windows; identical app.asar",
+  "sha256": {
+    "Forma-0.6.0-arm64.dmg": "03da9a5e747c541c5d43d563de6b6f98a1efe371d7006ce1c55b665f8cae6de7",
+    "Forma-0.6.0-arm64.zip": "b3cfb2b3c371f038d4408629048aeafa1c61d5fdb403fd7c4d87aa9991cce6b5"
+  },
+  "panels": {
+    "01.01": {
+      "name": "文件菜单与自动保存",
+      "workflows": [
+        "storage"
+      ]
+    },
+    "01.02": {
+      "name": "本机文件浏览器",
+      "workflows": [
+        "files"
+      ]
+    },
+    "01.03": {
+      "name": "操作搜索",
+      "workflows": [
+        "editing-workflow"
+      ]
+    },
+    "01.04": {
+      "name": "快捷键帮助",
+      "workflows": [
+        "panel-dialogs",
+        "keyboard-authoring"
+      ]
+    },
+    "01.05": {
+      "name": "图层和画布右键菜单",
+      "workflows": [
+        "editor-panels"
+      ]
+    },
+    "02.01": {
+      "name": "页面列表",
+      "workflows": [
+        "studio"
+      ]
+    },
+    "02.02": {
+      "name": "图层树与搜索",
+      "workflows": [
+        "library-tokens",
+        "editor-panels"
+      ]
+    },
+    "02.03": {
+      "name": "资源浏览与组件详情",
+      "workflows": [
+        "library-tokens"
+      ]
+    },
+    "02.04": {
+      "name": "本地组件库与导入导出",
+      "workflows": [
+        "library-tokens"
+      ]
+    },
+    "02.05": {
+      "name": "组件库发布",
+      "workflows": [
+        "library-publish"
+      ]
+    },
+    "02.06": {
+      "name": "在线订阅与离线使用",
+      "workflows": [
+        "library-subscription"
+      ]
+    },
+    "02.07": {
+      "name": "修订比较与冲突审阅",
+      "workflows": [
+        "library-subscription"
+      ]
+    },
+    "03.01": {
+      "name": "画布视口与侧栏",
+      "workflows": [
+        "studio",
+        "editing-workflow"
+      ]
+    },
+    "03.02": {
+      "name": "标尺与辅助线",
+      "workflows": [
+        "guides"
+      ]
+    },
+    "03.03": {
+      "name": "绘制工具栏与形状菜单",
+      "workflows": [
+        "shapes"
+      ]
+    },
+    "03.04": {
+      "name": "钢笔与锚点编辑",
+      "workflows": [
+        "vector",
+        "vector-network"
+      ]
+    },
+    "03.05": {
+      "name": "文字就地编辑与浮动格式栏",
+      "workflows": [
+        "rich-text"
+      ]
+    },
+    "03.06": {
+      "name": "多选整理与间距把手",
+      "workflows": [
+        "smart-selection"
+      ]
+    },
+    "03.07": {
+      "name": "导入素材与粘贴",
+      "workflows": [
+        "asset-import"
+      ]
+    },
+    "04.01": {
+      "name": "空选区与画板预设",
+      "workflows": [
+        "panel-dialogs"
+      ]
+    },
+    "04.02": {
+      "name": "位置、旋转与翻转",
+      "workflows": [
+        "studio",
+        "vector"
+      ]
+    },
+    "04.03": {
+      "name": "尺寸、约束和上下限",
+      "workflows": [
+        "sizing",
+        "size-limits",
+        "responsive"
+      ]
+    },
+    "04.04": {
+      "name": "自动布局与换行",
+      "workflows": [
+        "wrap",
+        "sizing"
+      ]
+    },
+    "04.05": {
+      "name": "网格轨道与指定单元格",
+      "workflows": [
+        "professional-editor",
+        "editing-workflow"
+      ]
+    },
+    "04.06": {
+      "name": "容器断点",
+      "workflows": [
+        "container-rules"
+      ]
+    },
+    "04.07": {
+      "name": "外观、透明度与独立圆角",
+      "workflows": [
+        "editor-panels"
+      ]
+    },
+    "04.08": {
+      "name": "填充堆栈与渐变",
+      "workflows": [
+        "editor-panels",
+        "mixed-materials"
+      ]
+    },
+    "04.09": {
+      "name": "颜色选择器",
+      "workflows": [
+        "editing-workflow"
+      ]
+    },
+    "04.10": {
+      "name": "选区纯色汇总",
+      "workflows": [
+        "panel-dialogs"
+      ]
+    },
+    "04.11": {
+      "name": "描边",
+      "workflows": [
+        "strokes",
+        "mixed-materials"
+      ]
+    },
+    "04.12": {
+      "name": "效果列表",
+      "workflows": [
+        "mixed-materials"
+      ]
+    },
+    "04.13": {
+      "name": "文字属性、高级字体与文件字体",
+      "workflows": [
+        "professional-editor",
+        "rich-text"
+      ]
+    },
+    "04.14": {
+      "name": "图像与裁切",
+      "workflows": [
+        "images"
+      ]
+    },
+    "04.15": {
+      "name": "矢量与布尔属性",
+      "workflows": [
+        "booleans",
+        "vector-network"
+      ]
+    },
+    "04.16": {
+      "name": "蒙版组与模式",
+      "workflows": [
+        "professional-editor",
+        "mask"
+      ]
+    },
+    "04.17": {
+      "name": "主组件与变体",
+      "workflows": [
+        "variant-authoring",
+        "canvas-component-set"
+      ]
+    },
+    "04.18": {
+      "name": "公开属性、实例覆盖与嵌套替换",
+      "workflows": [
+        "component-properties",
+        "nested-instances",
+        "mixed-instances"
+      ]
+    },
+    "04.19": {
+      "name": "更多属性",
+      "workflows": [
+        "panel-dialogs"
+      ]
+    },
+    "05.01": {
+      "name": "变量集合、模式表和变量详情",
+      "workflows": [
+        "panel-dialogs"
+      ]
+    },
+    "05.02": {
+      "name": "绑定与主题模式",
+      "workflows": [
+        "designer-delivery",
+        "library-tokens"
+      ]
+    },
+    "05.03": {
+      "name": "本地样式与应用",
+      "workflows": [
+        "designer-delivery"
+      ]
+    },
+    "06.01": {
+      "name": "原型起点与画布连线",
+      "workflows": [
+        "wires"
+      ]
+    },
+    "06.02": {
+      "name": "交互、条件与多动作",
+      "workflows": [
+        "prototype"
+      ]
+    },
+    "06.03": {
+      "name": "预览播放器与跨页浮层",
+      "workflows": [
+        "cross-page",
+        "responsive-player",
+        "atlas"
+      ]
+    },
+    "07.01": {
+      "name": "代码预览与源码下载",
+      "workflows": [
+        "panel-dialogs"
+      ]
+    },
+    "07.02": {
+      "name": "设计文件与 React 工程导出",
+      "workflows": [
+        "atlas",
+        "designer-delivery",
+        "aura"
+      ]
+    },
+    "07.03": {
+      "name": "已有业务工程更新与冲突",
+      "workflows": [
+        "designer-delivery"
+      ]
+    },
+    "08.01": {
+      "name": "设计助手与模型连接",
+      "workflows": [
+        "optional-gateway"
+      ]
+    },
+    "08.02": {
+      "name": "外部会话与提案审阅",
+      "workflows": [
+        "mcp"
+      ]
+    }
+  },
+  "runs": {
+    "chromium": {
+      "professional-editor": {
+        "sizes": [
+          [
+            375,
+            0,
+            164,
+            375,
+            56
+          ],
+          [
+            390,
+            0,
+            164,
+            390,
+            56
+          ],
+          [
+            768,
+            252,
+            164,
+            516,
+            56
+          ],
+          [
+            1024,
+            252,
+            164,
+            772,
+            56
+          ],
+          [
+            1440,
+            252,
+            164,
+            1188,
+            56
+          ]
+        ],
+        "mask": [
+          "alpha",
+          "luminance"
+        ],
+        "variableFont": true
+      },
+      "container-rules": {
+        "widths": [
+          {
+            "width": 375,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              359,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 359,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          },
+          {
+            "width": 768,
+            "cols": 2,
+            "pad": 16,
+            "radius": 12,
+            "opacity": 0.8,
+            "fill": "rgb(102, 119, 136)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 12,
+            "next": [
+              390,
+              16,
+              362,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 362,
+            "tileGap": 9
+          },
+          {
+            "width": 1024,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 0.6,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              272,
+              24,
+              232,
+              60
+            ],
+            "inner": [
+              15,
+              3,
+              10,
+              24
+            ],
+            "tileWidth": 232,
+            "tileGap": 2
+          },
+          {
+            "width": 1440,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              376,
+              24,
+              336,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 336,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          }
+        ],
+        "secondPage": "rgb(51, 34, 17)"
+      },
+      "mixed-materials": {
+        "gradientAlpha": [
+          0.25,
+          0.75
+        ],
+        "stroke": [
+          3,
+          1
+        ],
+        "independentShadows": true,
+        "reorderedBothStacks": true,
+        "undo": 5
+      },
+      "mixed-instances": {
+        "instances": 2,
+        "independentAxes": [
+          [
+            "Light",
+            "On",
+            "Disabled"
+          ],
+          [
+            "Dark",
+            "Off",
+            "Disabled"
+          ]
+        ],
+        "undoRedo": true,
+        "reopened": true
+      },
+      "keyboard-authoring": {
+        "input": "keyboard only",
+        "layers": 2,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "designer-delivery": {
+        "samples": [
+          [
+            375,
+            104,
+            112
+          ],
+          [
+            390,
+            104,
+            112
+          ],
+          [
+            768,
+            108,
+            120
+          ],
+          [
+            1024,
+            108,
+            120
+          ],
+          [
+            1440,
+            108,
+            120
+          ]
+        ],
+        "verified": "designer edit, undo, reopen, update, conflict and preview"
+      },
+      "aura": {
+        "theme": "Cloud Light",
+        "mobileFlow": true,
+        "navigation": "marketing → workspace → overlay → workspace → marketing"
+      },
+      "editing-workflow": {
+        "mixedChannels": [
+          "rgba(18, 52, 86, 0.4)",
+          "rgba(21, 103, 137, 0.8)"
+        ],
+        "span": [
+          210,
+          220,
+          50
+        ],
+        "compactWidth": 721,
+        "disabledCommand": true
+      },
+      "atlas": {
+        "pages": 4,
+        "mapFlow": true,
+        "phoneFlow": true,
+        "shareOverlay": true,
+        "brandInHeader": true
+      },
+      "cross-page": {
+        "navigate": "Web → Mobile",
+        "overlay": "Mobile → Overlays",
+        "back": "Web"
+      },
+      "responsive-player": {
+        "fluidWidths": [
+          375,
+          390,
+          768,
+          1024,
+          1440
+        ],
+        "anchored": true,
+        "fixedTarget": 300
+      },
+      "shapes": {
+        "starPoints": 7,
+        "innerRadius": 0.3,
+        "polygonSides": 6,
+        "snappedLine": true,
+        "undoRestoredParameters": true
+      },
+      "smart-selection": {
+        "initial": {
+          "A": [
+            18,
+            21
+          ],
+          "B": [
+            99,
+            16
+          ],
+          "C": [
+            178,
+            24
+          ],
+          "D": [
+            21,
+            96
+          ],
+          "E": [
+            101,
+            103
+          ],
+          "F": [
+            178,
+            95
+          ]
+        },
+        "grid": {
+          "A": [
+            18,
+            16
+          ],
+          "B": [
+            95.5,
+            16
+          ],
+          "C": [
+            173,
+            16
+          ],
+          "D": [
+            18,
+            87
+          ],
+          "E": [
+            95.5,
+            87
+          ],
+          "F": [
+            173,
+            87
+          ]
+        },
+        "horizontalGap": 30,
+        "verticalGapAfterDrag": 45,
+        "reordered": true,
+        "deleteAndUndo": true
+      },
+      "wires": {
+        "drawn": "Home → Detail",
+        "retargetedOverlay": "Sheet",
+        "anchor": "bottom",
+        "keyboard": true,
+        "undo": true,
+        "reopened": true
+      },
+      "optional-gateway": {
+        "modelRequests": 0,
+        "manualEditor": true
+      },
+      "library-tokens": {
+        "linkedRevision": {
+          "originalWidth": 64,
+          "updatedWidth": 88,
+          "keptName": true,
+          "undo": true
+        },
+        "exportedAndReimported": true,
+        "light": "#0066ff",
+        "dark": "#ff7733",
+        "saved": true
+      },
+      "library-subscription": {
+        "networkRequests": 4,
+        "selectiveUpdate": true,
+        "conflict": "kept local size 22",
+        "offline": true,
+        "unsubscribed": true
+      },
+      "library-publish": {
+        "publish": true,
+        "service": "team",
+        "deniedInvalidToken": true,
+        "consumers": [
+          "库存 12",
+          "已送达"
+        ],
+        "oldPublicName": "标签",
+        "newPublicName": "业务标签",
+        "discovery": true,
+        "updatedInstance": true,
+        "undo": true
+      },
+      "component-properties": {
+        "text": "设计师覆盖",
+        "iconHidden": true,
+        "swapped": true,
+        "mixedInstances": 2,
+        "undo": true
+      },
+      "variant-authoring": {
+        "variants": 3,
+        "axes": [
+          "State",
+          "尺寸"
+        ],
+        "override": "待发送",
+        "width": 232,
+        "uniqueCombinations": true,
+        "reopened": true,
+        "crossFile": true,
+        "combinedExistingDrawings": true
+      },
+      "canvas-component-set": {
+        "members": 4,
+        "axes": [
+          "State",
+          "Size"
+        ],
+        "draggedMaster": true,
+        "originalPreserved": true,
+        "priorConsumerWidth": [
+          80,
+          96
+        ],
+        "undoRedo": true,
+        "reopened": true,
+        "instance": "Error"
+      },
+      "nested-instances": {
+        "exposedNestedSwap": true,
+        "forwardedLevels": 3,
+        "retainedTitle": true,
+        "updatedFromNestedMaster": true,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "size-limits": {
+        "at600": [
+          100,
+          320,
+          180
+        ],
+        "at720": [
+          100,
+          320,
+          300
+        ],
+        "afterClear": [
+          100,
+          310,
+          310
+        ]
+      },
+      "strokes": [
+        {
+          "x": 230,
+          "y": 18,
+          "border": 12,
+          "outline": 0,
+          "offset": 0
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 6,
+          "outline": 12,
+          "offset": -6
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 0,
+          "outline": 12,
+          "offset": 0
+        }
+      ],
+      "files": {
+        "originalCount": 12,
+        "switchedTwice": true,
+        "separateContents": true
+      },
+      "storage": {
+        "reopened": true,
+        "recovered": true,
+        "staleTab": "preserved winning revision"
+      },
+      "studio": {
+        "editSamplesMs": [
+          58,
+          40,
+          34,
+          52,
+          43,
+          43,
+          44,
+          41
+        ],
+        "checked": [
+          "编辑并保存坐标",
+          "返回页面保留缩放",
+          "622层独立复制",
+          "改名",
+          "删除与撤销",
+          "新增空页",
+          "刷新恢复"
+        ],
+        "runtimeErrors": []
+      },
+      "editor-panels": {
+        "checks": [
+          "滚轮只滚动图层树，页面、搜索和画布固定",
+          "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+          "图层菜单按组选取排列命令",
+          "键盘进入子菜单",
+          "右侧填充顺序可交换",
+          "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+          "长属性面板单独滚动且标题保持可见",
+          "刷新保留属性",
+          "480px 高度菜单仍完整可见",
+          "没有浏览器运行异常"
+        ],
+        "before": {
+          "left": 0,
+          "tree": 0,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98919677734375
+        },
+        "after": {
+          "left": 0,
+          "tree": 850,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98919677734375
+        },
+        "css": [
+          "47px",
+          "multiply",
+          "dashed",
+          "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+        ]
+      },
+      "panel-dialogs": {
+        "shortcutHelp": true,
+        "preset": "iPhone 16 393×852",
+        "codeDownload": true,
+        "designSystemRoundTrip": true,
+        "layerBlur": 6,
+        "escapeReturnedFocus": true,
+        "variableDetails": "主按钮使用",
+        "selectionColor": "#2174ab",
+        "deleteUndo": true
+      },
+      "sizing": {
+        "before": {
+          "board": [
+            436,
+            70
+          ],
+          "card": [
+            200,
+            46
+          ],
+          "leaf": [
+            184,
+            30
+          ],
+          "tile": [
+            200,
+            12
+          ]
+        },
+        "after": {
+          "board": [
+            536,
+            70
+          ],
+          "card": [
+            250,
+            46
+          ],
+          "leaf": [
+            234,
+            30
+          ],
+          "tile": [
+            250,
+            12
+          ]
+        },
+        "preview": "matched",
+        "fixed": 250
+      },
+      "wrap": [
+        [
+          [
+            0,
+            0,
+            320,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            228,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            380,
+            108
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            216,
+            10,
+            96,
+            36
+          ]
+        ]
+      ],
+      "responsive": [
+        {
+          "board": [
+            0,
+            0,
+            375,
+            400
+          ],
+          "badge": [
+            295,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            335,
+            340
+          ],
+          "cell0": [
+            30,
+            40,
+            315,
+            40
+          ],
+          "cell1": [
+            30,
+            90,
+            315,
+            42
+          ],
+          "cell5": [
+            30,
+            310,
+            315,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            390,
+            400
+          ],
+          "badge": [
+            310,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            350,
+            178
+          ],
+          "cell0": [
+            30,
+            40,
+            160,
+            40
+          ],
+          "cell1": [
+            200,
+            40,
+            160,
+            42
+          ],
+          "cell5": [
+            200,
+            148,
+            160,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            768,
+            400
+          ],
+          "badge": [
+            688,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            728,
+            126
+          ],
+          "cell0": [
+            30,
+            40,
+            170,
+            40
+          ],
+          "cell1": [
+            210,
+            40,
+            170,
+            42
+          ],
+          "cell5": [
+            210,
+            96,
+            170,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1024,
+            400
+          ],
+          "badge": [
+            944,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            984,
+            128
+          ],
+          "cell0": [
+            30,
+            40,
+            185,
+            40
+          ],
+          "cell1": [
+            225,
+            40,
+            185,
+            42
+          ],
+          "cell5": [
+            30,
+            98,
+            185,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1440,
+            400
+          ],
+          "badge": [
+            1360,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            1400,
+            70
+          ],
+          "cell0": [
+            30,
+            40,
+            222,
+            40
+          ],
+          "cell1": [
+            262,
+            40,
+            222,
+            42
+          ],
+          "cell5": [
+            1188,
+            40,
+            222,
+            50
+          ]
+        }
+      ],
+      "prototype": {
+        "conditional": [
+          "Sheet",
+          "Detail"
+        ],
+        "keyboard": "Enter/Escape",
+        "back": "Home",
+        "flowSwitch": true
+      },
+      "images": {
+        "id": "9ec73888-4108-4660-a505-ca82f0e6e2a1",
+        "asset": "240x120",
+        "zoom": 1.6,
+        "x": 75
+      },
+      "vector": {
+        "anchors": 5,
+        "rotated": 120,
+        "selectionError": 0.02325439453125,
+        "matrix": "matrix(-0.798636, -0.601815, -0.601815, 0.798636, 0, 0)",
+        "path": "M1 47.70504 C1 47.70504 49.82492 1 69.82492 1 C79.82492 1 90.86868 13.17626 99.41245 25.35252 C107.95622 37.52878 113.99998 49.70504 113.99998 49.70504 L76 92.70504 Z"
+      },
+      "vector-network": {
+        "regions": 2,
+        "fills": [
+          "#1177cc",
+          "#ffaa22",
+          "none"
+        ],
+        "sharedVertex": true,
+        "reopened": true,
+        "undo": true,
+        "openBranches": 1
+      },
+      "booleans": {
+        "modes": [
+          "union",
+          "subtract",
+          "intersect",
+          "exclude"
+        ],
+        "editableOperand": true,
+        "flattenUndo": true,
+        "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+      },
+      "rich-text": {
+        "text": "设计工具 Studio",
+        "width": 152,
+        "height": 42,
+        "parts": [
+          [
+            "设计",
+            "700",
+            "30px",
+            "underline"
+          ],
+          [
+            "工具 Studio",
+            "400",
+            "18px",
+            "none"
+          ]
+        ],
+        "localFont": [
+          "设",
+          "serif",
+          "600"
+        ]
+      },
+      "mask": {
+        "hit": [
+          true,
+          false
+        ],
+        "curve": "path(\"M 20 70 C 20 42.3858 36.7893 20 57.5 20 C 78.2107 20 95 42.3858 95 70 C 95 97.6142 78.2107 120 57.5 120 C 36.7893 120 20 97.6142 20 70 Z\")",
+        "released": true,
+        "selectedCoveredLayer": true
+      },
+      "guides": {
+        "coordinate": 58,
+        "pageIsolation": true,
+        "restored": true,
+        "removedByDrag": true
+      },
+      "asset-import": {
+        "paths": [
+          {
+            "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+            "fill": "#1166ff",
+            "opacity": "1",
+            "width": "0",
+            "join": "miter"
+          },
+          {
+            "d": "M16 56L48 16 40 56Z",
+            "fill": "#ffaa11",
+            "opacity": "0.65",
+            "width": "6",
+            "join": "bevel"
+          }
+        ],
+        "unsupportedRejected": true,
+        "clipboard": true,
+        "rasterDropUndo": true
+      },
+      "mcp": {
+        "tools": [
+          "read_design",
+          "list_components",
+          "propose_design"
+        ],
+        "scope": "one board",
+        "applied": true,
+        "undo": true
+      }
+    },
+    "webkit": {
+      "professional-editor": {
+        "sizes": [
+          [
+            375,
+            0,
+            164,
+            375,
+            56
+          ],
+          [
+            390,
+            0,
+            164,
+            390,
+            56
+          ],
+          [
+            768,
+            252,
+            164,
+            516,
+            56
+          ],
+          [
+            1024,
+            252,
+            164,
+            772,
+            56
+          ],
+          [
+            1440,
+            252,
+            164,
+            1188,
+            56
+          ]
+        ],
+        "mask": [
+          "alpha",
+          "luminance"
+        ],
+        "variableFont": true
+      },
+      "container-rules": {
+        "widths": [
+          {
+            "width": 375,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              359,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 359,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          },
+          {
+            "width": 768,
+            "cols": 2,
+            "pad": 16,
+            "radius": 12,
+            "opacity": 0.8,
+            "fill": "rgb(102, 119, 136)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 12,
+            "next": [
+              390,
+              16,
+              362,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 362,
+            "tileGap": 9
+          },
+          {
+            "width": 1024,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 0.6,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              272,
+              24,
+              232,
+              60
+            ],
+            "inner": [
+              15,
+              3,
+              10,
+              24
+            ],
+            "tileWidth": 232,
+            "tileGap": 2
+          },
+          {
+            "width": 1440,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              376,
+              24,
+              336,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 336,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          }
+        ],
+        "secondPage": "rgb(51, 34, 17)"
+      },
+      "mixed-materials": {
+        "gradientAlpha": [
+          0.25,
+          0.75
+        ],
+        "stroke": [
+          3,
+          1
+        ],
+        "independentShadows": true,
+        "reorderedBothStacks": true,
+        "undo": 5
+      },
+      "mixed-instances": {
+        "instances": 2,
+        "independentAxes": [
+          [
+            "Light",
+            "On",
+            "Disabled"
+          ],
+          [
+            "Dark",
+            "Off",
+            "Disabled"
+          ]
+        ],
+        "undoRedo": true,
+        "reopened": true
+      },
+      "keyboard-authoring": {
+        "input": "keyboard only",
+        "layers": 2,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "designer-delivery": {
+        "samples": [
+          [
+            375,
+            104,
+            112
+          ],
+          [
+            390,
+            104,
+            112
+          ],
+          [
+            768,
+            108,
+            120
+          ],
+          [
+            1024,
+            108,
+            120
+          ],
+          [
+            1440,
+            108,
+            120
+          ]
+        ],
+        "verified": "designer edit, undo, reopen, update, conflict and preview"
+      },
+      "aura": {
+        "theme": "Cloud Light",
+        "mobileFlow": true,
+        "navigation": "marketing → workspace → overlay → workspace → marketing"
+      },
+      "editing-workflow": {
+        "mixedChannels": [
+          "rgba(18, 52, 86, 0.4)",
+          "rgba(21, 103, 137, 0.8)"
+        ],
+        "span": [
+          210,
+          220,
+          50
+        ],
+        "compactWidth": 721,
+        "disabledCommand": true
+      },
+      "atlas": {
+        "pages": 4,
+        "mapFlow": true,
+        "phoneFlow": true,
+        "shareOverlay": true,
+        "brandInHeader": true
+      },
+      "cross-page": {
+        "navigate": "Web → Mobile",
+        "overlay": "Mobile → Overlays",
+        "back": "Web"
+      },
+      "responsive-player": {
+        "fluidWidths": [
+          375,
+          390,
+          768,
+          1024,
+          1440
+        ],
+        "anchored": true,
+        "fixedTarget": 300
+      },
+      "shapes": {
+        "starPoints": 7,
+        "innerRadius": 0.3,
+        "polygonSides": 6,
+        "snappedLine": true,
+        "undoRestoredParameters": true
+      },
+      "smart-selection": {
+        "initial": {
+          "A": [
+            18,
+            21
+          ],
+          "B": [
+            99,
+            16
+          ],
+          "C": [
+            178,
+            24
+          ],
+          "D": [
+            21,
+            96
+          ],
+          "E": [
+            101,
+            103
+          ],
+          "F": [
+            178,
+            95
+          ]
+        },
+        "grid": {
+          "A": [
+            18,
+            16
+          ],
+          "B": [
+            95.5,
+            16
+          ],
+          "C": [
+            173,
+            16
+          ],
+          "D": [
+            18,
+            87
+          ],
+          "E": [
+            95.5,
+            87
+          ],
+          "F": [
+            173,
+            87
+          ]
+        },
+        "horizontalGap": 30,
+        "verticalGapAfterDrag": 45,
+        "reordered": true,
+        "deleteAndUndo": true
+      },
+      "wires": {
+        "drawn": "Home → Detail",
+        "retargetedOverlay": "Sheet",
+        "anchor": "bottom",
+        "keyboard": true,
+        "undo": true,
+        "reopened": true
+      },
+      "optional-gateway": {
+        "modelRequests": 0,
+        "manualEditor": true
+      },
+      "library-tokens": {
+        "linkedRevision": {
+          "originalWidth": 64,
+          "updatedWidth": 88,
+          "keptName": true,
+          "undo": true
+        },
+        "exportedAndReimported": true,
+        "light": "#0066ff",
+        "dark": "#ff7733",
+        "saved": true
+      },
+      "library-subscription": {
+        "networkRequests": 4,
+        "selectiveUpdate": true,
+        "conflict": "kept local size 22",
+        "offline": true,
+        "unsubscribed": true
+      },
+      "library-publish": {
+        "publish": true,
+        "service": "team",
+        "deniedInvalidToken": true,
+        "consumers": [
+          "库存 12",
+          "已送达"
+        ],
+        "oldPublicName": "标签",
+        "newPublicName": "业务标签",
+        "discovery": true,
+        "updatedInstance": true,
+        "undo": true
+      },
+      "component-properties": {
+        "text": "设计师覆盖",
+        "iconHidden": true,
+        "swapped": true,
+        "mixedInstances": 2,
+        "undo": true
+      },
+      "variant-authoring": {
+        "variants": 3,
+        "axes": [
+          "State",
+          "尺寸"
+        ],
+        "override": "待发送",
+        "width": 232,
+        "uniqueCombinations": true,
+        "reopened": true,
+        "crossFile": true,
+        "combinedExistingDrawings": true
+      },
+      "canvas-component-set": {
+        "members": 4,
+        "axes": [
+          "State",
+          "Size"
+        ],
+        "draggedMaster": true,
+        "originalPreserved": true,
+        "priorConsumerWidth": [
+          80,
+          96
+        ],
+        "undoRedo": true,
+        "reopened": true,
+        "instance": "Error"
+      },
+      "nested-instances": {
+        "exposedNestedSwap": true,
+        "forwardedLevels": 3,
+        "retainedTitle": true,
+        "updatedFromNestedMaster": true,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "size-limits": {
+        "at600": [
+          100,
+          320,
+          180
+        ],
+        "at720": [
+          100,
+          320,
+          300
+        ],
+        "afterClear": [
+          100,
+          310,
+          310
+        ]
+      },
+      "strokes": [
+        {
+          "x": 230,
+          "y": 18,
+          "border": 12,
+          "outline": 0,
+          "offset": 0
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 6,
+          "outline": 12,
+          "offset": -6
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 0,
+          "outline": 12,
+          "offset": 0
+        }
+      ],
+      "files": {
+        "originalCount": 12,
+        "switchedTwice": true,
+        "separateContents": true
+      },
+      "storage": {
+        "reopened": true,
+        "recovered": true,
+        "staleTab": "preserved winning revision"
+      },
+      "studio": {
+        "editSamplesMs": [
+          54,
+          40,
+          47,
+          41,
+          42,
+          41,
+          41,
+          39
+        ],
+        "checked": [
+          "编辑并保存坐标",
+          "返回页面保留缩放",
+          "622层独立复制",
+          "改名",
+          "删除与撤销",
+          "新增空页",
+          "刷新恢复"
+        ],
+        "runtimeErrors": []
+      },
+      "editor-panels": {
+        "checks": [
+          "滚轮只滚动图层树，页面、搜索和画布固定",
+          "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+          "图层菜单按组选取排列命令",
+          "键盘进入子菜单",
+          "右侧填充顺序可交换",
+          "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+          "长属性面板单独滚动且标题保持可见",
+          "刷新保留属性",
+          "480px 高度菜单仍完整可见",
+          "没有浏览器运行异常"
+        ],
+        "before": {
+          "left": 0,
+          "tree": 0,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98919677734375
+        },
+        "after": {
+          "left": 0,
+          "tree": 850,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98919677734375
+        },
+        "css": [
+          "47px",
+          "multiply",
+          "dashed",
+          "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+        ]
+      },
+      "panel-dialogs": {
+        "shortcutHelp": true,
+        "preset": "iPhone 16 393×852",
+        "codeDownload": true,
+        "designSystemRoundTrip": true,
+        "layerBlur": 6,
+        "escapeReturnedFocus": true,
+        "variableDetails": "主按钮使用",
+        "selectionColor": "#2174ab",
+        "deleteUndo": true
+      },
+      "sizing": {
+        "before": {
+          "board": [
+            436,
+            70
+          ],
+          "card": [
+            200,
+            46
+          ],
+          "leaf": [
+            184,
+            30
+          ],
+          "tile": [
+            200,
+            12
+          ]
+        },
+        "after": {
+          "board": [
+            536,
+            70
+          ],
+          "card": [
+            250,
+            46
+          ],
+          "leaf": [
+            234,
+            30
+          ],
+          "tile": [
+            250,
+            12
+          ]
+        },
+        "preview": "matched",
+        "fixed": 250
+      },
+      "wrap": [
+        [
+          [
+            0,
+            0,
+            320,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            228,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            380,
+            108
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            216,
+            10,
+            96,
+            36
+          ]
+        ]
+      ],
+      "responsive": [
+        {
+          "board": [
+            0,
+            0,
+            375,
+            400
+          ],
+          "badge": [
+            295,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            335,
+            340
+          ],
+          "cell0": [
+            30,
+            40,
+            315,
+            40
+          ],
+          "cell1": [
+            30,
+            90,
+            315,
+            42
+          ],
+          "cell5": [
+            30,
+            310,
+            315,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            390,
+            400
+          ],
+          "badge": [
+            310,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            350,
+            178
+          ],
+          "cell0": [
+            30,
+            40,
+            160,
+            40
+          ],
+          "cell1": [
+            200,
+            40,
+            160,
+            42
+          ],
+          "cell5": [
+            200,
+            148,
+            160,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            768,
+            400
+          ],
+          "badge": [
+            688,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            728,
+            126
+          ],
+          "cell0": [
+            30,
+            40,
+            170,
+            40
+          ],
+          "cell1": [
+            210,
+            40,
+            170,
+            42
+          ],
+          "cell5": [
+            210,
+            96,
+            170,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1024,
+            400
+          ],
+          "badge": [
+            944,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            984,
+            128
+          ],
+          "cell0": [
+            30,
+            40,
+            185,
+            40
+          ],
+          "cell1": [
+            225,
+            40,
+            185,
+            42
+          ],
+          "cell5": [
+            30,
+            98,
+            185,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1440,
+            400
+          ],
+          "badge": [
+            1360,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            1400,
+            70
+          ],
+          "cell0": [
+            30,
+            40,
+            222,
+            40
+          ],
+          "cell1": [
+            262,
+            40,
+            222,
+            42
+          ],
+          "cell5": [
+            1188,
+            40,
+            222,
+            50
+          ]
+        }
+      ],
+      "prototype": {
+        "conditional": [
+          "Sheet",
+          "Detail"
+        ],
+        "keyboard": "Enter/Escape",
+        "back": "Home",
+        "flowSwitch": true
+      },
+      "images": {
+        "id": "0076324d-98cc-4019-8f55-19c6f2c2d6fa",
+        "asset": "240x120",
+        "zoom": 1.6,
+        "x": 75
+      },
+      "vector": {
+        "anchors": 5,
+        "rotated": 120,
+        "selectionError": 0.219482421875,
+        "matrix": "matrix(-0.798636, -0.601815, -0.601815, 0.798636, 0, 0)",
+        "path": "M1 48.05818 C1 48.05818 49.82459 1 69.82459 1 C79.82459 1 90.85374 13.20572 99.38288 25.41145 C107.91202 37.61717 113.94117 49.82289 113.94117 49.82289 L76.29412 92.76406 Z"
+      },
+      "vector-network": {
+        "regions": 2,
+        "fills": [
+          "#1177cc",
+          "#ffaa22",
+          "none"
+        ],
+        "sharedVertex": true,
+        "reopened": true,
+        "undo": true,
+        "openBranches": 1
+      },
+      "booleans": {
+        "modes": [
+          "union",
+          "subtract",
+          "intersect",
+          "exclude"
+        ],
+        "editableOperand": true,
+        "flattenUndo": true,
+        "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+      },
+      "rich-text": {
+        "text": "设计工具 Studio",
+        "width": 151,
+        "height": 42,
+        "parts": [
+          [
+            "设计",
+            "700",
+            "30px",
+            "underline"
+          ],
+          [
+            "工具 Studio",
+            "400",
+            "18px",
+            "none"
+          ]
+        ],
+        "localFont": [
+          "设",
+          "serif",
+          "600"
+        ]
+      },
+      "mask": {
+        "hit": [
+          true,
+          false
+        ],
+        "curve": "path(\"M 20 70 c 0 -27.6142 16.7893 -50 37.5 -50 c 20.7107 0 37.5 22.3858 37.5 50 c 0 27.6142 -16.7893 50 -37.5 50 c -20.7107 0 -37.5 -22.3858 -37.5 -50 Z\")",
+        "released": true,
+        "selectedCoveredLayer": true
+      },
+      "guides": {
+        "coordinate": 58,
+        "pageIsolation": true,
+        "restored": true,
+        "removedByDrag": true
+      },
+      "asset-import": {
+        "paths": [
+          {
+            "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+            "fill": "#1166ff",
+            "opacity": "1",
+            "width": "0",
+            "join": "miter"
+          },
+          {
+            "d": "M16 56L48 16 40 56Z",
+            "fill": "#ffaa11",
+            "opacity": "0.65",
+            "width": "6",
+            "join": "bevel"
+          }
+        ],
+        "unsupportedRejected": true,
+        "clipboard": true,
+        "rasterDropUndo": true
+      }
+    },
+    "firefox": {
+      "professional-editor": {
+        "sizes": [
+          [
+            375,
+            0,
+            164,
+            375,
+            56
+          ],
+          [
+            390,
+            0,
+            164,
+            390,
+            56
+          ],
+          [
+            768,
+            252,
+            164,
+            516,
+            56
+          ],
+          [
+            1024,
+            252,
+            164,
+            772,
+            56
+          ],
+          [
+            1440,
+            252,
+            164,
+            1188,
+            56
+          ]
+        ],
+        "mask": [
+          "alpha",
+          "luminance"
+        ],
+        "variableFont": true
+      },
+      "container-rules": {
+        "widths": [
+          {
+            "width": 375,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              359,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 359,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          },
+          {
+            "width": 768,
+            "cols": 2,
+            "pad": 16,
+            "radius": 12,
+            "opacity": 0.8,
+            "fill": "rgb(102, 119, 136)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 12,
+            "next": [
+              390,
+              16,
+              362,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 362,
+            "tileGap": 9
+          },
+          {
+            "width": 1024,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 0.6,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              272,
+              24,
+              232,
+              60
+            ],
+            "inner": [
+              15,
+              3,
+              10,
+              24
+            ],
+            "tileWidth": 232,
+            "tileGap": 2
+          },
+          {
+            "width": 1440,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              376,
+              24,
+              336,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 336,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          }
+        ],
+        "secondPage": "rgb(51, 34, 17)"
+      },
+      "mixed-materials": {
+        "gradientAlpha": [
+          0.25,
+          0.75
+        ],
+        "stroke": [
+          3,
+          1
+        ],
+        "independentShadows": true,
+        "reorderedBothStacks": true,
+        "undo": 5
+      },
+      "mixed-instances": {
+        "instances": 2,
+        "independentAxes": [
+          [
+            "Light",
+            "On",
+            "Disabled"
+          ],
+          [
+            "Dark",
+            "Off",
+            "Disabled"
+          ]
+        ],
+        "undoRedo": true,
+        "reopened": true
+      },
+      "keyboard-authoring": {
+        "input": "keyboard only",
+        "layers": 2,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "designer-delivery": {
+        "samples": [
+          [
+            375,
+            104,
+            112
+          ],
+          [
+            390,
+            104,
+            112
+          ],
+          [
+            768,
+            108,
+            120
+          ],
+          [
+            1024,
+            108,
+            120
+          ],
+          [
+            1440,
+            108,
+            120
+          ]
+        ],
+        "verified": "designer edit, undo, reopen, update, conflict and preview"
+      },
+      "aura": {
+        "theme": "Cloud Light",
+        "mobileFlow": true,
+        "navigation": "marketing → workspace → overlay → workspace → marketing"
+      },
+      "editing-workflow": {
+        "mixedChannels": [
+          "rgba(18, 52, 86, 0.4)",
+          "rgba(21, 103, 137, 0.8)"
+        ],
+        "span": [
+          210,
+          220,
+          50
+        ],
+        "compactWidth": 721,
+        "disabledCommand": true
+      },
+      "atlas": {
+        "pages": 4,
+        "mapFlow": true,
+        "phoneFlow": true,
+        "shareOverlay": true,
+        "brandInHeader": true
+      },
+      "cross-page": {
+        "navigate": "Web → Mobile",
+        "overlay": "Mobile → Overlays",
+        "back": "Web"
+      },
+      "responsive-player": {
+        "fluidWidths": [
+          375,
+          390,
+          768,
+          1024,
+          1440
+        ],
+        "anchored": true,
+        "fixedTarget": 300
+      },
+      "shapes": {
+        "starPoints": 7,
+        "innerRadius": 0.3,
+        "polygonSides": 6,
+        "snappedLine": true,
+        "undoRestoredParameters": true
+      },
+      "smart-selection": {
+        "initial": {
+          "A": [
+            18,
+            21
+          ],
+          "B": [
+            99,
+            16
+          ],
+          "C": [
+            178,
+            24
+          ],
+          "D": [
+            21,
+            96
+          ],
+          "E": [
+            101,
+            103
+          ],
+          "F": [
+            178,
+            95
+          ]
+        },
+        "grid": {
+          "A": [
+            18,
+            16
+          ],
+          "B": [
+            95.5,
+            16
+          ],
+          "C": [
+            173,
+            16
+          ],
+          "D": [
+            18,
+            87
+          ],
+          "E": [
+            95.5,
+            87
+          ],
+          "F": [
+            173,
+            87
+          ]
+        },
+        "horizontalGap": 30,
+        "verticalGapAfterDrag": 45,
+        "reordered": true,
+        "deleteAndUndo": true
+      },
+      "wires": {
+        "drawn": "Home → Detail",
+        "retargetedOverlay": "Sheet",
+        "anchor": "bottom",
+        "keyboard": true,
+        "undo": true,
+        "reopened": true
+      },
+      "optional-gateway": {
+        "modelRequests": 0,
+        "manualEditor": true
+      },
+      "library-tokens": {
+        "linkedRevision": {
+          "originalWidth": 64,
+          "updatedWidth": 88,
+          "keptName": true,
+          "undo": true
+        },
+        "exportedAndReimported": true,
+        "light": "#0066ff",
+        "dark": "#ff7733",
+        "saved": true
+      },
+      "library-subscription": {
+        "networkRequests": 4,
+        "selectiveUpdate": true,
+        "conflict": "kept local size 22",
+        "offline": true,
+        "unsubscribed": true
+      },
+      "library-publish": {
+        "publish": true,
+        "service": "team",
+        "deniedInvalidToken": true,
+        "consumers": [
+          "库存 12",
+          "已送达"
+        ],
+        "oldPublicName": "标签",
+        "newPublicName": "业务标签",
+        "discovery": true,
+        "updatedInstance": true,
+        "undo": true
+      },
+      "component-properties": {
+        "text": "设计师覆盖",
+        "iconHidden": true,
+        "swapped": true,
+        "mixedInstances": 2,
+        "undo": true
+      },
+      "variant-authoring": {
+        "variants": 3,
+        "axes": [
+          "State",
+          "尺寸"
+        ],
+        "override": "待发送",
+        "width": 232,
+        "uniqueCombinations": true,
+        "reopened": true,
+        "crossFile": true,
+        "combinedExistingDrawings": true
+      },
+      "canvas-component-set": {
+        "members": 4,
+        "axes": [
+          "State",
+          "Size"
+        ],
+        "draggedMaster": true,
+        "originalPreserved": true,
+        "priorConsumerWidth": [
+          80,
+          96
+        ],
+        "undoRedo": true,
+        "reopened": true,
+        "instance": "Error"
+      },
+      "nested-instances": {
+        "exposedNestedSwap": true,
+        "forwardedLevels": 3,
+        "retainedTitle": true,
+        "updatedFromNestedMaster": true,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "size-limits": {
+        "at600": [
+          100,
+          320,
+          180
+        ],
+        "at720": [
+          100,
+          320,
+          300
+        ],
+        "afterClear": [
+          100,
+          310,
+          310
+        ]
+      },
+      "strokes": [
+        {
+          "x": 230,
+          "y": 18,
+          "border": 12,
+          "outline": 0,
+          "offset": 0
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 6,
+          "outline": 12,
+          "offset": -6
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 0,
+          "outline": 12,
+          "offset": 0
+        }
+      ],
+      "files": {
+        "originalCount": 12,
+        "switchedTwice": true,
+        "separateContents": true
+      },
+      "storage": {
+        "reopened": true,
+        "recovered": true,
+        "staleTab": "preserved winning revision"
+      },
+      "studio": {
+        "editSamplesMs": [
+          66,
+          85,
+          70,
+          104,
+          50,
+          50,
+          51,
+          73
+        ],
+        "checked": [
+          "编辑并保存坐标",
+          "返回页面保留缩放",
+          "622层独立复制",
+          "改名",
+          "删除与撤销",
+          "新增空页",
+          "刷新恢复"
+        ],
+        "runtimeErrors": []
+      },
+      "editor-panels": {
+        "checks": [
+          "滚轮只滚动图层树，页面、搜索和画布固定",
+          "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+          "图层菜单按组选取排列命令",
+          "键盘进入子菜单",
+          "右侧填充顺序可交换",
+          "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+          "长属性面板单独滚动且标题保持可见",
+          "刷新保留属性",
+          "480px 高度菜单仍完整可见",
+          "没有浏览器运行异常"
+        ],
+        "before": {
+          "left": 0,
+          "tree": 0,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98333740234375
+        },
+        "after": {
+          "left": 0,
+          "tree": 850,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98333740234375
+        },
+        "css": [
+          "47px",
+          "multiply",
+          "dashed",
+          "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+        ]
+      },
+      "panel-dialogs": {
+        "shortcutHelp": true,
+        "preset": "iPhone 16 393×852",
+        "codeDownload": true,
+        "designSystemRoundTrip": true,
+        "layerBlur": 6,
+        "escapeReturnedFocus": true,
+        "variableDetails": "主按钮使用",
+        "selectionColor": "#2174ab",
+        "deleteUndo": true
+      },
+      "sizing": {
+        "before": {
+          "board": [
+            436,
+            70
+          ],
+          "card": [
+            200,
+            46
+          ],
+          "leaf": [
+            184,
+            30
+          ],
+          "tile": [
+            200,
+            12
+          ]
+        },
+        "after": {
+          "board": [
+            536,
+            70
+          ],
+          "card": [
+            250,
+            46
+          ],
+          "leaf": [
+            234,
+            30
+          ],
+          "tile": [
+            250,
+            12
+          ]
+        },
+        "preview": "matched",
+        "fixed": 250
+      },
+      "wrap": [
+        [
+          [
+            0,
+            0,
+            320,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            228,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            380,
+            108
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            216,
+            10,
+            96,
+            36
+          ]
+        ]
+      ],
+      "responsive": [
+        {
+          "board": [
+            0,
+            0,
+            375,
+            400
+          ],
+          "badge": [
+            295,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            335,
+            340
+          ],
+          "cell0": [
+            30,
+            40,
+            315,
+            40
+          ],
+          "cell1": [
+            30,
+            90,
+            315,
+            42
+          ],
+          "cell5": [
+            30,
+            310,
+            315,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            390,
+            400
+          ],
+          "badge": [
+            310,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            350,
+            178
+          ],
+          "cell0": [
+            30,
+            40,
+            160,
+            40
+          ],
+          "cell1": [
+            200,
+            40,
+            160,
+            42
+          ],
+          "cell5": [
+            200,
+            148,
+            160,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            768,
+            400
+          ],
+          "badge": [
+            688,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            728,
+            126
+          ],
+          "cell0": [
+            30,
+            40,
+            170,
+            40
+          ],
+          "cell1": [
+            210,
+            40,
+            170,
+            42
+          ],
+          "cell5": [
+            210,
+            96,
+            170,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1024,
+            400
+          ],
+          "badge": [
+            944,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            984,
+            128
+          ],
+          "cell0": [
+            30,
+            40,
+            185,
+            40
+          ],
+          "cell1": [
+            225,
+            40,
+            185,
+            42
+          ],
+          "cell5": [
+            30,
+            98,
+            185,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1440,
+            400
+          ],
+          "badge": [
+            1360,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            1400,
+            70
+          ],
+          "cell0": [
+            30,
+            40,
+            222,
+            40
+          ],
+          "cell1": [
+            262,
+            40,
+            222,
+            42
+          ],
+          "cell5": [
+            1188,
+            40,
+            222,
+            50
+          ]
+        }
+      ],
+      "prototype": {
+        "conditional": [
+          "Sheet",
+          "Detail"
+        ],
+        "keyboard": "Enter/Escape",
+        "back": "Home",
+        "flowSwitch": true
+      },
+      "images": {
+        "id": "f73c68b6-c65f-4820-826f-03e8b55a9944",
+        "asset": "240x120",
+        "zoom": 1.6,
+        "x": 75
+      },
+      "vector": {
+        "anchors": 5,
+        "rotated": 120,
+        "selectionError": 0.0166778564453125,
+        "matrix": "matrix(-0.798635, -0.601815, -0.601815, 0.798635, 0, 0)",
+        "path": "M1 48.05846 C1 48.05846 49.82413 1 69.82413 1 C79.82413 1 90.85339 13.20579 99.38265 25.41158 C107.91191 37.61737 113.94117 49.82316 113.94117 49.82316 L76.29411 92.76434 Z"
+      },
+      "vector-network": {
+        "regions": 2,
+        "fills": [
+          "#1177cc",
+          "#ffaa22",
+          "none"
+        ],
+        "sharedVertex": true,
+        "reopened": true,
+        "undo": true,
+        "openBranches": 1
+      },
+      "booleans": {
+        "modes": [
+          "union",
+          "subtract",
+          "intersect",
+          "exclude"
+        ],
+        "editableOperand": true,
+        "flattenUndo": true,
+        "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+      },
+      "rich-text": {
+        "text": "设计工具 Studio",
+        "width": 153,
+        "height": 42,
+        "parts": [
+          [
+            "设计",
+            "700",
+            "30px",
+            "underline"
+          ],
+          [
+            "工具 Studio",
+            "400",
+            "18px",
+            "none"
+          ]
+        ],
+        "localFont": [
+          "设",
+          "serif",
+          "600"
+        ]
+      },
+      "mask": {
+        "hit": [
+          true,
+          false
+        ],
+        "curve": "path(\"M 20 70 c 0 -27.6142 16.7893 -50 37.5 -50 c 20.7107 0 37.5 22.3858 37.5 50 c 0 27.6142 -16.7893 50 -37.5 50 c -20.7107 0 -37.5 -22.3858 -37.5 -50 Z\")",
+        "released": true,
+        "selectedCoveredLayer": true
+      },
+      "guides": {
+        "coordinate": 58,
+        "pageIsolation": true,
+        "restored": true,
+        "removedByDrag": true
+      },
+      "asset-import": {
+        "paths": [
+          {
+            "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+            "fill": "#1166ff",
+            "opacity": "1",
+            "width": "0",
+            "join": "miter"
+          },
+          {
+            "d": "M16 56L48 16 40 56Z",
+            "fill": "#ffaa11",
+            "opacity": "0.65",
+            "width": "6",
+            "join": "bevel"
+          }
+        ],
+        "unsupportedRejected": true,
+        "clipboard": true,
+        "rasterDropUndo": true
+      }
+    },
+    "desktop": {
+      "vector-network": {
+        "regions": 2,
+        "fills": [
+          "#1177cc",
+          "#ffaa22",
+          "none"
+        ],
+        "sharedVertex": true,
+        "reopened": true,
+        "undo": true,
+        "openBranches": 1
+      },
+      "canvas-component-set": {
+        "members": 4,
+        "axes": [
+          "State",
+          "Size"
+        ],
+        "draggedMaster": true,
+        "originalPreserved": true,
+        "priorConsumerWidth": [
+          80,
+          96
+        ],
+        "undoRedo": true,
+        "reopened": true,
+        "instance": "Error"
+      },
+      "mcp": {
+        "tools": [
+          "read_design",
+          "list_components",
+          "propose_design"
+        ],
+        "scope": "one board",
+        "applied": true,
+        "undo": true
+      },
+      "professional-editor": {
+        "sizes": [
+          [
+            375,
+            0,
+            164,
+            375,
+            56
+          ],
+          [
+            390,
+            0,
+            164,
+            390,
+            56
+          ],
+          [
+            768,
+            252,
+            164,
+            516,
+            56
+          ],
+          [
+            1024,
+            252,
+            164,
+            772,
+            56
+          ],
+          [
+            1440,
+            252,
+            164,
+            1188,
+            56
+          ]
+        ],
+        "mask": [
+          "alpha",
+          "luminance"
+        ],
+        "variableFont": true
+      },
+      "container-rules": {
+        "widths": [
+          {
+            "width": 375,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              359,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 359,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          },
+          {
+            "width": 768,
+            "cols": 2,
+            "pad": 16,
+            "radius": 12,
+            "opacity": 0.8,
+            "fill": "rgb(102, 119, 136)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 12,
+            "next": [
+              390,
+              16,
+              362,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 362,
+            "tileGap": 9
+          },
+          {
+            "width": 1024,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 0.6,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              272,
+              24,
+              232,
+              60
+            ],
+            "inner": [
+              15,
+              3,
+              10,
+              24
+            ],
+            "tileWidth": 232,
+            "tileGap": 2
+          },
+          {
+            "width": 1440,
+            "cols": 4,
+            "pad": 24,
+            "radius": 0,
+            "opacity": 1,
+            "fill": "rgb(255, 255, 255)",
+            "innerOpacity": 1,
+            "row": 12,
+            "gap": 16,
+            "next": [
+              376,
+              24,
+              336,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 336,
+            "tileGap": 9
+          },
+          {
+            "width": 390,
+            "cols": 1,
+            "pad": 8,
+            "radius": 4,
+            "opacity": 0.8,
+            "fill": "rgb(51, 68, 85)",
+            "innerOpacity": 1,
+            "row": 6,
+            "gap": 8,
+            "next": [
+              8,
+              74,
+              374,
+              60
+            ],
+            "inner": [
+              26,
+              7,
+              10,
+              24
+            ],
+            "tileWidth": 374,
+            "tileGap": 9
+          }
+        ],
+        "secondPage": "rgb(51, 34, 17)"
+      },
+      "mixed-materials": {
+        "gradientAlpha": [
+          0.25,
+          0.75
+        ],
+        "stroke": [
+          3,
+          1
+        ],
+        "independentShadows": true,
+        "reorderedBothStacks": true,
+        "undo": 5
+      },
+      "mixed-instances": {
+        "instances": 2,
+        "independentAxes": [
+          [
+            "Light",
+            "On",
+            "Disabled"
+          ],
+          [
+            "Dark",
+            "Off",
+            "Disabled"
+          ]
+        ],
+        "undoRedo": true,
+        "reopened": true
+      },
+      "keyboard-authoring": {
+        "input": "keyboard only",
+        "layers": 2,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "designer-delivery": {
+        "samples": [
+          [
+            375,
+            104,
+            112
+          ],
+          [
+            390,
+            104,
+            112
+          ],
+          [
+            768,
+            108,
+            120
+          ],
+          [
+            1024,
+            108,
+            120
+          ],
+          [
+            1440,
+            108,
+            120
+          ]
+        ],
+        "verified": "designer edit, undo, reopen, update, conflict and preview"
+      },
+      "aura": {
+        "theme": "Cloud Light",
+        "mobileFlow": true,
+        "navigation": "marketing → workspace → overlay → workspace → marketing"
+      },
+      "editing-workflow": {
+        "mixedChannels": [
+          "rgba(18, 52, 86, 0.4)",
+          "rgba(21, 103, 137, 0.8)"
+        ],
+        "span": [
+          210,
+          220,
+          50
+        ],
+        "compactWidth": 721,
+        "disabledCommand": true
+      },
+      "atlas": {
+        "pages": 4,
+        "mapFlow": true,
+        "phoneFlow": true,
+        "shareOverlay": true,
+        "brandInHeader": true
+      },
+      "cross-page": {
+        "navigate": "Web → Mobile",
+        "overlay": "Mobile → Overlays",
+        "back": "Web"
+      },
+      "responsive-player": {
+        "fluidWidths": [
+          375,
+          390,
+          768,
+          1024,
+          1440
+        ],
+        "anchored": true,
+        "fixedTarget": 300
+      },
+      "shapes": {
+        "starPoints": 7,
+        "innerRadius": 0.3,
+        "polygonSides": 6,
+        "snappedLine": true,
+        "undoRestoredParameters": true
+      },
+      "smart-selection": {
+        "initial": {
+          "A": [
+            18,
+            21
+          ],
+          "B": [
+            99,
+            16
+          ],
+          "C": [
+            178,
+            24
+          ],
+          "D": [
+            21,
+            96
+          ],
+          "E": [
+            101,
+            103
+          ],
+          "F": [
+            178,
+            95
+          ]
+        },
+        "grid": {
+          "A": [
+            18,
+            16
+          ],
+          "B": [
+            95.5,
+            16
+          ],
+          "C": [
+            173,
+            16
+          ],
+          "D": [
+            18,
+            87
+          ],
+          "E": [
+            95.5,
+            87
+          ],
+          "F": [
+            173,
+            87
+          ]
+        },
+        "horizontalGap": 30,
+        "verticalGapAfterDrag": 45,
+        "reordered": true,
+        "deleteAndUndo": true
+      },
+      "wires": {
+        "drawn": "Home → Detail",
+        "retargetedOverlay": "Sheet",
+        "anchor": "bottom",
+        "keyboard": true,
+        "undo": true,
+        "reopened": true
+      },
+      "optional-gateway": {
+        "modelRequests": 0,
+        "manualEditor": true
+      },
+      "library-tokens": {
+        "linkedRevision": {
+          "originalWidth": 64,
+          "updatedWidth": 88,
+          "keptName": true,
+          "undo": true
+        },
+        "exportedAndReimported": true,
+        "light": "#0066ff",
+        "dark": "#ff7733",
+        "saved": true
+      },
+      "library-subscription": {
+        "networkRequests": 4,
+        "selectiveUpdate": true,
+        "conflict": "kept local size 22",
+        "offline": true,
+        "unsubscribed": true
+      },
+      "library-publish": {
+        "publish": true,
+        "service": "team",
+        "deniedInvalidToken": true,
+        "consumers": [
+          "库存 12",
+          "已送达"
+        ],
+        "oldPublicName": "标签",
+        "newPublicName": "业务标签",
+        "discovery": true,
+        "updatedInstance": true,
+        "undo": true
+      },
+      "component-properties": {
+        "text": "设计师覆盖",
+        "iconHidden": true,
+        "swapped": true,
+        "mixedInstances": 2,
+        "undo": true
+      },
+      "variant-authoring": {
+        "variants": 3,
+        "axes": [
+          "State",
+          "尺寸"
+        ],
+        "override": "待发送",
+        "width": 232,
+        "uniqueCombinations": true,
+        "reopened": true,
+        "crossFile": true,
+        "combinedExistingDrawings": true
+      },
+      "nested-instances": {
+        "exposedNestedSwap": true,
+        "forwardedLevels": 3,
+        "retainedTitle": true,
+        "updatedFromNestedMaster": true,
+        "undoRedo": true,
+        "reopened": true
+      },
+      "size-limits": {
+        "at600": [
+          100,
+          320,
+          180
+        ],
+        "at720": [
+          100,
+          320,
+          300
+        ],
+        "afterClear": [
+          100,
+          310,
+          310
+        ]
+      },
+      "strokes": [
+        {
+          "x": 230,
+          "y": 18,
+          "border": 12,
+          "outline": 0,
+          "offset": 0
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 6,
+          "outline": 12,
+          "offset": -6
+        },
+        {
+          "x": 230,
+          "y": 18,
+          "border": 0,
+          "outline": 12,
+          "offset": 0
+        }
+      ],
+      "files": {
+        "originalCount": 12,
+        "switchedTwice": true,
+        "separateContents": true
+      },
+      "storage": {
+        "reopened": true,
+        "recovered": true,
+        "staleTab": "preserved winning revision"
+      },
+      "studio": {
+        "editSamplesMs": [
+          47,
+          42,
+          44,
+          42,
+          26,
+          43,
+          27,
+          44
+        ],
+        "checked": [
+          "编辑并保存坐标",
+          "返回页面保留缩放",
+          "622层独立复制",
+          "改名",
+          "删除与撤销",
+          "新增空页",
+          "刷新恢复"
+        ],
+        "runtimeErrors": []
+      },
+      "editor-panels": {
+        "checks": [
+          "滚轮只滚动图层树，页面、搜索和画布固定",
+          "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+          "图层菜单按组选取排列命令",
+          "键盘进入子菜单",
+          "右侧填充顺序可交换",
+          "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+          "长属性面板单独滚动且标题保持可见",
+          "刷新保留属性",
+          "480px 高度菜单仍完整可见",
+          "没有浏览器运行异常"
+        ],
+        "before": {
+          "left": 0,
+          "tree": 0,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98919677734375
+        },
+        "after": {
+          "left": 0,
+          "tree": 850,
+          "pages": 88,
+          "search": 264,
+          "canvas": 258.98919677734375
+        },
+        "css": [
+          "47px",
+          "multiply",
+          "dashed",
+          "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+        ]
+      },
+      "panel-dialogs": {
+        "shortcutHelp": true,
+        "preset": "iPhone 16 393×852",
+        "codeDownload": true,
+        "designSystemRoundTrip": true,
+        "layerBlur": 6,
+        "escapeReturnedFocus": true,
+        "variableDetails": "主按钮使用",
+        "selectionColor": "#2174ab",
+        "deleteUndo": true
+      },
+      "sizing": {
+        "before": {
+          "board": [
+            436,
+            70
+          ],
+          "card": [
+            200,
+            46
+          ],
+          "leaf": [
+            184,
+            30
+          ],
+          "tile": [
+            200,
+            12
+          ]
+        },
+        "after": {
+          "board": [
+            536,
+            70
+          ],
+          "card": [
+            250,
+            46
+          ],
+          "leaf": [
+            234,
+            30
+          ],
+          "tile": [
+            250,
+            12
+          ]
+        },
+        "preview": "matched",
+        "fixed": 250
+      },
+      "wrap": [
+        [
+          [
+            0,
+            0,
+            320,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            228,
+            158
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            10,
+            112,
+            96,
+            36
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            380,
+            108
+          ],
+          [
+            10,
+            10,
+            140,
+            88
+          ],
+          [
+            158,
+            10,
+            50,
+            20
+          ],
+          [
+            216,
+            10,
+            96,
+            36
+          ]
+        ]
+      ],
+      "responsive": [
+        {
+          "board": [
+            0,
+            0,
+            375,
+            400
+          ],
+          "badge": [
+            295,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            335,
+            340
+          ],
+          "cell0": [
+            30,
+            40,
+            315,
+            40
+          ],
+          "cell1": [
+            30,
+            90,
+            315,
+            42
+          ],
+          "cell5": [
+            30,
+            310,
+            315,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            390,
+            400
+          ],
+          "badge": [
+            310,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            350,
+            178
+          ],
+          "cell0": [
+            30,
+            40,
+            160,
+            40
+          ],
+          "cell1": [
+            200,
+            40,
+            160,
+            42
+          ],
+          "cell5": [
+            200,
+            148,
+            160,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            768,
+            400
+          ],
+          "badge": [
+            688,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            728,
+            126
+          ],
+          "cell0": [
+            30,
+            40,
+            170,
+            40
+          ],
+          "cell1": [
+            210,
+            40,
+            170,
+            42
+          ],
+          "cell5": [
+            210,
+            96,
+            170,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1024,
+            400
+          ],
+          "badge": [
+            944,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            984,
+            128
+          ],
+          "cell0": [
+            30,
+            40,
+            185,
+            40
+          ],
+          "cell1": [
+            225,
+            40,
+            185,
+            42
+          ],
+          "cell5": [
+            30,
+            98,
+            185,
+            50
+          ]
+        },
+        {
+          "board": [
+            0,
+            0,
+            1440,
+            400
+          ],
+          "badge": [
+            1360,
+            8,
+            60,
+            12
+          ],
+          "grid": [
+            20,
+            30,
+            1400,
+            70
+          ],
+          "cell0": [
+            30,
+            40,
+            222,
+            40
+          ],
+          "cell1": [
+            262,
+            40,
+            222,
+            42
+          ],
+          "cell5": [
+            1188,
+            40,
+            222,
+            50
+          ]
+        }
+      ],
+      "prototype": {
+        "conditional": [
+          "Sheet",
+          "Detail"
+        ],
+        "keyboard": "Enter/Escape",
+        "back": "Home",
+        "flowSwitch": true
+      },
+      "images": {
+        "id": "2546e8f2-8ae5-4177-9dad-89cbf35c09d5",
+        "asset": "240x120",
+        "zoom": 1.6,
+        "x": 75
+      },
+      "vector": {
+        "anchors": 5,
+        "rotated": 120,
+        "selectionError": 0.0208740234375,
+        "matrix": "matrix(-0.798636, -0.601815, -0.601815, 0.798636, 0, 0)",
+        "path": "M1 47.57286 C1 47.57286 50.04524 1 70.04523 1 C80.04523 1 91.03393 13.14322 99.52263 25.28644 C108.01132 37.42965 114.00002 49.57287 114.00002 49.57287 L76.00002 92.57286 Z"
+      },
+      "booleans": {
+        "modes": [
+          "union",
+          "subtract",
+          "intersect",
+          "exclude"
+        ],
+        "editableOperand": true,
+        "flattenUndo": true,
+        "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+      },
+      "rich-text": {
+        "text": "设计工具 Studio",
+        "width": 152,
+        "height": 42,
+        "parts": [
+          [
+            "设计",
+            "700",
+            "30px",
+            "underline"
+          ],
+          [
+            "工具 Studio",
+            "400",
+            "18px",
+            "none"
+          ]
+        ],
+        "localFont": [
+          "设",
+          "serif",
+          "600"
+        ]
+      },
+      "mask": {
+        "hit": [
+          true,
+          false
+        ],
+        "curve": "path(\"M 20 70 C 20 42.3858 36.7893 20 57.5 20 C 78.2107 20 95 42.3858 95 70 C 95 97.6142 78.2107 120 57.5 120 C 36.7893 120 20 97.6142 20 70 Z\")",
+        "released": true,
+        "selectedCoveredLayer": true
+      },
+      "guides": {
+        "coordinate": 94,
+        "pageIsolation": true,
+        "restored": true,
+        "removedByDrag": true
+      },
+      "asset-import": {
+        "paths": [
+          {
+            "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+            "fill": "#1166ff",
+            "opacity": "1",
+            "width": "0",
+            "join": "miter"
+          },
+          {
+            "d": "M16 56L48 16 40 56Z",
+            "fill": "#ffaa11",
+            "opacity": "0.65",
+            "width": "6",
+            "join": "bevel"
+          }
+        ],
+        "unsupportedRejected": true,
+        "clipboard": true,
+        "rasterDropUndo": true
+      },
+      "open-files": {
+        "version": "0.6.0",
+        "docs": [
+          "Aura Studio · SaaS 产品与营销界面",
+          "Forma Mobile · 界面研究室"
+        ]
+      },
+      "publish-reopen": {
+        "version": "0.6.0",
+        "revision": 1,
+        "persistedAcrossRestart": true,
+        "subscriberInserted": true
+      }
+    }
+  },
+  "exports": {
+    "chromium": [
+      "vector-network",
+      "variant-authoring",
+      "forwarded-instances",
+      "nested-instances",
+      "component-properties",
+      "container-rules",
+      "professional-editor",
+      "designer-delivery",
+      "span",
+      "atlas",
+      "studio-file",
+      "renamed-library",
+      "route-upgrade",
+      "file",
+      "shapes",
+      "limits",
+      "sizing",
+      "wrap",
+      "rich",
+      "image",
+      "stroke",
+      "mask",
+      "vector",
+      "boolean",
+      "responsive",
+      "responsive-player",
+      "prototype",
+      "cross",
+      "aura"
+    ],
+    "webkit": [
+      "vector-network",
+      "variant-authoring",
+      "forwarded-instances",
+      "nested-instances",
+      "component-properties",
+      "container-rules",
+      "professional-editor",
+      "designer-delivery",
+      "span",
+      "atlas",
+      "studio-file",
+      "renamed-library",
+      "route-upgrade",
+      "file",
+      "shapes",
+      "limits",
+      "sizing",
+      "wrap",
+      "rich",
+      "image",
+      "stroke",
+      "mask",
+      "vector",
+      "boolean",
+      "responsive",
+      "responsive-player",
+      "prototype",
+      "cross",
+      "aura"
+    ],
+    "firefox": [
+      "vector-network",
+      "variant-authoring",
+      "forwarded-instances",
+      "nested-instances",
+      "component-properties",
+      "container-rules",
+      "professional-editor",
+      "designer-delivery",
+      "span",
+      "atlas",
+      "studio-file",
+      "renamed-library",
+      "route-upgrade",
+      "file",
+      "shapes",
+      "limits",
+      "sizing",
+      "wrap",
+      "rich",
+      "image",
+      "stroke",
+      "mask",
+      "vector",
+      "boolean",
+      "responsive",
+      "responsive-player",
+      "prototype",
+      "cross",
+      "aura"
+    ],
+    "desktop": [
+      "professional-editor",
+      "variant-authoring",
+      "vector-network"
+    ]
+  }
+}

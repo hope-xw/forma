@@ -1,0 +1,140 @@
+# Forma 设计工具交接文档
+
+更新于 2026 年 11 月 25 日。当前工作区为 **0.10.0**。本机可以从 Sketch 和 Figma 原稿建立独立的可编辑文件。各格式、版本及对照画板的实测范围见[设计文件导入](specs/DESIGN-FILE-IMPORT.md)和[编辑器验收记录](EDITOR-ACCEPTANCE.md)。
+
+**接手入口**　[打开编辑器](http://127.0.0.1:5173/) · [直接打开复杂平板画板「野径图志」](http://127.0.0.1:5173/?example=mobile-studio&edition=atlas&page=atlas&node=atlas-tablet-root) · [查看逐项验收记录](EDITOR-ACCEPTANCE.md)。交接时模型网关留空，样例使用独立存储空间。其他机器先按文末命令启动。
+
+**2026-11-25 · 0.10.0 macOS 桌面安装包发布与版本分级自动化流水线落地**　以课题 [2026-11-25-release-governance-pipeline](initiatives/2026-11-25-release-governance-pipeline/PRD.md) 在 `AGENTS.md` 与 [版本与桌面客户端规格](specs/VERSIONING-AND-DESKTOP.md#5-版本升级判定与同步打包规则) 确立四档版本升级与同步桌面打包硬规则（`none`/`patch`/`minor`/`major` + `packageDesktop` 门禁），并落地零外网、兼容无 Git/Git 双基线的自动化发版与只读挂载 DMG 实机验收流水线（`npm run release:assess` / `release:check` / `release:verify-dmg` / `release:run`，新增 102 项专项单测）。通过新流水线一键将 2026-11-25 两大已完成里程碑（四大内置组件库管理体系 + Forma AI 活体组件库混合装配 Stage 1）升级发布至 **`0.10.0`**，并在实机挂载验签阶段成功提前捕获并修复了 Electron 45.4.1 自定义 `forma://app/` 协议省略同源头导致桌面端 Agent 接口误返 403 的线上缺陷。全仓 **595 / 595** 单测、格式校验、生产构建与内置服务打包全部通过；只读挂载 [Forma-0.10.0-arm64.dmg](../release/Forma-0.10.0-arm64.dmg)（`125,135,844` 字节）与 [Forma-0.10.0-arm64.zip](../release/Forma-0.10.0-arm64.zip)（`120,725,132` 字节）通过深度 ad-hoc 验签、`Info.plist` 4 项文件关联角色/级别校验、`LICENSE` 与清除 `default_app.asar` 核验、`app.asar` 18 文件 + 双内置服务逐字节一致校验、ZIP `0o7777` 全树一致与双 `.blockmap` 逐块验签、离屏 `Forma.app` 全部 5 条 `forma://app/api/agent/*` 路由（含 `/api/agent/library-playbook`）、15 版双主题版本日志验收与 `shared-paint.fig` 原生 `open-file` 重开验收；前序 `Forma-0.9.0-arm64.dmg` 指纹完好未改动。采用本机 ad-hoc 签名，仅覆盖 macOS `arm64`。[0.10.0 安装包](../release/Forma-0.10.0-arm64.dmg) · [0.10.0 ZIP](../release/Forma-0.10.0-arm64.zip) · [安装包校验记录](evidence/2026-11-25/desktop-0.10.0.json) · [版本日志](CHANGELOG.md) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-25-0100-自动化发版流水线落地与-macos-桌面安装包只读挂载实机验收)
+
+**2026-11-25 · Forma AI 组件库智能理解、混合装配与前置收口（Stage 1）落地**　以课题 [2026-11-25-forma-ai-library-intelligence](initiatives/2026-11-25-forma-ai-library-intelligence/PRD.md) 完成 Forma AI 组件库驱动创作核心闭环：建立兼容 `.fig`/`.sketch` 导入与 Forma 原生搭建的活体三级资产分层（`page` / `block` / `component`）、离线硬契约 Manifest 与增量可编辑「AI 说明书」（保留自定义备注、单事务原子更新工作区副本、官方库停用/导出保留标注）；打通 HTML-First 原装组件插槽（`<div data-forma-component>` 水合与受保护 `Instance` 实例化 + 新造模块目标库 Token 自动吸附）、Blueprint 模块外框显式分离派生（`adapt`）与主流程横向/异常态纵向多画板矩阵单步撤销；落地复杂多页需求「1 轮《生成范围确认卡》拍板 → 确认后零打断多画板生成 + 逐板视觉自审」、`Forma AI` 目标组件库选择器与三维记忆作用域契约（`memoryScope`），并同步加固 HTTP 严格同端口 Origin 校验与桌面内置随机端口 `FORMA_SESSION` 无缝 MCP 配对。全变更经独立只读 Codex CLI Code Review（首轮 22 项 P0/P1/P2 全部闭环签收 **PASS**），通过全仓 **493 / 493** 单测、格式检查、生产构建、`desktop:agent` 打包、**7 / 7** 真实 Chromium 浏览器 E2E（含淘宝三级电商库模拟全链路，双主题对比度 6.41–7.36:1、0 启动外网请求）及官方 `verify-exports.mjs agent-canvas-chat` 界面导出 React ZIP 独立安装构建与双画板运行 0 报错验证。Stage 2（项目历史需求档案与衍生模块回流）、Stage 3（`用户×组件库`交叉偏好自学习）、Firefox/WebKit 跨引擎复测与新版 macOS DMG 打包留待下阶段推进。[长期规格](specs/FORMA-AI-LIBRARY-AND-MEMORY.md) · [验收数据](evidence/2026-11-25/forma-ai-stage1/acceptance.json) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-25-forma-ai-组件库智能理解混合装配与前置收口stage-1验收)
+
+**2026-11-25 · 资源面板 UI3 重构与四大成熟组件库管理体系落地**　以课题 [2026-11-25-assets-and-library-manager](initiatives/2026-11-25-assets-and-library-manager/PRD.md) 彻底重构左侧「资源」面板（修复图 1 高度错位、Grid 幻影空白、全局 `section` 缩进偏移、色块黏连、深浅主题割裂与基础元素混排，实测深浅双主题 1280×650 缩进误差 `0px`、色块行高 `28px` / 间距 `14px`，并支持点击规范色卡直接应用/复制与字阶一键应用），落地对标 Figma Libraries 的 **组件库管理中心（`⌥3`）** 与 **四大离线原生组件体系（98 类组件、686 个明暗变体、10 套整页模板）**：保留 iOS (`Forma Mobile`, 44/290/4 默认启用)，新增 Android (`Material Design 3`, 18/136/2)、Web 中后台 (`Ant Design 5`, 20/156/2)、现代 Web (`shadcn/ui`, 16/104/2)，配套跨页实例保护 `removeLibrary` 事务、文档主组件一键打包、工作区 IndexedDB 跨文件复用仓、独立离线 `.fig`/`.sketch` 提取 Worker 以及画布多库拖放与 AI Agent 多体系联动。已通过全仓 **425 / 425** 单测、格式检查、生产构建、**9 / 9** 真实 Chromium 浏览器回归（含新增 `assets-libraries`）及界面导出多体系 React ZIP 独立安装构建与逐屏运行 0 报错验证；尚未重打桌面 DMG，Firefox/WebKit 跨引擎复测待按需补跑。[组件库管理规格](specs/COMPONENT-LIBRARY-MANAGEMENT.md) · [前后对比实拍](evidence/2026-11-25/assets-and-libraries/) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-25-资源面板-ui3-一致性重构与四大成熟组件库管理体系验收)
+
+**2026-11-24 · 0.9.0 macOS 桌面安装包发布**　汇总 AI 生成引擎 V2（Wave 1）、显式多模型五层能力识别与开源 `SKILL.md` 设计技能生态，按 SemVer 次版本规范升级至 **`0.9.0`** 并完成 Electron 45.4.1 Apple Silicon 打包与只读挂载 DMG 实机验收：全仓 **374 / 374** 单测、格式检查、生产构建及内置 `agent-service` / `library-service` 打包通过；只读挂载 [Forma-0.9.0-arm64.dmg](../release/Forma-0.9.0-arm64.dmg)（`124,877,534` 字节）通过 `codesign --verify --deep --strict`、`Info.plist` / `window.formaDesktop.version === "0.9.0"`、`app.asar` 12 个前端资源与 2 份内置服务逐字节一致校验、深浅双主题短窗口版本日志验收、内置 `agent-service` 全路由（含 `/api/agent/critique`）验收及 `shared-paint.fig` 原生 `open-file` 重开校验；既有 `0.8.4` 历史包指纹保持完好。采用本机 ad-hoc 签名，仅覆盖 macOS `arm64`。[0.9.0 安装包](../release/Forma-0.9.0-arm64.dmg) · [0.9.0 ZIP](../release/Forma-0.9.0-arm64.zip) · [安装包校验记录](evidence/2026-11-24/desktop-0.9.0.json) · [版本日志](CHANGELOG.md) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-24-090-macos-桌面安装包构建与只读挂载验收)
+
+**2026-11-24 · AI 生成引擎 V2（Wave 1）与课题目录规范落地**　在 `AGENTS.md` 与 [docs/initiatives/README.md](initiatives/README.md) 确立中大型需求「先落课题目录（`PRD.md` / `ENGINEERING.md` / `TASKS.md`）再施工」永久规范；以课题 [2026-11-24-ai-generation-v2](initiatives/2026-11-24-ai-generation-v2/PRD.md) 完成 **369 枚零 React 依赖 Lucide 矢量图标库**、**44 张核验摄影目录与 SSRF 安全本地化管线**、**HTML/CSS → Forma 零脚本沙盒双引擎编译**、**多模态截屏视觉自审闭环（`POST /api/agent/critique`）** 与 DeepSeek DSML 泄漏自动恢复。在完全相同的 `DeepSeek-V4.1-Flash` 模型与同一咖啡 H5 需求下，V2 原生可编辑画板实现从「纯色占位块 + 圆点假图标」到「实景摄影 + 14–19 枚精准居中 Lucide 图标 + 毛玻璃悬浮栏 + 0 对比度问题」的代际跃迁，并实测 `V2-B` 原稿「粉红波旁」改字与 `⌘Z` 单步撤销通过。全仓 **374 / 374** 单测、格式检查、生产构建、`desktop:agent` 与 4 组浏览器 E2E（含 `htmlFirstCompiled` 与 `visualCritiqueVerified`）全部通过；Wave 2（`DESIGN.md` 美术指导卡、多方案并排探索、云端生图配置）与 `0.8.5` DMG 打包留待下阶段推进。[V1 → V2 对比报告](evidence/2026-11-24/ai-benchmark-v2/REPORT.md) · [五栏实拍图](evidence/2026-11-24/ai-benchmark-v2/v1-vs-v2.png) · [V2 长期规格](specs/AGENT-GENERATION-V2.md) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-24-ai-生成引擎-v2wave-1视觉资产html-to-forma-双引擎与多模态视觉自审验收)
+
+**2026-11-24 · 真实云端 DeepSeek 五组对比评测与 9 款开源社区设计 Skill 兼容落地**　完成从 GitHub 实测下载的 9 款主流开源设计 Skill（`anthropics/skills`、`ui-ux-pro-max`、`jakubkrehel/skills`、`web-design-guidelines`）兼容性审计与架构升级：扩展目录与根目录伴随文档安全索引（本地资源索引率 **0/52 → 52/52**）、新增第 10 个内置工具 `search_skill_resources`（纯 TS 离线检索 CSV/Markdown，零脚本执行风险）、新增三级兼容自动诊断与画布语义桥接；基于真实 DeepSeek-V4.1-Flash 生成过程暴露的问题完成子容器透明底、父布局感知 `hug/fill`、`fill:"none"` 与纯描边形状透明底、`strokeSides` 数组/布尔归一化、CSS 简写与超长 JSON 容错闭环修复。在同一 390×844 咖啡订阅 H5 需求下完成 A（纯文本）/ B（参考图+文本）/ C（纯文本+社区 Skill）/ D（参考图+社区与 Forma Skill）/ E（`theme-factory` Golden Hour 定向换肤）五组真网实拍对照与 D 组生成画板的交互编辑/单步撤销验收（D 组综合最佳：101 层、96% AutoLayout、复用 2 枚原生组件、0 对比度问题；E 组 82.3s 一次成型 100% AutoLayout 精准还原 4 色）。全仓 **327 / 327** 单测、格式检查、生产构建、`desktop:agent` 与 4 组浏览器 E2E 回归全部通过；尚未重新构建 `0.8.5` DMG，Phase 2 第三方 MCP Client 仍为规划项。[完整图文评测报告](evidence/2026-11-24/ai-benchmark/REPORT.md) · [六栏实拍对比图](evidence/2026-11-24/ai-benchmark/comparison.png) · [工具调用与 Skill 规格](specs/AGENT-TOOLS-AND-SKILLS.md) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-24-真实云端-deepseek-五组对比评测与-9-款开源社区设计-skill-兼容性验收)
+
+**2026-11-24 · DeepSeek 画布排版与提案复查**　子 frame 按显式背景绘制，行内胶囊、按钮与文字按内容排版。提案自动回传体检摘要，新增图层可在采纳前查询。局部稿保存重开后，350 px 搜索栏为占位文案分配 259 px，胶囊占 21 px。指定测试 48/48 通过。浏览器实拍待补。[局部复测稿](evidence/2026-11-24/ai-benchmark/worker-8-sections.forma.json) · [验证范围](EDITOR-ACCEPTANCE.md#2026-11-24-deepseek-横幅搜索栏与影子提案)
+
+**2026-11-24 · 多模型接入重构、五层能力真相源、原生工具调用与第三方 Skill 生态**　重构模型配置为「先选供应商 → 填凭证 → 确认真实模型与能力」显式流程，废除通用 `sk-` 猜测高亮与多厂商并发盲扫；完整解析 DeepSeek / OpenRouter / Gemini / Ollama `/models` 实时元数据并建立五层能力真相源（`deepseek-flash` 准确识别为 `1M + 视觉识图 + 工具调用`，旧版 64K/仅文本快照读取时自动热升级，支持刷新与按模型覆写）；实现 OpenAI / Anthropic / Gemini 三协议原生多轮 Tool-Calling（9 大 Forma 内置工具 + 组件按名/变体覆写与非静默诊断）、`agentskills.io` `SKILL.md` 开放标准第三方技能管理与三层渐进式披露，以及 7 工具外部 MCP Server。已通过 **313 / 313** 单测、格式检查、生产构建、`desktop:agent` 打包及 4 组真实浏览器端到端验收（`agent-canvas-chat`、`optional-gateway`、`mcp`、`editor-panels`）；真实云端厂商真网生成质量、重启桌面端重新打 DMG 及 Phase 2 外部 MCP Client 留待后续推进。[多模型配置规格](specs/AGENT-PROVIDER-AND-CANVAS-CHAT.md) · [工具调用与 Skill 规格](specs/AGENT-TOOLS-AND-SKILLS.md) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-24-多模型配置重构五层能力真相源原生工具调用与第三方-skill-生态)
+
+**2026-11-24 · 0.8.4 Sketch / Figma 兼容复核加固与安装包发布**　围绕边界容错、大文件存储恢复、Electron 句柄清理、导入报告可读性及超大组件库右栏性能完成双线并行修复，并构建发布 `Forma-0.8.4-arm64.dmg`：对抗性畸形/越界输入通过率从 0/18 提升至 18/18；显式拦截 FigJam / Figma Slides；分块存储阈值收紧至 16 MiB / 10,000 层 / 2,000 条诊断且支持 `backup()` 双代独立容错；导入报告消除裸 UUID 与内部类名并支持默认分组折叠与跨页定位；右栏新增 Sketch「移除整体着色」、折叠 Figma `sourceArchived` 归档样式，并以 `SlotSwapPicker` 将 Apple Figma `Alerts` 页原生 `<option>` 峰值从 2,677 降至 87。已通过 252 项单测、11 组定向浏览器回归、7 份导出 React 工程独立安装构建运行、真实 Apple 双原稿界面走查，以及只读挂载 DMG 的深度签名、`app.asar` 12 文件逐字节对齐、版本日志与系统 `open-file` 验收；Firefox/WebKit 跨引擎像素复测待后续按需补跑。[0.8.4 安装包](../release/Forma-0.8.4-arm64.dmg) · [安装包校验记录](evidence/2026-11-24/desktop-0.8.4.json) · [复核验收记录](EDITOR-ACCEPTANCE.md#2026-11-24-sketch-与-figma-兼容复核加固) · [导入规格](specs/DESIGN-FILE-IMPORT.md) · [存储协议](specs/LARGE-DESIGN-STORAGE.md)
+
+**2026-11-23 · 0.8.3 原生设计文件导入**　同版 Sketch 与已登录的 macOS Figma 分别提供源端渲染。两份 Apple 原稿的页面、层序、正文、主件及实例引用按来源独立检查。Sketch 涵盖 36 页，Figma 涵盖 46 个普通页。每个格式各选六个对象，分别比较产品预览与实际独立运行的 React 工程。[双格式验收](EDITOR-ACCEPTANCE.md#apple-原稿双格式复验) · [导入规格](specs/DESIGN-FILE-IMPORT.md) Chromium 对两份原稿各抽查 6 个对象，Firefox 和 WebKit 各复查 Figma 的同 6 个对象。分别比较预览与独立 React 工程，共 48 组像素对照，每组超差像素均在 0.5% 以内。223 项单测、56 个浏览器场景与 35 个既有独立工程通过。[0.8.3 安装包](../release/Forma-0.8.3-arm64.dmg) · [本机逐图对照](../output/playwright/apple-import-0.8.3/index.html)
+
+**2026-11-23 · 0.8.1 Apple iOS 27 Sketch 原稿**　36 页、13,914 个源层、1,919 个主件和 4,798 个实例已完成独立结构核对。5 份嵌入字体参与画布排字和图层名符号显示。大文件的本机保存、恢复和可携副本共用分块协议。[导入规格](specs/DESIGN-FILE-IMPORT.md) · [存储协议](specs/LARGE-DESIGN-STORAGE.md) · [实际安装包](../release/Forma-0.8.1-arm64.dmg) · [工程构建与路由验收](evidence/2026-11-23/apple-sketch/react-project.json)
+
+**2026-11-23 · 0.8.2 版本日志**　[项目日志](CHANGELOG.md)逐版记录版本号、日期和具体改动。产品面板列出重要版本，新条目自动带上此前尚未展示的小修补。此次整理属于维护更新，运行版本为 v0.8.2，最近公开更新为 v0.8.1。[发版约定](specs/VERSIONING-AND-DESKTOP.md#4-文件菜单里的版本日志) · [面板验收](EDITOR-ACCEPTANCE.md#文件菜单版本日志)
+
+**2026-11-22 · 0.8.0 原生 Sketch 与 Figma 导入**　Web 与 macOS 用同一离线读取器，将实际的 `.sketch`、`.fig` 作为独立可编辑文件打开。已读取 2 个 Sketch、3 个 Figma 原档；独立浏览器验收覆盖导入预检、编辑、保存重开、预览和 React 工程的实际构建运行。大稿使用 30 页的 Figma Simple Design System。字体、复杂外观和无法解析的覆盖按文件报告。当时尚未取得两个指定 Apple 原件；已完成样本的像素测量和完整保真门槛分开记录。[兼容范围与使用入口](specs/DESIGN-FILE-IMPORT.md) · [验收记录](EDITOR-ACCEPTANCE.md) 版本回归通过 185 项单测、51 个既有浏览器场景、34 个独立交付工程和两项画布压力基准。[回归明细](evidence/2026-11-22/design-import/regression.json)
+
+**2026-11-22 · 61 面板对齐、多模型自动适配与画布对话生成**　在 0.6.5 基础上按 Figma UI3 补齐 11 个核心面板（编号 50 → 61：分区、比例缩放/铅笔、切片与批量导出、视图选项/线框模式、布局参考网格、多行导出预览、设计规范校验、画布评论、原位 Dev Mode、多模型配置、画布内联对话条），对齐既有 50 面板细节；新增 13 家主流大模型「供应商 + Key」自动探测与三协议自适应引擎，并支持 `⌘↵` 画布对话实时预览与单步撤销。Chrome 生产构建通过 165 项单测、51 组浏览器场景与 20 画板 0 CSS px 渲染一致性校验。[61 面板台账](specs/EDITOR-PANEL-ACCEPTANCE.md) · [多模型与画布对话规格](specs/AGENT-PROVIDER-AND-CANVAS-CHAT.md) · [验收记录](EDITOR-ACCEPTANCE.md#2026-11-22-61-面板补齐多模型自动适配与画布对话生成)
+
+**0.6.5 · 画布文字原位编辑**　双击 Aura 部署弹窗标题曾使字形向右下移动。编辑现在直接使用图层内的文字位置，保留对齐、折行、富文本和画布变换。多行文本支持在末尾换行后继续输入。[打开原图层](http://127.0.0.1:5173/?example=aura-showcase&page=workspace&node=ws-modal-h) · [复现与复测](EDITOR-ACCEPTANCE.md#065-文本图层原位编辑) · [Mac 安装包](../release/Forma-0.6.5-arm64.dmg)
+
+**0.6.4 · 位图编辑与 H5 原型**　已贯通图片平铺、无损调色及画布裁切。绘制与导出的 Alpha、亮度蒙版均只取图像本身。H5 原型能区分鼠标悬停与手指点击，关闭嵌套浮层时焦点回到实际操作的子按钮。混合尺寸、混合格式位图另有性能复测。[设计稿、工程与实测](EDITOR-ACCEPTANCE.md#064-位图编辑与原型输入) · [Mac 安装包](../release/Forma-0.6.4-arm64.dmg)
+
+**0.6.3 · 属性栏布局**　Aura 工作台的「新建部署任务 · 浮层」复现了对齐矩阵下沉、间距按钮单独占行和四边输入挤成一列。当前版将三组控件按用途排列，自动布局控件组从 246 px 降至 121 px。直接打开[原图层](http://127.0.0.1:5173/?example=aura-showcase&page=workspace&node=ws-deploy-modal)、[对照实拍与验收](EDITOR-ACCEPTANCE.md#063-属性栏布局)或[本版 Mac 安装包](../release/Forma-0.6.3-arm64.dmg)。
+
+**0.6.2 · 面板复核**　50 个编号逐行记录了 Gemini 原报告与本版的差异。补齐文件管理、页面与组件拖放、选区颜色、渐变与效果样式、属性锁定、非模态面板、原型连线、预览缩放与 SVG 导出。实测包括短窗口与双主题、Firefox/WebKit、只读挂载的 Mac 安装包、真实文件和独立 React 工程。入口、性能数字和仍有差异的具体功能见[本版验收](EDITOR-ACCEPTANCE.md#062-面板复核)、[逐项面板表](specs/EDITOR-PANEL-ACCEPTANCE.md)与[安装包](../release/Forma-0.6.2-arm64.dmg)。
+
+**按编号验收**　0.6.0 的 49 个面板分别在网页和 macOS 安装版按实际操作复验，其中 04.01 校正 iPhone 16 预设，04.12 补齐投影调序，03.05/04.13 修复中文字体的 Hug 测量，07.01 修复 Esc 及焦点返回，08.02 接通桌面外部会话。每个编号都列出 Figma 对应入口、操作和结果。0.6.0 另已关闭分支锚点与区域填色、双轴画布组件集与拖入主件。已发布的原实例经跨文件更新保持连接。[编号验收文档](specs/EDITOR-PANEL-ACCEPTANCE.md) · [macOS 安装包](../release/Forma-0.6.0-arm64.dmg)
+
+**0.6.1**　新增第 50 个面板 **01.06 文件颜色配置**。网页与 Mac 实测文件和新建默认色域、P3 指定与转换、撤销、重开、预览及独立 React 导出。含色域标记的 PNG 在两个导出工程中保留原始字节。03.07、04.14 的 PNG、JPEG、WebP、GIF 置入已有逐格式记录。[颜色管理验收](EDITOR-ACCEPTANCE.md#文件色域与位图交付) · [0.6.1 安装包](../release/Forma-0.6.1-arm64.dmg)
+
+**Gemini 交接核对**　按工作区实物重新打开 Aura 文件和移动库，并核对工具栏、悬停提示、性能、桌面文件打开和 Agent 接口。逐项列出接手时可见的产出、可复现的缺陷与修复；此目录没有可用于区分作者的 Git 提交记录。[交接核对表](EDITOR-ACCEPTANCE.md#核对交接中的完成项)
+
+**网页版与安装版**　0.5.0 使用相同编辑器资源；文件保存空间、系统打开方式及发布组件库所需服务的差异，见[两端核对](EDITOR-ACCEPTANCE.md#网页编辑器与安装版核对)。
+
+**0.5.0 桌面验收**　两份文件订阅同一个库并分别保留实例文案，改名后旧业务工程通过构建。多页容器外观可按断点继承和覆盖。自定义订单路由中两层弹窗的焦点逐层返回。安装版通过 macOS 简体拼音选词、撤销、重做和重开。[本版验收与交付物](EDITOR-ACCEPTANCE.md)
+
+**0.4.0 桌面设计与交付**　从空文件键盘建画板、网格轨道与指定单元格、位图两种蒙版、可变字体、实例属性、跨文件发布订阅和逐项升级已接入编辑器、存储和交付。[操作入口](specs/PROFESSIONAL-EDITING.md) · [验收结果](EDITOR-ACCEPTANCE.md)
+
+**0.3.0 历史交付**　资源面板支持跨文件库升级；网格支持跨行、固定行高和按容器宽度切换列数；首次导出的 React 工程可以保留业务文件再次更新。[实际交付工程](evidence/2026-11-20/v0.3.0/feedback-react.zip) · [交付协议](specs/REACT-PROJECT-UPDATES.md)。
+
+**0.2.1 历史复核**　[设计师操作与 Figma 能力矩阵](specs/EDITOR-PARITY-PLAN.md) · [测试结果和截图](EDITOR-ACCEPTANCE.md) · [Aura 设计文件](http://127.0.0.1:5173/?example=aura-showcase)。已修复窄屏属性栏、混合颜色误写、样例重开、外部提案会话及桌面文件打开。固定列网格支持子层跨列。逐项见当日验收。
+
+## 一、已确认的目标与边界
+
+| 用户工作流 | 产品须达到的结果 |
+| --- | --- |
+| 全手动设计 | 设计师能从空文件开始，管理页面、画板、图层、组件实例、样式与变量，完成 Web 和移动 Web/H5 设计。日常命令、图标、菜单和属性面板以 Figma 的专业操作习惯为参照。 |
+| 使用设计系统与 Agent | 设计师可以直接插入原生组件，也可以让 Agent 基于设计系统生成可继续手改的图层。接入可配置的 OpenAI 兼容服务，变更须可预览、限定范围、撤销。当前优先验收设计工具本身，网关可持续留空。 |
+| 原型与工程交付 | React + TypeScript 应保留布局、组件关系、Token、资源和已声明的交互。原型包含多流程、浮层、滚动、交互控件、变量、条件与多动作。业务 API 由开发接入，原生移动代码和时间轴动画在本期范围之外。 |
+
+移动 UI 库采用自研、可分发的实现，以指定的 iOS/iPadOS 27 套件作视觉和能力参考。现阶段允许开源技术，后续私有化需可替换模型、存储与身份服务。原始 PDF 整理出的 182 条是跨产品研究目录，逐项验收需另附证据，不能从条目数推算完成率。[已确认的产品边界](ARCHITECTURE.md) · [研究目录](requirements/research-catalog.json)
+
+## 二、进展与实测边界
+
+| 工作区 | 已可使用 | 验证范围或限制 |
+| --- | --- | --- |
+| 文件、画布与图层 | 本地多文件、多页、缩放平移、选取、剪切复制粘贴、编组、排序、撤销重做、智能整理。IndexedDB 保存完成后更新保存状态，支持恢复上一版和检测跨标签写入冲突。 | 右键菜单在 1280×650、1024×480 窗口核对过边界与键盘子菜单。图层树滚动 850 px 时，页签、搜索和画布位置保持稳定。万层平铺文件中树列表挂载 35 行（0.2.1 实测）。 |
+| 属性与绘图 | 常用属性采用线形图标和悬停说明。右栏可设尺寸、约束、Fixed/Hug/Fill、最小/最大值、换行、网格、独立圆角、多重填充、渐变、描边、混合和模糊。颜色支持 HEX/RGB/HSL、透明度和文件色。支持钢笔锚点、富文本选区、布尔运算、矢量蒙版、基础 SVG 与位图。 | 已验证右栏独立滚动、填充排序和属性重载、描边内中外位置、矢量路径导出。0.3.0 已验证二维跨度、固定行高、窄容器列数与间距。0.4.0 的面板和画布可编辑逐条轨道与指定单元格，可创建位图透明度/亮度蒙版，导入字体并编辑轴和局部特性。 |
+| 主组件、实例与设计系统 | 图层树区分主件、实例和普通组。实例可以改允许的文字与外观、切换变体、重置或显式分离。内部结构受事务层保护。同文件主件修改传播到跨页实例。原生基础体系含 3 个集合、40 个变量、8 个样式，支持别名、模式继承及填充、文字、效果样式。 | 已测组件库带着所引用的样式和变量跨文件导入、切换明暗、刷新恢复。新修订可从库文件导入，预览受影响实例和冲突，确认更新后可一次撤回。移动库变体引用专用明暗集合。0.4.0 可从自己的主件添加变体，组合已有图层，批改多实例共有属性，并已接入订阅、发布、选择组件与共享定义冲突处理，团队角色管理属于后续范围。 |
+| 原型 | 多起点、跳转、浮层、返回、滚动、变量、条件分支和多动作可在共享播放器运行。同页可拖连线，跨页可在属性面板选目标，定位目标画板后可返回连线来源。 | 已从一个页面跳到第二页、打开第三页浮层，再关闭并返回；播放器已测 375、390、768、1024、1440 px 五档宽度。跨页同时浏览与拖线、真机触控仍待补。 |
+| 页面代码 | 顶栏导出所选画板与原型依赖；文件菜单可导出整份文件。React/TS 工程包含按页加载的模块、画板目录、原生文档、Token、位图、矢量及原型运行时。 | 28 类从界面实际下载的 ZIP 已独立安装、构建和运行，整文件导出的 16 个画板入口已逐个打开。使用到的库组件有独立 TSX 模块，可在业务页面单独引入。改版导出保留业务入口和自建文件，生成区双方改动时提示具体路径。两套样例的 20 个画板逐层对照，反馈表单通过改版后的异步校验、失败与重试。 |
+| Agent 接口 | 已有 13 家主流供应商显式接入、五层模型能力真相源（含刷新与按模型覆写）、三协议原生多轮 Tool-Calling（13 大 Forma 工具含 `search_icons` / `search_stock_images` / `propose_html_design` / `search_skill_resources`）、369 枚本地 Lucide 矢量图标、SSRF 安全摄影本地化、HTML/CSS-to-Forma 零脚本沙盒编译、多模态截屏视觉自审（`POST /api/agent/critique`）、`SKILL.md` 开放标准第三方技能引擎、预览采纳与单步撤销，以及 7 工具外部 MCP 会话接口。 | 未配置模型时，打开编辑器与 Agent 面板记录到 0 次外部模型请求。已随 **0.9.0** macOS 桌面包内置发布并通过 **374 / 374** 项单测、4 组真实 Chromium/stdio E2E、只读挂载 DMG 内置路由实测及同模型 DeepSeek-V4.1-Flash V1 → V2 实拍代际验收；Wave 2 多方向探索与云端生图配置、跨模型横向对比与 Phase 2 外部 MCP Client 留待后续按需推进。 |
+
+## 三、复杂移动样例与性能基线
+
+**0.6.2 同机实测。** 万层平铺导入 443 ms，拖动 219 ms。8,288 层复杂场景拖动中位数 241 ms、P95 243 ms，帧间隔 P95 17 ms。完整手势样本、堆内存口径及当前边界见[本版验收](EDITOR-ACCEPTANCE.md#062-面板复核)。
+
+自研 Forma Mobile 库有 **44 类组件、290 个变体**。下表是从原生设计文件重新统计的实际画布内容，不计库中尚未插入的定义。[移动库与参考范围](MOBILE-LIBRARY.md) · [可编辑源文件](../public/examples/mobile-studio.forma.json)
+
+| 页面 | 画板 | 图层 | 矢量图层 | 实例 | 接手时建议查看 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| iPad 工作空间 | 6 | 452 | 125 | 1 | 分栏导航、分享浮层和上下文菜单的层级 |
+| iPhone 发现与设置 | 4 | 242 | 52 | 38 | 小屏布局、控件实例与覆盖 |
+| Soundspace 音乐工作台 | 2 | 622 | 188 | 40 | 明暗画板、密集图层、图标和播放器材质 |
+| Field Atlas 野径图志 | 4 | 259 | 130 | 6 | 可编辑等高线、海拔剖面、站点变体、手记到分享的原型 |
+| **合计** | **16** | **1,575** | **495** | **85** | |
+
+**0.2.0 历史性能优化。** 在同一台 Apple Silicon Mac、Chrome 158、1460×960 生产构建上，对单页 8,288 层、128 个画板、4,160 个矢量、192 个实例的复杂野径图志场景完成增量场景索引、增量布局/变换缓存、拖拽二分吸附、离屏根画板视口裁剪、移除 `:has()` 悬停选择器及面板记忆化改造后，连续 6 次十二步拖动的总耗时中位数由 **415 ms 降至 241 ms**（与 259 层原页的 241 ms 持平），P95 由 **449 ms 降至 249 ms**，手势期间帧间隔 P95 由 **33 ms 降至 17 ms**，采样 JS 堆由 **135–206 MiB 降至 61 MiB**。万层平铺拖动由 241 ms 降至 208 ms；622 层坐标编辑稳态延迟由 61–77 ms 降至 26–28 ms。长会话、大量位图与同文件同机 Figma 对照仍待补测。[测试条件及完整读数](EDITOR-ACCEPTANCE.md)
+
+**0.2.1 同机重测。** 8,288 层拖动中位数/P95 为 240/245 ms，85 个帧间隔 P95 和最长均为 17 ms。万层平铺导入 414 ms，拖动 223 ms。样本和内存口径见[原始记录](evidence/2026-11-20/results.json)。
+
+**0.3.0 历史基线。** 生产构建万层平铺拖动 224 ms，新增主题绑定的 8,288 层稿拖动中位数/P95 为 239/242 ms。20 个样例画板共 1,828 层在画布、预览、独立工程的几何与可测文字行数均通过 Chrome/WebKit 对照。[完整数据及同稿复测](evidence/2026-11-20/v0.3.0/results.json)。
+
+**0.4.0 桌面实测。** 两小时的多位图候选会话完成 5,504 次裁切及 172 次预览和刷新。正式构建万层平铺拖动 216 ms，复杂稿拖动中位数/P95 为 240/245 ms。[生产构建与原始结果](evidence/2026-11-20/v0.4.0/results.json)
+
+**0.5.0 同机生产构建。** 万层平铺导入 443 ms、挂载 35 行、拖动 226 ms；8,288 层场景拖动中位数/P95 为 240/251 ms，帧间隔 P95 为 17 ms。正式版另完成 96 次位图裁切、12 对撤销/重做及 3 次预览刷新。[实测结果](evidence/2026-11-20/v0.5.0/results.json)
+
+**SaaS 产品与营销界面验证样例。** 新增 `/?example=aura-showcase`（[生成器](../scripts/build-aura-showcase.ts) · [源文件](../public/examples/aura-showcase.forma.json)），包含 1440px 桌面营销官网、390px 移动 H5 落地页、1440×900 SaaS 数据分析工作台及交互部署弹窗（共 4 画板、253 图层、145 个直接绑定变量的图层，支持 Obsidian Dark / Cloud Light 实时切换与跨页浮层原型）。
+
+## 四、未关闭事项与后续验收
+
+下表按建议接手顺序排列。前两项直接对应设计师已反馈的问题。产品验收优先推进手动设计、原型和交付，模型配置无需成为前置条件。
+
+| 顺序 | 类型与问题 | 下一步与关闭条件 |
+| --- | --- | --- |
+| 1 | **性能覆盖** · 已完成两小时多位图编辑与万层/复杂稿基线 | 0.6.4 已用 8 张 JPEG、PNG、WebP 混排的横竖图重复编辑，最长边 4096；多编码长会话与设备差异仍待分开验收。若需与 Figma 作响应或内存比较，需使用相同输入、硬件、视口及手势。[本版实测](EDITOR-ACCEPTANCE.md) |
+| 2 | **功能缺口** · 右侧属性和设计系统未全面对齐 | 按[属性矩阵](specs/EDITOR-PARITY-PLAN.md)逐类实施。逐轨道尺寸、显式单元格、位图蒙版、字体轴已落地。已验证双断点网格、嵌套容器内边距及外层实例的嵌套替换。三层已验证公开属性逐层转交，以及多选实例的 Mixed。0.5.0 已验多文件公共属性重命名及断点填充、透明度、圆角。0.6.4 已验画布裁切、平铺与调色、滤镜和位图蒙版的静态与 React 交付。其余属性逐项验证操作、撤销、刷新、预览和导出。 |
+| 3 | **覆盖缺口** · 290 个变体已逐一切换预览，尚需与参考套件逐项视觉对照；平台材质、动态字号与无障碍模式覆盖有限 | 从已参考的分栏、分享和上下文菜单开始，逐项标出状态、尺寸、视觉差异及自研实现方式。对支持的变体留浅深色、长文案、窄屏证据，在真实复杂画板上检验实例保护与覆盖。 |
+| 4 | **交付缺口** · 跨画板全量保真、复杂业务组件组合尚待验收 | 用同一份 Web/H5 稿对照编辑画布、预览与独立工程；固定字体和视口，核对几何、换行、Token、资源、焦点和每条交互。已核对两套样例全部画板、嵌套 React 组件、反馈表单改版保留业务扩展，以及 HTTP 422 后重试到 201。0.5.0 已对订单路由应用做实际改版、重建及嵌套浮层焦点回放。 |
+| 5 | **验收环境与覆盖** · 0.5.0 为 Firefox 创建独立应用数据和缓存目录，已通过完整桌面回归；Safari App 曾验证 Aura 原型；硬件触控另列，桌面全键盘创作及 macOS 简体拼音选词已实测 | Firefox 已实际操作短窗口菜单、输入和原型，对同一引擎导出的工程逐个验收。macOS 简体拼音已验证组合输入、提交与撤销。0.6.4 已在三款浏览器以触摸输入仿真操作 390 px H5，并复验复合控件的键盘焦点；真实触控设备另行验收。WebKit 自动化结果单独记录。 |
+| 6 | **后续能力** · 团队权限与协作、真实模型质量 | 已验证在线与文件式修订、发布凭证、逐组件接收、冲突处理和撤销。团队角色管理与审批单独验收。模型服务按需启用后，再验「生成 → 人工改 A/B → Agent 只改 C → 撤销 C」并评审设计质量。团队协作和企业部署按后续里程碑推进。[迭代计划](ROADMAP.md) |
+
+## 五、工程入口与复测
+
+在 Apple Silicon 的 macOS 安装包上运行 `node scripts/check-desktop-workflows.mjs` 可复测键盘创作、材质多选、网格与蒙版、嵌入字体、创建变体集、系统打开文件和跨重启发布。测试使用临时用户目录及实际 Electron 下载。
+
+| 从哪里接手 | 维护入口 |
+| --- | --- |
+| 查阅交互、版本与客户端规格 | [规格文档目录](specs/README.md) · [编辑器功能入口、图标按钮与悬停提示规格](specs/EDITOR-UI-CONTROLS.md) · [版本号规范与 Electron 客户端规格](specs/VERSIONING-AND-DESKTOP.md) |
+| 排查手动编辑、菜单和面板 | [画布](../src/editor/Canvas.tsx) · [全局悬停提示](../src/editor/TooltipHost.tsx) · [右键菜单](../src/editor/ContextMenu.tsx) · [图层树](../src/editor/LayersPanel.tsx) · [属性面板](../src/editor/Inspector.tsx) |
+| 排查 Electron 桌面壳与打包 | [主进程](../electron/main.mjs) · [预加载桥接](../electron/preload.cjs) · [打包配置](../package.json) |
+| 排查实例被拆散、样式丢失、拖动与保存 | [事务与实例保护](../src/domain/commands.ts) · [主件传播](../src/domain/component-masters.ts) · [变量与样式](../src/domain/design-system.ts) · [拖动预览与提交](../src/application/geometry-preview.ts) · [本地持久化](../src/infrastructure/storage.ts) |
+| 排查样例、原型和交付差异 | [样例生成器](../scripts/build-mobile-studio.ts) · [原型播放器](../src/runtime/PrototypePlayer.tsx) · [整文件编译](../src/compiler/file-project.ts) · [ZIP 导出](../src/infrastructure/export-project.ts) · [导出工程回归](../scripts/verify-exports.mjs) |
+
+当前工作区版本见本文顶部（桌面端与 Web 端统一版本号，见[版本号规范与 Electron 客户端规格](specs/VERSIONING-AND-DESKTOP.md)），目录内无 Git 元数据，无法以提交号定位此快照。交接机为 Node 25.8.0、npm 11.11.0。新环境在项目根目录运行 `npm ci`、`npm run dev`（Web 端，默认 `127.0.0.1:5173`）或 `npm run desktop:build`（构建 Electron 桌面端安装包到 `release/`）。只做手动编辑、原型和交付时无需配置模型。浏览器文件保存在当前浏览器的 IndexedDB，换机器前点击顶栏的「下载设计文件」，保存可继续编辑的 `design.forma.json`。
+
+| 要验证什么 | 命令与顺序 |
+| --- | --- |
+| 源码与构建 | `npm test`、`npm run format:check`、`npm run build`。0.8.3 发布记录中，223 项单测、格式检查和生产构建通过。[发布回归记录](evidence/2026-11-23/apple-import-0.8.3/regression.json) |
+| 用户反馈的高频操作 | 服务启动后运行 `npm run test:browser -- editor-panels library-tokens smart-selection atlas`。覆盖短窗口菜单和滚动、库与主题、选区整理、复杂样例。 |
+| 全流程与独立工程 | 先 `npm run test:browser` 生成界面下载件，再 `npm run test:exports`。分别设置 `BROWSER_ENGINE=webkit` 和 `BROWSER_ENGINE=firefox` 运行两条命令。0.8.3 的发布回归列出 56 个浏览器场景和 35 个独立工程。两份 Apple 原稿的逐浏览器导入与视觉抽查另见[双格式复验](EDITOR-ACCEPTANCE.md#apple-原稿双格式复验)。 |
+| 可比的性能复测 | 构建后另开终端运行 `npx vite preview --host 127.0.0.1 --port 4173 --strictPort`，再运行 `FORMA_URL=http://127.0.0.1:4173 npm run test:browser -- layer-tree complex`。保留浏览器、视口、图层结构、手势步数和构建模式。 |
+
+更新进度时，以[当日编辑器验收](EDITOR-ACCEPTANCE.md)和可复跑脚本为准。[早期 Figma 界面对照](STUDIO-AUDIT.md)保留了参考画板和历史差异，部分条目随后已有实现。关闭缺陷时补上复现文件、操作路径、实际结果和仍受限的场景，再更新本表。

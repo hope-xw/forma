@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "id": "image-paint-sample",
+  "name": "Image paint",
+  "revision": 14,
+  "nodes": [
+    {
+      "id": "board",
+      "parentId": null,
+      "type": "frame",
+      "name": "board",
+      "text": "",
+      "style": {
+        "width": 220,
+        "height": 120,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "bitmap",
+      "parentId": "board",
+      "type": "rectangle",
+      "name": "bitmap",
+      "text": "",
+      "style": {
+        "width": 128,
+        "height": 96,
+        "x": 8,
+        "y": 8,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "image": {
+        "assetId": "img-132e59a3b08c9c87fed48f34e56352f1f3c9539222b13dfacf58caeb37693d2d",
+        "fit": "tile",
+        "x": 0,
+        "y": 0,
+        "zoom": 1.5,
+        "tileScale": 0.5,
+        "brightness": 0.5,
+        "saturation": 0
+      }
+    },
+    {
+      "id": "bordered",
+      "parentId": "board",
+      "type": "rectangle",
+      "name": "bordered",
+      "text": "",
+      "style": {
+        "width": 128,
+        "height": 14,
+        "x": 8,
+        "y": 106,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free",
+        "stroke": "#444444",
+        "strokeWidth": 4
+      },
+      "hidden": false,
+      "locked": false,
+      "image": {
+        "assetId": "img-132e59a3b08c9c87fed48f34e56352f1f3c9539222b13dfacf58caeb37693d2d",
+        "fit": "tile",
+        "x": 0,
+        "y": 0,
+        "zoom": 1,
+        "tileScale": 0.5,
+        "brightness": 0.5,
+        "saturation": 0
+      }
+    },
+    {
+      "id": "mask-alpha",
+      "parentId": "board",
+      "type": "group",
+      "name": "mask-alpha",
+      "text": "",
+      "style": {
+        "width": 64,
+        "height": 40,
+        "x": 148,
+        "y": 8,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "maskType": "alpha",
+      "maskSourceId": "mask-alpha-source"
+    },
+    {
+      "id": "mask-alpha-source",
+      "parentId": "mask-alpha",
+      "type": "rectangle",
+      "name": "mask-alpha-source",
+      "text": "",
+      "style": {
+        "width": 64,
+        "height": 40,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "image": {
+        "assetId": "img-132e59a3b08c9c87fed48f34e56352f1f3c9539222b13dfacf58caeb37693d2d",
+        "fit": "tile",
+        "x": 0,
+        "y": 0,
+        "zoom": 1,
+        "tileScale": 0.5,
+        "brightness": 0.5,
+        "saturation": 0
+      }
+    },
+    {
+      "id": "mask-alpha-ink",
+      "parentId": "mask-alpha",
+      "type": "rectangle",
+      "name": "mask-alpha-ink",
+      "text": "",
+      "style": {
+        "width": 64,
+        "height": 40,
+        "x": 0,
+        "y": 0,
+        "fill": "#000000",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    },
+    {
+      "id": "mask-luminance",
+      "parentId": "board",
+      "type": "group",
+      "name": "mask-luminance",
+      "text": "",
+      "style": {
+        "width": 64,
+        "height": 40,
+        "x": 148,
+        "y": 64,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "maskType": "luminance",
+      "maskSourceId": "mask-luminance-source"
+    },
+    {
+      "id": "mask-luminance-source",
+      "parentId": "mask-luminance",
+      "type": "rectangle",
+      "name": "mask-luminance-source",
+      "text": "",
+      "style": {
+        "width": 64,
+        "height": 40,
+        "x": 0,
+        "y": 0,
+        "fill": "#ffffff",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false,
+      "image": {
+        "assetId": "img-132e59a3b08c9c87fed48f34e56352f1f3c9539222b13dfacf58caeb37693d2d",
+        "fit": "tile",
+        "x": 0,
+        "y": 0,
+        "zoom": 1,
+        "tileScale": 0.5,
+        "brightness": 0.5,
+        "saturation": 0
+      }
+    },
+    {
+      "id": "mask-luminance-ink",
+      "parentId": "mask-luminance",
+      "type": "rectangle",
+      "name": "mask-luminance-ink",
+      "text": "",
+      "style": {
+        "width": 64,
+        "height": 40,
+        "x": 0,
+        "y": 0,
+        "fill": "#000000",
+        "color": "#000000",
+        "radius": 0,
+        "fontSize": 16,
+        "padding": 0,
+        "gap": 0,
+        "layout": "free"
+      },
+      "hidden": false,
+      "locked": false
+    }
+  ],
+  "images": {
+    "img-132e59a3b08c9c87fed48f34e56352f1f3c9539222b13dfacf58caeb37693d2d": {
+      "name": "warm-stripe.png",
+      "width": 32,
+      "height": 16,
+      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAYAAAB3AH1ZAAAAL0lEQVR4AezQsQkAAAgDQckkjuLobqZDfPuBlIFw2ekjLZjAPZ57QAEFFFBAAQUeAAD//wfP2SAAAAAGSURBVAMA7AMiEeWPTWUAAAAASUVORK5CYII="
+    }
+  },
+  "tokens": {}
+}

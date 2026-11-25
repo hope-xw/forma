@@ -1,0 +1,91 @@
+{
+  "format": "sketch",
+  "sourceSha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+  "sourceBytes": 207834444,
+  "renderer": "sketchtool Version 2026.3.1 (234013)",
+  "phases": [
+    "review",
+    "new-file",
+    "reload",
+    "portable-open-in-clean-profile",
+    "six-source-comparisons"
+  ],
+  "browser": "158.0.8127.36",
+  "analysisMs": 10374,
+  "saveAndOpenMs": 6855,
+  "reloadMs": 5338,
+  "portableBytes": 353432961,
+  "cleanProfileNativeOpenMs": 11900,
+  "browserErrors": [],
+  "samples": [
+    {
+      "sample": "cover",
+      "pixels": {
+        "width": 640,
+        "height": 640,
+        "over16": 408201,
+        "total": 409600,
+        "pct": 99.658447265625,
+        "max": 255
+      }
+    },
+    {
+      "sample": "alert",
+      "pixels": {
+        "width": 402,
+        "height": 874,
+        "over16": 22777,
+        "total": 351348,
+        "pct": 6.4827464508123,
+        "max": 255
+      }
+    },
+    {
+      "sample": "button",
+      "pixels": {
+        "source": [
+          72,
+          50
+        ],
+        "actual": [
+          74,
+          50
+        ],
+        "dimensionMismatch": true
+      }
+    },
+    {
+      "sample": "picker",
+      "pixels": {
+        "width": 360,
+        "height": 300,
+        "over16": 105960,
+        "total": 108000,
+        "pct": 98.11111111111111,
+        "max": 255
+      }
+    },
+    {
+      "sample": "keyboard",
+      "pixels": {
+        "width": 1210,
+        "height": 428,
+        "over16": 37206,
+        "total": 517880,
+        "pct": 7.184289796864139,
+        "max": 241
+      }
+    },
+    {
+      "sample": "toggle",
+      "pixels": {
+        "width": 64,
+        "height": 28,
+        "over16": 88,
+        "total": 1792,
+        "pct": 4.910714285714286,
+        "max": 90
+      }
+    }
+  ]
+}

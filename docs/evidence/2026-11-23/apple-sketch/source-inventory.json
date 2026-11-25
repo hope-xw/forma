@@ -1,0 +1,208 @@
+{
+  "sha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+  "bytes": 207834444,
+  "sourceAppVersion": "2026.3.1",
+  "build": 234013,
+  "format": 196,
+  "archiveEntries": 201,
+  "uncompressedBytes": 251753018,
+  "pages": [
+    {
+      "roots": 1,
+      "nodes": 8
+    },
+    {
+      "roots": 0,
+      "nodes": 0
+    },
+    {
+      "roots": 2,
+      "nodes": 122
+    },
+    {
+      "roots": 4,
+      "nodes": 222
+    },
+    {
+      "roots": 5,
+      "nodes": 463
+    },
+    {
+      "roots": 16,
+      "nodes": 284
+    },
+    {
+      "roots": 26,
+      "nodes": 51
+    },
+    {
+      "roots": 0,
+      "nodes": 0
+    },
+    {
+      "roots": 315,
+      "nodes": 2809
+    },
+    {
+      "roots": 0,
+      "nodes": 0
+    },
+    {
+      "roots": 39,
+      "nodes": 295
+    },
+    {
+      "roots": 5,
+      "nodes": 35
+    },
+    {
+      "roots": 19,
+      "nodes": 93
+    },
+    {
+      "roots": 265,
+      "nodes": 625
+    },
+    {
+      "roots": 10,
+      "nodes": 238
+    },
+    {
+      "roots": 51,
+      "nodes": 209
+    },
+    {
+      "roots": 7,
+      "nodes": 53
+    },
+    {
+      "roots": 3,
+      "nodes": 17
+    },
+    {
+      "roots": 386,
+      "nodes": 3277
+    },
+    {
+      "roots": 118,
+      "nodes": 518
+    },
+    {
+      "roots": 109,
+      "nodes": 547
+    },
+    {
+      "roots": 45,
+      "nodes": 280
+    },
+    {
+      "roots": 27,
+      "nodes": 101
+    },
+    {
+      "roots": 11,
+      "nodes": 73
+    },
+    {
+      "roots": 17,
+      "nodes": 71
+    },
+    {
+      "roots": 51,
+      "nodes": 1052
+    },
+    {
+      "roots": 55,
+      "nodes": 231
+    },
+    {
+      "roots": 31,
+      "nodes": 183
+    },
+    {
+      "roots": 15,
+      "nodes": 33
+    },
+    {
+      "roots": 85,
+      "nodes": 391
+    },
+    {
+      "roots": 12,
+      "nodes": 49
+    },
+    {
+      "roots": 15,
+      "nodes": 61
+    },
+    {
+      "roots": 219,
+      "nodes": 1437
+    },
+    {
+      "roots": 0,
+      "nodes": 0
+    },
+    {
+      "roots": 1,
+      "nodes": 35
+    },
+    {
+      "roots": 11,
+      "nodes": 51
+    }
+  ],
+  "layerClasses": {
+    "group": 2609,
+    "bitmap": 135,
+    "text": 2370,
+    "rectangle": 427,
+    "symbolInstance": 4798,
+    "symbolMaster": 1919,
+    "shapeGroup": 282,
+    "shapePath": 1287,
+    "oval": 87
+  },
+  "nodes": 13914,
+  "masters": 1919,
+  "foreignMasters": 0,
+  "instances": 4798,
+  "instancesMissingDefinitions": 0,
+  "overrideFields": {
+    "isVisible": 1024,
+    "stringValue": 3343,
+    "color:fill-1": 26,
+    "symbolID": 1015,
+    "horizontalSizing": 17,
+    "layerStyle": 10,
+    "textHAlign": 4,
+    "fillColor": 1,
+    "image": 26,
+    "textColor": 32,
+    "textWeight": 6,
+    "color:fill-3": 7,
+    "color:shadow-2": 2,
+    "color:fill-0": 68,
+    "textSize": 6,
+    "color:border-0": 1
+  },
+  "assetCount": 156,
+  "sharedLayerStyles": 42,
+  "sharedTextStyles": 105,
+  "colorVariables": 107,
+  "privateUseLayerNames": 1025,
+  "foreignTextStyles": 13,
+  "foreignSwatches": 4,
+  "embeddedFontFiles": 5,
+  "pngImages": 155,
+  "pdfImages": 1,
+  "renderer": "sketchtool Version 2026.3.1 (234013)",
+  "pageCount": 36,
+  "prevReleaseOriginalChooser": {
+    "version": "0.8.0",
+    "bytes": 207834444,
+    "error": "导入失败：Error: 设计文件超过 128 MB",
+    "unchanged": "http://127.0.0.1:4183/",
+    "browser": "158.0.8127.36"
+  }
+}

@@ -1,0 +1,986 @@
+{
+  "date": "2026-11-21",
+  "appVersion": "0.6.4",
+  "environment": {
+    "platform": "macOS 27.2.1 arm64",
+    "node": "25.8.0",
+    "playwright": "1.65.1",
+    "browsers": {
+      "chromium": "Chrome 158.0.8127.36",
+      "firefox": "Firefox 159.0",
+      "webkit": "Playwright WebKit 27.2",
+      "electron": "Electron 45.4.1"
+    },
+    "editor": "Production dist on loopback, fresh profiles, 1460 x 960 CSS px. Packaged app from a read-only mount, tested via offscreen copy.",
+    "prototypeInputStandaloneViewport": [
+      390,
+      844
+    ],
+    "input": "Touch emulation in three web engines. The Mac package test uses mouse and keyboard."
+  },
+  "checks": {
+    "unit": {
+      "passed": 139,
+      "failed": 0,
+      "skipped": 0
+    },
+    "format": "pass",
+    "build": "pass",
+    "browserScenarios": {
+      "chromium": [
+        "color-profile",
+        "professional-editor",
+        "container-rules",
+        "mixed-materials",
+        "mixed-instances",
+        "keyboard-authoring",
+        "designer-delivery",
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "library-subscription",
+        "library-publish",
+        "component-properties",
+        "variant-authoring",
+        "canvas-component-set",
+        "nested-instances",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "inspector-layout",
+        "panel-dialogs",
+        "panel-parity",
+        "panel-gestures",
+        "panel-data-safety",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "prototype-input",
+        "images",
+        "image-paint",
+        "vector",
+        "vector-network",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "firefox": [
+        "image-paint",
+        "images",
+        "prototype-input",
+        "prototype",
+        "responsive-player",
+        "professional-editor",
+        "mask",
+        "cross-page",
+        "designer-delivery"
+      ],
+      "webkit": [
+        "image-paint",
+        "images",
+        "prototype-input",
+        "prototype",
+        "responsive-player",
+        "professional-editor",
+        "mask",
+        "cross-page",
+        "designer-delivery"
+      ],
+      "electron": [
+        "image-paint",
+        "prototype-input",
+        "images",
+        "prototype",
+        "responsive-player",
+        "professional-editor",
+        "mask",
+        "inspector-layout"
+      ]
+    },
+    "exportedProjectsInstalledBuiltAndOpened": {
+      "chromium": [
+        "color-profile",
+        "color-profile-srgb",
+        "vector-network",
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "image-paint",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "renamed-library",
+        "route-upgrade",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "prototype-input",
+        "cross",
+        "aura"
+      ],
+      "firefox": [
+        "image-paint",
+        "image",
+        "prototype-input",
+        "prototype",
+        "responsive-player",
+        "professional-editor",
+        "mask",
+        "cross"
+      ],
+      "webkit": [
+        "image-paint",
+        "image",
+        "prototype-input",
+        "prototype",
+        "responsive-player",
+        "professional-editor",
+        "mask",
+        "cross"
+      ],
+      "electron": [
+        "professional-editor"
+      ]
+    }
+  },
+  "imageAndPrototypeSamples": {
+    "chromium": {
+      "image-paint": {
+        "canvas": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            211,
+            211,
+            211
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "preview": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            211,
+            211,
+            211
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "formats": [
+          "svg",
+          "png"
+        ],
+        "tile": [
+          16,
+          8
+        ],
+        "restoredZoom": 1.5
+      },
+      "prototype-input": {
+        "touch": true,
+        "mouseHover": true,
+        "nestedKeyboard": true,
+        "restored": "件数 增加"
+      }
+    },
+    "firefox": {
+      "image-paint": {
+        "canvas": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            211,
+            211,
+            211
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "preview": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            211,
+            211,
+            211
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            46,
+            46,
+            46
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "formats": [
+          "svg",
+          "png"
+        ],
+        "tile": [
+          16,
+          8
+        ],
+        "restoredZoom": 1.5
+      },
+      "prototype-input": {
+        "touch": true,
+        "mouseHover": true,
+        "nestedKeyboard": true,
+        "restored": "件数 增加"
+      }
+    },
+    "webkit": {
+      "image-paint": {
+        "canvas": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            210,
+            210,
+            210
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "preview": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            210,
+            210,
+            210
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "formats": [
+          "svg",
+          "png"
+        ],
+        "tile": [
+          16,
+          8
+        ],
+        "restoredZoom": 1.5
+      },
+      "prototype-input": {
+        "touch": true,
+        "mouseHover": true,
+        "nestedKeyboard": true,
+        "restored": "件数 增加"
+      }
+    },
+    "electron": {
+      "image-paint": {
+        "canvas": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            211,
+            211,
+            211
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "preview": [
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            211,
+            211,
+            211
+          ],
+          [
+            255,
+            255,
+            255
+          ],
+          [
+            44,
+            44,
+            44
+          ],
+          [
+            255,
+            255,
+            255
+          ]
+        ],
+        "formats": [
+          "svg",
+          "png"
+        ],
+        "tile": [
+          16,
+          8
+        ],
+        "restoredZoom": 1.5
+      },
+      "prototype-input": {
+        "touch": false,
+        "mouseHover": true,
+        "nestedKeyboard": true,
+        "restored": "件数 增加"
+      }
+    }
+  },
+  "performance": {
+    "mixedInputs": {
+      "method": "ABBA order. Fresh Chrome per run. Same deterministic eight image fixtures with 96 edits. peakJsHeapBytes = maximum of 12 round-end usedJSHeapSize samples. Each run includes three editor reloads. 0.6.3 from DMG app.asar, 0.6.4 from production dist.",
+      "samples": [
+        {
+          "version": "0.6.3",
+          "images": 8,
+          "formats": [
+            [
+              2048,
+              2048,
+              "jpeg"
+            ],
+            [
+              3072,
+              1536,
+              "png"
+            ],
+            [
+              1536,
+              3072,
+              "webp"
+            ],
+            [
+              2560,
+              1440,
+              "jpeg"
+            ],
+            [
+              1280,
+              2560,
+              "png"
+            ],
+            [
+              4096,
+              1024,
+              "webp"
+            ],
+            [
+              1024,
+              4096,
+              "jpeg"
+            ],
+            [
+              1920,
+              1080,
+              "png"
+            ]
+          ],
+          "changes": 96,
+          "undoRedoPairs": 12,
+          "previewReloads": 3,
+          "peakJsHeapBytes": 1083211404,
+          "longestRoundMs": 1012,
+          "elapsedSeconds": 15
+        },
+        {
+          "version": "0.6.4",
+          "images": 8,
+          "formats": [
+            [
+              2048,
+              2048,
+              "jpeg"
+            ],
+            [
+              3072,
+              1536,
+              "png"
+            ],
+            [
+              1536,
+              3072,
+              "webp"
+            ],
+            [
+              2560,
+              1440,
+              "jpeg"
+            ],
+            [
+              1280,
+              2560,
+              "png"
+            ],
+            [
+              4096,
+              1024,
+              "webp"
+            ],
+            [
+              1024,
+              4096,
+              "jpeg"
+            ],
+            [
+              1920,
+              1080,
+              "png"
+            ]
+          ],
+          "changes": 96,
+          "undoRedoPairs": 12,
+          "previewReloads": 3,
+          "peakJsHeapBytes": 591910444,
+          "longestRoundMs": 977,
+          "elapsedSeconds": 15
+        },
+        {
+          "version": "0.6.4",
+          "images": 8,
+          "formats": [
+            [
+              2048,
+              2048,
+              "jpeg"
+            ],
+            [
+              3072,
+              1536,
+              "png"
+            ],
+            [
+              1536,
+              3072,
+              "webp"
+            ],
+            [
+              2560,
+              1440,
+              "jpeg"
+            ],
+            [
+              1280,
+              2560,
+              "png"
+            ],
+            [
+              4096,
+              1024,
+              "webp"
+            ],
+            [
+              1024,
+              4096,
+              "jpeg"
+            ],
+            [
+              1920,
+              1080,
+              "png"
+            ]
+          ],
+          "changes": 96,
+          "undoRedoPairs": 12,
+          "previewReloads": 3,
+          "peakJsHeapBytes": 608662704,
+          "longestRoundMs": 971,
+          "elapsedSeconds": 14
+        },
+        {
+          "version": "0.6.3",
+          "images": 8,
+          "formats": [
+            [
+              2048,
+              2048,
+              "jpeg"
+            ],
+            [
+              3072,
+              1536,
+              "png"
+            ],
+            [
+              1536,
+              3072,
+              "webp"
+            ],
+            [
+              2560,
+              1440,
+              "jpeg"
+            ],
+            [
+              1280,
+              2560,
+              "png"
+            ],
+            [
+              4096,
+              1024,
+              "webp"
+            ],
+            [
+              1024,
+              4096,
+              "jpeg"
+            ],
+            [
+              1920,
+              1080,
+              "png"
+            ]
+          ],
+          "changes": 96,
+          "undoRedoPairs": 12,
+          "previewReloads": 3,
+          "peakJsHeapBytes": 1159578670,
+          "longestRoundMs": 1031,
+          "elapsedSeconds": 15
+        }
+      ]
+    },
+    "largeDocument": {
+      "layer-tree": [
+        {
+          "count": 100,
+          "importMs": 56,
+          "selectMs": 90,
+          "mountedRows": 100,
+          "treeScroll": 1874,
+          "zoomMs": 68,
+          "dragMs": 126,
+          "nativeDownloadMs": 36,
+          "reactDownloadMs": 56,
+          "heapMiB": 21
+        },
+        {
+          "count": 1000,
+          "importMs": 79,
+          "selectMs": 61,
+          "mountedRows": 38,
+          "treeScroll": 25274,
+          "zoomMs": 54,
+          "dragMs": 127,
+          "nativeDownloadMs": 19,
+          "reactDownloadMs": 60,
+          "heapMiB": 16
+        },
+        {
+          "count": 10000,
+          "importMs": 462,
+          "selectMs": 88,
+          "mountedRows": 38,
+          "treeScroll": 259274,
+          "zoomMs": 58,
+          "dragMs": 224,
+          "nativeDownloadMs": 68,
+          "reactDownloadMs": 272,
+          "heapMiB": 51
+        }
+      ],
+      "complex": [
+        {
+          "layers": 259,
+          "boards": 4,
+          "vectors": 130,
+          "instances": 6,
+          "importMs": 147,
+          "dragSamplesMs": [
+            244,
+            238,
+            243,
+            241,
+            241,
+            241
+          ],
+          "dragP50": 241,
+          "dragP95": 244,
+          "rafSamples": 84,
+          "rafMax": 17,
+          "rafOver25ms": 0,
+          "rafP50": 17,
+          "rafP95": 17,
+          "heapMiB": 37
+        },
+        {
+          "layers": 8288,
+          "boards": 128,
+          "vectors": 4160,
+          "instances": 192,
+          "importMs": 1165,
+          "dragSamplesMs": [
+            246,
+            242,
+            241,
+            241,
+            235,
+            241
+          ],
+          "dragP50": 241,
+          "dragP95": 246,
+          "rafSamples": 84,
+          "rafMax": 17,
+          "rafOver25ms": 0,
+          "rafP50": 17,
+          "rafP95": 17,
+          "heapMiB": 123
+        }
+      ]
+    }
+  },
+  "desktopImage": {
+    "filename": "Forma-0.6.4-arm64.dmg",
+    "sha256": "de5854ccdae974452fa1ec26ccbe5a1951da73422b3632210e58814f16d35bc9",
+    "hdiutilVerify": "passed",
+    "codesignDeepStrict": "passed (ad hoc)"
+  },
+  "evidenceSha256": {
+    "image-paint-check.zip": "85753fdd99010d71e37a4e5e2694ed8382d6b439699544abf1278f18ffc64290",
+    "image-paint-panel.png": "2ef551292c4333552a5dde55fb8fc7ad29f6bc954048f5a5fed3785f02ad5c61",
+    "image-paint.forma.json": "3287c9d7f47e89e4c489f1f9e5a162934ed5c39606880997ce1349f42cb0a080",
+    "image-paint.png": "80380240fc5aa9fda47548b339c052d836906247c6084118e9cc8863c32e0883",
+    "image-paint.svg": "3567fb30046beb99753c3970363f8eea415a2b4d86cf02f85c8d1c008714871d",
+    "prototype-input-check.zip": "cd0fb976f0419723a78c9c7871249671a3ef06f940a6aa15558a1329bc249c83",
+    "prototype-input.forma.json": "28d2e211cfc50dd5cd257ef5308101463ea784ba877cdc0da8912bacf827a1c6"
+  }
+}

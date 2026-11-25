@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>Forma AI 生成引擎 V1 vs V2 同模型同题代际对比（DeepSeek-V4.1-Flash）</title>
+<style>
+  body { margin: 0; padding: 28px; background: #090b10; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p.sub { color: #94a3b8; font-size: 13px; margin: 0 0 22px; }
+  .grid { display: grid; grid-template-columns: repeat(5, 280px); gap: 18px; align-items: start; }
+  .card { background: #131720; border: 1px solid #262f42; border-radius: 14px; padding: 12px; }
+  .card.v2 { border-color: #38bdf888; box-shadow: 0 0 0 1px #38bdf822; }
+  .card.v2best { border-color: #f5b942bb; box-shadow: 0 0 0 1px #f5b94233; }
+  .tag { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 600; margin-bottom: 6px; }
+  .tag.old { background: #334155; color: #cbd5e1; }
+  .tag.new { background: #0c4a6e; color: #7dd3fc; }
+  .tag.gold { background: #451a03; color: #fcd34d; }
+  .card h2 { font-size: 12.5px; line-height: 1.4; margin: 0 0 8px; min-height: 36px; }
+  .card img { width: 100%; border-radius: 10px; border: 1px solid #2b3448; display: block; background: #0f172a; }
+  .meta { margin-top: 8px; font-size: 11px; color: #94a3b8; line-height: 1.55; }
+  .meta b { color: #f8fafc; }
+</style>
+</head>
+<body>
+  <h1>Forma AI 生成引擎 V1 → V2 代际飞跃实拍对比（同一 DeepSeek-V4.1-Flash 模型 · 同一咖啡 H5 题目）</h1>
+  <p class="sub">所有画板均在 Forma 编辑器内以原生可编辑图层 100% 实拍（非 HTML 截图）：证明 HTML-to-Forma 编译后的真实图片、Lucide 矢量图标与 AutoLayout 均可手改与单步撤销</p>
+  <div class="grid">
+    <div class="card">
+      <span class="tag old">V1 旧架构 · 纯文本</span>
+      <h2>V1-A · 专有 JSON 盲画基线</h2>
+      <img src="../ai-benchmark/A-text-only.png" />
+      <div class="meta"><b>0</b> 实景摄影 · <b>0</b> 矢量图标<br/>纯色渐变块占位 + 圆点/白块假图标</div>
+    </div>
+    <div class="card v2">
+      <span class="tag new">V2 新架构 · 纯文本</span>
+      <h2>V2-A · 纯文本 HTML-First + 摄影 + Lucide + 自审</h2>
+      <img src="V2-A-text-html-first.png" />
+      <div class="meta"><b>130</b> 原生层 · AutoLayout <b>78%</b><br/>真实摄影 <b>3</b> 层 · 矢量图标 <b>19</b> 枚 · 毛玻璃 <b>6</b> 层</div>
+    </div>
+    <div class="card">
+      <span class="tag old">V1 旧架构 · 最佳方案</span>
+      <h2>V1-D · 参考图 + 社区 Skill（旧蓝图）</h2>
+      <img src="../ai-benchmark/D-image-plus-oss-and-forma-skills.png" />
+      <div class="meta"><b>0</b> 实景摄影 · <b>0</b> Lucide 图标<br/>底栏纯文字无图标，豆单卡为纯色渐变方块</div>
+    </div>
+    <div class="card v2">
+      <span class="tag new">V2 初稿 · 自审前</span>
+      <h2>V2-B 初稿 · HTML-First + 摄影 + 图标</h2>
+      <img src="V2-B-image-skills-html-first-draft.png" />
+      <div class="meta"><b>113</b> 原生层 · AutoLayout <b>82%</b><br/>真实摄影 <b>3</b> 层 · 矢量图标 <b>14</b> 枚</div>
+    </div>
+    <div class="card v2best">
+      <span class="tag gold">V2 终稿 · 视觉自审精修后</span>
+      <h2>V2-B 终稿 · 截屏回喂自审后（已精修）</h2>
+      <img src="V2-B-image-skills-html-first.png" />
+      <div class="meta"><b>127</b> 原生层 · AutoLayout <b>80%</b><br/>真实摄影 <b>3</b> 层 · 矢量图标 <b>14</b> 枚 · 毛玻璃 <b>4</b> 层</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+{
+  "sourceSha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+  "sourceBytes": 207834444,
+  "testedStructure": {
+    "unsupportedStyleDefinitions": 0,
+    "mismatchedVariableDefinitions": 0,
+    "missingSourceFonts": 0,
+    "missingSourcePngHashes": 0,
+    "expanded": 44969,
+    "types": {
+      "frame": 22769,
+      "rectangle": 2535,
+      "text": 14012,
+      "group": 1060,
+      "vector": 3691,
+      "ellipse": 902
+    },
+    "linkedInstances": 4798,
+    "duplicateIds": 0,
+    "missingParents": 0,
+    "invalidInstanceRef": 0,
+    "masterDefinitions": 1919,
+    "sharedStyles": 194,
+    "variables": 111,
+    "images": 156,
+    "fonts": 5,
+    "issues": 5589,
+    "sourceNodes": 13914,
+    "sha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+    "mismatches": {
+      "missing": 0,
+      "parent": 0,
+      "name": 0,
+      "text": 0,
+      "master": 0,
+      "instanceTarget": 0,
+      "siblingOrders": 0
+    },
+    "pages": 36
+  },
+  "sourceResources": {
+    "localLayerStyles": 42,
+    "localTextStyles": 105,
+    "foreignTextStyles": 13,
+    "localSwatches": 107,
+    "foreignSwatches": 4,
+    "unmodifiedPngs": 155,
+    "pdfMappedToTransparentPng": {
+      "sourcePdfPages": 1,
+      "convertedSize": [
+        48,
+        48
+      ]
+    },
+    "unmodifiedEmbeddedFonts": 5
+  },
+  "proposedVisualGate": {
+    "maximumChannelDelta": 16,
+    "maximumPercentAboveDelta": 0.5,
+    "testedScreens": 6,
+    "screensPassing": 2
+  },
+  "engines": [
+    {
+      "engine": "chromium",
+      "browser": "158.0.8127.36",
+      "servedEntry": "/assets/index-DF7MHMko.js",
+      "servedEntrySha256": "8125b0bd269682c7f5cebc10a751fcac1a0dd8acf647bd4d1566e0cb779bfe4e",
+      "servedWorker": "/assets/worker-Diapw93b.js",
+      "servedWorkerSha256": "30797e12251f6f73b7b05ff5abe9cf410b3e53a0f3c9ec82413c47c290302ff8",
+      "analysisMs": 11452,
+      "saveAndOpenMs": 8497,
+      "reloadMs": 5879,
+      "cleanProfileNativeOpenMs": 13276,
+      "portableBytes": 359586987,
+      "browserErrors": [],
+      "phases": [
+        "review",
+        "new-file",
+        "reload",
+        "portable-open-in-clean-profile",
+        "six-source-comparisons",
+        "unicode-master-rename-and-undo",
+        "full-project-downloaded"
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "159.0",
+      "servedEntry": "/assets/index-DF7MHMko.js",
+      "servedEntrySha256": "8125b0bd269682c7f5cebc10a751fcac1a0dd8acf647bd4d1566e0cb779bfe4e",
+      "servedWorker": "/assets/worker-Diapw93b.js",
+      "servedWorkerSha256": "30797e12251f6f73b7b05ff5abe9cf410b3e53a0f3c9ec82413c47c290302ff8",
+      "analysisMs": 12542,
+      "saveAndOpenMs": 12274,
+      "reloadMs": 8479,
+      "cleanProfileNativeOpenMs": 19601,
+      "portableBytes": 359567981,
+      "browserErrors": [],
+      "phases": [
+        "review",
+        "new-file",
+        "reload",
+        "portable-open-in-clean-profile",
+        "unicode-master-rename-and-undo"
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "27.2",
+      "servedEntry": "/assets/index-DF7MHMko.js",
+      "servedEntrySha256": "8125b0bd269682c7f5cebc10a751fcac1a0dd8acf647bd4d1566e0cb779bfe4e",
+      "servedWorker": "/assets/worker-Diapw93b.js",
+      "servedWorkerSha256": "30797e12251f6f73b7b05ff5abe9cf410b3e53a0f3c9ec82413c47c290302ff8",
+      "analysisMs": 11012,
+      "saveAndOpenMs": 6058,
+      "reloadMs": 3789,
+      "cleanProfileNativeOpenMs": 9480,
+      "portableBytes": 359578887,
+      "browserErrors": [],
+      "phases": [
+        "review",
+        "new-file",
+        "reload",
+        "portable-open-in-clean-profile",
+        "unicode-master-rename-and-undo"
+      ]
+    }
+  ],
+  "releaseArtifacts": {
+    "portableSha256": "62988b1b5d67eafbd33ad7a56586ef2be5fc674bb63a0e1f8f9986c17bbd7a42",
+    "bytes": 359586987,
+    "reactProject": {
+      "exportMs": 21882,
+      "zipBytes": 357131418,
+      "entryScreen": "74C0D863-BCC3-493B-A6B3-1C0BCA50C124",
+      "sha256": "1c58a2e8992629e71f72f05f6409727cacce6007963db67d9c7a1eb340590c8c"
+    }
+  }
+}

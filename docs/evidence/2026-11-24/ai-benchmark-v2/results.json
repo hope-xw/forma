@@ -1,0 +1,311 @@
+{
+  "timestamp": "2026-11-24T10:36:46.332Z",
+  "model": "deepseek-flash",
+  "modelLabel": "deepseek-flash (DeepSeek-V4.1-Flash)",
+  "scenarios": [
+    {
+      "key": "V2-A-text-html-first",
+      "title": "V2-A · 纯文本（HTML-First + 真实摄影 + Lucide 图标 + 视觉自审）",
+      "draftElapsedMs": 98032,
+      "critiqueElapsedMs": 66010,
+      "totalElapsedMs": 164042,
+      "improvedByCritique": true,
+      "critiqueNotes": [
+        "已按 8pt 网格与对比度要求重排版式，共 4 处关键修正：",
+        "主视觉压字对比：光环（白奶油奶泡）正好落在「花雾」标题后，白色宋体几乎失焦——加厚 46%–70% 区间的底部渐变、叠加左上深色斜向洗色，并给标题/描述补 0.35–0.5 的黑投影，同时把 object-position 调到 42%/38% 把亮面推离左侧文字区。",
+        "修复胶囊导航「被切断」的 bug 感：该行改为负边距贴齐屏幕两侧（-20px），并加右端 55px 渐隐遮罩，使半截胶囊读作「可横向滑动」而非裁切错误。",
+        "尺寸归位到 8pt：顶栏 40 / 搜索 44 / 胶囊 36 / 卡片图 124 / 加购按钮 32 / 标签 20，修正原来 34·38·27 混排的抖动；内容底边收在 736px，底部栏上方留 24px 呼吸空间，杜绝被 Tabbar 遮挡。",
+        "卡片与表面收口：卡片改为等高弹性布局（价格行 margin-top:auto 对齐）、加购按钮居中于价格基线，圆角 20/发丝边框/内高光统一；文案补真实产区「阿卡特南戈」。"
+      ],
+      "draftMetrics": {
+        "rootId": "html-0-1",
+        "layerCount": 130,
+        "autoLayoutContainers": 50,
+        "totalContainers": 64,
+        "autoLayoutRatio": 78,
+        "textLayers": 44,
+        "vectorIcons": 19,
+        "imageLayers": 3,
+        "embeddedImages": 3,
+        "glassLayers": 6,
+        "shadowLayers": 24,
+        "lintBreakdown": {
+          "lowContrast": 21,
+          "outOfBounds": 5,
+          "overlap": 5,
+          "emptyText": 0,
+          "unboundColor": 64
+        }
+      },
+      "finalMetrics": {
+        "rootId": "html-0-1",
+        "layerCount": 130,
+        "autoLayoutContainers": 50,
+        "totalContainers": 64,
+        "autoLayoutRatio": 78,
+        "textLayers": 44,
+        "vectorIcons": 19,
+        "imageLayers": 3,
+        "embeddedImages": 3,
+        "glassLayers": 6,
+        "shadowLayers": 24,
+        "lintBreakdown": {
+          "lowContrast": 12,
+          "outOfBounds": 6,
+          "overlap": 5,
+          "emptyText": 0,
+          "unboundColor": 65
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 4784
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2956
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2687
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 315
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 349
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 3489
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "propose_html_design",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2497
+        }
+      ],
+      "critiqueToolTrace": [
+        {
+          "name": "propose_html_design",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 14
+        }
+      ],
+      "activatedSkills": [],
+      "draftScreenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-V2-A-text-html-first-draft.png",
+      "finalScreenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-V2-A-text-html-first.png"
+    },
+    {
+      "key": "V2-B-image-skills-html-first",
+      "title": "V2-B · 参考图 + 社区 Skill（HTML-First + 真实摄影 + Lucide + 视觉自审）",
+      "draftElapsedMs": 146824,
+      "critiqueElapsedMs": 47170,
+      "totalElapsedMs": 193994,
+      "improvedByCritique": true,
+      "critiqueNotes": [
+        "把主视觉修回「可交付」状态：截图中主视觉的标签、衬线大标题与金色按钮全部消失，是入场动画 `@keyframes rise`（from opacity:0 + fill both）在静态渲染时未播放导致的——已移除所有透明度入场动画，改为纯静态确定性渲染，文字与 CTA 现在稳定可见。",
+        "其余三处：①风味胶囊行原来 6 个胶囊宽度超出一屏，「茶感」被右边缘切掉，已压缩到 12px 字号 / 11px 内距 / 6px 间距，350px 内容宽内完整收口；②两款豆卡统一为 110px 高、12px 内距、86px 缩略图，正文四行按 4~5px 节奏重排，价格与加号改为垂直居中对齐，第一张的「本周上新」徽标收窄不再挤压产区名；③主视觉重做顶部/底部双层遮罩（顶部 0.55 压暗、底部 0.95 收口）+ 内嵌 1px 高光环，并给底部导航上方加一条 88px 渐隐纱幕，让悬浮玻璃底栏与豆卡之间有干净的过渡，同时把搜索占位文字提亮到 #8B939D 提升对比。"
+      ],
+      "draftMetrics": {
+        "rootId": "html-0-1",
+        "layerCount": 113,
+        "autoLayoutContainers": 51,
+        "totalContainers": 62,
+        "autoLayoutRatio": 82,
+        "textLayers": 34,
+        "vectorIcons": 14,
+        "imageLayers": 3,
+        "embeddedImages": 3,
+        "glassLayers": 4,
+        "shadowLayers": 13,
+        "lintBreakdown": {
+          "lowContrast": 0,
+          "outOfBounds": 6,
+          "overlap": 3,
+          "emptyText": 0,
+          "unboundColor": 81
+        }
+      },
+      "finalMetrics": {
+        "rootId": "html-0-1",
+        "layerCount": 127,
+        "autoLayoutContainers": 56,
+        "totalContainers": 70,
+        "autoLayoutRatio": 80,
+        "textLayers": 40,
+        "vectorIcons": 14,
+        "imageLayers": 3,
+        "embeddedImages": 3,
+        "glassLayers": 4,
+        "shadowLayers": 16,
+        "lintBreakdown": {
+          "lowContrast": 0,
+          "outOfBounds": 3,
+          "overlap": 4,
+          "emptyText": 0,
+          "unboundColor": 90
+        }
+      },
+      "toolTrace": [
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2832
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2955
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 4129
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 3151
+        },
+        {
+          "name": "search_stock_images",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2620
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 0
+        },
+        {
+          "name": "search_icons",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 1
+        },
+        {
+          "name": "propose_html_design",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 2224
+        }
+      ],
+      "critiqueToolTrace": [
+        {
+          "name": "propose_html_design",
+          "status": "ok",
+          "summary": "已完成",
+          "durationMs": 13
+        }
+      ],
+      "activatedSkills": [
+        "frontend-design",
+        "ui-ux-pro-max",
+        "better-colors"
+      ],
+      "draftScreenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-V2-B-image-skills-html-first-draft.png",
+      "finalScreenshot": "/Users/bighope/.gemini/antigravity/brain/33edea79-ae61-4228-9264-44bf8893b96f/benchmark-V2-B-image-skills-html-first.png"
+    }
+  ],
+  "editabilityCheck": {
+    "tested": true,
+    "document": "V2-B-image-skills-html-first.forma.json",
+    "nodeId": "html-0-74",
+    "nodeName": "粉红波旁",
+    "origText": "粉红波旁",
+    "editedText": "粉红波旁 · V2 手改实测",
+    "undoneText": "粉红波旁",
+    "editSucceeded": true,
+    "undoSucceeded": true
+  }
+}

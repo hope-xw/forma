@@ -1,0 +1,5489 @@
+{
+  "version": "0.5.0",
+  "date": "2026-11-20",
+  "platform": "27.2.1 arm64",
+  "build": true,
+  "format": true,
+  "unit": {
+    "passed": 122,
+    "skipped": 0
+  },
+  "browserVersions": {
+    "chromium": "158.0.8127.36",
+    "webkit": "27.2",
+    "firefox": "159.0"
+  },
+  "browsers": {
+    "chromium": {
+      "editor": [
+        {
+          "check": "professional-editor",
+          "result": {
+            "sizes": [
+              [
+                375,
+                0,
+                164,
+                375,
+                56
+              ],
+              [
+                390,
+                0,
+                164,
+                390,
+                56
+              ],
+              [
+                768,
+                252,
+                164,
+                516,
+                56
+              ],
+              [
+                1024,
+                252,
+                164,
+                772,
+                56
+              ],
+              [
+                1440,
+                252,
+                164,
+                1188,
+                56
+              ]
+            ],
+            "mask": [
+              "alpha",
+              "luminance"
+            ],
+            "variableFont": true
+          }
+        },
+        {
+          "check": "container-rules",
+          "result": {
+            "widths": [
+              {
+                "width": 375,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  359,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 359,
+                "tileGap": 9
+              },
+              {
+                "width": 390,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  374,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 374,
+                "tileGap": 9
+              },
+              {
+                "width": 768,
+                "cols": 2,
+                "pad": 16,
+                "radius": 12,
+                "opacity": 0.8,
+                "fill": "rgb(102, 119, 136)",
+                "innerOpacity": 1,
+                "row": 12,
+                "gap": 12,
+                "next": [
+                  390,
+                  16,
+                  362,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 362,
+                "tileGap": 9
+              },
+              {
+                "width": 1024,
+                "cols": 4,
+                "pad": 24,
+                "radius": 0,
+                "opacity": 1,
+                "fill": "rgb(255, 255, 255)",
+                "innerOpacity": 0.6,
+                "row": 12,
+                "gap": 16,
+                "next": [
+                  272,
+                  24,
+                  232,
+                  60
+                ],
+                "inner": [
+                  15,
+                  3,
+                  10,
+                  24
+                ],
+                "tileWidth": 232,
+                "tileGap": 2
+              },
+              {
+                "width": 1440,
+                "cols": 4,
+                "pad": 24,
+                "radius": 0,
+                "opacity": 1,
+                "fill": "rgb(255, 255, 255)",
+                "innerOpacity": 1,
+                "row": 12,
+                "gap": 16,
+                "next": [
+                  376,
+                  24,
+                  336,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 336,
+                "tileGap": 9
+              },
+              {
+                "width": 390,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  374,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 374,
+                "tileGap": 9
+              }
+            ],
+            "secondPage": "rgb(51, 34, 17)"
+          }
+        },
+        {
+          "check": "mixed-materials",
+          "result": {
+            "gradientAlpha": [
+              0.25,
+              0.75
+            ],
+            "stroke": [
+              3,
+              1
+            ],
+            "independentShadows": true,
+            "undo": 4
+          }
+        },
+        {
+          "check": "mixed-instances",
+          "result": {
+            "instances": 2,
+            "independentAxes": [
+              [
+                "Light",
+                "On",
+                "Disabled"
+              ],
+              [
+                "Dark",
+                "Off",
+                "Disabled"
+              ]
+            ],
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "keyboard-authoring",
+          "result": {
+            "input": "keyboard only",
+            "layers": 2,
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "designer-delivery",
+          "result": {
+            "samples": [
+              [
+                375,
+                104,
+                112
+              ],
+              [
+                390,
+                104,
+                112
+              ],
+              [
+                768,
+                108,
+                120
+              ],
+              [
+                1024,
+                108,
+                120
+              ],
+              [
+                1440,
+                108,
+                120
+              ]
+            ],
+            "verified": "designer edit, undo, reopen, update, conflict and preview"
+          }
+        },
+        {
+          "check": "aura",
+          "result": {
+            "theme": "Cloud Light",
+            "mobileFlow": true,
+            "navigation": "marketing → workspace → overlay → workspace → marketing"
+          }
+        },
+        {
+          "check": "editing-workflow",
+          "result": {
+            "mixedChannels": [
+              "rgba(18, 52, 86, 0.4)",
+              "rgba(21, 103, 137, 0.8)"
+            ],
+            "span": [
+              210,
+              220,
+              50
+            ],
+            "compactWidth": 721,
+            "disabledCommand": true
+          }
+        },
+        {
+          "check": "atlas",
+          "result": {
+            "pages": 4,
+            "mapFlow": true,
+            "phoneFlow": true,
+            "shareOverlay": true,
+            "brandInHeader": true
+          }
+        },
+        {
+          "check": "cross-page",
+          "result": {
+            "navigate": "Web → Mobile",
+            "overlay": "Mobile → Overlays",
+            "back": "Web"
+          }
+        },
+        {
+          "check": "responsive-player",
+          "result": {
+            "fluidWidths": [
+              375,
+              390,
+              768,
+              1024,
+              1440
+            ],
+            "anchored": true,
+            "fixedTarget": 300
+          }
+        },
+        {
+          "check": "shapes",
+          "result": {
+            "starPoints": 7,
+            "innerRadius": 0.3,
+            "polygonSides": 6,
+            "snappedLine": true,
+            "undoRestoredParameters": true
+          }
+        },
+        {
+          "check": "smart-selection",
+          "result": {
+            "initial": {
+              "A": [
+                18,
+                21
+              ],
+              "B": [
+                99,
+                16
+              ],
+              "C": [
+                178,
+                24
+              ],
+              "D": [
+                21,
+                96
+              ],
+              "E": [
+                101,
+                103
+              ],
+              "F": [
+                178,
+                95
+              ]
+            },
+            "grid": {
+              "A": [
+                18,
+                16
+              ],
+              "B": [
+                95.5,
+                16
+              ],
+              "C": [
+                173,
+                16
+              ],
+              "D": [
+                18,
+                87
+              ],
+              "E": [
+                95.5,
+                87
+              ],
+              "F": [
+                173,
+                87
+              ]
+            },
+            "horizontalGap": 30,
+            "verticalGapAfterDrag": 45,
+            "reordered": true,
+            "deleteAndUndo": true
+          }
+        },
+        {
+          "check": "wires",
+          "result": {
+            "drawn": "Home → Detail",
+            "retargetedOverlay": "Sheet",
+            "anchor": "bottom",
+            "keyboard": true,
+            "undo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "optional-gateway",
+          "result": {
+            "modelRequests": 0,
+            "manualEditor": true
+          }
+        },
+        {
+          "check": "library-tokens",
+          "result": {
+            "linkedRevision": {
+              "originalWidth": 64,
+              "updatedWidth": 88,
+              "keptName": true,
+              "undo": true
+            },
+            "exportedAndReimported": true,
+            "light": "#0066ff",
+            "dark": "#ff7733",
+            "saved": true
+          }
+        },
+        {
+          "check": "library-subscription",
+          "result": {
+            "networkRequests": 4,
+            "selectiveUpdate": true,
+            "conflict": "kept local size 22",
+            "offline": true,
+            "unsubscribed": true
+          }
+        },
+        {
+          "check": "library-publish",
+          "result": {
+            "publish": true,
+            "service": "team",
+            "deniedInvalidToken": true,
+            "consumers": [
+              "库存 12",
+              "已送达"
+            ],
+            "oldPublicName": "标签",
+            "newPublicName": "业务标签",
+            "discovery": true,
+            "updatedInstance": true,
+            "undo": true
+          }
+        },
+        {
+          "check": "component-properties",
+          "result": {
+            "text": "设计师覆盖",
+            "iconHidden": true,
+            "swapped": true,
+            "mixedInstances": 2,
+            "undo": true
+          }
+        },
+        {
+          "check": "variant-authoring",
+          "result": {
+            "variants": 3,
+            "axes": [
+              "State",
+              "尺寸"
+            ],
+            "override": "待发送",
+            "width": 232,
+            "uniqueCombinations": true,
+            "reopened": true,
+            "crossFile": true,
+            "combinedExistingDrawings": true
+          }
+        },
+        {
+          "check": "nested-instances",
+          "result": {
+            "exposedNestedSwap": true,
+            "forwardedLevels": 3,
+            "retainedTitle": true,
+            "updatedFromNestedMaster": true,
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "size-limits",
+          "result": {
+            "at600": [
+              100,
+              320,
+              180
+            ],
+            "at720": [
+              100,
+              320,
+              300
+            ],
+            "afterClear": [
+              100,
+              310,
+              310
+            ]
+          }
+        },
+        {
+          "check": "strokes",
+          "result": [
+            {
+              "x": 230,
+              "y": 18,
+              "border": 12,
+              "outline": 0,
+              "offset": 0
+            },
+            {
+              "x": 230,
+              "y": 18,
+              "border": 6,
+              "outline": 12,
+              "offset": -6
+            },
+            {
+              "x": 230,
+              "y": 18,
+              "border": 0,
+              "outline": 12,
+              "offset": 0
+            }
+          ]
+        },
+        {
+          "check": "files",
+          "result": {
+            "originalCount": 12,
+            "switchedTwice": true,
+            "separateContents": true
+          }
+        },
+        {
+          "check": "storage",
+          "result": {
+            "reopened": true,
+            "recovered": true,
+            "staleTab": "preserved winning revision"
+          }
+        },
+        {
+          "check": "studio",
+          "result": {
+            "editSamplesMs": [
+              60,
+              43,
+              26,
+              48,
+              26,
+              72,
+              27,
+              43
+            ],
+            "checked": [
+              "编辑并保存坐标",
+              "返回页面保留缩放",
+              "622层独立复制",
+              "改名",
+              "删除与撤销",
+              "新增空页",
+              "刷新恢复"
+            ],
+            "runtimeErrors": []
+          }
+        },
+        {
+          "check": "editor-panels",
+          "result": {
+            "checks": [
+              "滚轮只滚动图层树，页面、搜索和画布固定",
+              "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+              "图层菜单按组选取排列命令",
+              "键盘进入子菜单",
+              "右侧填充顺序可交换",
+              "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+              "长属性面板单独滚动且标题保持可见",
+              "刷新保留属性",
+              "480px 高度菜单仍完整可见",
+              "没有浏览器运行异常"
+            ],
+            "before": {
+              "left": 0,
+              "tree": 0,
+              "pages": 88,
+              "search": 264,
+              "canvas": 258.98919677734375
+            },
+            "after": {
+              "left": 0,
+              "tree": 850,
+              "pages": 88,
+              "search": 264,
+              "canvas": 258.98919677734375
+            },
+            "css": [
+              "47px",
+              "multiply",
+              "dashed",
+              "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+            ]
+          }
+        },
+        {
+          "check": "sizing",
+          "result": {
+            "before": {
+              "board": [
+                436,
+                70
+              ],
+              "card": [
+                200,
+                46
+              ],
+              "leaf": [
+                184,
+                30
+              ],
+              "tile": [
+                200,
+                12
+              ]
+            },
+            "after": {
+              "board": [
+                536,
+                70
+              ],
+              "card": [
+                250,
+                46
+              ],
+              "leaf": [
+                234,
+                30
+              ],
+              "tile": [
+                250,
+                12
+              ]
+            },
+            "preview": "matched",
+            "fixed": 250
+          }
+        },
+        {
+          "check": "wrap",
+          "result": [
+            [
+              [
+                0,
+                0,
+                320,
+                158
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                10,
+                112,
+                96,
+                36
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                228,
+                158
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                10,
+                112,
+                96,
+                36
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                380,
+                108
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                216,
+                10,
+                96,
+                36
+              ]
+            ]
+          ]
+        },
+        {
+          "check": "responsive",
+          "result": [
+            {
+              "board": [
+                0,
+                0,
+                375,
+                400
+              ],
+              "badge": [
+                295,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                335,
+                340
+              ],
+              "cell0": [
+                30,
+                40,
+                315,
+                40
+              ],
+              "cell1": [
+                30,
+                90,
+                315,
+                42
+              ],
+              "cell5": [
+                30,
+                310,
+                315,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                390,
+                400
+              ],
+              "badge": [
+                310,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                350,
+                178
+              ],
+              "cell0": [
+                30,
+                40,
+                160,
+                40
+              ],
+              "cell1": [
+                200,
+                40,
+                160,
+                42
+              ],
+              "cell5": [
+                200,
+                148,
+                160,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                768,
+                400
+              ],
+              "badge": [
+                688,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                728,
+                126
+              ],
+              "cell0": [
+                30,
+                40,
+                170,
+                40
+              ],
+              "cell1": [
+                210,
+                40,
+                170,
+                42
+              ],
+              "cell5": [
+                210,
+                96,
+                170,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                1024,
+                400
+              ],
+              "badge": [
+                944,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                984,
+                128
+              ],
+              "cell0": [
+                30,
+                40,
+                185,
+                40
+              ],
+              "cell1": [
+                225,
+                40,
+                185,
+                42
+              ],
+              "cell5": [
+                30,
+                98,
+                185,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                1440,
+                400
+              ],
+              "badge": [
+                1360,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                1400,
+                70
+              ],
+              "cell0": [
+                30,
+                40,
+                222,
+                40
+              ],
+              "cell1": [
+                262,
+                40,
+                222,
+                42
+              ],
+              "cell5": [
+                1188,
+                40,
+                222,
+                50
+              ]
+            }
+          ]
+        },
+        {
+          "check": "prototype",
+          "result": {
+            "conditional": [
+              "Sheet",
+              "Detail"
+            ],
+            "keyboard": "Enter/Escape",
+            "back": "Home",
+            "flowSwitch": true
+          }
+        },
+        {
+          "check": "images",
+          "result": {
+            "id": "95afa645-92f0-4414-9b4d-319acc99ca54",
+            "asset": "240x120",
+            "zoom": 1.6,
+            "x": 75
+          }
+        },
+        {
+          "check": "vector",
+          "result": {
+            "anchors": 5,
+            "rotated": 120,
+            "selectionError": 0.02325439453125,
+            "matrix": "matrix(-0.798636, -0.601815, -0.601815, 0.798636, 0, 0)",
+            "path": "M1 47.70504 C1 47.70504 49.82492 1 69.82492 1 C79.82492 1 90.86868 13.17626 99.41245 25.35252 C107.95622 37.52878 113.99998 49.70504 113.99998 49.70504 L76 92.70504 Z"
+          }
+        },
+        {
+          "check": "booleans",
+          "result": {
+            "modes": [
+              "union",
+              "subtract",
+              "intersect",
+              "exclude"
+            ],
+            "editableOperand": true,
+            "flattenUndo": true,
+            "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+          }
+        },
+        {
+          "check": "rich-text",
+          "result": {
+            "text": "设计工具 Studio",
+            "width": 152,
+            "height": 42,
+            "parts": [
+              [
+                "设计",
+                "700",
+                "30px",
+                "underline"
+              ],
+              [
+                "工具 Studio",
+                "400",
+                "18px",
+                "none"
+              ]
+            ],
+            "localFont": [
+              "设",
+              "serif",
+              "600"
+            ]
+          }
+        },
+        {
+          "check": "mask",
+          "result": {
+            "hit": [
+              true,
+              false
+            ],
+            "curve": "path(\"M 20 70 C 20 42.3858 36.7893 20 57.5 20 C 78.2107 20 95 42.3858 95 70 C 95 97.6142 78.2107 120 57.5 120 C 36.7893 120 20 97.6142 20 70 Z\")",
+            "released": true,
+            "selectedCoveredLayer": true
+          }
+        },
+        {
+          "check": "guides",
+          "result": {
+            "coordinate": 58,
+            "pageIsolation": true,
+            "restored": true,
+            "removedByDrag": true
+          }
+        },
+        {
+          "check": "asset-import",
+          "result": {
+            "paths": [
+              {
+                "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+                "fill": "#1166ff",
+                "opacity": "1",
+                "width": "0",
+                "join": "miter"
+              },
+              {
+                "d": "M16 56L48 16 40 56Z",
+                "fill": "#ffaa11",
+                "opacity": "0.65",
+                "width": "6",
+                "join": "bevel"
+              }
+            ],
+            "unsupportedRejected": true,
+            "clipboard": true,
+            "rasterDropUndo": true
+          }
+        }
+      ],
+      "rebuiltDownloadedProjects": [
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "renamed-library",
+        "route-upgrade",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "artboards": [
+        {
+          "engine": "chromium",
+          "id": "mkt-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 2120,
+            "differentPixels": 163658,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 11
+          },
+          "canvasToPreview": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "mkt-mobile",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 980,
+            "differentPixels": 10550,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 1
+          },
+          "canvasToPreview": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "ws-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 900,
+            "differentPixels": 4801,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 3
+          },
+          "canvasToPreview": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "ws-deploy-modal",
+          "previewProjectPixels": {
+            "width": 440,
+            "height": 410,
+            "differentPixels": 1585,
+            "over16": 3,
+            "over16Pct": 0.002,
+            "maxChannelDelta": 56
+          },
+          "canvasToPreview": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 130493,
+            "over16": 9,
+            "over16Pct": 0.001,
+            "maxChannelDelta": 42
+          },
+          "canvasToPreview": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 124,
+            "over16": 12,
+            "over16Pct": 0.001,
+            "maxChannelDelta": 23
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 131,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 7
+          },
+          "canvasToPreview": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 121,
+            "over16": 8,
+            "over16Pct": 0.001,
+            "maxChannelDelta": 19
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 40,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 14
+          },
+          "canvasToPreview": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+          "previewProjectPixels": {
+            "width": 402,
+            "height": 730,
+            "differentPixels": 132,
+            "over16": 8,
+            "over16Pct": 0.003,
+            "maxChannelDelta": 23
+          },
+          "canvasToPreview": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 15,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 19
+          },
+          "canvasToPreview": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 13,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 19
+          },
+          "canvasToPreview": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 817,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 20
+          },
+          "canvasToPreview": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 286,
+            "over16": 12,
+            "over16Pct": 0.004,
+            "maxChannelDelta": 20
+          },
+          "canvasToPreview": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "77f272c8-b198-4143-922d-44014c89e546",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 394553,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 9
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 392715,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 9
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-tablet-root",
+          "previewProjectPixels": {
+            "width": 1180,
+            "height": 820,
+            "differentPixels": 26,
+            "over16": 1,
+            "over16Pct": 0,
+            "maxChannelDelta": 57
+          },
+          "canvasToPreview": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-phone-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 37,
+            "over16": 1,
+            "over16Pct": 0,
+            "maxChannelDelta": 50
+          },
+          "canvasToPreview": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-note-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "chromium",
+          "id": "atlas-sheet-root",
+          "previewProjectPixels": {
+            "width": 348,
+            "height": 246,
+            "differentPixels": 2,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 1
+          },
+          "canvasToPreview": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        }
+      ]
+    },
+    "webkit": {
+      "editor": [
+        {
+          "check": "professional-editor",
+          "result": {
+            "sizes": [
+              [
+                375,
+                0,
+                164,
+                375,
+                56
+              ],
+              [
+                390,
+                0,
+                164,
+                390,
+                56
+              ],
+              [
+                768,
+                252,
+                164,
+                516,
+                56
+              ],
+              [
+                1024,
+                252,
+                164,
+                772,
+                56
+              ],
+              [
+                1440,
+                252,
+                164,
+                1188,
+                56
+              ]
+            ],
+            "mask": [
+              "alpha",
+              "luminance"
+            ],
+            "variableFont": true
+          }
+        },
+        {
+          "check": "container-rules",
+          "result": {
+            "widths": [
+              {
+                "width": 375,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  359,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 359,
+                "tileGap": 9
+              },
+              {
+                "width": 390,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  374,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 374,
+                "tileGap": 9
+              },
+              {
+                "width": 768,
+                "cols": 2,
+                "pad": 16,
+                "radius": 12,
+                "opacity": 0.8,
+                "fill": "rgb(102, 119, 136)",
+                "innerOpacity": 1,
+                "row": 12,
+                "gap": 12,
+                "next": [
+                  390,
+                  16,
+                  362,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 362,
+                "tileGap": 9
+              },
+              {
+                "width": 1024,
+                "cols": 4,
+                "pad": 24,
+                "radius": 0,
+                "opacity": 1,
+                "fill": "rgb(255, 255, 255)",
+                "innerOpacity": 0.6,
+                "row": 12,
+                "gap": 16,
+                "next": [
+                  272,
+                  24,
+                  232,
+                  60
+                ],
+                "inner": [
+                  15,
+                  3,
+                  10,
+                  24
+                ],
+                "tileWidth": 232,
+                "tileGap": 2
+              },
+              {
+                "width": 1440,
+                "cols": 4,
+                "pad": 24,
+                "radius": 0,
+                "opacity": 1,
+                "fill": "rgb(255, 255, 255)",
+                "innerOpacity": 1,
+                "row": 12,
+                "gap": 16,
+                "next": [
+                  376,
+                  24,
+                  336,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 336,
+                "tileGap": 9
+              },
+              {
+                "width": 390,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  374,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 374,
+                "tileGap": 9
+              }
+            ],
+            "secondPage": "rgb(51, 34, 17)"
+          }
+        },
+        {
+          "check": "mixed-materials",
+          "result": {
+            "gradientAlpha": [
+              0.25,
+              0.75
+            ],
+            "stroke": [
+              3,
+              1
+            ],
+            "independentShadows": true,
+            "undo": 4
+          }
+        },
+        {
+          "check": "mixed-instances",
+          "result": {
+            "instances": 2,
+            "independentAxes": [
+              [
+                "Light",
+                "On",
+                "Disabled"
+              ],
+              [
+                "Dark",
+                "Off",
+                "Disabled"
+              ]
+            ],
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "keyboard-authoring",
+          "result": {
+            "input": "keyboard only",
+            "layers": 2,
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "designer-delivery",
+          "result": {
+            "samples": [
+              [
+                375,
+                104,
+                112
+              ],
+              [
+                390,
+                104,
+                112
+              ],
+              [
+                768,
+                108,
+                120
+              ],
+              [
+                1024,
+                108,
+                120
+              ],
+              [
+                1440,
+                108,
+                120
+              ]
+            ],
+            "verified": "designer edit, undo, reopen, update, conflict and preview"
+          }
+        },
+        {
+          "check": "aura",
+          "result": {
+            "theme": "Cloud Light",
+            "mobileFlow": true,
+            "navigation": "marketing → workspace → overlay → workspace → marketing"
+          }
+        },
+        {
+          "check": "editing-workflow",
+          "result": {
+            "mixedChannels": [
+              "rgba(18, 52, 86, 0.4)",
+              "rgba(21, 103, 137, 0.8)"
+            ],
+            "span": [
+              210,
+              220,
+              50
+            ],
+            "compactWidth": 721,
+            "disabledCommand": true
+          }
+        },
+        {
+          "check": "atlas",
+          "result": {
+            "pages": 4,
+            "mapFlow": true,
+            "phoneFlow": true,
+            "shareOverlay": true,
+            "brandInHeader": true
+          }
+        },
+        {
+          "check": "cross-page",
+          "result": {
+            "navigate": "Web → Mobile",
+            "overlay": "Mobile → Overlays",
+            "back": "Web"
+          }
+        },
+        {
+          "check": "responsive-player",
+          "result": {
+            "fluidWidths": [
+              375,
+              390,
+              768,
+              1024,
+              1440
+            ],
+            "anchored": true,
+            "fixedTarget": 300
+          }
+        },
+        {
+          "check": "shapes",
+          "result": {
+            "starPoints": 7,
+            "innerRadius": 0.3,
+            "polygonSides": 6,
+            "snappedLine": true,
+            "undoRestoredParameters": true
+          }
+        },
+        {
+          "check": "smart-selection",
+          "result": {
+            "initial": {
+              "A": [
+                18,
+                21
+              ],
+              "B": [
+                99,
+                16
+              ],
+              "C": [
+                178,
+                24
+              ],
+              "D": [
+                21,
+                96
+              ],
+              "E": [
+                101,
+                103
+              ],
+              "F": [
+                178,
+                95
+              ]
+            },
+            "grid": {
+              "A": [
+                18,
+                16
+              ],
+              "B": [
+                95.5,
+                16
+              ],
+              "C": [
+                173,
+                16
+              ],
+              "D": [
+                18,
+                87
+              ],
+              "E": [
+                95.5,
+                87
+              ],
+              "F": [
+                173,
+                87
+              ]
+            },
+            "horizontalGap": 30,
+            "verticalGapAfterDrag": 45,
+            "reordered": true,
+            "deleteAndUndo": true
+          }
+        },
+        {
+          "check": "wires",
+          "result": {
+            "drawn": "Home → Detail",
+            "retargetedOverlay": "Sheet",
+            "anchor": "bottom",
+            "keyboard": true,
+            "undo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "optional-gateway",
+          "result": {
+            "modelRequests": 0,
+            "manualEditor": true
+          }
+        },
+        {
+          "check": "library-tokens",
+          "result": {
+            "linkedRevision": {
+              "originalWidth": 64,
+              "updatedWidth": 88,
+              "keptName": true,
+              "undo": true
+            },
+            "exportedAndReimported": true,
+            "light": "#0066ff",
+            "dark": "#ff7733",
+            "saved": true
+          }
+        },
+        {
+          "check": "library-subscription",
+          "result": {
+            "networkRequests": 4,
+            "selectiveUpdate": true,
+            "conflict": "kept local size 22",
+            "offline": true,
+            "unsubscribed": true
+          }
+        },
+        {
+          "check": "library-publish",
+          "result": {
+            "publish": true,
+            "service": "team",
+            "deniedInvalidToken": true,
+            "consumers": [
+              "库存 12",
+              "已送达"
+            ],
+            "oldPublicName": "标签",
+            "newPublicName": "业务标签",
+            "discovery": true,
+            "updatedInstance": true,
+            "undo": true
+          }
+        },
+        {
+          "check": "component-properties",
+          "result": {
+            "text": "设计师覆盖",
+            "iconHidden": true,
+            "swapped": true,
+            "mixedInstances": 2,
+            "undo": true
+          }
+        },
+        {
+          "check": "variant-authoring",
+          "result": {
+            "variants": 3,
+            "axes": [
+              "State",
+              "尺寸"
+            ],
+            "override": "待发送",
+            "width": 232,
+            "uniqueCombinations": true,
+            "reopened": true,
+            "crossFile": true,
+            "combinedExistingDrawings": true
+          }
+        },
+        {
+          "check": "nested-instances",
+          "result": {
+            "exposedNestedSwap": true,
+            "forwardedLevels": 3,
+            "retainedTitle": true,
+            "updatedFromNestedMaster": true,
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "size-limits",
+          "result": {
+            "at600": [
+              100,
+              320,
+              180
+            ],
+            "at720": [
+              100,
+              320,
+              300
+            ],
+            "afterClear": [
+              100,
+              310,
+              310
+            ]
+          }
+        },
+        {
+          "check": "strokes",
+          "result": [
+            {
+              "x": 230,
+              "y": 18,
+              "border": 12,
+              "outline": 0,
+              "offset": 0
+            },
+            {
+              "x": 230,
+              "y": 18,
+              "border": 6,
+              "outline": 12,
+              "offset": -6
+            },
+            {
+              "x": 230,
+              "y": 18,
+              "border": 0,
+              "outline": 12,
+              "offset": 0
+            }
+          ]
+        },
+        {
+          "check": "files",
+          "result": {
+            "originalCount": 12,
+            "switchedTwice": true,
+            "separateContents": true
+          }
+        },
+        {
+          "check": "storage",
+          "result": {
+            "reopened": true,
+            "recovered": true,
+            "staleTab": "preserved winning revision"
+          }
+        },
+        {
+          "check": "studio",
+          "result": {
+            "editSamplesMs": [
+              51,
+              41,
+              40,
+              44,
+              37,
+              40,
+              40,
+              52
+            ],
+            "checked": [
+              "编辑并保存坐标",
+              "返回页面保留缩放",
+              "622层独立复制",
+              "改名",
+              "删除与撤销",
+              "新增空页",
+              "刷新恢复"
+            ],
+            "runtimeErrors": []
+          }
+        },
+        {
+          "check": "editor-panels",
+          "result": {
+            "checks": [
+              "滚轮只滚动图层树，页面、搜索和画布固定",
+              "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+              "图层菜单按组选取排列命令",
+              "键盘进入子菜单",
+              "右侧填充顺序可交换",
+              "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+              "长属性面板单独滚动且标题保持可见",
+              "刷新保留属性",
+              "480px 高度菜单仍完整可见",
+              "没有浏览器运行异常"
+            ],
+            "before": {
+              "left": 0,
+              "tree": 0,
+              "pages": 88,
+              "search": 264,
+              "canvas": 258.98919677734375
+            },
+            "after": {
+              "left": 0,
+              "tree": 850,
+              "pages": 88,
+              "search": 264,
+              "canvas": 258.98919677734375
+            },
+            "css": [
+              "47px",
+              "multiply",
+              "dashed",
+              "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+            ]
+          }
+        },
+        {
+          "check": "sizing",
+          "result": {
+            "before": {
+              "board": [
+                436,
+                70
+              ],
+              "card": [
+                200,
+                46
+              ],
+              "leaf": [
+                184,
+                30
+              ],
+              "tile": [
+                200,
+                12
+              ]
+            },
+            "after": {
+              "board": [
+                536,
+                70
+              ],
+              "card": [
+                250,
+                46
+              ],
+              "leaf": [
+                234,
+                30
+              ],
+              "tile": [
+                250,
+                12
+              ]
+            },
+            "preview": "matched",
+            "fixed": 250
+          }
+        },
+        {
+          "check": "wrap",
+          "result": [
+            [
+              [
+                0,
+                0,
+                320,
+                158
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                10,
+                112,
+                96,
+                36
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                228,
+                158
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                10,
+                112,
+                96,
+                36
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                380,
+                108
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                216,
+                10,
+                96,
+                36
+              ]
+            ]
+          ]
+        },
+        {
+          "check": "responsive",
+          "result": [
+            {
+              "board": [
+                0,
+                0,
+                375,
+                400
+              ],
+              "badge": [
+                295,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                335,
+                340
+              ],
+              "cell0": [
+                30,
+                40,
+                315,
+                40
+              ],
+              "cell1": [
+                30,
+                90,
+                315,
+                42
+              ],
+              "cell5": [
+                30,
+                310,
+                315,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                390,
+                400
+              ],
+              "badge": [
+                310,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                350,
+                178
+              ],
+              "cell0": [
+                30,
+                40,
+                160,
+                40
+              ],
+              "cell1": [
+                200,
+                40,
+                160,
+                42
+              ],
+              "cell5": [
+                200,
+                148,
+                160,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                768,
+                400
+              ],
+              "badge": [
+                688,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                728,
+                126
+              ],
+              "cell0": [
+                30,
+                40,
+                170,
+                40
+              ],
+              "cell1": [
+                210,
+                40,
+                170,
+                42
+              ],
+              "cell5": [
+                210,
+                96,
+                170,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                1024,
+                400
+              ],
+              "badge": [
+                944,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                984,
+                128
+              ],
+              "cell0": [
+                30,
+                40,
+                185,
+                40
+              ],
+              "cell1": [
+                225,
+                40,
+                185,
+                42
+              ],
+              "cell5": [
+                30,
+                98,
+                185,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                1440,
+                400
+              ],
+              "badge": [
+                1360,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                1400,
+                70
+              ],
+              "cell0": [
+                30,
+                40,
+                222,
+                40
+              ],
+              "cell1": [
+                262,
+                40,
+                222,
+                42
+              ],
+              "cell5": [
+                1188,
+                40,
+                222,
+                50
+              ]
+            }
+          ]
+        },
+        {
+          "check": "prototype",
+          "result": {
+            "conditional": [
+              "Sheet",
+              "Detail"
+            ],
+            "keyboard": "Enter/Escape",
+            "back": "Home",
+            "flowSwitch": true
+          }
+        },
+        {
+          "check": "images",
+          "result": {
+            "id": "a91bdb84-8635-4260-aa27-c16f81cbe6d4",
+            "asset": "240x120",
+            "zoom": 1.6,
+            "x": 75
+          }
+        },
+        {
+          "check": "vector",
+          "result": {
+            "anchors": 5,
+            "rotated": 120,
+            "selectionError": 0.219482421875,
+            "matrix": "matrix(-0.798636, -0.601815, -0.601815, 0.798636, 0, 0)",
+            "path": "M1 48.05818 C1 48.05818 49.82459 1 69.82459 1 C79.82459 1 90.85374 13.20572 99.38288 25.41145 C107.91202 37.61717 113.94117 49.82289 113.94117 49.82289 L76.29412 92.76406 Z"
+          }
+        },
+        {
+          "check": "booleans",
+          "result": {
+            "modes": [
+              "union",
+              "subtract",
+              "intersect",
+              "exclude"
+            ],
+            "editableOperand": true,
+            "flattenUndo": true,
+            "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+          }
+        },
+        {
+          "check": "rich-text",
+          "result": {
+            "text": "设计工具 Studio",
+            "width": 151,
+            "height": 42,
+            "parts": [
+              [
+                "设计",
+                "700",
+                "30px",
+                "underline"
+              ],
+              [
+                "工具 Studio",
+                "400",
+                "18px",
+                "none"
+              ]
+            ],
+            "localFont": [
+              "设",
+              "serif",
+              "600"
+            ]
+          }
+        },
+        {
+          "check": "mask",
+          "result": {
+            "hit": [
+              true,
+              false
+            ],
+            "curve": "path(\"M 20 70 c 0 -27.6142 16.7893 -50 37.5 -50 c 20.7107 0 37.5 22.3858 37.5 50 c 0 27.6142 -16.7893 50 -37.5 50 c -20.7107 0 -37.5 -22.3858 -37.5 -50 Z\")",
+            "released": true,
+            "selectedCoveredLayer": true
+          }
+        },
+        {
+          "check": "guides",
+          "result": {
+            "coordinate": 58,
+            "pageIsolation": true,
+            "restored": true,
+            "removedByDrag": true
+          }
+        },
+        {
+          "check": "asset-import",
+          "result": {
+            "paths": [
+              {
+                "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+                "fill": "#1166ff",
+                "opacity": "1",
+                "width": "0",
+                "join": "miter"
+              },
+              {
+                "d": "M16 56L48 16 40 56Z",
+                "fill": "#ffaa11",
+                "opacity": "0.65",
+                "width": "6",
+                "join": "bevel"
+              }
+            ],
+            "unsupportedRejected": true,
+            "clipboard": true,
+            "rasterDropUndo": true
+          }
+        }
+      ],
+      "rebuiltDownloadedProjects": [
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "renamed-library",
+        "route-upgrade",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "artboards": [
+        {
+          "engine": "webkit",
+          "id": "mkt-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 2120,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "mkt-mobile",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 980,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "ws-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 900,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "ws-deploy-modal",
+          "previewProjectPixels": {
+            "width": 440,
+            "height": 410,
+            "differentPixels": 730,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 9
+          },
+          "canvasToPreview": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+          "previewProjectPixels": {
+            "width": 402,
+            "height": 730,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "77f272c8-b198-4143-922d-44014c89e546",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 7377,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 1
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-tablet-root",
+          "previewProjectPixels": {
+            "width": 1180,
+            "height": 820,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-phone-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-note-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "webkit",
+          "id": "atlas-sheet-root",
+          "previewProjectPixels": {
+            "width": 348,
+            "height": 246,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        }
+      ]
+    },
+    "firefox": {
+      "editor": [
+        {
+          "check": "professional-editor",
+          "result": {
+            "sizes": [
+              [
+                375,
+                0,
+                164,
+                375,
+                56
+              ],
+              [
+                390,
+                0,
+                164,
+                390,
+                56
+              ],
+              [
+                768,
+                252,
+                164,
+                516,
+                56
+              ],
+              [
+                1024,
+                252,
+                164,
+                772,
+                56
+              ],
+              [
+                1440,
+                252,
+                164,
+                1188,
+                56
+              ]
+            ],
+            "mask": [
+              "alpha",
+              "luminance"
+            ],
+            "variableFont": true
+          }
+        },
+        {
+          "check": "container-rules",
+          "result": {
+            "widths": [
+              {
+                "width": 375,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  359,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 359,
+                "tileGap": 9
+              },
+              {
+                "width": 390,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  374,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 374,
+                "tileGap": 9
+              },
+              {
+                "width": 768,
+                "cols": 2,
+                "pad": 16,
+                "radius": 12,
+                "opacity": 0.8,
+                "fill": "rgb(102, 119, 136)",
+                "innerOpacity": 1,
+                "row": 12,
+                "gap": 12,
+                "next": [
+                  390,
+                  16,
+                  362,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 362,
+                "tileGap": 9
+              },
+              {
+                "width": 1024,
+                "cols": 4,
+                "pad": 24,
+                "radius": 0,
+                "opacity": 1,
+                "fill": "rgb(255, 255, 255)",
+                "innerOpacity": 0.6,
+                "row": 12,
+                "gap": 16,
+                "next": [
+                  272,
+                  24,
+                  232,
+                  60
+                ],
+                "inner": [
+                  15,
+                  3,
+                  10,
+                  24
+                ],
+                "tileWidth": 232,
+                "tileGap": 2
+              },
+              {
+                "width": 1440,
+                "cols": 4,
+                "pad": 24,
+                "radius": 0,
+                "opacity": 1,
+                "fill": "rgb(255, 255, 255)",
+                "innerOpacity": 1,
+                "row": 12,
+                "gap": 16,
+                "next": [
+                  376,
+                  24,
+                  336,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 336,
+                "tileGap": 9
+              },
+              {
+                "width": 390,
+                "cols": 1,
+                "pad": 8,
+                "radius": 4,
+                "opacity": 0.8,
+                "fill": "rgb(51, 68, 85)",
+                "innerOpacity": 1,
+                "row": 6,
+                "gap": 8,
+                "next": [
+                  8,
+                  74,
+                  374,
+                  60
+                ],
+                "inner": [
+                  26,
+                  7,
+                  10,
+                  24
+                ],
+                "tileWidth": 374,
+                "tileGap": 9
+              }
+            ],
+            "secondPage": "rgb(51, 34, 17)"
+          }
+        },
+        {
+          "check": "mixed-materials",
+          "result": {
+            "gradientAlpha": [
+              0.25,
+              0.75
+            ],
+            "stroke": [
+              3,
+              1
+            ],
+            "independentShadows": true,
+            "undo": 4
+          }
+        },
+        {
+          "check": "mixed-instances",
+          "result": {
+            "instances": 2,
+            "independentAxes": [
+              [
+                "Light",
+                "On",
+                "Disabled"
+              ],
+              [
+                "Dark",
+                "Off",
+                "Disabled"
+              ]
+            ],
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "keyboard-authoring",
+          "result": {
+            "input": "keyboard only",
+            "layers": 2,
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "designer-delivery",
+          "result": {
+            "samples": [
+              [
+                375,
+                104,
+                112
+              ],
+              [
+                390,
+                104,
+                112
+              ],
+              [
+                768,
+                108,
+                120
+              ],
+              [
+                1024,
+                108,
+                120
+              ],
+              [
+                1440,
+                108,
+                120
+              ]
+            ],
+            "verified": "designer edit, undo, reopen, update, conflict and preview"
+          }
+        },
+        {
+          "check": "aura",
+          "result": {
+            "theme": "Cloud Light",
+            "mobileFlow": true,
+            "navigation": "marketing → workspace → overlay → workspace → marketing"
+          }
+        },
+        {
+          "check": "editing-workflow",
+          "result": {
+            "mixedChannels": [
+              "rgba(18, 52, 86, 0.4)",
+              "rgba(21, 103, 137, 0.8)"
+            ],
+            "span": [
+              210,
+              220,
+              50
+            ],
+            "compactWidth": 721,
+            "disabledCommand": true
+          }
+        },
+        {
+          "check": "atlas",
+          "result": {
+            "pages": 4,
+            "mapFlow": true,
+            "phoneFlow": true,
+            "shareOverlay": true,
+            "brandInHeader": true
+          }
+        },
+        {
+          "check": "cross-page",
+          "result": {
+            "navigate": "Web → Mobile",
+            "overlay": "Mobile → Overlays",
+            "back": "Web"
+          }
+        },
+        {
+          "check": "responsive-player",
+          "result": {
+            "fluidWidths": [
+              375,
+              390,
+              768,
+              1024,
+              1440
+            ],
+            "anchored": true,
+            "fixedTarget": 300
+          }
+        },
+        {
+          "check": "shapes",
+          "result": {
+            "starPoints": 7,
+            "innerRadius": 0.3,
+            "polygonSides": 6,
+            "snappedLine": true,
+            "undoRestoredParameters": true
+          }
+        },
+        {
+          "check": "smart-selection",
+          "result": {
+            "initial": {
+              "A": [
+                18,
+                21
+              ],
+              "B": [
+                99,
+                16
+              ],
+              "C": [
+                178,
+                24
+              ],
+              "D": [
+                21,
+                96
+              ],
+              "E": [
+                101,
+                103
+              ],
+              "F": [
+                178,
+                95
+              ]
+            },
+            "grid": {
+              "A": [
+                18,
+                16
+              ],
+              "B": [
+                95.5,
+                16
+              ],
+              "C": [
+                173,
+                16
+              ],
+              "D": [
+                18,
+                87
+              ],
+              "E": [
+                95.5,
+                87
+              ],
+              "F": [
+                173,
+                87
+              ]
+            },
+            "horizontalGap": 30,
+            "verticalGapAfterDrag": 45,
+            "reordered": true,
+            "deleteAndUndo": true
+          }
+        },
+        {
+          "check": "wires",
+          "result": {
+            "drawn": "Home → Detail",
+            "retargetedOverlay": "Sheet",
+            "anchor": "bottom",
+            "keyboard": true,
+            "undo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "optional-gateway",
+          "result": {
+            "modelRequests": 0,
+            "manualEditor": true
+          }
+        },
+        {
+          "check": "library-tokens",
+          "result": {
+            "linkedRevision": {
+              "originalWidth": 64,
+              "updatedWidth": 88,
+              "keptName": true,
+              "undo": true
+            },
+            "exportedAndReimported": true,
+            "light": "#0066ff",
+            "dark": "#ff7733",
+            "saved": true
+          }
+        },
+        {
+          "check": "library-subscription",
+          "result": {
+            "networkRequests": 4,
+            "selectiveUpdate": true,
+            "conflict": "kept local size 22",
+            "offline": true,
+            "unsubscribed": true
+          }
+        },
+        {
+          "check": "library-publish",
+          "result": {
+            "publish": true,
+            "service": "team",
+            "deniedInvalidToken": true,
+            "consumers": [
+              "库存 12",
+              "已送达"
+            ],
+            "oldPublicName": "标签",
+            "newPublicName": "业务标签",
+            "discovery": true,
+            "updatedInstance": true,
+            "undo": true
+          }
+        },
+        {
+          "check": "component-properties",
+          "result": {
+            "text": "设计师覆盖",
+            "iconHidden": true,
+            "swapped": true,
+            "mixedInstances": 2,
+            "undo": true
+          }
+        },
+        {
+          "check": "variant-authoring",
+          "result": {
+            "variants": 3,
+            "axes": [
+              "State",
+              "尺寸"
+            ],
+            "override": "待发送",
+            "width": 232,
+            "uniqueCombinations": true,
+            "reopened": true,
+            "crossFile": true,
+            "combinedExistingDrawings": true
+          }
+        },
+        {
+          "check": "nested-instances",
+          "result": {
+            "exposedNestedSwap": true,
+            "forwardedLevels": 3,
+            "retainedTitle": true,
+            "updatedFromNestedMaster": true,
+            "undoRedo": true,
+            "reopened": true
+          }
+        },
+        {
+          "check": "size-limits",
+          "result": {
+            "at600": [
+              100,
+              320,
+              180
+            ],
+            "at720": [
+              100,
+              320,
+              300
+            ],
+            "afterClear": [
+              100,
+              310,
+              310
+            ]
+          }
+        },
+        {
+          "check": "strokes",
+          "result": [
+            {
+              "x": 230,
+              "y": 18,
+              "border": 12,
+              "outline": 0,
+              "offset": 0
+            },
+            {
+              "x": 230,
+              "y": 18,
+              "border": 6,
+              "outline": 12,
+              "offset": -6
+            },
+            {
+              "x": 230,
+              "y": 18,
+              "border": 0,
+              "outline": 12,
+              "offset": 0
+            }
+          ]
+        },
+        {
+          "check": "files",
+          "result": {
+            "originalCount": 12,
+            "switchedTwice": true,
+            "separateContents": true
+          }
+        },
+        {
+          "check": "storage",
+          "result": {
+            "reopened": true,
+            "recovered": true,
+            "staleTab": "preserved winning revision"
+          }
+        },
+        {
+          "check": "studio",
+          "result": {
+            "editSamplesMs": [
+              49,
+              53,
+              40,
+              53,
+              38,
+              37,
+              40,
+              45
+            ],
+            "checked": [
+              "编辑并保存坐标",
+              "返回页面保留缩放",
+              "622层独立复制",
+              "改名",
+              "删除与撤销",
+              "新增空页",
+              "刷新恢复"
+            ],
+            "runtimeErrors": []
+          }
+        },
+        {
+          "check": "editor-panels",
+          "result": {
+            "checks": [
+              "滚轮只滚动图层树，页面、搜索和画布固定",
+              "画布底边右键菜单全部在屏内，空白处仅显示页面命令",
+              "图层菜单按组选取排列命令",
+              "键盘进入子菜单",
+              "右侧填充顺序可交换",
+              "选中画板实际呈现独立圆角、混合模式、描边和可见渐变",
+              "长属性面板单独滚动且标题保持可见",
+              "刷新保留属性",
+              "480px 高度菜单仍完整可见",
+              "没有浏览器运行异常"
+            ],
+            "before": {
+              "left": 0,
+              "tree": 0,
+              "pages": 88,
+              "search": 264,
+              "canvas": 258.98333740234375
+            },
+            "after": {
+              "left": 0,
+              "tree": 850,
+              "pages": 88,
+              "search": 264,
+              "canvas": 258.98333740234375
+            },
+            "css": [
+              "47px",
+              "multiply",
+              "dashed",
+              "radial-gradient(rgba(0, 0, 0, 0.16) 0%, rgba(147, 131, 255, 0.16) 100%), none"
+            ]
+          }
+        },
+        {
+          "check": "sizing",
+          "result": {
+            "before": {
+              "board": [
+                436,
+                70
+              ],
+              "card": [
+                200,
+                46
+              ],
+              "leaf": [
+                184,
+                30
+              ],
+              "tile": [
+                200,
+                12
+              ]
+            },
+            "after": {
+              "board": [
+                536,
+                70
+              ],
+              "card": [
+                250,
+                46
+              ],
+              "leaf": [
+                234,
+                30
+              ],
+              "tile": [
+                250,
+                12
+              ]
+            },
+            "preview": "matched",
+            "fixed": 250
+          }
+        },
+        {
+          "check": "wrap",
+          "result": [
+            [
+              [
+                0,
+                0,
+                320,
+                158
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                10,
+                112,
+                96,
+                36
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                228,
+                158
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                10,
+                112,
+                96,
+                36
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                380,
+                108
+              ],
+              [
+                10,
+                10,
+                140,
+                88
+              ],
+              [
+                158,
+                10,
+                50,
+                20
+              ],
+              [
+                216,
+                10,
+                96,
+                36
+              ]
+            ]
+          ]
+        },
+        {
+          "check": "responsive",
+          "result": [
+            {
+              "board": [
+                0,
+                0,
+                375,
+                400
+              ],
+              "badge": [
+                295,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                335,
+                340
+              ],
+              "cell0": [
+                30,
+                40,
+                315,
+                40
+              ],
+              "cell1": [
+                30,
+                90,
+                315,
+                42
+              ],
+              "cell5": [
+                30,
+                310,
+                315,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                390,
+                400
+              ],
+              "badge": [
+                310,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                350,
+                178
+              ],
+              "cell0": [
+                30,
+                40,
+                160,
+                40
+              ],
+              "cell1": [
+                200,
+                40,
+                160,
+                42
+              ],
+              "cell5": [
+                200,
+                148,
+                160,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                768,
+                400
+              ],
+              "badge": [
+                688,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                728,
+                126
+              ],
+              "cell0": [
+                30,
+                40,
+                170,
+                40
+              ],
+              "cell1": [
+                210,
+                40,
+                170,
+                42
+              ],
+              "cell5": [
+                210,
+                96,
+                170,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                1024,
+                400
+              ],
+              "badge": [
+                944,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                984,
+                128
+              ],
+              "cell0": [
+                30,
+                40,
+                185,
+                40
+              ],
+              "cell1": [
+                225,
+                40,
+                185,
+                42
+              ],
+              "cell5": [
+                30,
+                98,
+                185,
+                50
+              ]
+            },
+            {
+              "board": [
+                0,
+                0,
+                1440,
+                400
+              ],
+              "badge": [
+                1360,
+                8,
+                60,
+                12
+              ],
+              "grid": [
+                20,
+                30,
+                1400,
+                70
+              ],
+              "cell0": [
+                30,
+                40,
+                222,
+                40
+              ],
+              "cell1": [
+                262,
+                40,
+                222,
+                42
+              ],
+              "cell5": [
+                1188,
+                40,
+                222,
+                50
+              ]
+            }
+          ]
+        },
+        {
+          "check": "prototype",
+          "result": {
+            "conditional": [
+              "Sheet",
+              "Detail"
+            ],
+            "keyboard": "Enter/Escape",
+            "back": "Home",
+            "flowSwitch": true
+          }
+        },
+        {
+          "check": "images",
+          "result": {
+            "id": "e17e2b26-57d0-440f-8a4a-9d019f217ab4",
+            "asset": "240x120",
+            "zoom": 1.6,
+            "x": 75
+          }
+        },
+        {
+          "check": "vector",
+          "result": {
+            "anchors": 5,
+            "rotated": 120,
+            "selectionError": 0.0166778564453125,
+            "matrix": "matrix(-0.798635, -0.601815, -0.601815, 0.798635, 0, 0)",
+            "path": "M1 48.05846 C1 48.05846 49.82413 1 69.82413 1 C79.82413 1 90.85339 13.20579 99.38265 25.41158 C107.91191 37.61737 113.94117 49.82316 113.94117 49.82316 L76.29411 92.76434 Z"
+          }
+        },
+        {
+          "check": "booleans",
+          "result": {
+            "modes": [
+              "union",
+              "subtract",
+              "intersect",
+              "exclude"
+            ],
+            "editableOperand": true,
+            "flattenUndo": true,
+            "path": "M80,0v10.76063c-21.70991,3.35466 -38,17.40986 -38,34.23937c0,9.79344 5.51635,18.64741 14.40698,25h-56.40698v-70zM80,70v-59.23937c3.22558,-0.49842 6.57079,-0.76063 10,-0.76063c26.50967,0 48,15.67003 48,35c0,19.32997 -21.49033,35 -48,35c-13.07866,0 -24.93563,-3.81406 -33.59302,-10z"
+          }
+        },
+        {
+          "check": "rich-text",
+          "result": {
+            "text": "设计工具 Studio",
+            "width": 153,
+            "height": 42,
+            "parts": [
+              [
+                "设计",
+                "700",
+                "30px",
+                "underline"
+              ],
+              [
+                "工具 Studio",
+                "400",
+                "18px",
+                "none"
+              ]
+            ],
+            "localFont": [
+              "设",
+              "serif",
+              "600"
+            ]
+          }
+        },
+        {
+          "check": "mask",
+          "result": {
+            "hit": [
+              true,
+              false
+            ],
+            "curve": "path(\"M 20 70 c 0 -27.6142 16.7893 -50 37.5 -50 c 20.7107 0 37.5 22.3858 37.5 50 c 0 27.6142 -16.7893 50 -37.5 50 c -20.7107 0 -37.5 -22.3858 -37.5 -50 Z\")",
+            "released": true,
+            "selectedCoveredLayer": true
+          }
+        },
+        {
+          "check": "guides",
+          "result": {
+            "coordinate": 58,
+            "pageIsolation": true,
+            "restored": true,
+            "removedByDrag": true
+          }
+        },
+        {
+          "check": "asset-import",
+          "result": {
+            "paths": [
+              {
+                "d": "M20 4H68A16 16 0 0 1 84 20V68A16 16 0 0 1 68 84H20A16 16 0 0 1 4 68V20A16 16 0 0 1 20 4Z",
+                "fill": "#1166ff",
+                "opacity": "1",
+                "width": "0",
+                "join": "miter"
+              },
+              {
+                "d": "M16 56L48 16 40 56Z",
+                "fill": "#ffaa11",
+                "opacity": "0.65",
+                "width": "6",
+                "join": "bevel"
+              }
+            ],
+            "unsupportedRejected": true,
+            "clipboard": true,
+            "rasterDropUndo": true
+          }
+        }
+      ],
+      "rebuiltDownloadedProjects": [
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "renamed-library",
+        "route-upgrade",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "artboards": [
+        {
+          "engine": "firefox",
+          "id": "mkt-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 2120,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 107,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "mkt-mobile",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 980,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 18,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "ws-desktop",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 900,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 116,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "ws-deploy-modal",
+          "previewProjectPixels": {
+            "width": 440,
+            "height": 410,
+            "differentPixels": 906,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 10
+          },
+          "canvasToPreview": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 12,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 136,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 68,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 74,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+          "previewProjectPixels": {
+            "width": 1210,
+            "height": 834,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 38,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+          "previewProjectPixels": {
+            "width": 402,
+            "height": 730,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 62,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 59,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 70,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 47,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 66,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "77f272c8-b198-4143-922d-44014c89e546",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+          "previewProjectPixels": {
+            "width": 1440,
+            "height": 1024,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 311,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "atlas-tablet-root",
+          "previewProjectPixels": {
+            "width": 1180,
+            "height": 820,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 100,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "atlas-phone-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 85,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "atlas-note-root",
+          "previewProjectPixels": {
+            "width": 390,
+            "height": 844,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 60,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        },
+        {
+          "engine": "firefox",
+          "id": "atlas-sheet-root",
+          "previewProjectPixels": {
+            "width": 348,
+            "height": 246,
+            "differentPixels": 0,
+            "over16": 0,
+            "over16Pct": 0,
+            "maxChannelDelta": 0
+          },
+          "canvasToPreview": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          },
+          "previewToProject": {
+            "layers": 14,
+            "extra": [],
+            "maximumCssPx": 0,
+            "missing": [],
+            "boxes": [],
+            "lines": []
+          }
+        }
+      ]
+    }
+  },
+  "installedDesktop": {
+    "fromReadOnlyDmg": true,
+    "reopenedPublicSample": {
+      "sample": "aura-responsive.forma.json",
+      "version": "0.5.0",
+      "width": 768,
+      "fill": "#F0F4FD"
+    },
+    "webAndAppSharedBundle": {
+      "asset": "assets/index-D8IBUK8d.js",
+      "sha256": "cf28cdcfd323fc654f7e378de13a675164868fb9249e0f1ee7c10999c526a134"
+    },
+    "adHocSigned": true,
+    "nativeChecks": [
+      {
+        "check": "container-rules",
+        "result": {
+          "widths": [
+            {
+              "width": 375,
+              "cols": 1,
+              "pad": 8,
+              "radius": 4,
+              "opacity": 0.8,
+              "fill": "rgb(51, 68, 85)",
+              "innerOpacity": 1,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                359,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 359,
+              "tileGap": 9
+            },
+            {
+              "width": 390,
+              "cols": 1,
+              "pad": 8,
+              "radius": 4,
+              "opacity": 0.8,
+              "fill": "rgb(51, 68, 85)",
+              "innerOpacity": 1,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                374,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 374,
+              "tileGap": 9
+            },
+            {
+              "width": 768,
+              "cols": 2,
+              "pad": 16,
+              "radius": 12,
+              "opacity": 0.8,
+              "fill": "rgb(102, 119, 136)",
+              "innerOpacity": 1,
+              "row": 12,
+              "gap": 12,
+              "next": [
+                390,
+                16,
+                362,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 362,
+              "tileGap": 9
+            },
+            {
+              "width": 1024,
+              "cols": 4,
+              "pad": 24,
+              "radius": 0,
+              "opacity": 1,
+              "fill": "rgb(255, 255, 255)",
+              "innerOpacity": 0.6,
+              "row": 12,
+              "gap": 16,
+              "next": [
+                272,
+                24,
+                232,
+                60
+              ],
+              "inner": [
+                15,
+                3,
+                10,
+                24
+              ],
+              "tileWidth": 232,
+              "tileGap": 2
+            },
+            {
+              "width": 1440,
+              "cols": 4,
+              "pad": 24,
+              "radius": 0,
+              "opacity": 1,
+              "fill": "rgb(255, 255, 255)",
+              "innerOpacity": 1,
+              "row": 12,
+              "gap": 16,
+              "next": [
+                376,
+                24,
+                336,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 336,
+              "tileGap": 9
+            },
+            {
+              "width": 390,
+              "cols": 1,
+              "pad": 8,
+              "radius": 4,
+              "opacity": 0.8,
+              "fill": "rgb(51, 68, 85)",
+              "innerOpacity": 1,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                374,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 374,
+              "tileGap": 9
+            }
+          ],
+          "secondPage": "rgb(51, 34, 17)"
+        }
+      },
+      {
+        "check": "cross-page",
+        "result": {
+          "navigate": "Web → Mobile",
+          "overlay": "Mobile → Overlays",
+          "back": "Web"
+        }
+      },
+      {
+        "check": "keyboard-authoring",
+        "result": {
+          "input": "keyboard only",
+          "layers": 2,
+          "undoRedo": true,
+          "reopened": true
+        }
+      },
+      {
+        "check": "mixed-materials",
+        "result": {
+          "gradientAlpha": [
+            0.25,
+            0.75
+          ],
+          "stroke": [
+            3,
+            1
+          ],
+          "independentShadows": true,
+          "undo": 4
+        }
+      },
+      {
+        "check": "professional-editor",
+        "result": {
+          "sizes": [
+            [
+              375,
+              0,
+              164,
+              375,
+              56
+            ],
+            [
+              390,
+              0,
+              164,
+              390,
+              56
+            ],
+            [
+              768,
+              252,
+              164,
+              516,
+              56
+            ],
+            [
+              1024,
+              252,
+              164,
+              772,
+              56
+            ],
+            [
+              1440,
+              252,
+              164,
+              1188,
+              56
+            ]
+          ],
+          "mask": [
+            "alpha",
+            "luminance"
+          ],
+          "variableFont": true
+        }
+      },
+      {
+        "check": "variant-authoring",
+        "result": {
+          "variants": 3,
+          "axes": [
+            "State",
+            "尺寸"
+          ],
+          "override": "待发送",
+          "width": 232,
+          "uniqueCombinations": true,
+          "reopened": true,
+          "crossFile": true,
+          "combinedExistingDrawings": true
+        }
+      },
+      {
+        "check": "open-files",
+        "result": {
+          "version": "0.5.0",
+          "docs": [
+            "Aura Studio · SaaS 产品与营销界面",
+            "Forma Mobile · 界面研究室"
+          ]
+        }
+      },
+      {
+        "check": "publish-reopen",
+        "result": {
+          "version": "0.5.0",
+          "revision": 1,
+          "persistedAcrossRestart": true,
+          "subscriberInserted": true
+        }
+      },
+      {
+        "check": "macos-pinyin",
+        "result": {
+          "value": "你好",
+          "events": [
+            [
+              "compositionstart",
+              "输入你的文字"
+            ],
+            [
+              "compositionupdate",
+              "n"
+            ],
+            [
+              "input",
+              "n"
+            ],
+            [
+              "compositionupdate",
+              "ni"
+            ],
+            [
+              "input",
+              "ni"
+            ],
+            [
+              "compositionupdate",
+              "ni h"
+            ],
+            [
+              "input",
+              "ni h"
+            ],
+            [
+              "compositionupdate",
+              "ni ha"
+            ],
+            [
+              "input",
+              "ni ha"
+            ],
+            [
+              "compositionupdate",
+              "ni hao"
+            ],
+            [
+              "input",
+              "ni hao"
+            ],
+            [
+              "compositionupdate",
+              "你好"
+            ],
+            [
+              "input",
+              "你好"
+            ],
+            [
+              "compositionend",
+              "你好"
+            ]
+          ],
+          "undoRedo": true,
+          "reopened": true
+        }
+      }
+    ],
+    "validatedExports": [
+      "professional-editor",
+      "variant-authoring"
+    ]
+  },
+  "performance": [
+    {
+      "check": "layer-tree",
+      "result": [
+        {
+          "count": 100,
+          "importMs": 66,
+          "selectMs": 107,
+          "mountedRows": 100,
+          "treeScroll": 2127,
+          "zoomMs": 65,
+          "dragMs": 120,
+          "nativeDownloadMs": 38,
+          "reactDownloadMs": 54,
+          "heapMiB": 16
+        },
+        {
+          "count": 1000,
+          "importMs": 80,
+          "selectMs": 58,
+          "mountedRows": 35,
+          "treeScroll": 27327,
+          "zoomMs": 55,
+          "dragMs": 126,
+          "nativeDownloadMs": 19,
+          "reactDownloadMs": 59,
+          "heapMiB": 20
+        },
+        {
+          "count": 10000,
+          "importMs": 443,
+          "selectMs": 83,
+          "mountedRows": 35,
+          "treeScroll": 279327,
+          "zoomMs": 58,
+          "dragMs": 226,
+          "nativeDownloadMs": 52,
+          "reactDownloadMs": 276,
+          "heapMiB": 68
+        }
+      ]
+    },
+    {
+      "check": "complex",
+      "result": [
+        {
+          "layers": 259,
+          "boards": 4,
+          "vectors": 130,
+          "instances": 6,
+          "importMs": 170,
+          "dragSamplesMs": [
+            237,
+            239,
+            241,
+            239,
+            242,
+            241
+          ],
+          "dragP50": 239,
+          "dragP95": 242,
+          "rafSamples": 84,
+          "rafMax": 17,
+          "rafOver25ms": 0,
+          "rafP50": 17,
+          "rafP95": 17,
+          "heapMiB": 25
+        },
+        {
+          "layers": 8288,
+          "boards": 128,
+          "vectors": 4160,
+          "instances": 192,
+          "importMs": 1176,
+          "dragSamplesMs": [
+            251,
+            240,
+            240,
+            241,
+            240,
+            240
+          ],
+          "dragP50": 240,
+          "dragP95": 251,
+          "rafSamples": 85,
+          "rafMax": 17,
+          "rafOver25ms": 0,
+          "rafP50": 17,
+          "rafP95": 17,
+          "heapMiB": 75
+        }
+      ]
+    },
+    {
+      "check": "bitmap-session",
+      "result": {
+        "images": 8,
+        "width": 2048,
+        "height": 2048,
+        "changes": 96,
+        "undoRedoPairs": 12,
+        "previewReloads": 3,
+        "peakJsHeapBytes": 102083039,
+        "longestRoundMs": 502,
+        "elapsedSeconds": 6
+      }
+    }
+  ],
+  "releaseSHA256": {
+    "Forma-0.5.0-arm64.dmg": "28941bd16e5fe61a2f20202969a6cd30c928140480d8fbb0e8646855c0871510",
+    "Forma-0.5.0-arm64.zip": "1f05b43be0bb0a99509eaf2fcbf0f5da9356b7395d1642bf68b7e14422a23ada"
+  },
+  "artifactSHA256": {
+    "aura-desktop.png": "53b31a6abca0ddd01a8bad421ad22c03de83a094459b36f87844c0300f2f5486",
+    "aura-responsive.forma.json": "b5fbd7ab86de36be42c8786d1c165ec50ce02926d4a70e7f144f2226d6009d1e",
+    "aura-react.zip": "cdaf17d1586bfe863d3cdd8dc416d2e09f5a80bedc97fb107c3cebd57ca69d0e",
+    "order-routes-react.zip": "2f57a46a133a92aeb9f889acd777b3ad857850656a92981da03860c64733b53e",
+    "renamed-library-react.zip": "66a5212c2cbde2a84d5070a9beaa6694e4fc6245fa695b958fc19205d494c797",
+    "responsive-appearance.png": "99a9aa088dbe896f8c9d8f14c3e30018fec3d1caca1e56284403e35be380d1ea",
+    "public-property-rename.png": "256a7dfe5720b57694b96bb3cab0db4a7342acbc4772a065d4a28299427eb663"
+  }
+}

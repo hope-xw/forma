@@ -1,0 +1,52 @@
+{
+  "version": "0.8.4",
+  "date": "2026-11-24",
+  "electron": "45.4.1",
+  "plistVersion": "0.8.4",
+  "signature": "ad hoc, codesign --verify --deep --strict",
+  "readOnlyDmg": true,
+  "previousDmgIntact": true,
+  "distribution": [
+    {
+      "filename": "Forma-0.8.4-arm64.dmg",
+      "bytes": 124720282,
+      "sha256": "f5abb1505d1a13d00627de6cc1c2c448eb6989d2d3314eff41f1f9eeb8081e74"
+    },
+    {
+      "filename": "Forma-0.8.4-arm64.zip",
+      "bytes": 120319980,
+      "sha256": "60dc55d2b8334bdecdbacc6b3e58df7fb9459b80ab8b67e7c56217ab9f57bd13"
+    }
+  ],
+  "matchingWebAndApp": {
+    "dist/assets/AssetsPanel-DfAYtziT.js": "2693f5c3805e1923ebbc1c565bd461210b3bd60d3be4fd60ba86f63f5bcb4fce",
+    "dist/assets/DesignSystemDialog-DZfmU5Bo.js": "454c4558c339cd300db4ed6422cada25801dc26a0fbf04ae24f14384118391c4",
+    "dist/assets/dist-DG1INu-i.js": "021dabdcbbb58194bc033e71ace7b3fab47fbbe95d3b3f8c991170efccfab192",
+    "dist/assets/harfbuzz-CODTKW78.wasm": "6eeed8e1bc9ad7773038e48ff8f9e07e0ad228572c594b45e5357e9c2f7a0b2e",
+    "dist/assets/index-Cd6zyG_3.js": "6d53b7d41bb13ae2a52aa85beea85b5112fbbb6f2834bbcad30ab833eca80343",
+    "dist/assets/index-QFC7XnLt.css": "b324c0b88ecf410838cd3492fc9507b4f21ddeb2221a04f92eefb82a073414af",
+    "dist/assets/pdfium-BJ2Yip8Q.wasm": "5e4cd023c3dad4a895b3571ca573d3fc51bac6de48360d95283134385b954eaa",
+    "dist/assets/worker-Duu6t15U.js": "c4ec0e541f0626ddb8940751e90ac93a1aff5c515cf87b5c2af8e2127e61e662",
+    "dist/examples/aura-showcase.forma.json": "c3a0e6a619edb26ddc8b98e713203d828ddf1a51e6d0058675862da19bd03970",
+    "dist/examples/mobile-studio.forma.json": "eccabd591b7ae856b7969104b582d16642d25de5f8b4554588c4f815b0560372",
+    "dist/favicon.svg": "509f8a28c3655e3d6d8fbc960670a4aed2f27090726482ed8c796c11f8a0d838",
+    "dist/index.html": "4c3f7017bbfdfb8bac8584c3cfd021c8d3967cabf3fb9b1ed80f679c5baa4d97"
+  },
+  "releaseNotesChecked": true,
+  "desktopOpenFileResult": {
+    "version": "0.8.4",
+    "filename": "shared-paint.fig",
+    "protocol": "forma:",
+    "pageNodes": 2,
+    "components": 0,
+    "instances": 0,
+    "pdfRasters": 0,
+    "images": 0,
+    "fonts": 0,
+    "storageFormat": "single",
+    "sha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+    "format": "Figma",
+    "pages": 1,
+    "sourceNodes": 6
+  }
+}

@@ -1,0 +1,9 @@
+53 row Page 1
+55 button Page 1
+56 row Page 2
+58 button Page 2
+61 heading Layers, Value: 2
+111 button iPhone 16 393 × 852
+135 button iPhone 13 & 14 390 × 844
+184 toggle button Description: Frame, Value: 1
+The focused UI element is 111 button iPhone 16 393 × 852

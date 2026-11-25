@@ -1,0 +1,1959 @@
+import { sourceNameFonts } from "./SourceName";
+import {
+  nativeDocumentBlob,
+  readNativeDocument,
+} from "../infrastructure/native-document";
+import { displayColor, profileLabel } from "../domain/color-profile";
+import { ColorProfileDialog, FileColorContext } from "./ColorProfileDialog";
+import { loadFonts } from "../infrastructure/font-import";
+import { ModeSelectors } from "./TokenBinding";
+import {
+  Variable,
+  Check,
+  ChevronDown,
+  Eye,
+  EyeOff,
+  FolderOpen,
+  FileCode2,
+  FileText,
+  FolderSync,
+  History,
+  HardDriveDownload,
+  MessageSquare,
+  Palette,
+  Package,
+  Settings2,
+  Share2,
+  ShieldCheck,
+  Sun,
+  Moon,
+  LayoutGrid,
+  Type as TypeIcon,
+  Smartphone,
+  Tablet,
+  Monitor,
+  Presentation,
+  Watch,
+  ArrowUpRight,
+  Code2,
+  Download,
+  FilePlus2,
+  HelpCircle,
+  Layers,
+  ListFilter,
+  PanelLeft,
+  PanelRight,
+  Play,
+  Shapes,
+  Sparkles,
+  Upload,
+  X,
+} from "lucide-react";
+import { PagesPanel } from "./PagesPanel";
+import { resolveVariable } from "../domain/design-system";
+import { indexPublishedScene } from "../domain/scene-index";
+import { linkedPrototypeScene } from "../domain/prototype";
+import { currentPageOnly } from "../domain/pages";
+import {
+  applyReactProjectUpdate,
+  downloadReactProject,
+  previewReactProjectUpdate,
+} from "../infrastructure/export-project";
+import type { ProjectRevisionPreview } from "../infrastructure/project-revision";
+import { PreviewDialog } from "./PreviewDialog";
+import { prototypeProgram } from "../compiler/runtime";
+import { PrototypeInspector } from "./PrototypeInspector";
+import { useMemo, useRef, useState, useEffect, lazy, Suspense } from "react";
+import type { Viewport } from "../domain/geometry";
+import { FileBrowser, newBlankFile } from "./FileBrowser";
+import { transact, type Operation } from "../domain/commands";
+import { download, createLocalFile } from "../infrastructure/storage";
+import { type DesignComment } from "../domain/document";
+import { AgentPanel, type ExternalChatRequest } from "./AgentPanel";
+import { CanvasAgentBar, type PendingAgentProposal } from "./CanvasAgentBar";
+import { ModelConfigModal } from "./ModelConfigModal";
+import type { AgentStatusResponse } from "./agent-client";
+import { DevModePanel } from "./DevModePanel";
+import { BatchExportModal } from "./ExportPanel";
+import { DesignLintPanel } from "./DesignLintPanel";
+import { CommentsPanel } from "./CommentsOverlay";
+import type { CanvasViewOptions } from "./ViewOptionsMenu";
+import { Canvas } from "./Canvas";
+import { ColorField } from "./ColorField";
+import { CodePreviewModal, ProjectUpdateModal } from "./CodeAndUpdateModals";
+import { Inspector } from "./Inspector";
+import { LayersPanel } from "./LayersPanel";
+import { CommandPalette, ShortcutHelp } from "./ActionMenu";
+import { ContextMenu } from "./ContextMenu";
+import { PanelDivider } from "./PanelDivider";
+import { TooltipHost } from "./TooltipHost";
+import { useEditor } from "./useEditor";
+
+import { ReleaseNotesDialog } from "./ReleaseNotesDialog";
+import { DesignImportDialog } from "./DesignImportDialog";
+import {
+  acceptedDesignFiles,
+  isExternalDesign,
+  checkDesignFileSize,
+} from "../infrastructure/design-import/types";
+
+const UI_THEME_KEY = "forma.ui-theme";
+
+const FRAME_PRESET_GROUPS = [
+  {
+    id: "phone",
+    label: "Phone",
+    icon: Smartphone,
+    defaultOpen: true,
+    items: [
+      { label: "iPhone 16", w: 393, h: 852 },
+      { label: "iPhone 16 Pro", w: 402, h: 874 },
+      { label: "iPhone 16 Pro Max", w: 440, h: 956 },
+      { label: "iPhone 13 / 14", w: 390, h: 844 },
+      { label: "Android Compact", w: 412, h: 917 },
+    ],
+  },
+  {
+    id: "tablet",
+    label: "Tablet",
+    icon: Tablet,
+    defaultOpen: false,
+    items: [
+      { label: 'iPad Pro 11"', w: 834, h: 1194 },
+      { label: "平板横屏", w: 1024, h: 768 },
+      { label: "iPad Mini", w: 744, h: 1133 },
+    ],
+  },
+  {
+    id: "desktop",
+    label: "Desktop",
+    icon: Monitor,
+    defaultOpen: false,
+    items: [
+      { label: "Desktop", w: 1440, h: 1024 },
+      { label: "Desktop 1440×900", w: 1440, h: 900 },
+      { label: 'MacBook Pro 14"', w: 1512, h: 982 },
+      { label: "Landing", w: 1440, h: 1024 },
+    ],
+  },
+  {
+    id: "presentation",
+    label: "Presentation",
+    icon: Presentation,
+    defaultOpen: false,
+    items: [
+      { label: "Slide 16:9", w: 1920, h: 1080 },
+      { label: "Slide 4:3", w: 1024, h: 768 },
+    ],
+  },
+  {
+    id: "watch",
+    label: "Watch",
+    icon: Watch,
+    defaultOpen: false,
+    items: [
+      { label: "Apple Watch 45mm", w: 198, h: 242 },
+      { label: "Apple Watch Ultra", w: 205, h: 251 },
+    ],
+  },
+  {
+    id: "paper",
+    label: "Paper",
+    icon: FileText,
+    defaultOpen: false,
+    items: [
+      { label: "A4", w: 595, h: 842 },
+      { label: "Letter", w: 612, h: 792 },
+    ],
+  },
+  {
+    id: "social",
+    label: "Social media",
+    icon: Share2,
+    defaultOpen: false,
+    items: [
+      { label: "Instagram Post", w: 1080, h: 1080 },
+      { label: "X Header", w: 1500, h: 500 },
+      { label: "Open Graph", w: 1200, h: 630 },
+    ],
+  },
+] as const;
+
+const STYLE_GROUPS = [
+  { kind: "paint", label: "颜色样式" },
+  { kind: "stroke", label: "描边样式" },
+  { kind: "text", label: "文字样式" },
+  { kind: "effect", label: "效果样式" },
+  { kind: "grid", label: "网格样式" },
+] as const;
+const DesignSystemDialog = lazy(() =>
+  import("./DesignSystemDialog").then((m) => ({
+    default: m.DesignSystemDialog,
+  })),
+);
+const AssetsPanel = lazy(() =>
+  import("./AssetsPanel").then((m) => ({ default: m.AssetsPanel })),
+);
+export function App(options: import("./useDocument").EditorFileOptions) {
+  const editor = useEditor(options);
+  const [uiTheme, setUiTheme] = useState<"dark" | "light">(() => {
+    try {
+      const saved = localStorage.getItem(UI_THEME_KEY);
+      if (saved === "light" || saved === "dark") return saved;
+    } catch {
+      /* ignore */
+    }
+    return "dark";
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = uiTheme;
+    try {
+      localStorage.setItem(UI_THEME_KEY, uiTheme);
+    } catch {
+      /* ignore */
+    }
+  }, [uiTheme]);
+  const [tab, setTab] = useState<"layers" | "assets" | "agent">("layers");
+  const [libraryManagerOpen, setLibraryManagerOpen] = useState(false);
+  const [compact, setCompact] = useState(
+    () => matchMedia("(max-width: 949px)").matches,
+  );
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+  const [compactPanel, setCompactPanel] = useState<"left" | "right" | null>(
+    null,
+  );
+  const showLeft = compact ? compactPanel === "left" : leftOpen;
+  const showRight = compact ? compactPanel === "right" : rightOpen;
+  useEffect(() => {
+    const media = matchMedia("(max-width: 949px)");
+    const changed = () => setCompact(media.matches);
+    media.addEventListener("change", changed);
+    return () => media.removeEventListener("change", changed);
+  }, []);
+  function togglePanel(side: "left" | "right") {
+    if (compact) setCompactPanel((current) => (current === side ? null : side));
+    else if (side === "left") setLeftOpen((open) => !open);
+    else setRightOpen((open) => !open);
+  }
+  const previousCompact = useRef<"right" | "left">("left");
+  const previousPanels = useRef({ left: true, right: true });
+  useEffect(() => {
+    function shortcut(event: KeyboardEvent) {
+      if (
+        event.key === "F6" &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !document.querySelector('[aria-modal="true"]')
+      ) {
+        const sections = [
+          "header",
+          "#left-panel",
+          ".editor-canvas",
+          "#right-panel",
+        ]
+          .map((selector) => document.querySelector<HTMLElement>(selector))
+          .filter((el): el is HTMLElement => !!el?.getClientRects().length);
+        if (!sections.length) return;
+        const index = sections.findIndex((el) =>
+          el.contains(document.activeElement),
+        );
+        const target =
+          sections[
+            (index + (event.shiftKey ? -1 : 1) + sections.length) %
+              sections.length
+          ];
+        const control = target.matches("[tabindex]")
+          ? target
+          : target.querySelector<HTMLElement>(
+              "button:not(:disabled),summary,input:not(:disabled)",
+            );
+        if (control) {
+          event.preventDefault();
+          control.focus({ preventScroll: true });
+        }
+        return;
+      }
+      if (
+        !event.isComposing &&
+        !event.repeat &&
+        !document.querySelector('[aria-modal="true"]') &&
+        !(event.target as Element)?.closest?.(
+          'input,textarea,select,[contenteditable="true"],[role="dialog"]',
+        )
+      ) {
+        if (
+          event.shiftKey &&
+          !event.metaKey &&
+          !event.ctrlKey &&
+          !event.altKey &&
+          event.code === "KeyE"
+        ) {
+          event.preventDefault();
+          setInspectorTab((t) => (t === "design" ? "prototype" : "design"));
+          return;
+        }
+        if (
+          event.shiftKey &&
+          !event.metaKey &&
+          !event.ctrlKey &&
+          !event.altKey &&
+          event.code === "KeyD"
+        ) {
+          event.preventDefault();
+          setDevMode((v) => {
+            const next = !v;
+            if (next) {
+              if (compact) setCompactPanel("right");
+              else setRightOpen(true);
+            }
+            return next;
+          });
+          return;
+        }
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          !event.altKey &&
+          !event.shiftKey &&
+          event.key === "Enter" &&
+          !editorRef.current.editing
+        ) {
+          event.preventDefault();
+          setInlineAgentOpen((v) => !v);
+          return;
+        }
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          event.shiftKey &&
+          !event.altKey &&
+          event.code === "KeyE"
+        ) {
+          event.preventDefault();
+          setBatchExportOpen(true);
+          return;
+        }
+        if (
+          (event.metaKey &&
+            !event.ctrlKey &&
+            !event.shiftKey &&
+            !event.altKey &&
+            event.code === "KeyY") ||
+          (event.shiftKey &&
+            !event.metaKey &&
+            !event.ctrlKey &&
+            !event.altKey &&
+            event.code === "KeyO")
+        ) {
+          event.preventDefault();
+          setOutlineMode((v) => !v);
+          return;
+        }
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          !event.shiftKey &&
+          !event.altKey &&
+          event.code === "Quote"
+        ) {
+          event.preventDefault();
+          setShowPixelGrid((v) => !v);
+          return;
+        }
+        if (
+          event.ctrlKey &&
+          !event.metaKey &&
+          !event.shiftKey &&
+          !event.altKey &&
+          event.code === "KeyG"
+        ) {
+          event.preventDefault();
+          setShowLayoutGuides((v) => !v);
+          return;
+        }
+        if (
+          event.shiftKey &&
+          !event.metaKey &&
+          !event.ctrlKey &&
+          !event.altKey &&
+          event.code === "KeyC"
+        ) {
+          event.preventDefault();
+          setShowComments((v) => !v);
+          return;
+        }
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          !event.altKey &&
+          !event.shiftKey &&
+          event.code === "KeyS"
+        ) {
+          event.preventDefault();
+          const current = editorRef.current.committed;
+          const slug = current.name
+            .trim()
+            .replace(/[^\p{L}\p{N}_-]+/gu, "-")
+            .replace(/^-|-$/g, "");
+          download(
+            `${slug || "design"}.forma.json`,
+            nativeDocumentBlob(current),
+          );
+          return;
+        }
+        if (
+          event.altKey &&
+          !event.metaKey &&
+          !event.ctrlKey &&
+          !event.shiftKey
+        ) {
+          if (event.code === "Digit1") {
+            event.preventDefault();
+            setTab("layers");
+            if (compact) setCompactPanel("left");
+            else setLeftOpen(true);
+            return;
+          }
+          if (event.code === "Digit2" || event.code === "Digit3") {
+            event.preventDefault();
+            setTab("assets");
+            setLibraryManagerOpen(event.code === "Digit3");
+            if (compact) setCompactPanel("left");
+            else setLeftOpen(true);
+            return;
+          }
+        }
+      }
+      if (
+        event.code !== "Backslash" ||
+        !(event.metaKey || event.ctrlKey) ||
+        event.altKey ||
+        event.isComposing ||
+        event.repeat ||
+        document.querySelector('[aria-modal="true"]')
+      )
+        return;
+      event.preventDefault();
+      if (compact) {
+        if (compactPanel) previousCompact.current = compactPanel;
+        setCompactPanel(compactPanel ? null : previousCompact.current);
+      } else if (leftOpen || rightOpen) {
+        previousPanels.current = { left: leftOpen, right: rightOpen };
+        setLeftOpen(false);
+        setRightOpen(false);
+      } else {
+        setLeftOpen(previousPanels.current.left);
+        setRightOpen(previousPanels.current.right);
+      }
+      if (document.activeElement?.closest("aside,.panel-divider"))
+        document
+          .querySelector<HTMLElement>(".editor-canvas")
+          ?.focus({ preventScroll: true });
+    }
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  }, [compact, compactPanel, leftOpen, rightOpen]);
+  const [designSystemTarget, setDesignSystemTarget] = useState<{
+    view: "variables" | "styles";
+    styleId?: string;
+  } | null>(null);
+  const openDesignSystem = (
+    view: "variables" | "styles" = "variables",
+    styleId?: string,
+  ) => setDesignSystemTarget({ view, styleId });
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [devMode, setDevMode] = useState(false);
+  const [showPixelGrid, setShowPixelGrid] = useState(false);
+  const [showLayoutGuides, setShowLayoutGuides] = useState(true);
+  const [outlineMode, setOutlineMode] = useState(false);
+  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [showComments, setShowComments] = useState(true);
+  const [batchExportOpen, setBatchExportOpen] = useState(false);
+  const [lintOpen, setLintOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
+  const [modelConfigOpen, setModelConfigOpen] = useState(false);
+  const [inlineAgentOpen, setInlineAgentOpen] = useState(false);
+  const [agentStatus, setAgentStatus] = useState<AgentStatusResponse | null>(
+    null,
+  );
+  const [pendingProposal, setPendingProposal] =
+    useState<PendingAgentProposal | null>(null);
+  const [externalChatRequest, setExternalChatRequest] =
+    useState<ExternalChatRequest | null>(null);
+  const [agentCancelToken, setAgentCancelToken] = useState(0);
+  const [agentBusyState, setAgentBusyState] = useState({
+    busy: false,
+    progressText: "",
+    error: "",
+  });
+  const [inlineAgentFocusTick, setInlineAgentFocusTick] = useState(0);
+  const openInlineAgent = () => {
+    setInlineAgentOpen(true);
+    setInlineAgentFocusTick((n) => n + 1);
+  };
+  const chatSeqRef = useRef(0);
+  const viewOptions: CanvasViewOptions = useMemo(
+    () => ({
+      showRulers: editor.rulers,
+      showPixelGrid,
+      showLayoutGuides,
+      outlineMode,
+      snapEnabled,
+      showComments,
+    }),
+    [
+      editor.rulers,
+      showPixelGrid,
+      showLayoutGuides,
+      outlineMode,
+      snapEnabled,
+      showComments,
+    ],
+  );
+  const toggleViewOption = (key: keyof CanvasViewOptions) => {
+    switch (key) {
+      case "showRulers":
+        editor.setRulers((v) => !v);
+        break;
+      case "showPixelGrid":
+        setShowPixelGrid((v) => !v);
+        break;
+      case "showLayoutGuides":
+        setShowLayoutGuides((v) => !v);
+        break;
+      case "outlineMode":
+        setOutlineMode((v) => !v);
+        break;
+      case "snapEnabled":
+        setSnapEnabled((v) => !v);
+        break;
+      case "showComments":
+        setShowComments((v) => !v);
+        break;
+    }
+  };
+  const uiHidden = compact ? !compactPanel : !leftOpen && !rightOpen;
+  const toggleAllUI = () => {
+    if (compact) {
+      if (compactPanel) previousCompact.current = compactPanel;
+      setCompactPanel(compactPanel ? null : previousCompact.current);
+    } else if (leftOpen || rightOpen) {
+      previousPanels.current = { left: leftOpen, right: rightOpen };
+      setLeftOpen(false);
+      setRightOpen(false);
+    } else {
+      setLeftOpen(previousPanels.current.left);
+      setRightOpen(previousPanels.current.right);
+    }
+  };
+  const [projectUpdate, setProjectUpdate] = useState<{
+    zipBytes: Uint8Array;
+    preview: ProjectRevisionPreview;
+  } | null>(null);
+  const [inspectorTab, setInspectorTab] = useState<"design" | "prototype">(
+    "design",
+  );
+  const [preview, setPreview] = useState<{
+    open: boolean;
+    startFrameId?: string;
+  }>({ open: false });
+  const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [filesOpen, setFilesOpen] = useState(false);
+  const [menu, setMenu] = useState<{
+    x: number;
+    y: number;
+    layers?: string[];
+  } | null>(null);
+  const projectFile = useRef<HTMLInputElement>(null);
+  const file = useRef<HTMLInputElement>(null);
+  const openAsFile = useRef(false);
+  const [externalFile, setExternalFile] = useState<File | undefined>(
+    options.externalFile,
+  );
+  const [showImportReport, setShowImportReport] = useState(false);
+  const openExternalFile = (next: File) => {
+    setShowImportReport(false);
+    setExternalFile(next);
+  };
+  const openNativeDroppedFile = async (selected: File) => {
+    try {
+      checkDesignFileSize(selected.size, false);
+      const content = await readNativeDocument(selected);
+      await loadFonts(content.fonts);
+      location.assign(await createLocalFile(content));
+    } catch (error) {
+      editor.setError(
+        `导入失败：${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  };
+  const fileMenu = useRef<HTMLDetailsElement>(null);
+  const editorRef = useRef(editor);
+  editorRef.current = editor;
+  const appVersion = window.formaDesktop?.version || __FORMA_VERSION__;
+  useEffect(() => {
+    const dismiss = (event: PointerEvent) => {
+      const menu = fileMenu.current;
+      if (menu?.open && !menu.contains(event.target as Node)) menu.open = false;
+    };
+    document.addEventListener("pointerdown", dismiss, true);
+    return () => document.removeEventListener("pointerdown", dismiss, true);
+  }, []);
+  useEffect(() => {
+    const desktop = window.formaDesktop;
+    if (!desktop) return;
+    const isEditable = (el: Element | null) =>
+      el instanceof HTMLElement &&
+      (el.isContentEditable ||
+        el.tagName === "INPUT" ||
+        el.tagName === "TEXTAREA" ||
+        el.tagName === "SELECT");
+    const offMenu = desktop.onMenuAction((action) => {
+      if (
+        (action === "undo" || action === "redo" || action === "selectAll") &&
+        isEditable(document.activeElement)
+      ) {
+        document.execCommand(action);
+        return;
+      }
+      editorRef.current.perform(action);
+    });
+    return offMenu;
+  }, []);
+  const { doc } = editor;
+  const agentDocument = useMemo(
+    () => currentPageOnly(editor.committed),
+    [editor.committed],
+  );
+  const views = useMemo(() => new Map<string, Viewport>(), [doc.id]);
+  indexPublishedScene(doc);
+  const openMenu = (x: number, y: number, layers?: string[]) =>
+    setMenu({ x, y, layers });
+  const runAgent = (operations: Operation[], baseRevision: number) => {
+    transact(editor.historyRef.current.present, { baseRevision, operations });
+    editor.apply(operations, baseRevision);
+  };
+  const aiPreviewState = useMemo(() => {
+    if (!pendingProposal) return null;
+    if (pendingProposal.transaction.baseRevision !== editor.committed.revision)
+      return null;
+    try {
+      const previewDoc = transact(
+        editor.committed,
+        pendingProposal.transaction,
+      );
+      const beforeMap = new Map(editor.committed.nodes.map((n) => [n.id, n]));
+      const changedIds = new Set<string>(pendingProposal.createdRootIds);
+      for (const n of previewDoc.nodes) {
+        const prev = beforeMap.get(n.id);
+        if (!prev || JSON.stringify(prev) !== JSON.stringify(n)) {
+          changedIds.add(n.id);
+        }
+      }
+      return { previewDoc, changedIds };
+    } catch {
+      return null;
+    }
+  }, [pendingProposal, editor.committed]);
+  useEffect(() => {
+    if (aiPreviewState) {
+      editor.setPreview(aiPreviewState.previewDoc);
+    } else {
+      editor.setPreview(null);
+    }
+  }, [aiPreviewState, editor.setPreview]);
+  useEffect(() => {
+    setPendingProposal(null);
+    setActiveCommentId(null);
+  }, [editor.committed.id, editor.committed.activePage]);
+  const applyPendingProposal = () => {
+    if (!pendingProposal) return;
+    try {
+      const rootIds = pendingProposal.createdRootIds;
+      runAgent(
+        pendingProposal.transaction.operations,
+        pendingProposal.transaction.baseRevision,
+      );
+      setPendingProposal(null);
+      if (rootIds.length) {
+        editor.setSelection(rootIds);
+        requestAnimationFrame(() => editor.api.current?.fit(rootIds));
+      }
+    } catch (e) {
+      editor.setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+  const discardPendingProposal = () => {
+    setPendingProposal(null);
+    editor.setPreview(null);
+  };
+  const updateComments = (nextComments: DesignComment[]) => {
+    editor.attempt(() =>
+      editor.apply([{ type: "setComments", comments: nextComments }]),
+    );
+  };
+  return (
+    <FileColorContext.Provider value={doc.colorProfile ?? "srgb"}>
+      <div
+        className="app"
+        style={sourceNameFonts(doc.fonts)}
+        data-theme={uiTheme}
+        data-left-open={showLeft}
+        data-right-open={showRight}
+      >
+        <input
+          type="file"
+          hidden
+          ref={projectFile}
+          accept=".zip"
+          aria-label="选择已有 React 源码 ZIP"
+          onChange={async (event) => {
+            const selectedFile = event.target.files?.[0];
+            event.target.value = "";
+            if (selectedFile)
+              try {
+                const bytes = new Uint8Array(await selectedFile.arrayBuffer());
+                const report = await previewReactProjectUpdate(
+                  editor.committed,
+                  bytes,
+                );
+                if (!report.conflicts.length) {
+                  await applyReactProjectUpdate(editor.committed, bytes, {});
+                } else {
+                  setProjectUpdate({ zipBytes: bytes, preview: report });
+                }
+              } catch (error) {
+                editor.setError(String(error));
+              }
+          }}
+        />
+        {releaseNotesOpen && (
+          <ReleaseNotesDialog
+            version={appVersion}
+            close={() => setReleaseNotesOpen(false)}
+          />
+        )}
+        {profileOpen && (
+          <ColorProfileDialog
+            doc={editor.committed}
+            save={editor.importDocument}
+            close={() => {
+              setProfileOpen(false);
+              fileMenu.current?.querySelector("summary")?.focus();
+            }}
+          />
+        )}
+        <header>
+          <details
+            className="file-menu"
+            ref={fileMenu}
+            onBlur={(e) => {
+              if (
+                e.relatedTarget &&
+                !e.currentTarget.contains(e.relatedTarget as Node)
+              )
+                e.currentTarget.open = false;
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.currentTarget.open = false;
+                e.preventDefault();
+                e.stopPropagation();
+                e.currentTarget.querySelector("summary")?.focus();
+              } else if (
+                ["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)
+              ) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.currentTarget.open = true;
+                const items = Array.from(
+                  e.currentTarget.querySelectorAll<HTMLElement>(
+                    "button:not(:disabled),a[href]",
+                  ),
+                );
+                const i = items.indexOf(document.activeElement as HTMLElement);
+                const next =
+                  e.key === "Home"
+                    ? 0
+                    : e.key === "End"
+                      ? items.length - 1
+                      : e.key === "ArrowDown"
+                        ? (i + 1) % items.length
+                        : (Math.max(i, 0) + items.length - 1) % items.length;
+                items[next]?.focus();
+              }
+            }}
+          >
+            <summary
+              className="brand"
+              aria-label="文件菜单"
+              title="文件菜单"
+              data-tip="文件与项目菜单"
+              data-tip-desc="打开本地文件、切换界面主题、整文件导出与版本恢复"
+              data-tip-side="bottom"
+            >
+              <span className="brand-mark">f</span>
+              <span>Forma</span>
+              <ChevronDown size={12} className="brand-chevron" />
+            </summary>
+            <div
+              onClick={() => {
+                if (fileMenu.current) fileMenu.current.open = false;
+              }}
+            >
+              <button
+                onClick={() => {
+                  void newBlankFile().catch((err) =>
+                    editor.setError(String(err)),
+                  );
+                }}
+              >
+                <FilePlus2 size={13} />
+                <span>新建空白文件</span>
+              </button>
+              <button
+                onClick={() => {
+                  openAsFile.current = true;
+                  file.current?.click();
+                }}
+              >
+                <FolderOpen size={13} />
+                <span>打开设计文件…</span>
+              </button>
+              {editor.committed.importReport && (
+                <button onClick={() => setShowImportReport(true)}>
+                  <Layers size={13} />
+                  <span>查看导入报告…</span>
+                </button>
+              )}
+              <button onClick={() => setFilesOpen(true)}>
+                <Layers size={13} />
+                <span>浏览本机文件…</span>
+              </button>
+              <button
+                onClick={() => {
+                  const slug = editor.committed.name
+                    .trim()
+                    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
+                    .replace(/^-|-$/g, "");
+                  download(
+                    `${slug || "design"}.forma.json`,
+                    nativeDocumentBlob(editor.committed),
+                  );
+                }}
+              >
+                <Download size={13} />
+                <span>保存本地副本</span>
+                <kbd>⌘S</kbd>
+              </button>
+              <hr />
+              <button onClick={() => setProfileOpen(true)}>
+                <Palette size={13} />
+                <span>颜色配置 · {profileLabel(doc.colorProfile)}…</span>
+              </button>
+              <button
+                onClick={() =>
+                  setUiTheme((t) => (t === "dark" ? "light" : "dark"))
+                }
+              >
+                {uiTheme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+                <span>
+                  切换至{uiTheme === "dark" ? "浅色" : "深色"}界面主题
+                </span>
+              </button>
+              <hr />
+              <button
+                onClick={() =>
+                  void downloadReactProject(
+                    editor.committed,
+                    editor.selection,
+                    "file",
+                  ).catch((error) => editor.setError(String(error)))
+                }
+              >
+                <FileCode2 size={13} />
+                <span>导出整个文件为 React 项目…</span>
+              </button>
+              <button onClick={() => projectFile.current?.click()}>
+                <FolderSync size={13} />
+                <span>更新已有 React 工程…</span>
+              </button>
+              <button onClick={() => setBatchExportOpen(true)}>
+                <Package size={13} />
+                <span>批量导出切片与资源…</span>
+                <kbd>⇧⌘E</kbd>
+              </button>
+              <hr />
+              <button onClick={() => setLintOpen(true)}>
+                <ShieldCheck size={13} />
+                <span>设计规范校验 (Check designs)…</span>
+              </button>
+              <button onClick={() => setModelConfigOpen(true)}>
+                <Settings2 size={13} />
+                <span>配置 AI 模型供应商…</span>
+              </button>
+              <hr />
+              <a
+                href="?example=mobile-studio&edition=atlas&page=atlas&node=atlas-tablet-root"
+                target="_blank"
+                rel="noreferrer"
+              >
+                打开移动设计研究室 ↗
+              </a>
+              <a href="?example=aura-showcase" target="_blank" rel="noreferrer">
+                打开 SaaS 产品与营销样例 ↗
+              </a>
+              <hr />
+              <button onClick={() => void editor.recoverPrevious()}>
+                <History size={13} />
+                <span>恢复上次保存版本</span>
+              </button>
+              <button onClick={() => void editor.downloadBackup()}>
+                <HardDriveDownload size={13} />
+                <span>下载存储备份</span>
+              </button>
+              <hr />
+              <button
+                type="button"
+                className="file-menu-version"
+                aria-haspopup="dialog"
+                onClick={() => {
+                  fileMenu.current?.querySelector("summary")?.focus();
+                  setReleaseNotesOpen(true);
+                }}
+              >
+                <span>
+                  Forma v{appVersion}
+                  {window.formaDesktop ? " · 桌面客户端" : " · Web"}
+                </span>
+                <span>版本日志</span>
+              </button>
+            </div>
+          </details>
+          <div className="panel-switches">
+            {(["left", "right"] as const).map((side) => {
+              const left = side === "left";
+              const label = left ? "图层与资源面板" : "属性面板";
+              const open = left ? showLeft : showRight;
+              const Icon = left ? PanelLeft : PanelRight;
+              return (
+                <button
+                  key={side}
+                  className="icon-btn"
+                  aria-label={label}
+                  aria-expanded={open}
+                  aria-controls={side + "-panel"}
+                  data-tip={(open ? "收起" : "打开") + label}
+                  data-tip-side="bottom"
+                  onClick={() => togglePanel(side)}
+                >
+                  <Icon size={15} />
+                </button>
+              );
+            })}
+          </div>
+          <div className="breadcrumb">
+            <button
+              type="button"
+              className="breadcrumb-workspace"
+              aria-label="打开本机工作空间文件列表"
+              data-tip="浏览本机文件"
+              data-tip-side="bottom"
+              onClick={() => setFilesOpen(true)}
+            >
+              个人空间
+            </button>
+            <span className="breadcrumb-sep">/</span>
+            <input
+              aria-label="文件名"
+              key={doc.id + ":" + doc.name}
+              defaultValue={doc.name}
+              onBlur={(event) => {
+                const name = event.target.value.trim();
+                if (name && name !== doc.name)
+                  editor.attempt(() =>
+                    editor.importDocument({ ...editor.committed, name }),
+                  );
+                else event.target.value = doc.name;
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") event.currentTarget.blur();
+              }}
+            />
+            <span
+              className="save-state"
+              title={editor.saved ? "已保存到此浏览器" : "保存中"}
+              data-tip={editor.saved ? "已保存到此浏览器" : "正在保存…"}
+              data-tip-desc="变更自动持久化到本地 IndexedDB，换设备前可下载源文件"
+              data-tip-side="bottom"
+            >
+              {editor.saved ? (
+                <Check size={12} />
+              ) : (
+                <span aria-label="保存中">·</span>
+              )}
+            </span>
+          </div>
+          <div className="header-actions">
+            <button
+              className="icon-btn"
+              aria-label={uiTheme === "dark" ? "切换浅色主题" : "切换深色主题"}
+              data-tip={uiTheme === "dark" ? "切换浅色主题" : "切换深色主题"}
+              data-tip-desc="在 Figma UI3 深色与浅色外观之间切换"
+              data-tip-side="bottom"
+              onClick={() =>
+                setUiTheme((t) => (t === "dark" ? "light" : "dark"))
+              }
+            >
+              {uiTheme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+            {(!showLeft || compact) && (
+              <button
+                className="icon-btn"
+                title="变量与样式"
+                aria-label="变量与样式"
+                data-tip="变量与样式"
+                data-tip-desc="管理颜色/数值/文本变量集合、多模式主题与复用样式"
+                data-tip-side="bottom"
+                onClick={() => openDesignSystem("variables")}
+              >
+                <Variable size={16} />
+              </button>
+            )}
+            <button
+              className={`icon-btn ${lintOpen ? "active" : ""}`}
+              title="设计规范校验"
+              aria-label="设计规范校验"
+              aria-pressed={lintOpen}
+              data-tip="设计规范校验"
+              data-tip-desc="检查未绑定变量、字体规范与 WCAG 对比度并支持一键修复"
+              data-tip-side="bottom"
+              onClick={() => setLintOpen((v) => !v)}
+            >
+              <ShieldCheck size={15} />
+            </button>
+            <button
+              className={`icon-btn ${commentsOpen ? "active" : ""}`}
+              title="画布评审评论"
+              aria-label="画布评审评论"
+              aria-pressed={commentsOpen}
+              data-tip="评审评论"
+              data-tip-kbd="C"
+              data-tip-desc="查看和管理画布评论图钉，或按 C 在画布上添加评论"
+              data-tip-side="bottom"
+              onClick={() => setCommentsOpen((v) => !v)}
+            >
+              <MessageSquare size={15} />
+            </button>
+            <button
+              className="icon-btn"
+              title="快捷键 ?"
+              aria-label="快捷键 ?"
+              data-tip="快捷键指南"
+              data-tip-kbd="?"
+              data-tip-desc="查看画布导航、选择、编辑与绘图快捷键"
+              data-tip-side="bottom"
+              onClick={() => editor.setHelp(true)}
+            >
+              <HelpCircle size={16} />
+            </button>
+            <span className="toolbar-sep" aria-hidden="true" />
+            <button
+              className="icon-btn"
+              title="新建空白文件"
+              aria-label="新建空白文件"
+              data-tip="新建空白文件"
+              data-tip-desc="在独立存储空间创建一份新的空白设计文件"
+              data-tip-side="bottom"
+              onClick={() => {
+                void newBlankFile().catch((err) =>
+                  editor.setError(String(err)),
+                );
+              }}
+            >
+              <FilePlus2 size={15} />
+            </button>
+            {(!showLeft || compact) && (
+              <button
+                className="icon-btn"
+                title="编辑菜单 / ⌘ K"
+                aria-label="操作"
+                data-tip="命令面板"
+                data-tip-kbd="⌘K"
+                data-tip-desc="搜索并快速执行编组、对齐、图层和视图命令"
+                data-tip-side="bottom"
+                onClick={() => editor.setPalette(true)}
+              >
+                <ListFilter size={15} />
+              </button>
+            )}
+            <button
+              className="icon-btn"
+              title="下载设计文件"
+              aria-label="设计文件"
+              data-tip="下载设计源文件"
+              data-tip-kbd="⌘S"
+              data-tip-desc="保存可继续编辑的 .forma.json 本地文件"
+              data-tip-side="bottom"
+              onClick={() => {
+                const slug = editor.committed.name
+                  .trim()
+                  .replace(/[^\p{L}\p{N}_-]+/gu, "-")
+                  .replace(/^-|-$/g, "");
+                download(
+                  `${slug || "design"}.forma.json`,
+                  nativeDocumentBlob(editor.committed),
+                );
+              }}
+            >
+              <Download size={15} />
+            </button>
+            <span className="toolbar-sep" aria-hidden="true" />
+            <button
+              className="icon-btn"
+              title="代码"
+              aria-label="代码"
+              data-tip="查看 React / Token 代码"
+              data-tip-kbd="⇧D"
+              data-tip-desc="预览当前画板的 React + TypeScript 源码与 CSS Tokens"
+              data-tip-side="bottom"
+              onClick={(ev) => {
+                ev.currentTarget.focus();
+                editor.attempt(() => setCodeOpen(true));
+              }}
+            >
+              <Code2 size={15} />
+            </button>
+            <button
+              className="icon-btn"
+              title="预览"
+              aria-label="预览"
+              data-tip="原型交互预览"
+              data-tip-desc="在播放器中测试跨页跳转、浮层与响应式视口"
+              data-tip-side="bottom"
+              onClick={() =>
+                editor.attempt(() => {
+                  prototypeProgram(linkedPrototypeScene(doc));
+                  setPreview({ open: true });
+                })
+              }
+            >
+              <Play size={15} />
+            </button>
+            <button
+              className="primary header-export-btn"
+              data-tip="导出独立 React 工程"
+              data-tip-desc="打包选中画板与原型依赖为可直接构建的 Vite + TS ZIP"
+              data-tip-side="bottom"
+              onClick={() =>
+                void downloadReactProject(
+                  editor.committed,
+                  editor.selection,
+                ).catch((error) => editor.setError(String(error)))
+              }
+            >
+              导出 React 项目 <ArrowUpRight size={15} />
+            </button>
+          </div>
+        </header>
+        <aside id="left-panel" hidden={!showLeft} className="left-panel">
+          <nav className="panel-tabs" aria-label="工作区导航">
+            <button
+              title="图层"
+              data-tip="图层与页面"
+              data-tip-desc="管理当前文件的多页目录与图层层级"
+              data-tip-side="bottom"
+              aria-pressed={tab === "layers"}
+              className={tab === "layers" ? "active" : ""}
+              onClick={() => setTab("layers")}
+            >
+              <Layers size={14} />
+              图层
+            </button>
+            <button
+              title="资源"
+              data-tip="组件与资源库"
+              data-tip-desc="浏览并插入原生组件、页面模板与设计规范"
+              data-tip-side="bottom"
+              aria-pressed={tab === "assets"}
+              className={tab === "assets" ? "active" : ""}
+              onClick={() => setTab("assets")}
+            >
+              <Shapes size={14} />
+              资源
+            </button>
+            <button
+              aria-pressed={tab === "agent"}
+              className={tab === "agent" ? "active" : ""}
+              title="Agent"
+              aria-label="AI 设计助手"
+              data-tip="AI 设计助手"
+              data-tip-desc="使用自然语言基于设计系统生成或局部修改可编辑图层"
+              data-tip-side="bottom"
+              onClick={() => setTab("agent")}
+            >
+              <Sparkles size={14} />
+              <span>助手</span>
+            </button>
+            <button
+              className="icon-btn"
+              title="导入设计文件"
+              aria-label="导入设计文件"
+              data-tip="导入设计文件"
+              data-tip-desc="载入 Forma 文件，或从 Sketch、Figma 原档创建新文件"
+              data-tip-side="bottom"
+              onClick={() => {
+                openAsFile.current = false;
+                file.current?.click();
+              }}
+            >
+              <Upload size={14} />
+              <span>导入</span>
+            </button>
+            {!compact && (
+              <>
+                <button
+                  aria-label="操作"
+                  data-tip="搜索操作"
+                  data-tip-kbd="⌘K"
+                  data-tip-side="right"
+                  onClick={() => editor.setPalette(true)}
+                >
+                  <ListFilter size={15} />
+                  <span>操作</span>
+                </button>
+                <button
+                  aria-label="变量与样式"
+                  data-tip="变量与样式"
+                  data-tip-side="right"
+                  aria-pressed={!!designSystemTarget}
+                  onClick={() => openDesignSystem()}
+                >
+                  <Variable size={15} />
+                  <span>变量</span>
+                </button>
+              </>
+            )}
+          </nav>
+          <div
+            className={`sidebar-content ${tab === "agent" ? "" : tab + "-sidebar"}`}
+          >
+            {tab === "layers" ? (
+              <>
+                <PagesPanel editor={editor} />
+                <LayersPanel
+                  key={doc.id + ":" + doc.activePage}
+                  editor={editor}
+                  contextMenu={openMenu}
+                  onSelectMatching={() => editor.perform("selectMatching")}
+                />
+              </>
+            ) : tab === "assets" ? (
+              <Suspense
+                fallback={<div className="compact-empty">加载资源…</div>}
+              >
+                <AssetsPanel
+                  key={doc.id}
+                  editor={editor}
+                  managerOpen={libraryManagerOpen}
+                  setManagerOpen={setLibraryManagerOpen}
+                />
+              </Suspense>
+            ) : null}
+            <div hidden={tab !== "agent"}>
+              <AgentPanel
+                key={doc.id + ":" + doc.activePage}
+                document={agentDocument}
+                selectionCount={editor.selection.length}
+                selection={
+                  editor.selection.length === 1 ? editor.selection[0] : null
+                }
+                apply={(tx) => runAgent(tx.operations, tx.baseRevision)}
+                focusNode={(id) => {
+                  editor.setSelection([id]);
+                  requestAnimationFrame(() => editor.api.current?.fit([id]));
+                }}
+                status={agentStatus}
+                onStatusChange={setAgentStatus}
+                onOpenConfig={() => setModelConfigOpen(true)}
+                pendingProposal={pendingProposal}
+                onPendingProposalChange={setPendingProposal}
+                viewportCenter={editor.api.current?.center()}
+                externalChatRequest={externalChatRequest}
+                cancelToken={agentCancelToken}
+                onBusyChange={(busy, progressText, error) =>
+                  setAgentBusyState({ busy, progressText, error })
+                }
+                onUndoLastApply={() => editor.undo()}
+              />
+            </div>
+            <div
+              className="milestone"
+              title={`文档修订 ${doc.revision} · ${editor.saved ? "已保存到此浏览器" : "保存中"}`}
+            >
+              <i />
+              {doc.nodes.length} 图层
+            </div>
+          </div>
+        </aside>
+        <PanelDivider side="left" visible={showLeft && !compact} />
+        <PanelDivider side="right" visible={showRight && !compact} />
+        <Canvas
+          onImportDesign={openExternalFile}
+          onOpenNativeDesign={(selected) =>
+            void openNativeDroppedFile(selected)
+          }
+          prototypeMode={inspectorTab === "prototype"}
+          views={views}
+          key={doc.id + ":" + doc.activePage}
+          editor={editor}
+          contextMenu={openMenu}
+          onPlayFlow={(frameId) =>
+            editor.attempt(() => {
+              prototypeProgram(linkedPrototypeScene(doc));
+              setPreview({ open: true, startFrameId: frameId });
+            })
+          }
+          viewOptions={viewOptions}
+          onToggleViewOption={toggleViewOption}
+          onToggleUI={toggleAllUI}
+          uiHidden={uiHidden}
+          devMode={devMode}
+          onToggleDevMode={() =>
+            setDevMode((v) => {
+              const next = !v;
+              if (next) {
+                if (compact) setCompactPanel("right");
+                else setRightOpen(true);
+              }
+              return next;
+            })
+          }
+          comments={doc.comments ?? []}
+          activeCommentId={activeCommentId}
+          onSelectComment={setActiveCommentId}
+          onUpdateComments={updateComments}
+          onOpenInlineAgent={() => setInlineAgentOpen((v) => !v)}
+          aiPreviewNodeIds={aiPreviewState?.changedIds}
+          onOpenDesignLint={() => setLintOpen((v) => !v)}
+        />
+        <CanvasAgentBar
+          open={inlineAgentOpen}
+          focusTick={inlineAgentFocusTick}
+          onClose={() => setInlineAgentOpen(false)}
+          document={agentDocument}
+          selection={editor.selection.length === 1 ? editor.selection[0] : null}
+          selectionCount={editor.selection.length}
+          viewportCenter={editor.api.current?.center()}
+          status={agentStatus}
+          pendingProposal={pendingProposal}
+          busy={agentBusyState.busy}
+          progressText={agentBusyState.progressText}
+          error={agentBusyState.error}
+          onOpenConfig={() => setModelConfigOpen(true)}
+          onSendPrompt={(input) => {
+            chatSeqRef.current += 1;
+            setExternalChatRequest({
+              id: chatSeqRef.current,
+              prompt: input.prompt,
+              mentions: input.mentions,
+              attachments: input.attachments,
+            });
+          }}
+          onCancel={() => setAgentCancelToken((n) => n + 1)}
+          onApplyProposal={applyPendingProposal}
+          onDiscardProposal={discardPendingProposal}
+          onOpenFullChat={() => {
+            setTab("agent");
+            if (compact) setCompactPanel("left");
+            else setLeftOpen(true);
+            setInlineAgentOpen(false);
+          }}
+        />
+        <aside
+          id="right-panel"
+          className={`right-panel ${devMode ? "is-dev-mode" : ""}`}
+          hidden={!showRight}
+        >
+          {devMode ? (
+            <>
+              <div className="inspector-tabs fp-dev-header-tabs">
+                <span className="fp-dev-mode-pill">
+                  <Code2 size={12} />
+                  开发检查 (Dev Mode)
+                </span>
+                <button
+                  type="button"
+                  className="icon-btn icon-btn-sm"
+                  aria-label="退出开发模式"
+                  title="退出开发模式"
+                  data-tip="退出开发模式"
+                  data-tip-kbd="⇧D"
+                  data-tip-side="left"
+                  onClick={() => setDevMode(false)}
+                >
+                  <X size={13} />
+                </button>
+              </div>
+              <DevModePanel
+                document={editor.committed}
+                selectedIds={editor.selection}
+                onSelectNode={(id) => {
+                  editor.setSelection([id]);
+                  requestAnimationFrame(() => editor.api.current?.fit([id]));
+                }}
+                onUpdateNode={(id, patch) =>
+                  editor.attempt(() =>
+                    editor.apply([{ type: "update", id, patch }]),
+                  )
+                }
+                onOpenFullCode={() => editor.attempt(() => setCodeOpen(true))}
+                onExportReact={() =>
+                  void downloadReactProject(
+                    editor.committed,
+                    editor.selection,
+                  ).catch((error) => editor.setError(String(error)))
+                }
+              />
+            </>
+          ) : (
+            <>
+              <div className="inspector-tabs">
+                <button
+                  aria-pressed={inspectorTab === "design"}
+                  onClick={() => setInspectorTab("design")}
+                >
+                  设计
+                </button>
+                <button
+                  aria-pressed={inspectorTab === "prototype"}
+                  onClick={() => setInspectorTab("prototype")}
+                >
+                  原型
+                </button>
+                {editor.selected.length > 1 && editor.tool !== "frame" ? (
+                  <span className="selection-pill">
+                    {editor.selection.length} 项
+                  </span>
+                ) : !editor.selected.length || editor.tool === "frame" ? (
+                  <button
+                    type="button"
+                    className={`inspector-ai-btn inspector-tabs-ai ${agentStatus?.configured && agentStatus.activeProfile ? "is-ready" : ""}`}
+                    title="用 AI 对话生成设计稿"
+                    aria-label="用 AI 对话生成新画板"
+                    data-tip="AI 对话生成"
+                    data-tip-kbd="⌘↵"
+                    data-tip-desc="打开画布 Agent 对话框，直接通过对话生成新的页面或组件"
+                    data-tip-side="left"
+                    onClick={openInlineAgent}
+                  >
+                    <Sparkles size={12} />
+                    <span>AI</span>
+                  </button>
+                ) : null}
+              </div>
+              {inspectorTab === "prototype" ? (
+                <PrototypeInspector
+                  editor={editor}
+                  openVariables={() => openDesignSystem("variables")}
+                />
+              ) : editor.selected.length && editor.tool !== "frame" ? (
+                <Inspector
+                  editor={editor}
+                  tool={editor.tool}
+                  onExitScale={() => editor.setTool("select")}
+                  onOpenBatchExport={() => setBatchExportOpen(true)}
+                  onOpenDesignLint={() => setLintOpen(true)}
+                  onOpenInlineAgent={openInlineAgent}
+                  agentConfigured={Boolean(
+                    agentStatus?.configured && agentStatus.activeProfile,
+                  )}
+                  onApplyOperations={(ops) =>
+                    editor.attempt(() => editor.apply(ops))
+                  }
+                />
+              ) : (
+                <div className="page-inspector">
+                  <section>
+                    <div className="section-title">页面背景</div>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <ColorField
+                          label="页面背景色"
+                          color={
+                            doc.pageBackground ??
+                            (uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5")
+                          }
+                          alpha={doc.pageBackgroundOpacity ?? 1}
+                          onChange={(color, alpha) =>
+                            editor.attempt(() =>
+                              editor.apply([
+                                {
+                                  type: "setPageBackground",
+                                  color,
+                                  opacity: alpha,
+                                  visible: true,
+                                },
+                              ]),
+                            )
+                          }
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="icon-btn icon-btn-sm"
+                        aria-label={
+                          doc.pageBackgroundVisible === false
+                            ? "显示页面背景"
+                            : "隐藏页面背景"
+                        }
+                        data-tip={
+                          doc.pageBackgroundVisible === false
+                            ? "显示页面背景"
+                            : "隐藏页面背景"
+                        }
+                        data-tip-side="left"
+                        onClick={() =>
+                          editor.attempt(() =>
+                            editor.apply([
+                              {
+                                type: "setPageBackground",
+                                color:
+                                  doc.pageBackground ??
+                                  (uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5"),
+                                opacity: doc.pageBackgroundOpacity ?? 1,
+                                visible: doc.pageBackgroundVisible === false,
+                              },
+                            ]),
+                          )
+                        }
+                      >
+                        {doc.pageBackgroundVisible === false ? (
+                          <EyeOff size={13} />
+                        ) : (
+                          <Eye size={13} />
+                        )}
+                      </button>
+                    </div>
+                  </section>
+                  {editor.tool === "frame" && (
+                    <section>
+                      <div className="section-title">画板预设</div>
+                      {FRAME_PRESET_GROUPS.map((group) => {
+                        const GroupIcon = group.icon;
+                        return (
+                          <details
+                            key={group.id}
+                            className="preset-category"
+                            open={group.defaultOpen}
+                          >
+                            <summary>
+                              <GroupIcon size={12} />
+                              <span>{group.label}</span>
+                            </summary>
+                            <div className="preset-list">
+                              {group.items.map((item) => (
+                                <button
+                                  key={item.label}
+                                  type="button"
+                                  className="preset-row-btn"
+                                  onClick={() =>
+                                    editor.addPresetFrame(
+                                      item.label,
+                                      item.w,
+                                      item.h,
+                                    )
+                                  }
+                                >
+                                  <span>{item.label}</span>
+                                  <small>
+                                    {item.w}×{item.h}
+                                  </small>
+                                </button>
+                              ))}
+                            </div>
+                          </details>
+                        );
+                      })}
+                    </section>
+                  )}
+                  <section>
+                    <div className="section-title">
+                      本地变量
+                      <button
+                        className="icon-btn icon-btn-sm"
+                        title="管理变量与样式"
+                        aria-label="管理变量与样式"
+                        data-tip="管理本地变量"
+                        data-tip-desc="编辑颜色、尺寸、圆角与文字变量及多主题模式"
+                        data-tip-side="left"
+                        onClick={() => openDesignSystem("variables")}
+                      >
+                        <Variable size={15} />
+                      </button>
+                    </div>
+                    <button
+                      className="wide local-system-button"
+                      onClick={() => openDesignSystem("variables")}
+                    >
+                      <Variable size={14} />
+                      变量与样式
+                      <span>
+                        {Object.keys(doc.designSystem?.variables ?? {}).length}
+                      </span>
+                    </button>
+                  </section>
+                  <ModeSelectors editor={editor} document />
+                  <section
+                    className={
+                      !Object.keys(doc.designSystem?.styles ?? {}).length
+                        ? "is-collapsed-section"
+                        : undefined
+                    }
+                  >
+                    <div className="section-title">
+                      本地样式
+                      <button
+                        className="icon-btn icon-btn-sm"
+                        title="管理样式"
+                        aria-label="管理样式"
+                        data-tip="新建或管理本地样式"
+                        data-tip-desc="打开样式库以创建或编辑颜色、文本与效果样式"
+                        data-tip-side="left"
+                        onClick={() => openDesignSystem("styles")}
+                      >
+                        +
+                      </button>
+                    </div>
+                    {(() => {
+                      const allStyles = Object.values(
+                        doc.designSystem?.styles ?? {},
+                      );
+                      const activeStyles = allStyles.filter(
+                        (s) => !s.sourceArchived,
+                      );
+                      const archivedStyles = allStyles.filter(
+                        (s) => s.sourceArchived,
+                      );
+                      const renderStyleRow = (
+                        style: (typeof allStyles)[number],
+                      ) => {
+                        let swatchColor: string | undefined;
+                        if (style.kind === "paint") {
+                          const boundId = style.bindings.fill;
+                          if (boundId && doc.designSystem) {
+                            try {
+                              swatchColor = String(
+                                resolveVariable(
+                                  doc.designSystem,
+                                  boundId,
+                                  doc.designSystem.activeModes,
+                                ),
+                              );
+                            } catch {
+                              swatchColor = style.properties.fill;
+                            }
+                          } else {
+                            swatchColor = style.properties.fill;
+                          }
+                        }
+                        return (
+                          <button
+                            className="local-style-row"
+                            key={style.id}
+                            title={style.description || style.name}
+                            onClick={() => openDesignSystem("styles", style.id)}
+                          >
+                            {style.kind === "paint" && swatchColor ? (
+                              <i
+                                className="local-style-swatch"
+                                style={{
+                                  background: displayColor(
+                                    swatchColor,
+                                    doc.colorProfile,
+                                  ),
+                                }}
+                              />
+                            ) : style.kind === "text" ? (
+                              <TypeIcon size={12} />
+                            ) : style.kind === "grid" ? (
+                              <LayoutGrid size={12} />
+                            ) : (
+                              <Sparkles size={12} />
+                            )}
+                            <span className="truncate">{style.name}</span>
+                          </button>
+                        );
+                      };
+                      return (
+                        <>
+                          {STYLE_GROUPS.map(({ kind, label }) => {
+                            const list = activeStyles.filter(
+                              (s) => s.kind === kind,
+                            );
+                            if (!list.length) return null;
+                            return (
+                              <div key={kind}>
+                                <div className="local-style-group-title">
+                                  {label}
+                                </div>
+                                {list.map(renderStyleRow)}
+                              </div>
+                            );
+                          })}
+                          {archivedStyles.length > 0 && (
+                            <details className="archived-styles-group">
+                              <summary className="local-style-group-title archived-styles-summary">
+                                <span>已归档源样式</span>
+                                <span className="fp-count-pill">
+                                  {archivedStyles.length}
+                                </span>
+                              </summary>
+                              {archivedStyles.map(renderStyleRow)}
+                            </details>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </section>
+                  {(() => {
+                    const exportCount = doc.nodes.filter(
+                      (n) =>
+                        n.type === "slice" ||
+                        (n.exportSettings?.length ?? 0) > 0,
+                    ).length;
+                    return (
+                      <section
+                        className={
+                          exportCount === 0 ? "is-collapsed-section" : undefined
+                        }
+                      >
+                        <div className="section-title">
+                          <span className="fp-section-heading">
+                            导出
+                            {exportCount > 0 && (
+                              <span className="fp-count-pill">
+                                {exportCount}
+                              </span>
+                            )}
+                          </span>
+                          <button
+                            className="icon-btn icon-btn-sm"
+                            title="批量导出资源"
+                            aria-label="批量导出资源"
+                            data-tip="批量导出切片与资源"
+                            data-tip-kbd="⇧⌘E"
+                            data-tip-desc="导出文档内所有已配置导出预设的图层与切片"
+                            data-tip-side="left"
+                            onClick={() => setBatchExportOpen(true)}
+                          >
+                            +
+                          </button>
+                        </div>
+                        {exportCount > 0 && (
+                          <button
+                            type="button"
+                            className="wide local-system-button"
+                            onClick={() => setBatchExportOpen(true)}
+                          >
+                            <Package size={14} />
+                            批量导出切图与切片
+                            <span>{exportCount}</span>
+                          </button>
+                        )}
+                      </section>
+                    );
+                  })()}
+                </div>
+              )}
+            </>
+          )}
+        </aside>
+        {designSystemTarget && (
+          <Suspense
+            fallback={
+              <div role="status" className="toast">
+                加载变量与样式…
+              </div>
+            }
+          >
+            <DesignSystemDialog
+              editor={editor}
+              key={
+                designSystemTarget.view +
+                ":" +
+                (designSystemTarget.styleId ?? "")
+              }
+              initialView={designSystemTarget.view}
+              initialStyleId={designSystemTarget.styleId}
+              close={() => setDesignSystemTarget(null)}
+            />
+          </Suspense>
+        )}
+        {filesOpen && (
+          <FileBrowser
+            externalImport={(selected) => {
+              setFilesOpen(false);
+              openExternalFile(selected);
+            }}
+            current={editor.committed}
+            currentKey={options.fileKey ?? "forma.document.v1"}
+            renameCurrent={(name) =>
+              editor.importDocument({ ...editor.committed, name })
+            }
+            close={() => setFilesOpen(false)}
+          />
+        )}
+        {(externalFile || showImportReport) && (
+          <DesignImportDialog
+            file={externalFile}
+            existing={
+              showImportReport && !externalFile ? editor.committed : undefined
+            }
+            close={() => {
+              setExternalFile(undefined);
+              setShowImportReport(false);
+            }}
+            locate={(page, id) => {
+              if (
+                page !== editor.committed.activePage &&
+                editor.committed.pages
+              )
+                editor.switchPage(page);
+              editor.setSelection([id]);
+              setShowImportReport(false);
+              requestAnimationFrame(() => editor.api.current?.fit([id]));
+            }}
+          />
+        )}
+        {editor.error && (
+          <div role="alert" className="toast">
+            {editor.error}
+            <button
+              className="icon-btn icon-btn-sm"
+              aria-label="关闭错误"
+              data-tip="关闭提示"
+              data-tip-side="top"
+              onClick={() => editor.setError("")}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+        {menu && (
+          <ContextMenu
+            editor={editor}
+            position={menu}
+            close={() => setMenu(null)}
+            onWrapSection={() => editor.perform("wrapSection")}
+            onSelectMatching={() => editor.perform("selectMatching")}
+            onToggleDevStatus={() => editor.perform("toggleDevStatus")}
+          />
+        )}
+        <BatchExportModal
+          open={batchExportOpen}
+          document={editor.committed}
+          onClose={() => setBatchExportOpen(false)}
+        />
+        <DesignLintPanel
+          open={lintOpen}
+          document={editor.committed}
+          selectedIds={editor.selection}
+          onClose={() => setLintOpen(false)}
+          onFocusNode={(id) => {
+            editor.setSelection([id]);
+            requestAnimationFrame(() => editor.api.current?.fit([id]));
+          }}
+          onApplyOperations={(ops) => editor.attempt(() => editor.apply(ops))}
+        />
+        <CommentsPanel
+          open={commentsOpen}
+          comments={doc.comments ?? []}
+          activeCommentId={activeCommentId}
+          onSelectComment={(id) => {
+            setActiveCommentId(id);
+            if (id && !showComments) setShowComments(true);
+          }}
+          onUpdateComments={updateComments}
+          onClose={() => setCommentsOpen(false)}
+        />
+        <ModelConfigModal
+          open={modelConfigOpen}
+          onClose={() => setModelConfigOpen(false)}
+          status={agentStatus}
+          onStatusChange={setAgentStatus}
+        />
+        {editor.palette && (
+          <CommandPalette
+            editor={editor}
+            close={() => editor.setPalette(false)}
+          />
+        )}
+        {editor.help && <ShortcutHelp close={() => editor.setHelp(false)} />}
+        {preview.open && (
+          <PreviewDialog
+            document={editor.committed}
+            selection={
+              preview.startFrameId ? [preview.startFrameId] : editor.selection
+            }
+            close={() => setPreview({ open: false })}
+          />
+        )}
+        {codeOpen && (
+          <CodePreviewModal
+            doc={editor.committed}
+            selection={editor.selection}
+            close={() => setCodeOpen(false)}
+          />
+        )}
+        {projectUpdate && (
+          <ProjectUpdateModal
+            doc={editor.committed}
+            zipBytes={projectUpdate.zipBytes}
+            preview={projectUpdate.preview}
+            close={() => setProjectUpdate(null)}
+            onError={(message) => editor.setError(message)}
+          />
+        )}
+        <TooltipHost />
+        <input
+          ref={file}
+          data-testid="design-file-input"
+          type="file"
+          accept={acceptedDesignFiles}
+          hidden
+          onChange={async (event) => {
+            const input = event.currentTarget;
+            const selected = input.files?.[0];
+            input.value = "";
+            if (!selected) return;
+            try {
+              const external = await isExternalDesign(selected);
+              checkDesignFileSize(selected.size, external);
+              if (external) {
+                openExternalFile(selected);
+                return;
+              }
+              const content = await readNativeDocument(selected);
+              await loadFonts(content.fonts);
+              if (openAsFile.current) {
+                location.assign(await createLocalFile(content));
+                return;
+              }
+              editor.importDocument(content);
+              editor.setSelection([]);
+              requestAnimationFrame(() => editor.api.current?.fit());
+            } catch (error) {
+              editor.setError(
+                `导入失败：${error instanceof Error ? error.message : String(error)}`,
+              );
+            }
+            input.value = "";
+          }}
+        />
+      </div>
+    </FileColorContext.Provider>
+  );
+}

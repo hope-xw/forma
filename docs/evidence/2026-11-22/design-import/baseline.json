@@ -1,0 +1,16 @@
+{
+  "byExtension": {
+    ".png": 150,
+    ".svg": 1
+  },
+  "totalBytes": 7105722,
+  "distinctContentHashes": 118,
+  "privateUsePaths": 137,
+  "manifestSha256": "912b001c31d0eb6e664d977e14e21fe279ade77f9c88070f69db8bd79bc30804",
+  "nativeDocumentChecks": {
+    "unicodeAndUtf16RangeRoundTrip": true,
+    "undeclaredSourceIdStripped": true,
+    "missingParentRejected": true,
+    "pageWith10001NodesRejected": true
+  }
+}

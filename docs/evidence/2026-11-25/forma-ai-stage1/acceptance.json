@@ -1,0 +1,56 @@
+{
+  "initiative": "2026-11-25-forma-ai-library-intelligence",
+  "stage": "Stage 1",
+  "date": "2026-11-25",
+  "version": "0.9.0",
+  "environment": {
+    "os": "macOS arm64",
+    "node": "25.8.0",
+    "browser": "Playwright Chromium"
+  },
+  "codeReview": {
+    "reviewer": "Independent Read-Only Codex CLI",
+    "initialFindings": { "p0": 3, "p1": 16, "p2": 3 },
+    "fixPasses": ["F1", "F2", "F3", "F4", "F5"],
+    "finalSignOff": "PASS",
+    "openIssues": 0
+  },
+  "checks": {
+    "unitTests": { "passed": 493, "total": 493, "failed": 0 },
+    "formatCheck": "passed",
+    "productionBuild": "passed",
+    "desktopAgentBundle": "passed",
+    "browserE2E": {
+      "passed": 7,
+      "total": 7,
+      "suites": [
+        "agent-canvas-chat",
+        "assets-libraries",
+        "editor-panels",
+        "optional-gateway",
+        "panel-parity",
+        "library-tokens",
+        "mcp"
+      ]
+    },
+    "exportedReactProject": {
+      "fixture": "agent-canvas-chat",
+      "zipPath": "output/playwright/agent-canvas-chat-check.zip",
+      "zipBytes": 83786,
+      "verifier": "scripts/verify-exports.mjs agent-canvas-chat",
+      "status": "install, build and browser passed",
+      "guideContrast": {
+        "light": { "status": 6.41, "error": 6.47 },
+        "dark": { "status": 7.31, "error": 7.36 }
+      },
+      "reviewedArtboards": 2,
+      "hybridTokenBindings": 2,
+      "startupAgentRequests": 0
+    }
+  },
+  "unverifiedBoundaries": [
+    "Stage 2 (project episodic requirement memory & derived block recycling) and Stage 3 (User x Library preference diff learning) are planned for subsequent stages",
+    "Browser E2E and export runtime verification ran on Chromium; Firefox/WebKit cross-engine reruns pending on demand",
+    "macOS Electron DMG has not been rebuilt for this Stage 1 increment (release/Forma-0.9.0-arm64.dmg remains the 2026-11-24 build)"
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "sketch": {
+    "source": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+    "renderer": "sketchtool Version 2026.3.1 (234013)",
+    "structure": {
+      "unsupportedStyleDefinitions": 0,
+      "mismatchedVariableDefinitions": 0,
+      "missingSourceFonts": 0,
+      "missingSourcePngHashes": 0,
+      "pages": 36,
+      "expanded": 44969,
+      "linkedInstances": 4798,
+      "duplicateIds": 0,
+      "missingParents": 0,
+      "invalidInstanceRef": 0,
+      "masterDefinitions": 1919,
+      "sharedStyles": 194,
+      "variables": 111,
+      "images": 156,
+      "fonts": 5,
+      "issues": 5582,
+      "sourceNodes": 13914,
+      "sha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+      "mismatches": {
+        "missing": 0,
+        "parent": 0,
+        "name": 0,
+        "text": 0,
+        "master": 0,
+        "instanceTarget": 0,
+        "siblingOrders": 0
+      },
+      "exampleMismatchIds": {}
+    },
+    "phases": [
+      "review",
+      "new-file",
+      "reload",
+      "portable-open-in-clean-profile",
+      "six-source-comparisons",
+      "unicode-master-rename-and-undo",
+      "cover-edit-visible-text-and-undo",
+      "full-project-downloaded"
+    ],
+    "textEdit": {
+      "id": "084FB160-F8B6-4FAF-90C0-B51FB85F4130",
+      "changedPixels": 33494,
+      "undoChangedPixels": 0
+    }
+  },
+  "figma": {
+    "sourceArchiveRoundTrip": {
+      "source": "iOS and iPadOS 27 (Community).fig",
+      "sha256": "d6a0a6370b17f5c109d5ef227915ef6d59bf0da23076292e09fb87fd5e63a11a",
+      "sourceBytes": 160736706,
+      "kiwiVersion": 106,
+      "sourceRecords": 37738,
+      "ordinaryPages": 46,
+      "ordinarySourceLayers": 10657,
+      "expandedPageLayers": 38747,
+      "verbatimSourceTexts": 1807,
+      "sourceInstances": 12565,
+      "ordinaryInstances": 4101,
+      "templateInstances": 8464,
+      "nonComponentInternalInstances": 0,
+      "sourceMissingMasters": 0,
+      "detachedInstances": 0,
+      "components": 2551,
+      "variants": 4749,
+      "slotContentVariants": 297,
+      "slotVariantsInSavedAssignments": 293,
+      "slotVariantsOnlyInInactiveProperties": 4,
+      "styles": 233,
+      "activeStyleRecords": 88,
+      "archivedStyleRecords": 145,
+      "variables": 530,
+      "images": 420,
+      "nativeReopenBytes": 410582726,
+      "sourceGradientLayers": 132,
+      "sourceGradientStops": 298,
+      "diagnosticRows": 2339
+    },
+    "verifiedInFileMenu": {
+      "pages": 46,
+      "components": 2551,
+      "variants": 4749,
+      "auxiliaryComponents": 25,
+      "totalVariants": 5046,
+      "styles": {
+        "text": 111,
+        "paint": 120,
+        "effect": 2
+      },
+      "bindings": 2532,
+      "nativeEmptySections": 11,
+      "variables": 530,
+      "nodes": 38747,
+      "instances": 4101,
+      "strokeStacks": 286,
+      "sharedStrokeStacks": 134,
+      "sharedDoublePaints": 75,
+      "textNodes": 11441,
+      "sourceGlyphLayers": 10066,
+      "images": 420,
+      "issues": 2343
+    },
+    "phases": [
+      "source-imported",
+      "portable-structure-verified",
+      "portable-reopened-clean-profile",
+      "unicode-text-edit-glyph-invalidation-and-undo",
+      "variable-mode-alias-and-undo",
+      "unicode-edit-and-undo",
+      "project-downloaded",
+      "six-original-visual-comparisons",
+      "independent-react-built-and-rendered"
+    ],
+    "frozenNativeReference": {
+      "filename": "forma-figma-originals.json",
+      "bytes": 3240695,
+      "sha256": "767a0e4c2bf82ea6eab15b7872ff9aa8c6a506d3a9e01d06fe373f2500af8927"
+    }
+  },
+  "comparisonMethod": "Parent IDs, original drawing order, names and Unicode compared with the frozen source archive, including after the portable Forma document was reopened."
+}

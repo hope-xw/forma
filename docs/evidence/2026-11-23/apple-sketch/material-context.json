@@ -1,0 +1,48 @@
+{
+  "sourceSha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+  "nativeRenderer": "sketchtool Version 2026.3.1 (234013)",
+  "pageId": "2C6A8770-6C47-409B-B9B8-C6AC078548F0",
+  "rootId": "74C0D863-BCC3-493B-A6B3-1C0BCA50C124",
+  "foregroundId": "B3EB650B-D8EA-4DD9-B9D5-FAA63D75C011",
+  "backdropId": "E2E4F60F-CF15-4D28-A01C-2E84CE2A8AFD",
+  "sourceLayerClass": "text",
+  "editableLayerFields": [
+    "_class",
+    "blurs",
+    "borderOptions",
+    "borders",
+    "colorControls",
+    "contextSettings",
+    "do_objectID",
+    "endMarkerType",
+    "fills",
+    "miterLimit",
+    "shadows",
+    "skipCorners",
+    "startMarkerType",
+    "textStyle",
+    "windingRule"
+  ],
+  "isolatedLayerPngSize": [
+    640,
+    382
+  ],
+  "isolatedLayerNormalAlphaCompositionPixelsOver16": 78141,
+  "isolatedSvgTextElements": 1,
+  "isolatedSvgFilterElements": 3,
+  "canvasSize": [
+    640,
+    640
+  ],
+  "denominator": 409600,
+  "metric": "1x sRGB channel values after compositing over white, max absolute RGB channel difference",
+  "changedPixels": 120565,
+  "affectedBoundsLTRBExclusive": [
+    103,
+    160,
+    542,
+    484
+  ],
+  "sameBackdropMaximumDifference": 0,
+  "changedBackdropStaleAppearancePixelsOver16": 118979
+}

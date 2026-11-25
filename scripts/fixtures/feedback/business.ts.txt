@@ -1,0 +1,34 @@
+import type { DesignAction } from "./FormaRuntime";
+import { submitEmail } from "./feedback-client";
+
+let email = "";
+let submission = 0;
+function announce(message: string) {
+  let status = document.querySelector("output[data-feedback]");
+  if (!status) {
+    status = document.createElement("output");
+    status.setAttribute("role", "status");
+    status.setAttribute("data-feedback", "");
+    document.body.appendChild(status);
+  }
+  status.textContent = message;
+}
+
+export const onDesignAction: DesignAction = async (id, value) => {
+  document.body.dataset.lastFormEvent = id + "=" + String(value);
+  if (id === "Name") {
+    email = String(value);
+    submission++;
+    announce("");
+    return;
+  }
+  if (id !== "Submit") return;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    announce("请输入完整邮箱");
+    return;
+  }
+  const current = ++submission;
+  announce("提交中");
+  const message = await submitEmail(email);
+  if (current === submission) announce(message);
+};

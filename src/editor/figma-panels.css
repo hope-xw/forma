@@ -1,0 +1,2195 @@
+/* ==========================================================================
+   Forma Figma Panels UI3 Styles (Panels 03.09, 03.10, 03.11, 04.20-04.22, 06.04, 07.04)
+   Strictly scoped (.fp-*) to ViewOptionsMenu, ScalePanel, LayoutGuidesInspector,
+   ExportPanel, BatchExportModal, DesignLintPanel, CommentsOverlay, DevModePanel.
+   Uses UI3 theme tokens (--bg-*, --text-*, --border-*, --figma-*) for dark & light.
+   Never styles .canvas-world or .runtime-stage.
+   ========================================================================== */
+
+/* ---------- Shared Utilities ---------- */
+.fp-section {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.fp-section.is-collapsed-section {
+  padding: 6px 12px;
+}
+.fp-section.is-collapsed-section > .section-title {
+  margin-bottom: 0;
+}
+
+.fp-section-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fp-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+.fp-kbd-inline {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.fp-empty-inline {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  padding: 4px 0 2px;
+}
+
+.fp-empty-inline strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.fp-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 28px 18px;
+  color: var(--text-muted);
+}
+
+.fp-empty-state strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fp-empty-state p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.fp-empty-state-icon {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.fp-empty-state-icon.is-success {
+  color: var(--figma-green);
+  opacity: 1;
+}
+
+.fp-inline-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  min-width: 0;
+  padding: 0 7px;
+  border-radius: 5px;
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  transition:
+    border-color 110ms ease,
+    background-color 110ms ease;
+}
+
+.fp-inline-field:hover {
+  background: var(--bg-input-hover);
+}
+
+.fp-inline-field:focus-within {
+  border-color: var(--figma-blue);
+  background: var(--bg-input);
+}
+
+.fp-inline-field > span {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fp-inline-field > em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.fp-inline-field > input,
+.fp-inline-field > select {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  outline: none !important;
+}
+
+.fp-segmented {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--bg-input);
+}
+
+.fp-segmented > button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition:
+    background-color 110ms ease,
+    color 110ms ease;
+}
+
+.fp-segmented > button > span {
+  font-size: 10px;
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-segmented > button.is-active {
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+}
+
+.fp-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition:
+    background-color 110ms ease,
+    color 110ms ease,
+    border-color 110ms ease;
+}
+
+.fp-chip:hover:not(:disabled) {
+  background: var(--bg-input-hover);
+  color: var(--text-primary);
+}
+
+.fp-chip.is-active {
+  background: var(--figma-blue-tint);
+  color: var(--figma-blue);
+  border-color: rgba(13, 153, 255, 0.35);
+  font-weight: 500;
+}
+
+.fp-chip-count {
+  font-size: 9.5px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.fp-pill-btn {
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+}
+
+.fp-pill-btn:hover:not(:disabled) {
+  background: var(--bg-input-hover);
+  color: var(--text-primary);
+}
+
+.fp-pill-btn.is-active {
+  background: var(--figma-blue-tint);
+  color: var(--figma-blue);
+  border-color: rgba(13, 153, 255, 0.4);
+  font-weight: 600;
+}
+
+.fp-search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.fp-search-box:focus-within {
+  border-color: var(--figma-blue);
+}
+
+.fp-search-box input {
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 0;
+  outline: none !important;
+}
+
+.fp-badge-green {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--figma-green);
+  background: rgba(20, 174, 92, 0.14);
+}
+
+/* ---------- 03.11 ViewOptionsMenu ---------- */
+.fp-view-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.fp-view-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 26px;
+  padding: 0 !important;
+  border-radius: 5px;
+  color: var(--text-primary);
+  background: transparent;
+  transition:
+    background-color 110ms ease,
+    color 110ms ease;
+}
+
+.fp-view-trigger:hover,
+.fp-view-trigger.is-open {
+  background: var(--bg-hover);
+}
+
+.fp-view-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.fp-view-menu,
+.fp-view-menu.action-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  left: auto;
+  bottom: auto;
+  display: flex;
+  flex-direction: column;
+  width: 214px;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+  padding: 5px;
+  border-radius: 10px;
+  background: var(--bg-menu);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-popover);
+  z-index: 90;
+}
+
+.fp-view-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 2px 2px 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fp-view-preset-btn {
+  height: 24px;
+  padding: 0 6px !important;
+  border-radius: 5px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: #d4d4d8 !important;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fp-view-preset-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.fp-view-preset-btn.is-active {
+  background: var(--figma-blue) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.fp-view-menu .fp-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  height: 28px;
+  padding: 0 8px !important;
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: #f4f4f5 !important;
+  background: transparent;
+}
+
+.fp-view-menu .fp-menu-item:hover:not(:disabled) {
+  background: var(--figma-blue) !important;
+  color: #ffffff !important;
+}
+
+.fp-view-menu .fp-menu-item:hover:not(:disabled) kbd {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.fp-menu-check {
+  width: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fp-menu-label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.fp-view-menu .fp-menu-item kbd {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  color: #a1a1aa;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.fp-menu-sep {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 5px 4px;
+}
+
+/* ---------- 03.09 ScalePanel ---------- */
+.fp-scale-panel {
+  background: linear-gradient(
+    180deg,
+    var(--figma-blue-tint) 0%,
+    transparent 100%
+  );
+}
+
+.fp-scale-presets {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-bottom: 9px;
+}
+
+.fp-scale-presets .fp-pill-btn {
+  padding: 0 2px;
+}
+
+.fp-scale-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.fp-scale-inputs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-scale-wh {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.fp-anchor-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.fp-anchor-caption {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.fp-anchor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 18px);
+  grid-template-rows: repeat(3, 18px);
+  gap: 2px;
+  padding: 3px;
+  border-radius: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+}
+
+.fp-anchor-cell {
+  width: 18px;
+  height: 18px;
+  padding: 0 !important;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+}
+
+.fp-anchor-cell i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition:
+    transform 110ms ease,
+    background-color 110ms ease;
+}
+
+.fp-anchor-cell:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.fp-anchor-cell.is-active {
+  background: var(--figma-blue-tint);
+}
+
+.fp-anchor-cell.is-active i {
+  width: 6px;
+  height: 6px;
+  background: var(--figma-blue);
+}
+
+.fp-scale-note {
+  margin-top: 8px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-scale-note strong {
+  color: var(--figma-blue);
+  font-weight: 600;
+}
+
+.fp-scale-note.is-warn {
+  color: var(--figma-danger);
+}
+
+.fp-scale-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.fp-scale-apply {
+  flex: 1;
+  height: 28px;
+  padding: 0 10px !important;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.fp-scale-exit {
+  height: 28px;
+  padding: 0 9px !important;
+  border-radius: 6px;
+  font-size: 11px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.fp-scale-exit:hover {
+  background: var(--bg-input-hover);
+  color: var(--text-primary);
+}
+
+/* ---------- 04.20 LayoutGuidesInspector ---------- */
+.fp-guides-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-guide-card {
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  transition: opacity 120ms ease;
+}
+
+.fp-guide-card.is-hidden {
+  opacity: 0.58;
+}
+
+.fp-guide-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 5px;
+}
+
+.fp-guide-kind-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.fp-guide-kind-select {
+  flex: 1;
+  min-width: 0;
+  height: 24px !important;
+  padding: 0 20px 0 6px !important;
+  border-radius: 5px;
+  font-size: 11px;
+  background-color: var(--bg-input);
+}
+
+.fp-guide-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  padding: 0 2px;
+}
+
+.fp-guide-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px 8px 8px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+}
+
+.fp-guide-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fp-swatch-picker {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: repeating-conic-gradient(#80808033 0% 25%, transparent 0% 50%) 0 /
+    8px 8px;
+}
+
+.fp-swatch-chip {
+  position: absolute;
+  inset: 0;
+}
+
+.fp-swatch-picker input[type="color"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.fp-mini-input {
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-mini-input:focus {
+  border-color: var(--figma-blue);
+  outline: none;
+}
+
+.fp-hex-input {
+  width: 72px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  text-transform: uppercase;
+}
+
+.fp-opacity-field {
+  flex: 1;
+}
+
+.fp-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.fp-select-field > select {
+  cursor: pointer;
+}
+
+/* ---------- 04.21 ExportPanel & 03.10 BatchExportModal ---------- */
+.fp-export-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.fp-export-row {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr) 68px 24px;
+  align-items: center;
+  gap: 4px;
+}
+
+.fp-export-row select,
+.fp-export-row input {
+  height: 26px !important;
+  min-width: 0;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.fp-export-row select:focus,
+.fp-export-row input:focus {
+  border-color: var(--figma-blue);
+  outline: none;
+}
+
+.fp-export-preview-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 26px;
+  padding: 0 4px !important;
+  font-size: 11px;
+  color: var(--text-secondary);
+  border-radius: 5px;
+  margin-bottom: 6px;
+}
+
+.fp-export-preview-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.fp-export-preview-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+}
+
+.fp-export-preview-stage {
+  height: 112px;
+  border-radius: 5px;
+  border: 1px solid var(--border-subtle);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 6px;
+  background: repeating-conic-gradient(
+      rgba(128, 128, 128, 0.14) 0% 25%,
+      transparent 0% 50%
+    )
+    0 / 12px 12px;
+}
+
+.fp-export-preview-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.fp-export-preview-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-export-primary-btn {
+  width: 100%;
+  height: 26px;
+  padding: 0 10px !important;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.fp-export-primary-btn:hover:not(:disabled) {
+  background: var(--bg-input-hover);
+  border-color: var(--border-strong);
+}
+
+.fp-export-footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 6px;
+  height: 26px;
+  padding: 0 6px !important;
+  border-radius: 5px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.fp-export-footer-link:hover {
+  background: var(--bg-hover);
+  color: var(--figma-blue);
+}
+
+.fp-export-error {
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  color: var(--figma-danger);
+  background: var(--figma-danger-bg);
+}
+
+/* Batch Export Modal */
+.fp-modal-dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+  outline: none;
+}
+
+.fp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.fp-modal-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+  font-size: 11px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.fp-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 14px;
+}
+
+.fp-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+  flex-shrink: 0;
+}
+
+.fp-batch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-batch-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  cursor: pointer;
+}
+
+.fp-batch-item:hover {
+  background: var(--bg-hover);
+}
+
+.fp-batch-item.is-selected {
+  border-color: rgba(13, 153, 255, 0.45);
+  background: var(--figma-blue-tint);
+}
+
+.fp-batch-item input[type="checkbox"] {
+  accent-color: var(--figma-blue);
+  flex-shrink: 0;
+}
+
+.fp-batch-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fp-batch-filename {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.fp-batch-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.fp-batch-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.fp-format-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+.fp-format-badge.is-slice {
+  color: var(--figma-blue);
+  background: var(--figma-blue-tint);
+}
+
+/* ---------- Floating Panels (04.22 DesignLintPanel & 06.04 CommentsPanel) ---------- */
+.fp-floating-panel {
+  position: fixed;
+  top: 56px;
+  right: 306px;
+  width: min(352px, calc(100vw - 32px));
+  max-height: calc(100dvh - 80px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 11px;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-modal);
+  z-index: 55;
+  overflow: hidden;
+  outline: none;
+}
+
+@media (max-width: 949px) {
+  .fp-floating-panel {
+    right: 16px;
+  }
+}
+
+.fp-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.fp-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.fp-panel-title strong {
+  font-weight: 600;
+}
+
+.fp-panel-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ---------- 04.22 DesignLintPanel ---------- */
+.fp-lint-fix-all {
+  height: 24px;
+  padding: 0 8px !important;
+  border-radius: 5px;
+  font-size: 10.5px;
+  gap: 4px;
+}
+
+.fp-lint-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+  flex-shrink: 0;
+}
+
+.fp-lint-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-lint-item {
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fp-lint-item.is-error {
+  border-left: 3px solid var(--figma-danger);
+}
+
+.fp-lint-item.is-warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.fp-lint-item.is-info {
+  border-left: 3px solid var(--figma-blue);
+}
+
+.fp-lint-item-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fp-lint-icon.is-error {
+  color: var(--figma-danger);
+  flex-shrink: 0;
+}
+
+.fp-lint-icon.is-warning {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.fp-lint-icon.is-info {
+  color: var(--figma-blue);
+  flex-shrink: 0;
+}
+
+.fp-lint-layer-btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 1px 4px !important;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fp-lint-layer-btn:hover {
+  color: var(--figma-blue);
+  background: var(--bg-hover);
+}
+
+.fp-severity-badge {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.fp-severity-badge.is-error {
+  color: var(--figma-danger);
+  background: var(--figma-danger-bg);
+}
+
+.fp-severity-badge.is-warning {
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.fp-severity-badge.is-info {
+  color: var(--figma-blue);
+  background: var(--figma-blue-tint);
+}
+
+.fp-lint-message {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.fp-lint-detail {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.fp-lint-contrast-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.fp-contrast-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid var(--border-strong);
+}
+
+.fp-lint-contrast-meta code {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.fp-lint-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.fp-lint-fix-btn {
+  height: 23px;
+  padding: 0 8px !important;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--figma-blue);
+  background: var(--figma-blue-tint);
+  gap: 4px;
+}
+
+.fp-lint-fix-btn:hover {
+  background: var(--figma-blue);
+  color: #ffffff;
+}
+
+/* ---------- 06.04 CommentsOverlay & CommentsPanel ---------- */
+.fp-comments-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.fp-comment-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  width: 26px;
+  height: 26px;
+  padding: 0 !important;
+  border-radius: 13px 13px 13px 3px;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 2px solid var(--figma-blue);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: auto;
+  transition:
+    transform 110ms ease,
+    background-color 110ms ease,
+    border-color 110ms ease;
+}
+
+.fp-comment-pin:hover {
+  transform: translate(-50%, -106%) scale(1.08);
+  background: var(--figma-blue);
+  color: #ffffff;
+}
+
+.fp-comment-pin.is-active {
+  background: var(--figma-blue);
+  color: #ffffff;
+  box-shadow:
+    0 0 0 3px var(--figma-blue-tint),
+    0 6px 16px rgba(13, 153, 255, 0.42);
+  z-index: 2;
+}
+
+.fp-comment-pin.is-resolved {
+  opacity: 0.62;
+  border-color: var(--figma-green);
+  color: var(--figma-green);
+}
+
+.fp-comment-pin.is-resolved.is-active {
+  opacity: 1;
+  background: var(--figma-green);
+  color: #ffffff;
+}
+
+.fp-comment-popover {
+  position: absolute;
+  width: 296px;
+  max-width: calc(100vw - 32px);
+  max-height: 380px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-modal);
+  pointer-events: auto;
+  z-index: 12;
+  overflow: hidden;
+}
+
+.fp-comment-popover-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+}
+
+.fp-comment-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--figma-blue-tint);
+  color: var(--figma-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-comment-status-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.fp-comment-head-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.fp-comment-thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fp-comment-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.fp-comment-entry.is-reply {
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.fp-comment-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--figma-blue);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.fp-comment-avatar.is-reply {
+  background: var(--figma-purple);
+}
+
+.fp-comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.fp-comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+}
+
+.fp-comment-meta strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.fp-comment-meta time {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.fp-reply-delete {
+  margin-left: auto;
+  opacity: 0.55;
+}
+
+.fp-reply-delete:hover {
+  opacity: 1;
+  color: var(--figma-danger) !important;
+}
+
+.fp-comment-text {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.fp-comment-composer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+}
+
+.fp-comment-composer input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.fp-comment-composer input:focus {
+  border-color: var(--figma-blue);
+  outline: none;
+}
+
+.fp-comment-send:not(:disabled) {
+  background: var(--figma-blue);
+  color: #ffffff !important;
+}
+
+.fp-comment-send:hover:not(:disabled) {
+  background: var(--figma-blue-hover);
+}
+
+/* Comments Panel */
+.fp-comments-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+  flex-shrink: 0;
+}
+
+.fp-comments-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-comment-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+}
+
+.fp-comment-card.is-active {
+  border-color: var(--figma-blue);
+  background: var(--figma-blue-tint);
+}
+
+.fp-comment-card.is-resolved {
+  opacity: 0.72;
+}
+
+.fp-comment-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 !important;
+  text-align: left;
+  background: transparent !important;
+}
+
+.fp-comment-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.fp-comment-card-head time {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.fp-comment-card-text {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fp-comment-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ---------- 07.04 DevModePanel ---------- */
+.fp-dev-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  color: var(--text-primary);
+}
+
+.fp-dev-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(20, 174, 92, 0.28);
+  background: linear-gradient(
+    90deg,
+    rgba(20, 174, 92, 0.14) 0%,
+    rgba(20, 174, 92, 0.04) 100%
+  );
+}
+
+.fp-dev-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--figma-green);
+  background: rgba(20, 174, 92, 0.16);
+  border: 1px solid rgba(20, 174, 92, 0.35);
+}
+
+.fp-dev-banner-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.fp-dev-layer-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fp-dev-layer-title-row > strong {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fp-dev-type-tag {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.fp-unit-switch {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 5px;
+  background: var(--bg-input);
+  flex-shrink: 0;
+}
+
+.fp-unit-switch button {
+  height: 20px;
+  padding: 0 6px !important;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.fp-unit-switch button.is-active {
+  background: var(--figma-green);
+  color: #ffffff;
+}
+
+.fp-dev-dim-line {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-dev-status-bar {
+  margin-top: 9px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.fp-dev-status-btn {
+  height: 26px;
+  padding: 0 5px !important;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 500;
+  gap: 3px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.fp-dev-status-btn.is-none.is-active {
+  background: var(--bg-panel-alt);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.fp-dev-status-btn.is-ready.is-active {
+  background: rgba(20, 174, 92, 0.16);
+  color: var(--figma-green);
+  border-color: rgba(20, 174, 92, 0.5);
+  font-weight: 600;
+}
+
+.fp-dev-status-btn.is-completed.is-active {
+  background: var(--figma-blue-tint);
+  color: var(--figma-blue);
+  border-color: rgba(13, 153, 255, 0.45);
+  font-weight: 600;
+}
+
+.fp-dev-ready-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-dev-ready-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 8px 10px !important;
+  border-radius: 7px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  text-align: left;
+}
+
+.fp-dev-ready-card:hover {
+  border-color: rgba(20, 174, 92, 0.5);
+  background: rgba(20, 174, 92, 0.08);
+}
+
+.fp-dev-ready-card.is-compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px !important;
+}
+
+.fp-dev-ready-card.is-compact small {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-dev-ready-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fp-dev-ready-top strong {
+  flex: 1;
+  font-size: 11.5px;
+}
+
+.fp-dev-status-chip {
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 9.5px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.fp-dev-status-chip.is-ready {
+  color: var(--figma-green);
+  background: rgba(20, 174, 92, 0.16);
+}
+
+.fp-dev-status-chip.is-completed {
+  color: var(--figma-blue);
+  background: var(--figma-blue-tint);
+}
+
+.fp-dev-ready-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-dev-layout-tag {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--figma-green);
+  background: rgba(20, 174, 92, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Visual CSS Box Model */
+.fp-box-model {
+  padding: 2px 0;
+}
+
+.fp-bm-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 26px;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-bm-ring.is-border {
+  border: 1px dashed rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.fp-bm-ring.is-padding {
+  width: 100%;
+  border: 1px dashed rgba(20, 174, 92, 0.55);
+  background: rgba(20, 174, 92, 0.1);
+}
+
+.fp-bm-label {
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.fp-bm-val {
+  position: absolute;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.fp-bm-val.is-top {
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.fp-bm-val.is-bottom {
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.fp-bm-val.is-left {
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fp-bm-val.is-right {
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fp-bm-core {
+  width: 100%;
+  min-height: 30px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(13, 153, 255, 0.45);
+  background: var(--figma-blue-tint);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-bm-meta-row {
+  margin-top: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+.fp-bm-meta-row strong {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bound Tokens Table */
+.fp-platform-pills {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 5px;
+  background: var(--bg-input);
+}
+
+.fp-platform-pills button {
+  height: 18px;
+  padding: 0 5px !important;
+  border-radius: 3px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.fp-platform-pills button.is-active {
+  background: var(--bg-panel);
+  color: var(--figma-green);
+  font-weight: 600;
+}
+
+.fp-token-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-token-row {
+  padding: 7px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fp-token-row-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  font-size: 10.5px;
+}
+
+.fp-token-prop {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.fp-token-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  flex-shrink: 0;
+}
+
+.fp-token-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.fp-token-val {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  flex-shrink: 0;
+}
+
+.fp-token-syntax-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 7px;
+  border-radius: 5px;
+  background: var(--bg-input);
+}
+
+.fp-token-syntax-row code {
+  flex: 1;
+  min-width: 0;
+  font-size: 10.5px;
+  color: var(--figma-green);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Code Snippets */
+.fp-code-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.fp-code-tabs-bar .fp-segmented {
+  flex: 1;
+}
+
+.fp-code-block {
+  border-radius: 7px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel-alt);
+  max-height: 220px;
+  overflow: auto;
+}
+
+.fp-code-block pre {
+  margin: 0;
+  padding: 8px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.fp-code-line {
+  display: flex;
+  align-items: baseline;
+  padding: 0 10px 0 0;
+}
+
+.fp-code-ln {
+  width: 28px;
+  padding-right: 8px;
+  text-align: right;
+  user-select: none;
+  color: var(--text-muted);
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.fp-code-line code {
+  white-space: pre;
+}
+
+/* Dev Annotations */
+.fp-annotation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px;
+  margin-bottom: 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(20, 174, 92, 0.35);
+  background: var(--bg-panel-alt);
+}
+
+.fp-annotation-form textarea {
+  min-height: 64px;
+  padding: 7px 8px;
+  border-radius: 5px;
+  background: var(--bg-input);
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: 11px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.fp-annotation-form textarea:focus {
+  border-color: var(--figma-green);
+  outline: none;
+}
+
+.fp-annotation-props {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fp-prop-tag {
+  height: 20px;
+  padding: 0 7px !important;
+  border-radius: 4px;
+  font-size: 10px;
+  background: var(--bg-input);
+  color: var(--text-muted);
+}
+
+.fp-prop-tag.is-active {
+  background: rgba(20, 174, 92, 0.16);
+  color: var(--figma-green);
+  font-weight: 600;
+}
+
+.fp-annotation-form-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.fp-annotations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fp-annotation-card {
+  padding: 8px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fp-annotation-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.fp-annotation-badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.fp-annotation-badge.is-cat-spec,
+.fp-chip.is-cat-spec.is-active {
+  color: var(--figma-blue);
+  background: var(--figma-blue-tint);
+  border-color: rgba(13, 153, 255, 0.35);
+}
+
+.fp-annotation-badge.is-cat-dev,
+.fp-chip.is-cat-dev.is-active {
+  color: var(--figma-green);
+  background: rgba(20, 174, 92, 0.16);
+  border-color: rgba(20, 174, 92, 0.4);
+}
+
+.fp-annotation-badge.is-cat-interaction,
+.fp-chip.is-cat-interaction.is-active {
+  color: var(--figma-purple-soft);
+  background: var(--figma-purple-tint);
+  border-color: rgba(151, 71, 255, 0.4);
+}
+
+.fp-annotation-badge.is-cat-a11y,
+.fp-chip.is-cat-a11y.is-active {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.fp-annotation-text {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.fp-annotation-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fp-prop-chip {
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9.5px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+.fp-dev-quick-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.fp-dev-action-btn {
+  height: 29px;
+  padding: 0 8px !important;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  gap: 5px;
+}
+
+.fp-dev-action-btn:hover:not(:disabled) {
+  background: var(--bg-input-hover);
+}
+
+.fp-dev-action-btn.is-green {
+  background: var(--figma-green);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.fp-dev-action-btn.is-green:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+/* ---------- Dev Mode Sidebar Header & Canvas View Overlays ---------- */
+.fp-dev-header-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(20, 174, 92, 0.35);
+  background: rgba(20, 174, 92, 0.08);
+}
+
+.fp-dev-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--figma-green);
+}
+
+.right-panel.is-dev-mode {
+  border-left-color: rgba(20, 174, 92, 0.4);
+}
+
+.editor-canvas.is-outline-mode .canvas-world .design-node {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: 1px solid rgba(13, 153, 255, 0.72) !important;
+  outline-offset: -1px;
+}
+
+.editor-canvas.is-outline-mode .canvas-world .design-node svg path {
+  fill: none !important;
+  stroke: rgba(13, 153, 255, 0.85) !important;
+  stroke-width: 1px !important;
+}
+
+.design-node.is-ai-preview {
+  outline: 2px solid var(--figma-blue, #0d99ff);
+  outline-offset: 2px;
+  animation: fp-ai-preview-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes fp-ai-preview-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(13, 153, 255, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(151, 71, 255, 0.24);
+  }
+}

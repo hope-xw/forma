@@ -1,0 +1,2187 @@
+{
+  "product": "Forma",
+  "version": "0.4.0",
+  "date": "2026-11-20",
+  "environment": {
+    "os": "macOS 27.2.1",
+    "arch": "arm64",
+    "node": "v25.8.0",
+    "npm": "11.11.0",
+    "modelGateway": "empty",
+    "bundle": {
+      "mainScript": "/assets/index-gXYnWLxc.js",
+      "sha256": "a968c7c69795398faa8072d4a7f6ccb17db8a791a8e6e1db9fed16ccb351641e"
+    }
+  },
+  "sourceChecks": {
+    "unit": 121,
+    "skipped": 0,
+    "typeScript": "passed",
+    "productionBuild": "passed",
+    "format": "passed"
+  },
+  "browser": {
+    "chrome": {
+      "version": "158.0.8127.36",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+      "ui": [
+        "professional-editor",
+        "container-rules",
+        "mixed-materials",
+        "mixed-instances",
+        "keyboard-authoring",
+        "designer-delivery",
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "library-subscription",
+        "library-publish",
+        "component-properties",
+        "variant-authoring",
+        "nested-instances",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "images",
+        "vector",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "independentlyBuiltProjects": [
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "designWorkflows": {
+        "professional-editor": {
+          "sizes": [
+            [
+              375,
+              0,
+              164,
+              375,
+              56
+            ],
+            [
+              390,
+              0,
+              164,
+              390,
+              56
+            ],
+            [
+              768,
+              252,
+              164,
+              516,
+              56
+            ],
+            [
+              1024,
+              252,
+              164,
+              772,
+              56
+            ],
+            [
+              1440,
+              252,
+              164,
+              1188,
+              56
+            ]
+          ],
+          "mask": [
+            "alpha",
+            "luminance"
+          ],
+          "variableFont": true
+        },
+        "container-rules": {
+          "widths": [
+            {
+              "width": 375,
+              "cols": 1,
+              "pad": 8,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                359,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 359,
+              "tileGap": 9
+            },
+            {
+              "width": 390,
+              "cols": 1,
+              "pad": 8,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                374,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 374,
+              "tileGap": 9
+            },
+            {
+              "width": 768,
+              "cols": 2,
+              "pad": 16,
+              "row": 12,
+              "gap": 12,
+              "next": [
+                390,
+                16,
+                362,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 362,
+              "tileGap": 9
+            },
+            {
+              "width": 1024,
+              "cols": 4,
+              "pad": 24,
+              "row": 12,
+              "gap": 16,
+              "next": [
+                272,
+                24,
+                232,
+                60
+              ],
+              "inner": [
+                15,
+                3,
+                10,
+                24
+              ],
+              "tileWidth": 232,
+              "tileGap": 2
+            },
+            {
+              "width": 1440,
+              "cols": 4,
+              "pad": 24,
+              "row": 12,
+              "gap": 16,
+              "next": [
+                376,
+                24,
+                336,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 336,
+              "tileGap": 9
+            }
+          ]
+        },
+        "mixed-materials": {
+          "gradientAlpha": [
+            0.25,
+            0.75
+          ],
+          "stroke": [
+            3,
+            1
+          ],
+          "independentShadows": true,
+          "undo": 4
+        },
+        "mixed-instances": {
+          "instances": 2,
+          "independentAxes": [
+            [
+              "Light",
+              "On",
+              "Disabled"
+            ],
+            [
+              "Dark",
+              "Off",
+              "Disabled"
+            ]
+          ],
+          "undoRedo": true,
+          "reopened": true
+        },
+        "keyboard-authoring": {
+          "input": "keyboard only",
+          "layers": 2,
+          "undoRedo": true,
+          "reopened": true
+        },
+        "designer-delivery": {
+          "samples": [
+            [
+              375,
+              104,
+              112
+            ],
+            [
+              390,
+              104,
+              112
+            ],
+            [
+              768,
+              108,
+              120
+            ],
+            [
+              1024,
+              108,
+              120
+            ],
+            [
+              1440,
+              108,
+              120
+            ]
+          ],
+          "verified": "designer edit, undo, reopen, update, conflict and preview"
+        },
+        "optional-gateway": {
+          "modelRequests": 0,
+          "manualEditor": true
+        },
+        "library-subscription": {
+          "networkRequests": 4,
+          "selectiveUpdate": true,
+          "conflict": "kept local size 22",
+          "offline": true,
+          "unsubscribed": true
+        },
+        "library-publish": {
+          "publish": true,
+          "service": "team",
+          "deniedInvalidToken": true,
+          "discovery": true,
+          "updatedInstance": true,
+          "undo": true
+        },
+        "component-properties": {
+          "text": "设计师覆盖",
+          "iconHidden": true,
+          "swapped": true,
+          "mixedInstances": 2,
+          "undo": true
+        },
+        "variant-authoring": {
+          "variants": 3,
+          "axes": [
+            "State",
+            "尺寸"
+          ],
+          "override": "待发送",
+          "width": 232,
+          "uniqueCombinations": true,
+          "reopened": true,
+          "crossFile": true,
+          "combinedExistingDrawings": true
+        },
+        "nested-instances": {
+          "exposedNestedSwap": true,
+          "forwardedLevels": 3,
+          "retainedTitle": true,
+          "updatedFromNestedMaster": true,
+          "undoRedo": true,
+          "reopened": true
+        }
+      },
+      "mobileLibrary": {
+        "components": 44,
+        "variants": 290,
+        "insertedAndReopened": 44
+      },
+      "render": {
+        "artboards": 20,
+        "layers": 1828,
+        "worstRgbDeltaAbove16Pct": 0.004,
+        "perArtboard": [
+          {
+            "engine": "chromium",
+            "id": "mkt-desktop",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 2120,
+              "differentPixels": 163658,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 11
+            },
+            "canvasToPreview": {
+              "layers": 107,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 107,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "mkt-mobile",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 980,
+              "differentPixels": 10551,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 1
+            },
+            "canvasToPreview": {
+              "layers": 18,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 18,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "ws-desktop",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 900,
+              "differentPixels": 4801,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 3
+            },
+            "canvasToPreview": {
+              "layers": 116,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 116,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "ws-deploy-modal",
+            "previewProjectPixels": {
+              "width": 440,
+              "height": 410,
+              "differentPixels": 1585,
+              "over16": 3,
+              "over16Pct": 0.002,
+              "maxChannelDelta": 56
+            },
+            "canvasToPreview": {
+              "layers": 12,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 12,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 130493,
+              "over16": 9,
+              "over16Pct": 0.001,
+              "maxChannelDelta": 42
+            },
+            "canvasToPreview": {
+              "layers": 136,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 136,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 124,
+              "over16": 12,
+              "over16Pct": 0.001,
+              "maxChannelDelta": 23
+            },
+            "canvasToPreview": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 131,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 7
+            },
+            "canvasToPreview": {
+              "layers": 68,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 68,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 121,
+              "over16": 8,
+              "over16Pct": 0.001,
+              "maxChannelDelta": 19
+            },
+            "canvasToPreview": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 40,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 14
+            },
+            "canvasToPreview": {
+              "layers": 38,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 38,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+            "previewProjectPixels": {
+              "width": 402,
+              "height": 730,
+              "differentPixels": 132,
+              "over16": 8,
+              "over16Pct": 0.003,
+              "maxChannelDelta": 23
+            },
+            "canvasToPreview": {
+              "layers": 62,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 62,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 15,
+              "over16": 12,
+              "over16Pct": 0.004,
+              "maxChannelDelta": 19
+            },
+            "canvasToPreview": {
+              "layers": 59,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 59,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 13,
+              "over16": 12,
+              "over16Pct": 0.004,
+              "maxChannelDelta": 19
+            },
+            "canvasToPreview": {
+              "layers": 70,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 70,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 817,
+              "over16": 12,
+              "over16Pct": 0.004,
+              "maxChannelDelta": 20
+            },
+            "canvasToPreview": {
+              "layers": 47,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 47,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 286,
+              "over16": 12,
+              "over16Pct": 0.004,
+              "maxChannelDelta": 20
+            },
+            "canvasToPreview": {
+              "layers": 66,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 66,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "77f272c8-b198-4143-922d-44014c89e546",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 1024,
+              "differentPixels": 394558,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 9
+            },
+            "canvasToPreview": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 1024,
+              "differentPixels": 392715,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 9
+            },
+            "canvasToPreview": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "atlas-tablet-root",
+            "previewProjectPixels": {
+              "width": 1180,
+              "height": 820,
+              "differentPixels": 26,
+              "over16": 1,
+              "over16Pct": 0,
+              "maxChannelDelta": 57
+            },
+            "canvasToPreview": {
+              "layers": 100,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 100,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "atlas-phone-root",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 36,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 9
+            },
+            "canvasToPreview": {
+              "layers": 85,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 85,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "atlas-note-root",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 60,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 60,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "chromium",
+            "id": "atlas-sheet-root",
+            "previewProjectPixels": {
+              "width": 348,
+              "height": 246,
+              "differentPixels": 2,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 1
+            },
+            "canvasToPreview": {
+              "layers": 14,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 14,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          }
+        ]
+      }
+    },
+    "webkit": {
+      "version": "27.2",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+      "ui": [
+        "professional-editor",
+        "container-rules",
+        "mixed-materials",
+        "mixed-instances",
+        "keyboard-authoring",
+        "designer-delivery",
+        "aura",
+        "editing-workflow",
+        "atlas",
+        "cross-page",
+        "responsive-player",
+        "shapes",
+        "smart-selection",
+        "wires",
+        "optional-gateway",
+        "library-tokens",
+        "library-subscription",
+        "library-publish",
+        "component-properties",
+        "variant-authoring",
+        "nested-instances",
+        "size-limits",
+        "strokes",
+        "files",
+        "storage",
+        "studio",
+        "editor-panels",
+        "sizing",
+        "wrap",
+        "responsive",
+        "prototype",
+        "images",
+        "vector",
+        "booleans",
+        "rich-text",
+        "mask",
+        "guides",
+        "asset-import"
+      ],
+      "independentlyBuiltProjects": [
+        "variant-authoring",
+        "forwarded-instances",
+        "nested-instances",
+        "component-properties",
+        "container-rules",
+        "professional-editor",
+        "designer-delivery",
+        "span",
+        "atlas",
+        "studio-file",
+        "file",
+        "shapes",
+        "limits",
+        "sizing",
+        "wrap",
+        "rich",
+        "image",
+        "stroke",
+        "mask",
+        "vector",
+        "boolean",
+        "responsive",
+        "responsive-player",
+        "prototype",
+        "cross",
+        "aura"
+      ],
+      "designWorkflows": {
+        "professional-editor": {
+          "sizes": [
+            [
+              375,
+              0,
+              164,
+              375,
+              56
+            ],
+            [
+              390,
+              0,
+              164,
+              390,
+              56
+            ],
+            [
+              768,
+              252,
+              164,
+              516,
+              56
+            ],
+            [
+              1024,
+              252,
+              164,
+              772,
+              56
+            ],
+            [
+              1440,
+              252,
+              164,
+              1188,
+              56
+            ]
+          ],
+          "mask": [
+            "alpha",
+            "luminance"
+          ],
+          "variableFont": true
+        },
+        "container-rules": {
+          "widths": [
+            {
+              "width": 375,
+              "cols": 1,
+              "pad": 8,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                359,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 359,
+              "tileGap": 9
+            },
+            {
+              "width": 390,
+              "cols": 1,
+              "pad": 8,
+              "row": 6,
+              "gap": 8,
+              "next": [
+                8,
+                74,
+                374,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 374,
+              "tileGap": 9
+            },
+            {
+              "width": 768,
+              "cols": 2,
+              "pad": 16,
+              "row": 12,
+              "gap": 12,
+              "next": [
+                390,
+                16,
+                362,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 362,
+              "tileGap": 9
+            },
+            {
+              "width": 1024,
+              "cols": 4,
+              "pad": 24,
+              "row": 12,
+              "gap": 16,
+              "next": [
+                272,
+                24,
+                232,
+                60
+              ],
+              "inner": [
+                15,
+                3,
+                10,
+                24
+              ],
+              "tileWidth": 232,
+              "tileGap": 2
+            },
+            {
+              "width": 1440,
+              "cols": 4,
+              "pad": 24,
+              "row": 12,
+              "gap": 16,
+              "next": [
+                376,
+                24,
+                336,
+                60
+              ],
+              "inner": [
+                26,
+                7,
+                10,
+                24
+              ],
+              "tileWidth": 336,
+              "tileGap": 9
+            }
+          ]
+        },
+        "mixed-materials": {
+          "gradientAlpha": [
+            0.25,
+            0.75
+          ],
+          "stroke": [
+            3,
+            1
+          ],
+          "independentShadows": true,
+          "undo": 4
+        },
+        "mixed-instances": {
+          "instances": 2,
+          "independentAxes": [
+            [
+              "Light",
+              "On",
+              "Disabled"
+            ],
+            [
+              "Dark",
+              "Off",
+              "Disabled"
+            ]
+          ],
+          "undoRedo": true,
+          "reopened": true
+        },
+        "keyboard-authoring": {
+          "input": "keyboard only",
+          "layers": 2,
+          "undoRedo": true,
+          "reopened": true
+        },
+        "designer-delivery": {
+          "samples": [
+            [
+              375,
+              104,
+              112
+            ],
+            [
+              390,
+              104,
+              112
+            ],
+            [
+              768,
+              108,
+              120
+            ],
+            [
+              1024,
+              108,
+              120
+            ],
+            [
+              1440,
+              108,
+              120
+            ]
+          ],
+          "verified": "designer edit, undo, reopen, update, conflict and preview"
+        },
+        "optional-gateway": {
+          "modelRequests": 0,
+          "manualEditor": true
+        },
+        "library-subscription": {
+          "networkRequests": 4,
+          "selectiveUpdate": true,
+          "conflict": "kept local size 22",
+          "offline": true,
+          "unsubscribed": true
+        },
+        "library-publish": {
+          "publish": true,
+          "service": "team",
+          "deniedInvalidToken": true,
+          "discovery": true,
+          "updatedInstance": true,
+          "undo": true
+        },
+        "component-properties": {
+          "text": "设计师覆盖",
+          "iconHidden": true,
+          "swapped": true,
+          "mixedInstances": 2,
+          "undo": true
+        },
+        "variant-authoring": {
+          "variants": 3,
+          "axes": [
+            "State",
+            "尺寸"
+          ],
+          "override": "待发送",
+          "width": 232,
+          "uniqueCombinations": true,
+          "reopened": true,
+          "crossFile": true,
+          "combinedExistingDrawings": true
+        },
+        "nested-instances": {
+          "exposedNestedSwap": true,
+          "forwardedLevels": 3,
+          "retainedTitle": true,
+          "updatedFromNestedMaster": true,
+          "undoRedo": true,
+          "reopened": true
+        }
+      },
+      "mobileLibrary": {
+        "components": 44,
+        "variants": 290,
+        "insertedAndReopened": 44
+      },
+      "render": {
+        "artboards": 20,
+        "layers": 1828,
+        "worstRgbDeltaAbove16Pct": 0,
+        "perArtboard": [
+          {
+            "engine": "webkit",
+            "id": "mkt-desktop",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 2120,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 107,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 107,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "mkt-mobile",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 980,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 18,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 18,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "ws-desktop",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 900,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 116,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 116,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "ws-deploy-modal",
+            "previewProjectPixels": {
+              "width": 440,
+              "height": 410,
+              "differentPixels": 730,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 9
+            },
+            "canvasToPreview": {
+              "layers": 12,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 12,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "2af89d1d-c8f4-44d3-81e4-76cfd259bd44",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 136,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 136,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "e863a26f-7063-424d-8ca5-a2de05846262",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "5e8b5438-0587-463c-a0d6-cd0599bacde8",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 68,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 68,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "3043708f-e647-48a1-b52d-0bd7daf226ab",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 74,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "fb60e9db-72ea-4d32-8215-4f8a7269b9bd",
+            "previewProjectPixels": {
+              "width": 1210,
+              "height": 834,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 38,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 38,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "sheet-c03ed0aa-dbee-40a5-8e55-1fd61bc77854",
+            "previewProjectPixels": {
+              "width": 402,
+              "height": 730,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 62,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 62,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "17b1d254-3d68-4f41-8bff-8752401574f7",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 59,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 59,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "e3d36fb4-dda1-4ead-b985-f21f0521b013",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 70,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 70,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "656bd4d2-13d7-4a00-bab0-81c16c5f8acb",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 47,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 47,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "95a3e457-95f8-4b1f-ae35-1447db6c4215",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 66,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 66,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "77f272c8-b198-4143-922d-44014c89e546",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 1024,
+              "differentPixels": 7377,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 1
+            },
+            "canvasToPreview": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "6d8bd64c-b80b-41a2-9663-f9cd6414fc68",
+            "previewProjectPixels": {
+              "width": 1440,
+              "height": 1024,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 311,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "atlas-tablet-root",
+            "previewProjectPixels": {
+              "width": 1180,
+              "height": 820,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 100,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 100,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "atlas-phone-root",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 85,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 85,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "atlas-note-root",
+            "previewProjectPixels": {
+              "width": 390,
+              "height": 844,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 60,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 60,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          },
+          {
+            "engine": "webkit",
+            "id": "atlas-sheet-root",
+            "previewProjectPixels": {
+              "width": 348,
+              "height": 246,
+              "differentPixels": 0,
+              "over16": 0,
+              "over16Pct": 0,
+              "maxChannelDelta": 0
+            },
+            "canvasToPreview": {
+              "layers": 14,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            },
+            "previewToProject": {
+              "layers": 14,
+              "extra": [],
+              "maximumCssPx": 0,
+              "missing": [],
+              "boxes": [],
+              "lines": []
+            }
+          }
+        ]
+      }
+    }
+  },
+  "visualComparisonMethod": {
+    "dpr": 1,
+    "editorViewport": [
+      2000,
+      2500
+    ],
+    "geometryToleranceCssPx": 1,
+    "text": "Rendered line rectangles of direct text spans",
+    "paint": "Per artboard, percentage of preview-versus-project pixels with any RGB channel differing by more than 16."
+  },
+  "desktop": {
+    "nativeWorkflows": [
+      {
+        "check": "keyboard-authoring",
+        "result": {
+          "input": "keyboard only",
+          "layers": 2,
+          "undoRedo": true,
+          "reopened": true
+        }
+      },
+      {
+        "check": "mixed-materials",
+        "result": {
+          "gradientAlpha": [
+            0.25,
+            0.75
+          ],
+          "stroke": [
+            3,
+            1
+          ],
+          "independentShadows": true,
+          "undo": 4
+        }
+      },
+      {
+        "check": "professional-editor",
+        "result": {
+          "sizes": [
+            [
+              375,
+              0,
+              164,
+              375,
+              56
+            ],
+            [
+              390,
+              0,
+              164,
+              390,
+              56
+            ],
+            [
+              768,
+              252,
+              164,
+              516,
+              56
+            ],
+            [
+              1024,
+              252,
+              164,
+              772,
+              56
+            ],
+            [
+              1440,
+              252,
+              164,
+              1188,
+              56
+            ]
+          ],
+          "mask": [
+            "alpha",
+            "luminance"
+          ],
+          "variableFont": true
+        }
+      },
+      {
+        "check": "variant-authoring",
+        "result": {
+          "variants": 3,
+          "axes": [
+            "State",
+            "尺寸"
+          ],
+          "override": "待发送",
+          "width": 232,
+          "uniqueCombinations": true,
+          "reopened": true,
+          "crossFile": true,
+          "combinedExistingDrawings": true
+        }
+      },
+      {
+        "check": "open-files",
+        "result": {
+          "version": "0.4.0",
+          "docs": [
+            "Aura Studio · SaaS 产品与营销界面",
+            "Forma Mobile · 界面研究室"
+          ]
+        }
+      },
+      {
+        "check": "publish-reopen",
+        "result": {
+          "version": "0.4.0",
+          "revision": 1,
+          "persistedAcrossRestart": true,
+          "subscriberInserted": true
+        }
+      }
+    ],
+    "nativeDesignRoundTrip": {
+      "version": "0.4.0",
+      "schema": 1,
+      "sourceReopened": true,
+      "savedMasterLocated": true,
+      "instanceWidth": 248,
+      "instanceText": "待发送",
+      "sourceFileIntact": true
+    },
+    "mountedReadOnlyDmgLaunch": {
+      "version": "0.4.0",
+      "docs": [
+        {
+          "url": "forma://app/",
+          "name": "未命名设计文件"
+        },
+        {
+          "url": "forma://app/",
+          "name": "Aura Studio · SaaS 产品与营销界面"
+        },
+        {
+          "url": "forma://app/",
+          "name": "Forma Mobile · 界面研究室"
+        }
+      ]
+    },
+    "localPublisherAcrossNativeRestart": {
+      "packaged": "0.4.0",
+      "defaultPublisher": true,
+      "persistedAcrossRestart": true,
+      "subscriberInserted": true
+    },
+    "webDefaultPublisher": {
+      "publish": true,
+      "service": "embedded",
+      "deniedInvalidToken": false,
+      "discovery": true,
+      "updatedInstance": true,
+      "undo": true
+    },
+    "webBundleMatchesDesktop": {
+      "file": "assets/index-gXYnWLxc.js",
+      "sha256": "a968c7c69795398faa8072d4a7f6ccb17db8a791a8e6e1db9fed16ccb351641e",
+      "desktopAndWebEntryIdentical": true
+    },
+    "adHocDeepSignature": "verified",
+    "dmgChecksum": "verified",
+    "zipIntegrity": "verified",
+    "assets": {
+      "Forma-0.4.0-arm64.dmg": {
+        "bytes": 121659050,
+        "sha256": "8394f03af914a0e4ace5073ffba1b5374908077e229349535e24c964f40289a0"
+      },
+      "Forma-0.4.0-arm64.zip": {
+        "bytes": 117390287,
+        "sha256": "a004f28cf83d89fd27d621d02facf400ab1486470bdc4249a669a364ae3d91f6"
+      }
+    }
+  },
+  "largeDocuments": {
+    "viewport": [
+      1460,
+      960
+    ],
+    "productionPerformance": [
+      {
+        "check": "layer-tree",
+        "result": [
+          {
+            "count": 100,
+            "importMs": 70,
+            "selectMs": 92,
+            "mountedRows": 100,
+            "treeScroll": 2127,
+            "zoomMs": 68,
+            "dragMs": 127,
+            "nativeDownloadMs": 43,
+            "reactDownloadMs": 50,
+            "heapMiB": 16
+          },
+          {
+            "count": 1000,
+            "importMs": 81,
+            "selectMs": 61,
+            "mountedRows": 35,
+            "treeScroll": 27327,
+            "zoomMs": 55,
+            "dragMs": 128,
+            "nativeDownloadMs": 18,
+            "reactDownloadMs": 61,
+            "heapMiB": 20
+          },
+          {
+            "count": 10000,
+            "importMs": 427,
+            "selectMs": 67,
+            "mountedRows": 35,
+            "treeScroll": 279327,
+            "zoomMs": 55,
+            "dragMs": 216,
+            "nativeDownloadMs": 47,
+            "reactDownloadMs": 261,
+            "heapMiB": 73
+          }
+        ]
+      },
+      {
+        "check": "complex",
+        "result": [
+          {
+            "layers": 259,
+            "boards": 4,
+            "vectors": 130,
+            "instances": 6,
+            "importMs": 158,
+            "dragSamplesMs": [
+              243,
+              240,
+              241,
+              241,
+              242,
+              241
+            ],
+            "dragP50": 241,
+            "dragP95": 243,
+            "rafSamples": 84,
+            "rafMax": 17,
+            "rafOver25ms": 0,
+            "rafP50": 17,
+            "rafP95": 17,
+            "heapMiB": 25
+          },
+          {
+            "layers": 8288,
+            "boards": 128,
+            "vectors": 4160,
+            "instances": 192,
+            "importMs": 1125,
+            "dragSamplesMs": [
+              245,
+              241,
+              240,
+              238,
+              239,
+              241
+            ],
+            "dragP50": 240,
+            "dragP95": 245,
+            "rafSamples": 85,
+            "rafMax": 17,
+            "rafOver25ms": 0,
+            "rafP50": 17,
+            "rafP95": 17,
+            "heapMiB": 75
+          }
+        ]
+      }
+    ],
+    "bitmapSessionMethod": "8 independent 2048x2048 PNG layers. Edit one crop per image per round. Undo and redo once per round, replay and reopen from IndexedDB every fourth round. Heap is sampled JS memory, not GPU or process memory. The two timed builds were immutable; the shipping build also repeated the short run. Timed cohorts overlapped on the same Mac and are endurance samples, not comparative speed benchmarks.",
+    "baselineTwoHours": {
+      "version": "0.3.0",
+      "mainScript": "/assets/index-DxR4VRXm.js",
+      "sha256": "8f5c1944698212592d3a72d5ec08baf6f65857342836647222ab7cb35fdbf049",
+      "images": 8,
+      "width": 2048,
+      "height": 2048,
+      "changes": 5504,
+      "undoRedoPairs": 688,
+      "previewReloads": 172,
+      "peakJsHeapBytes": 107912864,
+      "longestRoundMs": 1028,
+      "elapsedSeconds": 7201
+    },
+    "candidateTwoHours": {
+      "version": "0.4.0 at 12:55 CST",
+      "mainScript": "/assets/index-DaN840cd.js",
+      "sha256": "4fa9c73d322591ac4e4a4560deaf8aff81e963909db9f07764c858cf30f3144c",
+      "images": 8,
+      "width": 2048,
+      "height": 2048,
+      "changes": 5504,
+      "undoRedoPairs": 688,
+      "previewReloads": 172,
+      "peakJsHeapBytes": 107909068,
+      "longestRoundMs": 1146,
+      "elapsedSeconds": 7201
+    },
+    "shippingBitmapRegression": {
+      "images": 8,
+      "width": 2048,
+      "height": 2048,
+      "changes": 96,
+      "undoRedoPairs": 12,
+      "previewReloads": 3,
+      "peakJsHeapBytes": 101213546,
+      "longestRoundMs": 517,
+      "elapsedSeconds": 6
+    }
+  },
+  "deliveredSourceProjectsVerified": {
+    "designer-delivery": "aea119f93b2ce8215b8544576ec8d8f1e57821b89a8ae3434d1eccc3403bfc3e",
+    "forwarded-instances": "e928f3067bec2629ac7e89bcbb3f38cb8c80f5148024c345a2a0cd42c587daae",
+    "variant-authoring": "043802843a04c2022b2cfcd9dd4ea53b07634cea726d601efcd9123c08c2006d"
+  },
+  "evidenceFiles": {
+    "desktop-editor.png": "1c7d44221d3337bb08a5964608e52a521a0f5341b13a8bfd67f8da09b0e6bcfb",
+    "grid-tracks.png": "64dba6133ca7cedbd6b7fa43d657aad3afcc0edfd531fb7deb9799909e5f590e",
+    "typography.png": "be032b4e2d707b838cfceb02011a7a91f295be162a320d350324bf180667eb23",
+    "component-properties.png": "9ea2c8fc01a3e27c6060477bd3b0c4d883516e629e02d53b53fa185aed07acea",
+    "library-review.png": "39b386044f5ffe9ac32d8cbdeb2d8f45350af19db046f3a33e03adbb331fa2c8",
+    "feedback-react.zip": "aea119f93b2ce8215b8544576ec8d8f1e57821b89a8ae3434d1eccc3403bfc3e",
+    "nested-components-react.zip": "e928f3067bec2629ac7e89bcbb3f38cb8c80f5148024c345a2a0cd42c587daae",
+    "variant-library-react.zip": "043802843a04c2022b2cfcd9dd4ea53b07634cea726d601efcd9123c08c2006d",
+    "notification-badges.forma.json": "3a3e4c40fcffeaf7cb996431c191450495944ce2112b52f0b72d89a0466626ad",
+    "variant-authoring.png": "33ac1cd6ffb0bf45cb43542b3b08fe656a9ad3fb82a5a8b6b45a4795a98e4b42"
+  },
+  "scope": {
+    "firefox": "Local Playwright Firefox failed during startup before page navigation; excluded.",
+    "distribution": "Apple Silicon macOS, locally ad-hoc signed; no Developer ID or notarization.",
+    "figma": "Read-only reference file and official documentation; no same-content Figma performance claim."
+  }
+}

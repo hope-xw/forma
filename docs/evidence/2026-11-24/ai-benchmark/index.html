@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forma 真实 AI 生成对比评测与开源 Skill 兼容性总览</title>
+<style>
+  :root {
+    --bg: #0a0c10;
+    --panel: #131720;
+    --panel-2: #191f2c;
+    --border: #273043;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --gold: #f5b942;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(10, 12, 16, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+  .brand p { font-size: 12px; margin: 2px 0 0; color: var(--muted); }
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tabs { display: flex; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+  .tab {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab.active { background: #222b3d; color: #fff; }
+  .tab:hover:not(.active) { color: #e2e8f0; }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #2563eb, #0284c7);
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 9px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .cta:hover { filter: brightness(1.08); }
+  main { padding: 24px 28px 60px; max-width: 1760px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .grid-6 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .card.winner { border-color: rgba(245, 185, 66, 0.65); box-shadow: 0 0 0 1px rgba(245, 185, 66, 0.2); }
+  .card.fix { border-color: rgba(74, 222, 128, 0.45); }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; min-height: 40px; }
+  .card h2 { font-size: 13px; margin: 0; font-weight: 600; line-height: 1.4; }
+  .pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 99px;
+    font-size: 10.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill.gold { background: rgba(245, 185, 66, 0.16); color: var(--gold); border: 1px solid rgba(245, 185, 66, 0.35); }
+  .pill.green { background: rgba(74, 222, 128, 0.14); color: var(--green); }
+  .pill.red { background: rgba(248, 113, 113, 0.14); color: var(--red); }
+  .pill.blue { background: rgba(56, 189, 248, 0.14); color: var(--accent); }
+  .pill.amber { background: rgba(251, 191, 36, 0.14); color: var(--amber); }
+  .img-wrap {
+    position: relative;
+    cursor: zoom-in;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #2b3549;
+    background: #0d1117;
+  }
+  .img-wrap img { width: 100%; display: block; transition: transform 0.2s; }
+  .img-wrap:hover img { transform: scale(1.015); }
+  .zoom-hint {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    background: rgba(10,12,16,0.78);
+    color: #e2e8f0;
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .img-wrap:hover .zoom-hint { opacity: 1; }
+  .meta { margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+  .meta b { color: var(--text); }
+  .meta-row { margin-bottom: 4px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .badge { font-size: 10px; padding: 1px 6px; border-radius: 99px; background: #1e293b; color: #7dd3fc; }
+  .badge.skill { background: #312e81; color: #c7d2fe; }
+  .card-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .mini-link {
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .mini-link:hover { text-decoration: underline; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; font-size: 12.5px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--panel-2); color: #cbd5e1; font-weight: 600; font-size: 12px; }
+  tr:last-child td { border-bottom: 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: #1e2636; padding: 1px 5px; border-radius: 4px; color: #e2e8f0; }
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .kpi .k { font-size: 11.5px; color: var(--muted); }
+  .kpi .v { font-size: 18px; font-weight: 700; margin-top: 2px; color: #fff; }
+  .kpi .s { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(5, 7, 11, 0.92);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-height: 86vh; max-width: 92vw; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+  .lightbox-caption { margin-top: 12px; font-size: 13px; color: #e2e8f0; display: flex; align-items: center; gap: 14px; }
+  .lightbox-close {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    background: #1e293b;
+    color: #fff;
+    border: 1px solid #334155;
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Forma 真实 AI 生成对比评测 & 开源社区设计 Skill 兼容性总览</h1>
+      <p>真实云端 DeepSeek-V4.1-Flash（1M 上下文 · 视觉识图 · 原生工具调用）· 同一 390×844 精品咖啡订阅 H5 需求 · Chromium 2× 实拍</p>
+    </div>
+    <div class="controls">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="v2" role="tab">✨ V1 → V2 代际飞跃对比</button>
+        <button class="tab" data-tab="compare" role="tab">V1 五组对比 (A–E)</button>
+        <button class="tab" data-tab="before-after" role="tab">编译器修复前后</button>
+        <button class="tab" data-tab="skills" role="tab">9 款开源 Skill 兼容实测</button>
+      </div>
+      <a class="cta" href="/?example=aura-showcase" target="_blank" rel="noreferrer">在 Forma 画布中并排打开 V1 vs V2 可编辑原稿 →</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="summary-bar">
+      <div class="kpi"><div class="k">V2 旗舰成品</div><div class="v">V2-B · 摄影 + Lucide + 自审</div><div class="s">127 原生层 · 14 矢量图标 · 3 实景摄影 · 0 对比度问题</div></div>
+      <div class="kpi"><div class="k">定向主题迁移最快</div><div class="v">E 组 · theme-factory</div><div class="s">82.3s 一次成型 · 100% AutoLayout · 逐色还原 Golden Hour 4 色</div></div>
+      <div class="kpi"><div class="k">开源设计 Skill 兼容改造</div><div class="v">0/52 → 52/52 资源索引</div><div class="s">9 款真仓实测：7 完全兼容 · 1 本地检索适配 · 1 外部受限</div></div>
+      <div class="kpi"><div class="k">工程与交互回归</div><div class="v">374/374 单测 · 4/4 E2E</div><div class="s">D 组生成稿已实测画布改字 + ⌘Z 单步撤销通过</div></div>
+    </div>
+
+    <!-- TAB 1: A-E Comparison -->
+    <section id="tab-v2" class="section active">
+      <div class="grid-6" style="grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));">
+        <div class="card">
+          <div class="card-head"><h2>V1-A · 旧架构纯文本基线<br/>(专有 JSON 盲画)</h2><span class="pill red">V1 旧架构</span></div>
+          <div class="img-wrap" data-zoom="A-text-only.png" data-caption="V1-A 旧架构纯文本基线：0 实景摄影、0 矢量图标，渐变色块与圆点占位">
+            <img src="A-text-only.png" alt="V1-A" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>112</b> 图层 · 摄影 <b>0</b> · Lucide 图标 <b>0</b> · 毛玻璃 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">同模型旧架构基线：渐变方块写编号 01/02、底栏圆形假图标。</div>
+          </div>
+        </div>
+        <div class="card winner">
+          <div class="card-head"><h2>V2-A · 新架构纯文本<br/>(HTML-First + 摄影 + Lucide + 自审)</h2><span class="pill green">V2 纯文本质变</span></div>
+          <div class="img-wrap" data-zoom="V2-A-text-html-first.png" data-caption="V2-A 新架构纯文本：暖奶油编辑风 + 双列咖啡豆 Bento 卡 + 19 枚精准居中 Lucide 图标 + 3 张实景摄影">
+            <img src="V2-A-text-html-first.png" alt="V2-A" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>130</b> 原生层 · AutoLayout <b>78%</b> · 摄影 <b>3</b> · 图标 <b>19</b> · 毛玻璃 <b>6</b></div>
+            <div class="meta-row" style="color:#cbd5e1">仅凭纯文本即产出商业级暖奶油编辑风 + 2 列 Bento 豆卡 + 真实咖啡摄影 + 19 枚矢量图标，视觉自审修正了 8pt 间距与 Hero 压暗对比。</div>
+            <div class="card-actions">
+              <a class="mini-link" href="V2-A-text-html-first.forma.json" download>下载 V2-A .forma.json</a>
+              <a class="mini-link" href="V2-A-text-html-first.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>V1-D · 旧架构最佳方案<br/>(参考图 + 社区 Skill 旧蓝图)</h2><span class="pill amber">V1 最佳</span></div>
+          <div class="img-wrap" data-zoom="D-image-plus-oss-and-forma-skills.png" data-caption="V1-D 旧架构最佳：暗夜排版不错，但无真实摄影与 Lucide 图标">
+            <img src="D-image-plus-oss-and-forma-skills.png" alt="V1-D" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>101</b> 图层 · 摄影 <b>0</b> · Lucide 图标 <b>0</b> · 毛玻璃 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">旧架构下已是最优，但豆单图仍为纯色渐变方块、底栏光秃秃无图标。</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>V2-B 初稿 · 视觉自审前<br/>(入场动画导致主视觉文案隐身)</h2><span class="pill blue">自审前初稿</span></div>
+          <div class="img-wrap" data-zoom="V2-B-image-skills-html-first-draft.png" data-caption="V2-B 初稿：因 CSS @keyframes 入场动画未播完，主视觉文案处于 opacity:0，右侧胶囊「茶感」略紧">
+            <img src="V2-B-image-skills-html-first-draft.png" alt="V2-B Draft" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>113</b> 原生层 · AutoLayout <b>82%</b> · 摄影 <b>3</b> · 图标 <b>14</b></div>
+            <div class="meta-row" style="color:#cbd5e1">模型写了 @keyframes opacity:0 入场动画，静态编译时主视觉文字消失——正好验证了多模态视觉自审的真实威力！</div>
+          </div>
+        </div>
+        <div class="card winner">
+          <div class="card-head"><h2>V2-B 终稿 · 截屏视觉自审后<br/>(参考图 + 社区 Skill + HTML-First)</h2><span class="pill gold">✨ V2 旗舰成品</span></div>
+          <div class="img-wrap" data-zoom="V2-B-image-skills-html-first.png" data-caption="V2-B 终稿：视觉自审一眼发现并修复主视觉隐身与胶囊拥挤，127 原生层 · 0 对比度问题 · 14 枚 Lucide 图标 · 3 张实景摄影">
+            <img src="V2-B-image-skills-html-first.png" alt="V2-B Final" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>127</b> 原生层 · AutoLayout <b>80%</b> · 摄影 <b>3</b> · 图标 <b>14</b> · 对比度问题 <b style="color:var(--green)">0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">模型看图后 47s 自动移除动画恢复衬线主视觉与金色 CTA、6 枚胶囊完整收口 350px、悬浮毛玻璃底栏配咖啡豆矢量图标；且沙盒已永久禁用 CSS 动画根治同类问题。</div>
+            <div class="card-actions">
+              <a class="mini-link" href="V2-B-image-skills-html-first.forma.json" download>下载 V2-B .forma.json</a>
+              <a class="mini-link" href="V2-B-image-skills-html-first.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-compare" class="section">
+      <div class="grid-6">
+        <div class="card">
+          <div class="card-head">
+            <h2>视觉参考图（B / D 输入）<br/>Aura Mobile H5</h2>
+            <span class="pill blue">参考输入</span>
+          </div>
+          <div class="img-wrap" data-zoom="ref-aura-mobile.png" data-caption="视觉参考图：Forma 内置 Aura Mobile H5（390px 深色界面）">
+            <img src="ref-aura-mobile.png" alt="Aura Mobile Reference" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row">作为 <b>B 组</b> 与 <b>D 组</b> 的多模态视觉参考图输入，用于验证真实模型的深色表面层次与留白节奏迁移能力。</div>
+          </div>
+        </div>
+        <div class="card ">
+          <div class="card-head">
+            <h2>A · 纯文本基线（无参考图 / 无 Skill）</h2>
+            
+          </div>
+          <div class="img-wrap" data-zoom="A-text-only.png" data-caption="A · 纯文本基线（无参考图 / 无 Skill）">
+            <img src="A-text-only.png" alt="A · 纯文本基线（无参考图 / 无 Skill）" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>112</b> 图层 · AutoLayout <b>86%</b> · 耗时 <b>165.0s</b></div>
+            <div class="meta-row">原生组件 <b>0</b> · 对比度问题 <b style="color:var(--amber)">2</b> · 空文 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">暖米色常规电商基线；0 组件复用；Hero 标题左侧略贴边。</div>
+            <div class="badges">
+              
+              <span class="badge">get_canvas_overview</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">search_nodes</span><span class="badge">lint_design</span>
+            </div>
+            <div class="card-actions">
+              <a class="mini-link" href="A-text-only.forma.json" download>下载 .forma.json</a>
+              <a class="mini-link" href="A-text-only.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div><div class="card ">
+          <div class="card-head">
+            <h2>B · 参考图 + 文本（多模态识图 / 无 Skill）</h2>
+            
+          </div>
+          <div class="img-wrap" data-zoom="B-image-plus-text.png" data-caption="B · 参考图 + 文本（多模态识图 / 无 Skill）">
+            <img src="B-image-plus-text.png" alt="B · 参考图 + 文本（多模态识图 / 无 Skill）" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>129</b> 图层 · AutoLayout <b>95%</b> · 耗时 <b>122.7s</b></div>
+            <div class="meta-row">原生组件 <b>1</b> · 对比度问题 <b style="color:var(--green)">0</b> · 空文 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">多模态识图成功吸收 Aura 深空炭黑与描边质感；复用 1 枚原生状态栏组件。</div>
+            <div class="badges">
+              
+              <span class="badge">get_canvas_overview</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span><span class="badge">search_nodes</span>
+            </div>
+            <div class="card-actions">
+              <a class="mini-link" href="B-image-plus-text.forma.json" download>下载 .forma.json</a>
+              <a class="mini-link" href="B-image-plus-text.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div><div class="card ">
+          <div class="card-head">
+            <h2>C · 纯文本 + 开源社区设计 Skill（frontend-design + ui-ux-pro-max + better-colors）</h2>
+            <span class="pill blue">离线查 CSV ×4</span>
+          </div>
+          <div class="img-wrap" data-zoom="C-text-plus-oss-skills.png" data-caption="C · 纯文本 + 开源社区设计 Skill（frontend-design + ui-ux-pro-max + better-colors）">
+            <img src="C-text-plus-oss-skills.png" alt="C · 纯文本 + 开源社区设计 Skill（frontend-design + ui-ux-pro-max + better-colors）" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>145</b> 图层 · AutoLayout <b>98%</b> · 耗时 <b>235.1s</b></div>
+            <div class="meta-row">原生组件 <b>1</b> · 对比度问题 <b style="color:var(--green)">0</b> · 空文 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">无参考图下 4 次调用 search_skill_resources 查 ui-ux-pro-max CSV；羊皮纸 Hero + 四维风味柱图 + 0 对比度问题。</div>
+            <div class="badges">
+              <span class="badge skill">Skill: frontend-design</span><span class="badge skill">Skill: ui-ux-pro-max</span><span class="badge skill">Skill: better-colors</span>
+              <span class="badge">get_canvas_overview</span><span class="badge">search_skill_resources</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span>
+            </div>
+            <div class="card-actions">
+              <a class="mini-link" href="C-text-plus-oss-skills.forma.json" download>下载 .forma.json</a>
+              <a class="mini-link" href="C-text-plus-oss-skills.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div><div class="card winner">
+          <div class="card-head">
+            <h2>D · 参考图 + 文本 + 社区设计 Skill + Forma 设计系统技能</h2>
+            <span class="pill gold">综合最佳</span>
+          </div>
+          <div class="img-wrap" data-zoom="D-image-plus-oss-and-forma-skills.png" data-caption="D · 参考图 + 文本 + 社区设计 Skill + Forma 设计系统技能">
+            <img src="D-image-plus-oss-and-forma-skills.png" alt="D · 参考图 + 文本 + 社区设计 Skill + Forma 设计系统技能" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>101</b> 图层 · AutoLayout <b>96%</b> · 耗时 <b>180.1s</b></div>
+            <div class="meta-row">原生组件 <b>2</b> · 对比度问题 <b style="color:var(--green)">0</b> · 空文 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">融合暗夜层次 + 衬线排版 + 鼠尾草/陶土双渐变 + 2 枚原生移动组件 + 顶部单边细线；零视觉裁剪，已验改字与 ⌘Z 撤销。</div>
+            <div class="badges">
+              <span class="badge skill">Skill: frontend-design</span><span class="badge skill">Skill: ui-ux-pro-max</span><span class="badge skill">Skill: forma-design-system-craft</span>
+              <span class="badge">get_canvas_overview</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span>
+            </div>
+            <div class="card-actions">
+              <a class="mini-link" href="D-image-plus-oss-and-forma-skills.forma.json" download>下载 .forma.json</a>
+              <a class="mini-link" href="D-image-plus-oss-and-forma-skills.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div><div class="card winner">
+          <div class="card-head">
+            <h2>E · 社区 theme-factory 主题定向迁移（Golden Hour）</h2>
+            <span class="pill green">一次成型 · 100%</span>
+          </div>
+          <div class="img-wrap" data-zoom="E-theme-factory-golden-hour.png" data-caption="E · 社区 theme-factory 主题定向迁移（Golden Hour）">
+            <img src="E-theme-factory-golden-hour.png" alt="E · 社区 theme-factory 主题定向迁移（Golden Hour）" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">
+            <div class="meta-row"><b>76</b> 图层 · AutoLayout <b>100%</b> · 耗时 <b>82.3s</b></div>
+            <div class="meta-row">原生组件 <b>0</b> · 对比度问题 <b style="color:var(--amber)">5</b> · 空文 <b>0</b></div>
+            <div class="meta-row" style="color:#cbd5e1">activate_skill → read_skill_resource(themes/golden-hour.md) 一次通过，精确还原 #f4a900 / #c1666b / #d4b896 / #4a403a。</div>
+            <div class="badges">
+              <span class="badge skill">Skill: theme-factory</span>
+              <span class="badge">activate_skill</span><span class="badge">get_canvas_overview</span><span class="badge">read_skill_resource</span><span class="badge">get_design_system</span><span class="badge">search_components</span><span class="badge">propose_design_changes</span><span class="badge">lint_design</span><span class="badge">get_node_details</span>
+            </div>
+            <div class="card-actions">
+              <a class="mini-link" href="E-theme-factory-golden-hour.forma.json" download>下载 .forma.json</a>
+              <a class="mini-link" href="E-theme-factory-golden-hour.png" target="_blank">打开 2× 原图</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Before vs After -->
+    <section id="tab-before-after" class="section">
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-head"><h2>修复前 · A 组（纯文本基线）</h2><span class="pill red">修复前</span></div>
+          <div class="img-wrap" data-zoom="before-fix-A-text-only.png" data-caption="修复前 · A 组：无显式填充的子 Frame 被默认填为纯白 #ffffff 遮盖深绿 Hero">
+            <img src="before-fix-A-text-only.png" alt="Before A" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">无显式填充的子 Frame 继承默认纯白 <code>#ffffff</code> + <code>padding:16</code>，遮盖深绿渐变 Hero 横幅，白字几乎不可读。</div>
+        </div>
+        <div class="card fix">
+          <div class="card-head"><h2>修复后 · A 组（新编译器）</h2><span class="pill green">修复后</span></div>
+          <div class="img-wrap" data-zoom="A-text-only.png" data-caption="修复后 · A 组：子容器默认透明、内边距归零，Hero 与卡片层次完整">
+            <img src="A-text-only.png" alt="After A" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">子容器默认 <code>fillOpacity: 0</code>、圆角/边距/间距归零，Hero 深烘底色与浅米卡片层次完整呈现，零白块伪影。</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>修复前 · B 组（参考图 + 文本）</h2><span class="pill red">修复前</span></div>
+          <div class="img-wrap" data-zoom="before-fix-B-image-plus-text.png" data-caption="修复前 · B 组：行内搜索占位文案被压成单字竖排并顶出顶部栏">
+            <img src="before-fix-B-image-plus-text.png" alt="Before B" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">行内搜索占位文案未获水平 <code>fill</code> 伸缩，被压成单字竖排并顶出顶部地址栏；底栏图标文字错位。</div>
+        </div>
+        <div class="card fix">
+          <div class="card-head"><h2>修复后 · B 组（新编译器）</h2><span class="pill green">修复后</span></div>
+          <div class="img-wrap" data-zoom="B-image-plus-text.png" data-caption="修复后 · B 组：父布局感知 hug/fill 生效，搜索栏舒展、完整迁移 Aura 深色质感">
+            <img src="B-image-plus-text.png" alt="After B" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+          <div class="meta">父布局感知 <code>hug/fill</code> 生效：搜索栏横向舒展，完整迁移 Aura 深空炭黑与琥珀金视觉语言，129 层 95% AutoLayout。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: OSS Design Skills -->
+    <section id="tab-skills" class="section">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h2>Forma「管理设计技能」弹窗 · 三级兼容徽章实拍（上）</h2><span class="pill green">Chromium 实拍</span></div>
+          <div class="img-wrap" data-zoom="qa-oss-skills-compat-modal.png" data-caption="Forma 管理设计技能弹窗：展示导入后的开源社区 Skill 与配套文件数量">
+            <img src="qa-oss-skills-compat-modal.png" alt="Skills Modal Top" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Forma「管理设计技能」弹窗 · 检索适配与受限提示（下）</h2><span class="pill blue">Chromium 实拍</span></div>
+          <div class="img-wrap" data-zoom="qa-oss-skills-compat-modal-bottom.png" data-caption="Forma 管理设计技能弹窗：ui-ux-pro-max 26 份 CSV 本地检索适配与 web-design-guidelines 受限提示">
+            <img src="qa-oss-skills-compat-modal-bottom.png" alt="Skills Modal Bottom" />
+            <span class="zoom-hint">点击放大</span>
+          </div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>开源仓库</th>
+            <th>Skill 名称</th>
+            <th>本地配套资源形态</th>
+            <th>改造前</th>
+            <th>改造后</th>
+            <th>Forma 兼容分级</th>
+            <th>实测验证说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>jakubkrehel/skills</code></td>
+            <td><b>better-colors</b></td>
+            <td><code>color-formats.md</code> <code>color-usage.md</code> <code>contrast.md</code> 等 7 份</td>
+            <td>0 / 7</td>
+            <td><b>7 / 7</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>其中的视觉、配色与排版规范将自动映射为 Forma 原生图层与设计系统属性</td>
+          </tr><tr>
+            <td><code>jakubkrehel/skills</code></td>
+            <td><b>better-interface</b></td>
+            <td><code>review-format.md</code></td>
+            <td>0 / 1</td>
+            <td><b>1 / 1</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>直接索引并可按需激活读取</td>
+          </tr><tr>
+            <td><code>jakubkrehel/skills</code></td>
+            <td><b>better-typography</b></td>
+            <td><code>choosing-fonts.md</code> <code>css-cheat-sheet.md</code> <code>details-and-accessibility.md</code> 等 7 份</td>
+            <td>0 / 7</td>
+            <td><b>7 / 7</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>其中的视觉、配色与排版规范将自动映射为 Forma 原生图层与设计系统属性</td>
+          </tr><tr>
+            <td><code>anthropics/skills</code></td>
+            <td><b>brand-guidelines</b></td>
+            <td>纯 SKILL.md 指令</td>
+            <td>0 / 0</td>
+            <td><b>0 / 0</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>直接索引并可按需激活读取</td>
+          </tr><tr>
+            <td><code>jakubkrehel/skills</code></td>
+            <td><b>build-design</b></td>
+            <td><code>figma.md</code></td>
+            <td>0 / 1</td>
+            <td><b>1 / 1</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>直接索引并可按需激活读取</td>
+          </tr><tr>
+            <td><code>anthropics/skills</code></td>
+            <td><b>frontend-design</b></td>
+            <td>纯 SKILL.md 指令</td>
+            <td>0 / 0</td>
+            <td><b>0 / 0</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>其中的视觉、配色与排版规范将自动映射为 Forma 原生图层与设计系统属性</td>
+          </tr><tr>
+            <td><code>anthropics/skills</code></td>
+            <td><b>theme-factory</b></td>
+            <td><code>themes/arctic-frost.md</code> <code>themes/botanical-garden.md</code> <code>themes/desert-rose.md</code> 等 10 份</td>
+            <td>0 / 10</td>
+            <td><b>10 / 10</b></td>
+            <td><span class="pill green">完全兼容</span></td>
+            <td>直接索引并可按需激活读取</td>
+          </tr><tr>
+            <td><code>nextlevelbuilder/ui-ux-pro-max-skill</code></td>
+            <td><b>ui-ux-pro-max</b></td>
+            <td><code>data/app-interface.csv</code> <code>data/catalog-summary.json</code> <code>data/charts.csv</code> 等 26 份</td>
+            <td>0 / 26</td>
+            <td><b>26 / 26</b></td>
+            <td><span class="pill blue">本地检索适配</span></td>
+            <td>已安全禁用本地脚本，模型可通过内置只读检索工具查询本地 data/themes/references 数据</td>
+          </tr><tr>
+            <td><code>vercel-labs/agent-skills</code></td>
+            <td><b>web-design-guidelines</b></td>
+            <td>纯 SKILL.md 指令</td>
+            <td>0 / 0</td>
+            <td><b>0 / 0</b></td>
+            <td><span class="pill amber">外部依赖受限</span></td>
+            <td>该技能要求联网拉取远端规则且未包含本地参考文件；可补充本地参考文档后离线使用</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lb-close">关闭 (Esc)</button>
+    <img id="lb-img" src="" alt="" />
+    <div class="lightbox-caption" id="lb-cap"></div>
+  </div>
+
+  <script>
+    document.querySelectorAll(".tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+    const lb = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lb-img");
+    const lbCap = document.getElementById("lb-cap");
+    document.querySelectorAll(".img-wrap").forEach((el) => {
+      el.addEventListener("click", () => {
+        lbImg.src = el.dataset.zoom;
+        lbCap.textContent = el.dataset.caption || "";
+        lb.classList.add("open");
+      });
+    });
+    const closeLb = () => lb.classList.remove("open");
+    document.getElementById("lb-close").addEventListener("click", closeLb);
+    lb.addEventListener("click", (e) => { if (e.target === lb) closeLb(); });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLb(); });
+  </script>
+</body>
+</html>

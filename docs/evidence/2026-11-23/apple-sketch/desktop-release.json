@@ -1,0 +1,61 @@
+{
+  "version": "0.8.1",
+  "platform": "macOS 27.2.1 arm64",
+  "desktop": "Electron 45.4.1",
+  "volume": "read-only",
+  "signing": "ad hoc",
+  "codesignVerifyDeepStrict": true,
+  "matchingDistFiles": 10,
+  "dmgBytes": 124469330,
+  "dmgSha256": "14212a53871cd792bdd7fa1f1f9936419a256c446ca85e5b5b3bb2f01eb21813",
+  "desktopImports": [
+    {
+      "version": "0.8.1",
+      "filename": "Apple iOS 27 UI Kit.sketch",
+      "protocol": "forma:",
+      "pageNodes": 44969,
+      "components": 1919,
+      "instances": 4798,
+      "pdfRasters": 1,
+      "images": 156,
+      "fonts": 5,
+      "storageFormat": "parts-v1",
+      "sha256": "839ecf260025264db9000a4ce23ef2804c33c8d62642a6373ed310858ca64171",
+      "format": "Sketch",
+      "pages": 36,
+      "sourceNodes": 13914,
+      "portableBytes": 359578887,
+      "portableReopened": true
+    },
+    {
+      "version": "0.8.1",
+      "filename": "components.fig",
+      "protocol": "forma:",
+      "pageNodes": 13,
+      "components": 3,
+      "instances": 8,
+      "pdfRasters": 0,
+      "images": 0,
+      "fonts": 0,
+      "storageFormat": "single",
+      "sha256": "1fbdc089f3ab1ad5f7866d7ee37c096de34cb3c07ec26222991f4954dc022437",
+      "format": "Figma",
+      "pages": 4,
+      "sourceNodes": 19
+    }
+  ],
+  "portableFile": {
+    "name": "Apple iOS 27 UI Kit.forma.json",
+    "bytes": 359586987,
+    "sha256": "62988b1b5d67eafbd33ad7a56586ef2be5fc674bb63a0e1f8f9986c17bbd7a42"
+  },
+  "reactProjectEvidence": "react-project.json",
+  "regression": {
+    "unitTests": 198,
+    "editorBrowserScenarios": 53,
+    "existingReactProjectsBuiltAndOpened": 34,
+    "appleProjectBuiltAndOpened": true,
+    "formatCheck": true,
+    "productionBuild": true
+  }
+}

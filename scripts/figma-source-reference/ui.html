@@ -1,0 +1,26 @@
+<!DOCTYPE html><meta charset="utf-8"><title>Forma 原稿验收</title>
+<style>body{font:13px system-ui;padding:12px;}a{display:block;margin-top:12px}</style>
+<p id="status">正在从 Figma 渲染原始图层…</p>
+<button id="material">另存弹窗的玻璃和底漆对照</button>
+<button id="controls">另存材料与开关变体</button>
+<button id="structure">另存原厂图层清单</button><button id="paints">另存原厂绘制样式</button>
+<script>
+for(const id of ["structure","paints"]) document.getElementById(id).onclick=()=>parent.postMessage({pluginMessage:{type:id}},"*");
+document.getElementById("controls").onclick = () => parent.postMessage({pluginMessage:{type:"controls"}}, "*");
+document.getElementById("material").onclick = () => parent.postMessage({pluginMessage:{type:"material"}}, "*");
+window.onmessage = ({data}) => {
+  const { output, error, progress, filename } = data.pluginMessage || {};
+  const status = document.getElementById("status");
+  if (progress) { status.textContent = "正在用 Figma 渲染 " + progress; return; }
+  if (error) { status.textContent = error; return; }
+  if (!output) return;
+  status.textContent = output.file + " · " + (output.samples ? output.samples.length + " 张 1× PNG " : output.pages.length + " 页图层 ") + JSON.stringify(output.errors);
+  const a = document.createElement("a");
+  a.download = filename || "forma-figma-originals.json";
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(output)], {type:"application/json"}));
+  a.textContent="保存原稿对照文件";
+  document.body.appendChild(a);
+  if (!filename) { a.textContent = "保存六张原稿对照"; a.click(); }
+  else a.textContent = "保存分层对照文件";
+};
+</script>
