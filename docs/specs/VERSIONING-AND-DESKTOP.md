@@ -80,6 +80,14 @@ Forma 采用语义化版本号 `MAJOR.MINOR.PATCH[-prerelease]`：
 
 ---
 
+### 6. GitHub 发布与本地安装包保留
+
+完成桌面验收后，将该版本的 DMG、ZIP 及各自的 `.blockmap` 上传为 GitHub Release 附件，版本标签指向对应源码提交。将当前正式版标记为 Latest，下载入口使用[最新桌面版](https://github.com/hope-xw/forma/releases/latest)。
+
+历史安装包保存在 [GitHub Releases](https://github.com/hope-xw/forma/releases)。清理本地副本前，逐个比对 GitHub 附件的文件名、字节数和 SHA-256，并检查公开下载链接。全部通过后，本地 `release/` 只保留最新正式版的安装文件；旧版解包目录与已归档 ZIP 内容一致时一并清理。上传或校验失败的版本继续保留在本地。
+
+源码历史始于 0.10.0。早期安装包使用 `archive-v<版本>` 标签，对应的归档说明和 `SHA256SUMS` 可用于核对下载文件。
+
 ## 二、桌面客户端技术选型与架构
 
 ### 1. 选型结论
