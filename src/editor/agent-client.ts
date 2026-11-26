@@ -5,8 +5,11 @@ import type {
 } from "../domain/library-schema";
 import type {
   DesignMemoryScope,
+  EpisodeDecisionRecord,
+  RecalledEpisodePayload,
   ScopeProposal,
 } from "../agent/context-builder";
+import type { DesignEpisode } from "../agent/project-memory";
 import type { GeneratedLibraryPlaybook } from "../agent/library-intelligence";
 import type { Transaction } from "../agent/provider";
 
@@ -37,6 +40,10 @@ import type { CompileDiagnostic } from "../agent/blueprint-compiler";
 
 export type {
   DesignMemoryScope,
+  EpisodeScreenSummary,
+  EpisodeComponentRef,
+  EpisodeDecisionRecord,
+  RecalledEpisodePayload,
   ScopeDecisionOption,
   ScopeProposal,
   ScopeScreenPlan,
@@ -143,7 +150,7 @@ export interface UpdateProviderProfileRequest {
 }
 
 export interface AgentMention {
-  kind: "component" | "variable" | "style" | "node";
+  kind: "component" | "variable" | "style" | "node" | "episode";
   id: string;
   label: string;
 }
@@ -163,6 +170,7 @@ export interface AgentChatRequest {
   targetLibraryId?: string | null;
   confirmedScope?: ScopeProposal;
   memoryScope?: DesignMemoryScope;
+  recalledEpisodes?: RecalledEpisodePayload[];
   generationMode?: GenerationMode;
   activeSkills?: string[];
   prompt: string;
@@ -192,6 +200,7 @@ export interface AgentChatStats {
 }
 
 export interface AgentChatResult {
+  recalledEpisodeIds?: string[];
   htmlDraft?: HtmlDesignDraftProposal;
   critiqueNotes?: string[];
   toolTrace?: AgentToolTraceItem[];
@@ -211,6 +220,17 @@ export interface AgentChatResult {
   capabilities: ModelCapabilities;
 }
 
+export interface ProposalEpisodeMeta {
+  prompt: string;
+  summary?: string;
+  mode: "generate" | "edit";
+  targetLibraryId?: string;
+  decisions?: EpisodeDecisionRecord[];
+  customModules?: string[];
+  screenRoles?: Record<string, "primary" | "overlay" | "exception" | "detail">;
+  recalledEpisodeIds?: string[];
+}
+
 export interface PendingAgentProposal {
   transaction: Transaction;
   summary: string;
@@ -218,6 +238,7 @@ export interface PendingAgentProposal {
   createdRootIds: string[];
   stats?: AgentChatResult["stats"];
   source: "chat" | "external" | "manual";
+  episodeMeta?: ProposalEpisodeMeta;
 }
 
 export interface KeyProviderGuess extends KeyDetectionResult {
@@ -312,7 +333,10 @@ export function formatStructuredOutputLabel(
   }
 }
 
-export function collectDocumentMentions(doc: DesignDocument): AgentMention[] {
+export function collectDocumentMentions(
+  doc: DesignDocument,
+  episodes: readonly DesignEpisode[] = [],
+): AgentMention[] {
   const items: AgentMention[] = [];
   const seen = new Set<string>();
   const push = (item: AgentMention) => {
@@ -369,6 +393,9 @@ export function collectDocumentMentions(doc: DesignDocument): AgentMention[] {
     }
   }
 
+  for (const ep of episodes) {
+    push({ kind: "episode", id: ep.id, label: ep.title });
+  }
   return items;
 }
 

@@ -64,7 +64,7 @@ export const PagesPanel = memo(
         const example = await response.json();
         if (editor.historyRef.current.present.revision !== revision)
           throw new Error("文件已变化，请重新打开样例");
-        editor.importDocument(example);
+        editor.importDocument(example, { replacedDocument: true });
         editor.setSelection([]);
       } catch (error) {
         editor.setError(String(error));

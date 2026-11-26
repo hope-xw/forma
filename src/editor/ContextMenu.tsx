@@ -57,6 +57,7 @@ export interface ContextMenuProps {
   onWrapSection?(): void;
   onSelectMatching?(): void;
   onToggleDevStatus?(): void;
+  onPromoteModule?(): void;
 }
 
 export function ContextMenu({
@@ -66,6 +67,7 @@ export function ContextMenu({
   onWrapSection,
   onSelectMatching,
   onToggleDevStatus,
+  onPromoteModule,
 }: ContextMenuProps) {
   const [openGroup, setOpenGroup] = useState<Group | null>(null);
   const [subPos, setSubPos] = useState<{ left: number; top: number } | null>(
@@ -218,8 +220,8 @@ export function ContextMenu({
         key={id}
         role="menuitem"
         disabled={!allowed(id)}
-        onMouseEnter={() => {
-          if (!submenuRef.current?.contains(document.activeElement))
+        onMouseEnter={(event) => {
+          if (!submenuRef.current?.contains(event.currentTarget))
             setOpenGroup(null);
         }}
         onClick={() => {
@@ -633,7 +635,23 @@ export function ContextMenu({
                 {command("pasteStyle")}
               </>
             ) : (
-              groups[openGroup].filter(allowed).map(command)
+              <>
+                {groups[openGroup].filter(allowed).map(command)}
+                {openGroup === "组织" &&
+                  nodes.length === 1 &&
+                  !e.componentUnavailable &&
+                  onPromoteModule && (
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        close();
+                        onPromoteModule();
+                      }}
+                    >
+                      沉淀为组件库模块…
+                    </button>
+                  )}
+              </>
             )}
           </div>
         )}

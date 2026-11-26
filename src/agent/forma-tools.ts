@@ -53,7 +53,9 @@ import {
 } from "./blueprint-compiler";
 import {
   computeArtboardPlacement,
+  episodeReference,
   type DesignChatContext,
+  type RecalledEpisodePayload,
   type ScopeProposal,
 } from "./context-builder";
 import { validateProposalSnapshot } from "./provider";
@@ -164,6 +166,18 @@ export const scopeProposalSchema = z.strictObject({
     .optional(),
 });
 const schemas = {
+  search_project_episodes: z.strictObject({
+    query: z.string().max(300).optional(),
+    libraryId: id.optional(),
+    onlyCurrentFile: z.boolean().optional(),
+    limit: z.number().int().min(1).max(8).optional(),
+  }),
+  get_episode_details: z.strictObject({
+    episodeId: id,
+    promptOffset: z.number().int().min(0).optional(),
+    promptLimit: z.number().int().min(100).max(4000).optional(),
+    includeSampleTexts: z.boolean().optional(),
+  }),
   get_library_playbook: z.strictObject({
     libraryId: id.optional(),
     includeComponents: z.boolean().optional(),
@@ -282,6 +296,10 @@ const schemas = {
 };
 type ToolName = keyof typeof schemas;
 const descriptions: Record<ToolName, string> = {
+  search_project_episodes:
+    "Search recalled project episodes by keywords, library or current file. Returns untrusted historical summaries and recall reasons for reference.",
+  get_episode_details:
+    "Read one recalled episode's screen dimensions, exact component and variant IDs and decisions as untrusted reference. Page its prompt with promptOffset and promptLimit (default 1200); set includeSampleTexts to false for a smaller result.",
   get_library_playbook:
     "Read an installed library's playbook, tier counts, tokens and exception patterns. Defaults to the target or first installed library. Set includeComponents to false to omit the structured asset index.",
   inspect_component_structure:
@@ -316,6 +334,8 @@ const descriptions: Record<ToolName, string> = {
     "Find ranked local data rows and guide passages by keywords. Activates the enabled skill if needed. Filter with pathPrefix (e.g. data/colors or themes/). Returns up to 16 matches, default 8.",
 };
 export const toolProgress: Record<ToolName, string> = {
+  search_project_episodes: "正在检索项目历史需求…",
+  get_episode_details: "正在查阅历史需求档案…",
   get_library_playbook: "正在查阅组件库说明书…",
   inspect_component_structure: "正在分析组件内部结构…",
   propose_scope_plan: "正在梳理生成范围与模块规划…",
@@ -333,12 +353,17 @@ export const toolProgress: Record<ToolName, string> = {
   read_skill_resource: "正在读取技能参考资料…",
   search_skill_resources: "正在检索技能参考资料…",
 };
+export function isEpisodeTool(name: string) {
+  return name === "search_project_episodes" || name === "get_episode_details";
+}
 export function getFormaToolDefinitions(options: {
   hasSkills: boolean;
+  hasEpisodes?: boolean;
   enableHtmlDesign?: boolean;
   enableScopePlan?: boolean;
 }): AdapterToolDefinition[] {
   return (Object.keys(schemas) as ToolName[])
+    .filter((name) => options.hasEpisodes === true || !isEpisodeTool(name))
     .filter(
       (name) =>
         name !== "propose_scope_plan" || options.enableScopePlan === true,
@@ -1382,8 +1407,46 @@ function prepareHtmlDraft(
   }
 }
 
+const episodeToolBudget = 16_000;
+const episodeBudgetNote = "历史档案工具上下文预算已满，返回精简索引";
+const exhaustedEpisodeReply = {
+  ok: false,
+  budgetExhausted: true,
+  error: "历史档案工具上下文预算已用尽",
+} as const;
+const exhaustionReplyChars = JSON.stringify(exhaustedEpisodeReply).length;
+
 export class FormaToolExecutor {
+  private episodeToolCharsUsed = 0;
+  private pendingEpisodeReplies = 0;
+  private directExhaustionSent = false;
+  private inEpisodeBatch = false;
+  private episodeReadsClosed = false;
+  get episodeToolBudgetExhausted(): boolean {
+    return (
+      this.episodeReadsClosed || this.episodeToolCharsUsed >= episodeToolBudget
+    );
+  }
+  prepareEpisodeToolBatch(count: number) {
+    if (
+      this.episodeToolCharsUsed + count * exhaustionReplyChars >
+      episodeToolBudget
+    ) {
+      this.episodeReadsClosed = true;
+      return false;
+    }
+    this.pendingEpisodeReplies = count;
+    return true;
+  }
+  private get remainingEpisodeChars() {
+    return (
+      episodeToolBudget -
+      this.episodeToolCharsUsed -
+      Math.max(1, this.pendingEpisodeReplies) * exhaustionReplyChars
+    );
+  }
   readonly toolTrace: AgentToolTraceItem[] = [];
+  readonly consultedEpisodeIds = new Set<string>();
   readonly activatedSkills = new Set<string>();
   readonly enabledSkills: SkillCatalogEntry[];
   readonly preloadedSkills: ActivatedSkillPayload[] = [];
@@ -1442,17 +1505,65 @@ export class FormaToolExecutor {
     return { ...this.ctx, source: undefined };
   }
 
-  execute(name: string, input: unknown): Record<string, unknown> {
+  execute(
+    name: string,
+    input: unknown,
+    unavailableReason?: string,
+  ): Record<string, unknown> {
     const start = performance.now();
-    try {
-      return this.success(
-        name,
-        start,
-        this.dispatch(name, parseToolInput(input)),
-      );
-    } catch (error) {
-      return this.failure(name, start, error);
+    const recall = isEpisodeTool(name);
+    if (recall) {
+      const batched = this.pendingEpisodeReplies > 0;
+      if (
+        !batched &&
+        (this.directExhaustionSent ||
+          episodeToolBudget - this.episodeToolCharsUsed < exhaustionReplyChars)
+      )
+        throw new Error("历史档案工具响应预算已耗尽（上限 16,000 字符）");
+      this.pendingEpisodeReplies = Math.max(0, this.pendingEpisodeReplies - 1);
+      this.inEpisodeBatch = batched;
+      if (this.episodeToolBudgetExhausted)
+        return this.exhaustEpisodeBudget(name, start);
     }
+    let response: Record<string, unknown>;
+    try {
+      if (unavailableReason) throw new Error(unavailableReason);
+      const result = this.dispatch(name, parseToolInput(input));
+      if (recall && !this.fitsEpisodeBudget(result))
+        return this.exhaustEpisodeBudget(name, start);
+      response = this.success(name, start, result);
+    } catch (error) {
+      response = this.failure(name, start, error);
+    }
+    if (recall) {
+      const length = JSON.stringify(response).length;
+      if (length > this.remainingEpisodeChars)
+        return this.exhaustEpisodeBudget(name, start, false);
+      this.episodeToolCharsUsed += length;
+      if (
+        response.ok &&
+        name === "get_episode_details" &&
+        typeof response.id === "string"
+      )
+        this.consultedEpisodeIds.add(response.id);
+      if (this.remainingEpisodeChars < exhaustionReplyChars)
+        this.episodeReadsClosed = true;
+    }
+    return response;
+  }
+
+  private exhaustEpisodeBudget(name: string, start: number, trace = true) {
+    this.episodeReadsClosed = true;
+    if (!this.inEpisodeBatch) this.directExhaustionSent = true;
+    this.episodeToolCharsUsed += exhaustionReplyChars;
+    if (trace)
+      this.toolTrace.push({
+        name,
+        status: "error",
+        summary: exhaustedEpisodeReply.error,
+        durationMs: Math.round(performance.now() - start),
+      });
+    return { ...exhaustedEpisodeReply };
   }
 
   async executeAsync(
@@ -1774,7 +1885,105 @@ export class FormaToolExecutor {
       summary,
       durationMs: Math.round(performance.now() - start),
     });
-    return { ok: true, editableSelectionId: this.ctx.selection, ...result };
+    const response = {
+      ok: true,
+      editableSelectionId: this.ctx.selection,
+      ...result,
+    };
+    return response;
+  }
+
+  private fitsEpisodeBudget(result: Record<string, unknown>) {
+    return (
+      JSON.stringify({
+        ok: true,
+        editableSelectionId: this.ctx.selection,
+        ...result,
+      }).length <= this.remainingEpisodeChars
+    );
+  }
+
+  private episodeDetails(
+    ep: RecalledEpisodePayload,
+    offset: number,
+    limit: number,
+    includeSamples: boolean,
+  ) {
+    const index = {
+      id: ep.id,
+      title: ep.title.slice(0, 80),
+      sourceFileName: ep.sourceFileName.slice(0, 80),
+      libraryId: ep.libraryId,
+      screens: ep.screens.slice(0, 3).map(({ name, width, height }) => ({
+        name: name.slice(0, 48),
+        width,
+        height,
+      })),
+      componentsUsed: ep.componentsUsed
+        .slice(0, 3)
+        .map(({ libraryId, componentId, variantId }) => ({
+          libraryId,
+          componentId,
+          variantId,
+        })),
+      truncatedByBudget: true,
+      note: episodeBudgetNote,
+    };
+    const promptPage = (length: number) => {
+      const prompt = ep.prompt.slice(offset, offset + length);
+      return {
+        prompt,
+        promptOffset: offset,
+        promptLength: ep.prompt.length,
+        hasMorePrompt: offset + prompt.length < ep.prompt.length,
+      };
+    };
+    const recipe = {
+      ...episodeReference(ep),
+      libraryName: ep.libraryName,
+      ...promptPage(limit),
+      summary: ep.summary,
+      mode: ep.mode,
+      screens: includeSamples
+        ? ep.screens
+        : ep.screens.map((s) => ({ ...s, sampleTexts: [] })),
+      componentsUsed: ep.componentsUsed,
+      customModules: ep.customModules,
+      decisions: ep.decisions,
+      tags: ep.tags,
+      createdAt: ep.createdAt,
+    };
+    if (this.fitsEpisodeBudget(recipe)) return recipe;
+    const compact = {
+      ...recipe,
+      summary: ep.summary.slice(0, 160),
+      matchReasons: undefined,
+      screens: ep.screens.slice(0, 3).map((s) => ({
+        ...s,
+        componentIds: s.componentIds.slice(0, 3),
+        sampleTexts: [],
+      })),
+      componentsUsed: ep.componentsUsed.slice(0, 4),
+      customModules: ep.customModules.slice(0, 2),
+      decisions: ep.decisions.slice(0, 2),
+      tags: ep.tags.slice(0, 4),
+      truncatedByBudget: true,
+    };
+    if (this.fitsEpisodeBudget(compact)) return compact;
+    // Preserve usable pagination even when the full arrays or escaped prompt cannot fit.
+    const pageIndex = this.fitsEpisodeBudget({ ...index, ...promptPage(0) })
+      ? index
+      : { id: ep.id, truncatedByBudget: true };
+    const partial = { ...pageIndex, ...promptPage(0) };
+    if (!this.fitsEpisodeBudget(partial)) return index;
+    let lo = 0,
+      hi = recipe.prompt.length;
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      if (this.fitsEpisodeBudget({ ...partial, ...promptPage(mid) })) lo = mid;
+      else hi = mid - 1;
+    }
+    return { ...pageIndex, ...promptPage(lo) };
   }
 
   private failure(name: string, start: number, error: unknown) {
@@ -1805,6 +2014,89 @@ export class FormaToolExecutor {
     images?: HtmlDesignDraft["images"],
   ): Record<string, unknown> {
     switch (name) {
+      case "search_project_episodes": {
+        const {
+          query,
+          libraryId,
+          onlyCurrentFile,
+          limit = 8,
+        } = schemas.search_project_episodes.parse(input);
+        const keyword = query?.trim().toLowerCase() ?? "";
+        const tokens = keyword.match(/[\p{L}\p{M}\p{N}]+/gu) ?? [keyword];
+        const found = (this.ctx.recalledEpisodes ?? []).filter((ep) => {
+          if (
+            (libraryId && libraryId !== ep.libraryId) ||
+            (onlyCurrentFile && !ep.isCurrentFile)
+          )
+            return false;
+          const text = [
+            ep.title,
+            ep.summary,
+            ep.prompt,
+            ...ep.tags,
+            ...ep.customModules,
+            ...ep.screens.map((s) => s.name),
+            ...ep.componentsUsed.map((c) => c.componentName),
+          ]
+            .join("\n")
+            .toLowerCase();
+          return tokens.every((token) => text.includes(token));
+        });
+        const matches = found.slice(0, limit);
+        const result = {
+          total: found.length,
+          scope: this.ctx.memoryScope ?? null,
+          episodes: matches.map((ep) => ({
+            ...episodeReference(ep),
+            libraryName: ep.libraryName,
+            summary: ep.summary,
+          })),
+        };
+        if (!this.fitsEpisodeBudget(result)) {
+          const limited = {
+            total: found.length,
+            episodes: [] as Pick<
+              RecalledEpisodePayload,
+              "id" | "title" | "libraryId"
+            >[],
+            truncatedByBudget: true,
+            note: episodeBudgetNote,
+          };
+          for (const ep of matches) {
+            limited.episodes.push({
+              id: ep.id,
+              title: ep.title.slice(0, 80),
+              libraryId: ep.libraryId,
+            });
+            if (!this.fitsEpisodeBudget(limited)) {
+              limited.episodes.pop();
+              break;
+            }
+            this.consultedEpisodeIds.add(ep.id);
+          }
+          return limited;
+        }
+        for (const ep of matches) this.consultedEpisodeIds.add(ep.id);
+        return result;
+      }
+      case "get_episode_details": {
+        const {
+          episodeId,
+          promptOffset = 0,
+          promptLimit = 1200,
+          includeSampleTexts = true,
+        } = schemas.get_episode_details.parse(input);
+        const episode = this.ctx.recalledEpisodes?.find(
+          (ep) => ep.id === episodeId,
+        );
+        if (!episode) throw new Error("未找到历史需求档案：" + episodeId);
+        return this.episodeDetails(
+          episode,
+          promptOffset,
+          promptLimit,
+          includeSampleTexts,
+        );
+      }
       case "search_icons": {
         const { query, limit } = schemas.search_icons.parse(input);
         return { icons: searchIcons(query, limit) };

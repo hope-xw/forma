@@ -20,7 +20,7 @@ import {
   independentShadows,
 } from "./material-composite";
 import { flowItemCss } from "./flow-gap";
-import { siblingMaskPaint } from "../infrastructure/static-export";
+import { siblingMaskPaint } from "./svg-export";
 import { symbolPaintForView } from "../domain/symbol-background";
 import { tintCss } from "./group-tint";
 import { currentTextLayout, currentTextShape } from "../domain/text-shape";

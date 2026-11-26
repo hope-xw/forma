@@ -40,9 +40,13 @@ export function useModalDialog(open: boolean, close: () => void, modal = true) {
           last = nodes.at(-1);
         if (!first) {
           event.preventDefault();
+          dialog.focus();
           return;
         }
-        if (event.shiftKey && document.activeElement === first) {
+        if (!dialog.contains(document.activeElement)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first)?.focus();
+        } else if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last?.focus();
         } else if (!event.shiftKey && document.activeElement === last) {

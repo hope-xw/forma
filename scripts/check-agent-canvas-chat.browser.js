@@ -1,8 +1,42 @@
 async (page) => {
   const { strict: assert } = await import("node:assert");
   const { readFile } = await import("node:fs/promises");
-  const { strFromU8, unzipSync } = await import("fflate");
-  const { createServer } = await import("node:http");
+  const path = await import("node:path");
+  const { createRequire } = await import("node:module");
+  const { pathToFileURL } = await import("node:url");
+  // Node's VM default loader resolves relative to the working directory.
+  // The runner supplies the repository root even when QA output goes elsewhere.
+  const runnerUrl = pathToFileURL(
+    path.resolve(
+      process.env.FORMA_REPO_ROOT ?? process.cwd(),
+      "scripts/run-browser-checks.mjs",
+    ),
+  );
+  const { strFromU8, unzipSync } = createRequire(runnerUrl)("fflate");
+  const {
+    createMockProvider,
+    shoppingLibrary,
+    contrastWhenVisible,
+    modelId,
+    craftId,
+    instructions,
+    htmlPrompt,
+    firstTitle,
+    refinedTitle,
+    critiqueNote,
+    projectName,
+    projectPrompt,
+    isolationPrompt,
+    libraryId,
+    libraryName,
+    campaignPrompt,
+    customNote,
+    brand,
+    screens,
+    scopePlan,
+    campaignReviewNote,
+    photo,
+  } = await import(new URL("./browser-checks/agent/fixtures.mjs", runnerUrl));
 
   const button = (name) => page.getByRole("button", { name, exact: true });
   const canvas = page.locator(".editor-canvas");
@@ -30,298 +64,9 @@ async (page) => {
     "Zero /api/agent/* requests expected before user triggers Agent UI",
   );
 
-  // Spin up a local mock OpenAI-compatible provider server for E2E verification
-  const modelId = "deepseek-flash";
-  const craftId = "forma-design-system-craft";
   const testSkill = "forma-qa-" + crypto.randomUUID();
-  const instructions = "使用当前画板的间距变量，检查登录表单的标签。";
-  const receivedRounds = [];
-  const htmlPrompt = "新建一屏手冲咖啡订阅卡";
-  const firstTitle = "早安手冲";
-  const refinedTitle = "本周手冲精选";
-  const critiqueNote = "卡片间距调整为 16 px。";
-  const libraryId = "tb-mobile";
-  const libraryName = "淘宝移动端电商库（模拟）";
-  const campaignPrompt =
-    "为淘宝移动端设计大促完整购物流程，包含主会场和关联异常态，请规划页面范围。";
-  const customNote = "\n  行话：开门红先上尖货池。  \n\n";
-  const brand = "#ff5000";
-  const screens = [
-    {
-      refId: "tb-home",
-      name: "淘宝主会场",
-      role: "primary",
-      width: 390,
-      height: 600,
-      summary: "搜索商品并浏览促销楼层",
-    },
-    {
-      refId: "tb-empty",
-      name: "淘宝搜索空态",
-      role: "exception",
-      parentRef: "tb-home",
-      width: 390,
-      height: 320,
-      summary: "没有搜索结果时展示缺省反馈",
-    },
-  ];
-  const scopePlan = {
-    reply: "请选择本次大促的页面范围。",
-    summary: "生成主会场及关联搜索空态",
-    screens,
-    reusedAssets: ["顶部搜索导航栏", "搜索空状态"],
-    customModules: ["尖货促销楼层"],
-    decisions: [
-      {
-        question: "主推促销类型",
-        defaultChoice: "秒杀",
-        alternatives: ["满减"],
-      },
-    ],
-  };
-  const htmlBoards = screens.map(({ summary, ...board }, i) => ({
-    ...board,
-    html:
-      i === 0
-        ? `<main><div data-forma-component="tb-nav-search" data-overrides='{"textByTemplateKey":{"旧槽位":"促销"}}'></div><section data-forma-name="尖货促销楼层"><h2>满减专场</h2></section></main>`
-        : '<main><div data-forma-component="tb-empty-state"></div></main>',
-    css:
-      "main{display:flex;flex-direction:column;width:100%;gap:16px}section{background:" +
-      brand +
-      ";height:96px;padding:16px;border-radius:12px}",
-  }));
-  const campaignRounds = [];
-  const campaignScreenshots = [];
-  const campaignReviewNote = "促销楼层内边距已调整，空态补充无结果提示。";
-  const revisedBoards = htmlBoards.map((board, index) => ({
-    ...board,
-    css: board.css + "section{padding:24px}",
-    html: index
-      ? board.html.replace("</main>", "<p>换个关键词试试</p></main>")
-      : board.html.replace(/ data-overrides='[^']*'/, ""),
-  }));
-  function toolCall(name, args) {
-    return {
-      id: "qa-" + name,
-      type: "function",
-      function: { name, arguments: JSON.stringify(args) },
-    };
-  }
-  let delayedConfirmation;
-  async function campaignModel(body, res, tools, results) {
-    if (!tools.includes("get_canvas_overview")) {
-      const parts = body.messages.find((m) => m.role === "user")?.content;
-      campaignScreenshots.push(
-        (Array.isArray(parts) ? parts : [])
-          .filter((p) => p.type === "image_url")
-          .map((p) => p.image_url.url),
-      );
-      respondToModel(
-        res,
-        body.stream,
-        [
-          toolCall("propose_html_design", {
-            reply: campaignReviewNote,
-            artboards: revisedBoards,
-          }),
-        ],
-        campaignReviewNote,
-      );
-      return;
-    }
-    const message = body.messages.findLast(
-      (m) =>
-        m.role === "user" &&
-        typeof m.content === "string" &&
-        m.content.includes("Context (JSON)\n"),
-    );
-    if (!message) {
-      res.writeHead(422).end("Missing shopping context");
-      return;
-    }
-    const ctx = JSON.parse(message.content.split("Context (JSON)\n").at(-1));
-    const toolResult = results.length
-      ? JSON.parse(results.at(-1).content)
-      : null;
-    campaignRounds.push({ tools, ctx, toolResult });
-    if (ctx.confirmedScope && delayedConfirmation) {
-      delayedConfirmation.received.resolve();
-      await delayedConfirmation.resume.promise;
-      if (res.destroyed) return;
-    }
-    const calls = ctx.confirmedScope
-      ? results.length
-        ? []
-        : [
-            toolCall("propose_html_design", {
-              reply: "两张画板已就绪。",
-              artboards: htmlBoards,
-            }),
-          ]
-      : results.length
-        ? [toolCall("propose_scope_plan", scopePlan)]
-        : [toolCall("get_library_playbook", { libraryId })];
-    respondToModel(res, body.stream, calls, "两张购物画板已就绪。");
-  }
-
-  function shoppingLibrary() {
-    const style = {
-      x: 0,
-      y: 0,
-      width: 350,
-      height: 48,
-      fill: "#ffffff",
-      color: "#202020",
-      radius: 0,
-      fontSize: 14,
-      padding: 0,
-      gap: 0,
-      layout: "free",
-    };
-    const components = [
-      ["tb-campaign-page", "频道首页样板", "page", "频道首页", 390, 600],
-      ["tb-nav-search", "顶部搜索导航栏", "block", "搜索宝贝", 350, 48],
-      ["tb-promo-btn", "主促按钮", "component", "立即抢购", 120, 40],
-      ["tb-empty-state", "搜索空状态", "component", "暂无相关商品", 320, 120],
-    ].map(([id, name, assetTier, text, width, height]) => {
-      const root = {
-        id: "root",
-        templateKey: "root",
-        type: "frame",
-        parentId: null,
-        name,
-        text: "",
-        hidden: false,
-        locked: false,
-        style: { ...style, width, height },
-      };
-      if (id === "tb-promo-btn") {
-        root.style.fill = brand;
-        root.variableBindings = { fill: "tb-brand" };
-      }
-      const label = {
-        id: "label",
-        templateKey: "label",
-        type: "text",
-        parentId: "root",
-        name: "文案",
-        text,
-        hidden: false,
-        locked: false,
-        style: { ...style, x: 8, y: 8, width: width - 16, height: 24 },
-      };
-      const children = [label];
-      if (id === "tb-nav-search") {
-        children.push({
-          ...label,
-          id: "location",
-          templateKey: "location",
-          name: "当前定位",
-          text: "杭州",
-          style: { ...label.style, width: 48 },
-        });
-        label.style = { ...label.style, x: 64, width: width - 72 };
-      }
-      if (assetTier === "page") {
-        children.push(
-          {
-            ...label,
-            id: "search",
-            templateKey: "search",
-            name: "频道搜索",
-            text: "搜索活动商品",
-            style: { ...label.style, y: 48, height: 40, fill: "#f5f5f5" },
-          },
-          {
-            ...label,
-            id: "campaign",
-            templateKey: "campaign",
-            name: "主促楼层",
-            text: "开门红满减专场",
-            style: {
-              ...label.style,
-              y: 104,
-              height: 96,
-              fontSize: 24,
-              fill: brand,
-              radius: 12,
-            },
-            variableBindings: { fill: "tb-brand", radius: "tb-radius" },
-          },
-        );
-      }
-      const options =
-        id === "tb-nav-search"
-          ? ["日常态", "大促态"]
-          : id === "tb-promo-btn"
-            ? ["主按钮", "次按钮"]
-            : ["默认"];
-      return {
-        id,
-        name,
-        category: "购物",
-        assetTier,
-        description: name,
-        exposed: [{ id: "label", name: "文案", kind: "text", target: "label" }],
-        variants: options.map((name, index) => ({
-          id: index ? "alternate" : "default",
-          name,
-          properties: options.length > 1 ? { State: name } : {},
-          nodes: [
-            index
-              ? {
-                  ...root,
-                  style: { ...root.style, fill: "#fff1e6" },
-                  variableBindings: undefined,
-                }
-              : root,
-            ...children,
-          ],
-        })),
-      };
-    });
-    return {
-      format: "forma/library",
-      version: 1,
-      id: libraryId,
-      name: libraryName,
-      description: "移动购物与促销",
-      revision: 1,
-      source: { name: "Forma 测试", license: "测试夹具" },
-      components,
-      designSystem: {
-        collections: {
-          tb: {
-            id: "tb",
-            name: "淘宝品牌语义色",
-            defaultModeId: "light",
-            modes: [{ id: "light", name: "浅色" }],
-          },
-        },
-        variables: {
-          "tb-radius": {
-            id: "tb-radius",
-            name: "楼层圆角",
-            collectionId: "tb",
-            type: "number",
-            scopes: ["radius"],
-            values: { light: 12 },
-          },
-          "tb-brand": {
-            id: "tb-brand",
-            name: "品牌主色",
-            collectionId: "tb",
-            type: "color",
-            scopes: ["fill"],
-            values: { light: brand },
-          },
-        },
-        styles: {},
-        activeModes: { tb: "light" },
-      },
-    };
-  }
-
+  const fileA =
+    new URL(page.url()).searchParams.get("file") ?? "forma.document.v1";
   async function editOfflinePlaybook() {
     await button("资源").click();
     await button("组件库管理").click();
@@ -482,57 +227,12 @@ async (page) => {
     await search.fill("");
   }
 
-  async function contrastWhenVisible(container, selector) {
-    return container.evaluate(async (root, selector) => {
-      // Observe the actual extraction status: a tiny invalid input can finish within a frame.
-      const element =
-        root.querySelector(selector) ??
-        (await new Promise((resolve, reject) => {
-          const observer = new MutationObserver(() => {
-            const found = root.querySelector(selector);
-            if (found) {
-              clearTimeout(timer);
-              observer.disconnect();
-              resolve(found);
-            }
-          });
-          const timer = setTimeout(() => {
-            observer.disconnect();
-            reject(Error("Missing contrast sample " + selector));
-          }, 8000);
-          observer.observe(root, { childList: true, subtree: true });
-        }));
-      const rgb = (css) => css.match(/[.\d]+/g).map(Number);
-      let bg;
-      for (let node = element; node; node = node.parentElement) {
-        const color = rgb(getComputedStyle(node).backgroundColor);
-        if (color[3] === 0) continue;
-        if ((color[3] ?? 1) !== 1)
-          throw Error("Expected opaque status background");
-        bg = color;
-        break;
-      }
-      const luminance = (color) =>
-        color.slice(0, 3).reduce((sum, channel, i) => {
-          const c = channel / 255;
-          return (
-            sum +
-            [0.2126, 0.7152, 0.0722][i] *
-              (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
-          );
-        }, 0);
-      const fg = luminance(rgb(getComputedStyle(element).color)),
-        back = luminance(bg);
-      return (Math.max(fg, back) + 0.05) / (Math.min(fg, back) + 0.05);
-    }, selector);
-  }
-
   async function checkGuideContrast() {
     // A second catalog connection publishes r2 while this document still uses r1.
     await page.evaluate(
       (id) =>
         new Promise((resolve, reject) => {
-          const open = indexedDB.open("forma-workspace-libraries-v1", 1);
+          const open = indexedDB.open("forma-workspace-libraries-v1");
           open.onerror = () => reject(open.error);
           open.onsuccess = () => {
             const db = open.result;
@@ -631,230 +331,17 @@ async (page) => {
     return ratios;
   }
 
-  const photo =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGNoD7EAIgYIBQAfXgRNqpqd+wAAAABJRU5ErkJggg==";
-  const upstreamScreenshots = [];
-  let critiqueGate = Promise.withResolvers();
-  function coffeeDesign(refined) {
-    return {
-      name: "手冲订阅",
-      width: 320,
-      height: 240,
-      summary: refined ? "手冲订阅精修稿" : "手冲订阅初稿",
-      reply: refined ? critiqueNote : "请预览手冲订阅卡。",
-      html: `<article data-forma-name="咖啡卡片"><span data-icon="coffee"></span><img src="${photo}" alt="咖啡配图"><h2>${refined ? refinedTitle : firstTitle}</h2></article>`,
-      css: `article{display:flex;flex-direction:column;width:320px;height:240px;padding:16px;gap:${refined ? 16 : 8}px;background:#f2dfc8;color:#392720}img{width:80px;height:48px;object-fit:cover}h2{font-size:20px}`,
-    };
-  }
-  function respondToModel(res, stream, tool_calls, content) {
-    const message = tool_calls.length ? { tool_calls } : { content };
-    const finish_reason = tool_calls.length ? "tool_calls" : "stop";
-    if (stream) {
-      res.writeHead(200, { "Content-Type": "text/event-stream" });
-      const delta = tool_calls.length
-        ? {
-            tool_calls: tool_calls.map((item, index) => ({ ...item, index })),
-          }
-        : message;
-      res.write(
-        `data: ${JSON.stringify({ choices: [{ index: 0, delta, finish_reason }] })}\n\n`,
-      );
-      res.end("data: [DONE]\n\n");
-    } else {
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ choices: [{ message, finish_reason }] }));
-    }
-  }
-  let modelReads = 0;
-  const mockServer = createServer(async (req, res) => {
-    const chunks = [];
-    for await (const c of req) chunks.push(c);
-    if (req.url === "/v1/models" && req.method === "GET") {
-      modelReads++;
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(
-        JSON.stringify({
-          data: [
-            {
-              id: modelId,
-              name: "DeepSeek-V4.1-Flash",
-              context_window: 1000000,
-              max_output_tokens: 393216,
-              input_modalities: ["text", "image"],
-            },
-          ],
-        }),
-      );
-      return;
-    }
-    if (req.url === "/v1/chat/completions" && req.method === "POST") {
-      const blueprint = {
-        mode: "generate",
-        reply: "已根据您的需求生成深色主题 H5 登录页，采用自动布局与圆角卡片。",
-        summary: "新增 H5 登录页（含标题、表单卡片与登录按钮）",
-        artboards: [
-          {
-            refId: "ai-h5-login",
-            type: "frame",
-            name: "AI 生成 · H5 登录页",
-            style: {
-              width: 390,
-              height: 844,
-              layout: "column",
-              padding: 24,
-              gap: 20,
-              fill: "#0F172A",
-              radius: 24,
-            },
-            children: [
-              {
-                type: "text",
-                name: "登录标题",
-                text: "欢迎回到 Forma",
-                style: {
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: "#F8FAFC",
-                  widthMode: "fill",
-                  heightMode: "hug",
-                },
-              },
-              {
-                type: "frame",
-                name: "表单卡片",
-                style: {
-                  layout: "column",
-                  padding: 20,
-                  gap: 14,
-                  fill: "#1E293B",
-                  radius: 16,
-                  widthMode: "fill",
-                  heightMode: "hug",
-                },
-                children: [
-                  {
-                    type: "text",
-                    name: "邮箱标签",
-                    text: "工作邮箱",
-                    style: {
-                      fontSize: 13,
-                      color: "#94A3B8",
-                      widthMode: "fill",
-                      heightMode: "hug",
-                    },
-                  },
-                  {
-                    type: "button",
-                    name: "主登录按钮",
-                    text: "立即登录",
-                    style: {
-                      widthMode: "fill",
-                      height: 46,
-                      fill: "#0D99FF",
-                      color: "#FFFFFF",
-                      radius: 12,
-                      fontSize: 15,
-                      fontWeight: 600,
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-      const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-      const tools = body.tools?.map((tool) => tool.function.name) ?? [];
-      const results = body.messages.filter((m) => m.role === "tool");
-      if (JSON.stringify(body.messages).includes(campaignPrompt)) {
-        await campaignModel(body, res, tools, results);
-        return;
-      }
-      if (JSON.stringify(body.messages).includes(htmlPrompt)) {
-        if (body.model !== modelId || !tools.includes("propose_html_design")) {
-          res.writeHead(422).end("HTML proposal tool missing");
-          return;
-        }
-        const critique = !tools.includes("get_canvas_overview");
-        if (critique) {
-          const parts = body.messages.find((m) => m.role === "user")?.content;
-          const screenshot =
-            Array.isArray(parts) &&
-            parts.find((p) => p.type === "image_url")?.image_url?.url;
-          upstreamScreenshots.push(screenshot);
-          await critiqueGate.promise;
-        }
-        const calls = results.length
-          ? []
-          : [
-              {
-                id: critique ? "qa-html-refine" : "qa-html-draft",
-                type: "function",
-                function: {
-                  name: "propose_html_design",
-                  arguments: JSON.stringify(coffeeDesign(critique)),
-                },
-              },
-            ];
-        respondToModel(res, body.stream, calls, "手冲订阅初稿已就绪。");
-        return;
-      }
-      const advertised = [
-        "get_canvas_overview",
-        "activate_skill",
-        "propose_design_changes",
-      ];
-      if (
-        body.model !== modelId ||
-        !advertised.every((name) => tools.includes(name)) ||
-        (receivedRounds.length < 3 &&
-          !JSON.stringify(body.messages).includes(instructions))
-      ) {
-        res.writeHead(422);
-        res.end(
-          "Expected Forma tools and the explicitly selected Skill instructions",
-        );
-        return;
-      }
-      const call = (id, name, args) => ({
-        id,
-        type: "function",
-        function: { name, arguments: JSON.stringify(args) },
-      });
-      const ids = results.map((m) => m.tool_call_id);
-      const expected = ["qa-overview", "qa-craft", "qa-propose"];
-      if (
-        ![0, 2, 3].includes(ids.length) ||
-        !ids.every((id, i) => id === expected[i]) ||
-        results.some((m) => !JSON.parse(m.content).ok)
-      ) {
-        res.writeHead(422);
-        res.end("Unexpected tool results");
-        return;
-      }
-      receivedRounds.push(ids);
-      const tool_calls =
-        results.length === 0
-          ? [
-              call(expected[0], advertised[0], {}),
-              call(expected[1], advertised[1], { name: craftId }),
-            ]
-          : results.length === 2
-            ? [call(expected[2], advertised[2], blueprint)]
-            : [];
-      respondToModel(res, body.stream, tool_calls, "登录页已准备好供预览。");
-      return;
-    }
-    res.writeHead(404);
-    res.end();
-  });
-
-  await new Promise((resolve, reject) => {
-    mockServer.once("error", reject);
-    mockServer.listen(0, "127.0.0.1", resolve);
-  });
-  const port = mockServer.address().port;
-  const mockBaseUrl = `http://127.0.0.1:${port}/v1`;
+  // Spin up a local mock OpenAI-compatible provider server for E2E verification
+  const {
+    mockServer,
+    mockBaseUrl,
+    controls,
+    receivedRounds,
+    projectRounds,
+    campaignRounds,
+    campaignScreenshots,
+    upstreamScreenshots,
+  } = await createMockProvider();
   let savedProfileId = null;
 
   let importedSkillId = null;
@@ -879,6 +366,16 @@ async (page) => {
     );
     return response.json();
   }
+  async function openSettings() {
+    const dlg = page.getByRole("dialog", { name: "创作设置" });
+    if (!(await dlg.isVisible())) await button("创作设置").click();
+    return dlg;
+  }
+  async function closeSettings() {
+    const dlg = page.getByRole("dialog", { name: "创作设置" });
+    if (await dlg.isVisible())
+      await dlg.getByRole("button", { name: "关闭创作设置" }).click();
+  }
   try {
     await button("AI 设计助手").click();
     await page.getByText("未连接模型", { exact: true }).waitFor();
@@ -886,8 +383,13 @@ async (page) => {
     await checkOfficialGuide();
     const guideContrast = await checkGuideContrast();
     await button("AI 设计助手").click();
-    await page.getByLabel("目标组件库").selectOption(libraryId);
-    await page.getByText("AI 说明书就绪 · P1/B1/C2", { exact: true }).waitFor();
+    const settingsDlg = await openSettings();
+    await settingsDlg.getByLabel("目标组件库").selectOption(libraryId);
+    await settingsDlg
+      .getByText("规范已就绪 · 1 个页面模板 · 1 个模块 · 2 个组件", {
+        exact: true,
+      })
+      .waitFor();
     assert.deepEqual(
       initialAgentRequests,
       [],
@@ -895,7 +397,8 @@ async (page) => {
     );
     page.off("request", onReq);
     // Keep the existing unscoped scenarios independent of the shopping library.
-    await page.getByLabel("目标组件库").selectOption("");
+    await settingsDlg.getByLabel("目标组件库").selectOption("");
+    await closeSettings();
     const original = await act("GET", "status", () =>
       button("配置模型供应商").click(),
     );
@@ -979,11 +482,11 @@ async (page) => {
       profile.getByLabel("支持视觉识图").uncheck(),
     );
     await profile.getByText("手动覆写", { exact: true }).waitFor();
-    const reads = modelReads;
+    const reads = controls.modelReads;
     await act("POST", profilePath + "/refresh", () =>
       profile.getByRole("button", { name: "刷新模型" }).click(),
     );
-    assert.ok(modelReads > reads);
+    assert.ok(controls.modelReads > reads);
     await profile.getByText("仅文本", { exact: true }).waitFor();
     const reset = await act("PATCH", profilePath, () =>
       profile.getByRole("button", { name: "恢复自动检测" }).click(),
@@ -993,8 +496,11 @@ async (page) => {
     await page.keyboard.press("Escape");
     await modal.waitFor({ state: "hidden" });
 
+    const skillSettings = await openSettings();
     const skillList = await act("GET", "skills", () =>
-      button("管理设计技能（Skills）").click(),
+      skillSettings
+        .getByRole("button", { name: "管理设计技能（Skills）", exact: true })
+        .click(),
     );
     const manager = page.getByRole("dialog", { name: "管理设计技能" });
     for (const name of [craftId, "mobile-h5-accessibility-audit"]) {
@@ -1030,14 +536,17 @@ async (page) => {
     await skillCard.locator("pre").filter({ hasText: instructions }).waitFor();
     await page.keyboard.press("Escape");
     await manager.waitFor({ state: "hidden" });
-    await button("选择本轮技能").click();
-    await page.getByRole("checkbox", { name: testSkill, exact: true }).check();
+    const turnSettings = await openSettings();
+    await turnSettings
+      .getByRole("checkbox", { name: testSkill, exact: true })
+      .check();
     await page
       .getByLabel("本轮已选技能")
       .getByRole("button", { name: "移除本轮技能 " + testSkill })
       .waitFor();
 
-    await page.getByLabel("生成引擎模式").selectOption("html");
+    await turnSettings.getByLabel("生成引擎模式").selectOption("html");
+    await closeSettings();
     // 1.5 Verify right-sidebar contextual AI entry on ANY selected layer
     await page.getByRole("button", { name: "图层", exact: true }).click();
     const firstFrame = page
@@ -1050,7 +559,11 @@ async (page) => {
       .locator("#right-panel")
       .getByRole("button", { name: "用 AI 生成或编辑选中图层", exact: true });
     await button("AI 设计助手").click();
-    await page.getByText("当前选区将使用蓝图编辑", { exact: true }).waitFor();
+    const selSettings = await openSettings();
+    await selSettings
+      .getByText("当前已选中图层，将自动对选区执行局部修改", { exact: true })
+      .waitFor();
+    await closeSettings();
     await rightAiBtn.waitFor();
     await rightAiBtn.click();
     const bar = page.locator(".canvas-agent-bar");
@@ -1090,7 +603,9 @@ async (page) => {
     await page.keyboard.press("Escape");
     await bar.waitFor({ state: "hidden" });
 
-    await page.getByLabel("生成引擎模式").selectOption("auto");
+    const autoSettings = await openSettings();
+    await autoSettings.getByLabel("生成引擎模式").selectOption("auto");
+    await closeSettings();
     // 2. Open Canvas Inline Agent Bar via Cmd/Ctrl+Enter
     await canvas.focus();
     await page.keyboard.press("Escape");
@@ -1169,7 +684,7 @@ async (page) => {
     assert.equal(await replies.count(), 2);
     for (let i = 0; i < 2; i++) {
       const reply = replies.nth(i);
-      await reply.getByText(/调用详情 · 3 次工具调用/).click();
+      await reply.getByText(/生成过程 · 3 步操作/).click();
       for (const name of [
         "get_canvas_overview",
         "activate_skill",
@@ -1212,8 +727,12 @@ async (page) => {
       observer.observe(document.body, { childList: true });
       return { observer, permissions };
     });
-    const mode = page.getByLabel("生成引擎模式");
-    const selfReview = button("视觉自审精修");
+    const v2Settings = await openSettings();
+    const mode = v2Settings.getByLabel("生成引擎模式");
+    const selfReview = v2Settings.getByRole("button", {
+      name: "视觉自审精修",
+      exact: true,
+    });
     assert.equal(await mode.inputValue(), "auto");
     assert.equal(await selfReview.getAttribute("aria-pressed"), "true");
     const themeSwitch = page.getByRole("button", {
@@ -1221,11 +740,14 @@ async (page) => {
     });
     for (let appearance = 0; appearance < 2; appearance++) {
       assert.ok(
-        await mode.evaluate((select) => {
-          const toolbar = select.closest(".agent-composer-toolbar");
-          return toolbar.scrollWidth <= toolbar.clientWidth;
-        }),
-        "Composer controls must fit at 1280 × 650",
+        await v2Settings.evaluate((el) => el.scrollWidth <= el.clientWidth),
+        "Settings popover must fit at 1280 × 650",
+      );
+      assert.ok(
+        await page
+          .locator(".agent-composer-footer")
+          .evaluate((el) => el.scrollWidth <= el.clientWidth),
+        "Composer footer must fit at 1280 × 650",
       );
       await themeSwitch.click();
     }
@@ -1233,6 +755,7 @@ async (page) => {
     assert.equal(await selfReview.getAttribute("aria-pressed"), "false");
     await selfReview.click();
     await mode.selectOption("html");
+    await closeSettings();
     const critiqueRequest = () =>
       page.waitForRequest(
         (r) =>
@@ -1247,7 +770,7 @@ async (page) => {
     assert.equal(htmlChat.selection, null);
     await canvas.getByText(firstTitle, { exact: true }).waitFor();
     await bar
-      .getByText("正在截屏执行多模态视觉自审精修…", { exact: true })
+      .getByText("正在检查画面效果并做细节优化…", { exact: true })
       .waitFor();
     const review = reviewRequest.postDataJSON();
     assert.equal(review.profileId, savedProfileId);
@@ -1280,7 +803,9 @@ async (page) => {
       background: [242, 223, 200, 255],
     });
 
-    const revised = await act("POST", "critique", () => critiqueGate.resolve());
+    const revised = await act("POST", "critique", () =>
+      controls.critiqueGate.resolve(),
+    );
     assert.deepEqual(upstreamScreenshots, [review.renderedImageDataUrl]);
     assert.equal(revised.improved, true);
     const coffeeCard = canvas
@@ -1325,7 +850,7 @@ async (page) => {
     );
     await sandboxes.dispose();
     const revisedReply = replies.last();
-    await revisedReply.getByText(/调用详情 · 2 次工具调用/).click();
+    await revisedReply.getByText(/生成过程 · 2 步操作/).click();
     await revisedReply
       .locator(".agent-critique-notes")
       .getByRole("listitem")
@@ -1357,14 +882,17 @@ async (page) => {
     );
 
     // Direct panel sends share the same pipeline. Stopping a review leaves its draft actionable.
-    critiqueGate = Promise.withResolvers();
+    controls.critiqueGate = Promise.withResolvers();
     await page.getByLabel("设计需求", { exact: true }).fill(htmlPrompt);
     await Promise.all([critiqueRequest(), button("生成设计").click()]);
-    await button("正在生成 · 取消").click();
+    await page
+      .locator("#left-panel")
+      .getByRole("button", { name: "停止生成", exact: true })
+      .click();
     await button("生成设计").waitFor();
     await canvas.getByText(firstTitle, { exact: true }).waitFor();
     await hud.getByRole("button", { name: "丢弃" }).click();
-    critiqueGate.resolve();
+    controls.critiqueGate.resolve();
     await hud.waitFor({ state: "hidden" });
     await canvas
       .locator(".is-ai-preview")
@@ -1378,9 +906,16 @@ async (page) => {
     // Stage 1: exercise the real HTTP tool loop, sandbox compiler and editor history.
     await page.setViewportSize({ width: 1024, height: 480 });
     await button("清空对话历史").click();
-    assert.equal(await selfReview.getAttribute("aria-pressed"), "true");
-    const target = page.getByLabel("目标组件库");
+    const s1Settings = await openSettings();
+    assert.equal(
+      await s1Settings
+        .getByRole("button", { name: "视觉自审精修", exact: true })
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+    const target = s1Settings.getByLabel("目标组件库");
     await target.selectOption(libraryId);
+    await closeSettings();
     const chatRequests = [];
     const onChat = (r) => {
       if (new URL(r.url()).pathname === "/api/agent/chat")
@@ -1428,11 +963,9 @@ async (page) => {
         await scopeCard.evaluate((el) => el.scrollWidth <= el.clientWidth),
       );
       assert.ok(
-        await target.evaluate(
-          (el) =>
-            el.closest(".agent-target-library").scrollWidth <=
-            el.closest(".agent-target-library").clientWidth,
-        ),
+        await page
+          .locator(".agent-composer")
+          .evaluate((el) => el.scrollWidth <= el.clientWidth),
       );
       await themeSwitch.click();
     }
@@ -1503,7 +1036,9 @@ async (page) => {
     for (const request of chatRequests) {
       assert.equal(request.targetLibraryId, libraryId);
       assert.deepEqual(request.memoryScope, {
-        projectId: request.document.id,
+        projectId: "file:" + fileA,
+        fileKey: fileA,
+        userId: "local-default",
         libraryId,
       });
     }
@@ -1536,7 +1071,7 @@ async (page) => {
       return JSON.parse(await readFile(await file.path(), "utf8"));
     }
     const beforeApply = await downloadDocument();
-    await proposal.getByRole("button", { name: "应用到设计" }).click();
+    await proposal.getByRole("button", { name: "应用到画布" }).click();
     await proposal.waitFor({ state: "hidden" });
     const applied = await downloadDocument();
     const priorIds = new Set(beforeApply.nodes.map((n) => n.id));
@@ -1592,7 +1127,8 @@ async (page) => {
     const label = created.find(
       (n) => n.parentId === instances[0].id && n.templateKey === "label",
     );
-    const manual = page.locator(".agent-external-details");
+    const devSettings = await openSettings();
+    const manual = devSettings.locator(".agent-external-details");
     await manual.locator("summary").first().click();
     await manual.getByLabel("Agent 事务 JSON").fill(
       JSON.stringify({
@@ -1601,6 +1137,7 @@ async (page) => {
       }),
     );
     await manual.getByRole("button", { name: "校验并预览" }).click();
+    await closeSettings();
     await page
       .locator(".agent-panel-root")
       .getByRole("alert")
@@ -1711,19 +1248,23 @@ async (page) => {
       await scopeCard.getByText(scopePlan.summary, { exact: true }).waitFor();
     }
     await askForScope();
-    await target.selectOption("");
+    const switchSettings = await openSettings();
+    await switchSettings.getByLabel("目标组件库").selectOption("");
+    await closeSettings();
     await scopeCard
-      .getByText("目标组件库已切换为「自动 / 不限库」，原范围规划已失效")
+      .getByText("优先组件库已切换为「自动匹配」，原范围规划已失效")
       .waitFor();
     const confirm = scopeCard.getByRole("button", { name: "确认并直接生成" });
     assert.ok(await confirm.isDisabled());
-    await target.selectOption(libraryId);
+    const restoreSettings = await openSettings();
+    await restoreSettings.getByLabel("目标组件库").selectOption(libraryId);
+    await closeSettings();
     assert.ok(await confirm.isDisabled());
     await askForScope();
     await scopeCard.getByRole("button", { name: "满减" }).click();
     const supplement = "把楼层标题改为开门红";
     await composer.fill(supplement);
-    delayedConfirmation = {
+    controls.delayedConfirmation = {
       received: Promise.withResolvers(),
       resume: Promise.withResolvers(),
     };
@@ -1745,7 +1286,7 @@ async (page) => {
     let receiveTimeout;
     try {
       await Promise.race([
-        delayedConfirmation.received.promise,
+        controls.delayedConfirmation.received.promise,
         new Promise((_, reject) => {
           receiveTimeout = setTimeout(
             () => reject(Error("确认后的请求未到达模型")),
@@ -1765,7 +1306,7 @@ async (page) => {
       })
       .first()
       .waitFor();
-    delayedConfirmation.resume.resolve();
+    controls.delayedConfirmation.resume.resolve();
     assert.ok(await confirm.isEnabled());
     assert.equal(await canvas.locator(".is-ai-preview").count(), 0);
     assert.equal(campaignScreenshots.length, reviewedBeforeEdit);
@@ -1787,8 +1328,605 @@ async (page) => {
     assert.deepEqual(reopened.nodes, switched.nodes);
     assert.deepEqual(reopened.libraries, switched.libraries);
     assert.deepEqual(reopened.designSystem, switched.designSystem);
+    // Stage 2. All edits, uploads, project assignments and accepts use editor
+    // controls. Read the durable records independently to compare identities.
+    async function readMemory(store) {
+      return page.evaluate(async (store) => {
+        const db = await new Promise((resolve, reject) => {
+          const open = indexedDB.open("forma-project-memory-v1");
+          open.onsuccess = () => resolve(open.result);
+          open.onerror = () => reject(open.error);
+        });
+        try {
+          return await new Promise((resolve, reject) => {
+            const read = db.transaction(store).objectStore(store).getAll();
+            read.onsuccess = () => resolve(read.result);
+            read.onerror = () => reject(read.error);
+          });
+        } finally {
+          db.close();
+        }
+      }, store);
+    }
+    const browser = page.getByRole("dialog", { name: "本机文件" });
+    const breadcrumb = button("打开本机工作空间文件列表");
+    const drawerToggle = button("历史需求档案");
+    const drawer = page.getByRole("region", { name: "项目历史需求档案" });
+    const mod = process.platform === "darwin" ? "Meta" : "Control";
+    const redo = async () => {
+      await canvas.focus();
+      await page.keyboard.press(mod + "+Shift+z");
+    };
+    const draftEpisodes = (await readMemory("episodes")).filter(
+      (ep) => ep.scopeProjectId === "file:" + fileA,
+    );
+    const campaign = draftEpisodes.find(
+      (ep) =>
+        ep.prompt.includes(campaignPrompt) &&
+        ep.decisions.some((d) => d.choice === "满减"),
+    );
+    assert.ok(
+      campaign,
+      "Stage 1 campaign was archived in the draft's private scope",
+    );
+    assert.deepEqual(
+      campaign.screens.map((s) => s.rootId),
+      [home.id, empty.id],
+    );
+    await page.setViewportSize({ width: 1460, height: 960 });
+    await button("AI 设计助手").click();
+    await button("连接模型服务").click();
+    await page.getByLabel("切换当前模型").waitFor();
+    const isoSettings = await openSettings();
+    await isoSettings.getByLabel("生成引擎模式").selectOption("blueprint");
+    await closeSettings();
+    controls.isolationRoot = home.id;
+    await composer.fill(isolationPrompt);
+    await button("生成设计").click();
+    await proposal.waitFor();
+
+    const offlineRequests = [];
+    const trackOffline = (req) => {
+      if (new URL(req.url()).pathname.startsWith("/api/agent/"))
+        offlineRequests.push(req.url());
+    };
+    page.on("request", trackOffline);
+    await breadcrumb.click();
+    await browser.getByRole("button", { name: "新建项目空间" }).click();
+    await browser.getByLabel("项目名称").fill(projectName);
+    await browser.getByRole("button", { name: "创建", exact: true }).click();
+    const banner = browser.locator(".project-banner");
+    await banner.getByText(projectName, { exact: true }).waitFor();
+    await browser
+      .getByRole("button", { name: "全部文件", exact: true })
+      .click();
+    const assignment = browser.locator(`[data-file-key="${fileA}"] select`);
+    const firstMigrationNotice = await assignment.evaluateHandle(
+      (select, name) => {
+        const dialog = select.closest('[role="dialog"]');
+        const state = {};
+        const observer = new MutationObserver(() => {
+          if (
+            !dialog
+              .querySelector(".file-browser-notice")
+              ?.textContent.includes("同步迁移")
+          )
+            return;
+          state.projectId = select.value;
+          state.count = dialog.querySelector(
+            `.project-nav-item[aria-label="${CSS.escape(name)}"] .project-memory-count`,
+          )?.textContent;
+          observer.disconnect();
+        });
+        observer.observe(dialog, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+        });
+        return state;
+      },
+      projectName,
+    );
+    const [projectId] = await assignment.selectOption({ label: projectName });
+    assert.ok(projectId);
+    await browser.getByText(/同步迁移.*条历史需求档案/).waitFor();
+    assert.deepEqual(await firstMigrationNotice.jsonValue(), {
+      projectId,
+      count: `${draftEpisodes.length} 条记忆`,
+    });
+    await firstMigrationNotice.dispose();
+    assert.equal(await assignment.inputValue(), projectId);
+    const projectScope = "proj:" + projectId;
+    await button("关闭本机文件").click();
+    await breadcrumb.filter({ hasText: projectName }).waitFor();
+    await proposal.waitFor({ state: "hidden" });
+    assert.equal(await page.locator(".agent-msg-user").count(), 0);
+    assert.deepEqual((await downloadDocument()).nodes, reopened.nodes);
+    await drawerToggle.click();
+    const campaignCard = drawer.getByRole("article", {
+      name: campaign.title,
+      exact: true,
+    });
+    await campaignCard.getByText("当前稿", { exact: true }).waitFor();
+    const details = campaignCard.locator("details");
+    await details.locator("summary").focus();
+    await page.keyboard.press("Enter");
+    assert.ok(await details.evaluate((d) => d.open));
+    for (const text of [
+      campaign.summary,
+      campaign.prompt,
+      "主推促销类型 → 满减",
+    ])
+      assert.ok((await details.textContent()).includes(text), text);
+    const memorySearch = drawer.getByLabel("搜索历史需求档案");
+    await memorySearch.fill("主推促销类型");
+    await campaignCard.waitFor();
+    await memorySearch.fill("不存在的决策文字");
+    assert.equal(await drawer.getByRole("article").count(), 0);
+    await memorySearch.fill("");
+    await campaignCard
+      .getByRole("button", { name: "置顶", exact: true })
+      .click();
+    await campaignCard
+      .getByRole("button", { name: "取消置顶", pressed: true })
+      .waitFor();
+    const migrated = (await readMemory("episodes")).filter(
+      (ep) => ep.scopeProjectId === projectScope,
+    );
+    assert.deepEqual(
+      migrated.map((ep) => ep.id).sort(),
+      draftEpisodes.map((ep) => ep.id).sort(),
+    );
+    assert.equal(
+      (await readMemory("episodes")).filter(
+        (ep) => ep.scopeProjectId === "file:" + fileA,
+      ).length,
+      0,
+    );
+
+    await button("图层").click();
+    const layer = (id) => page.locator(`[data-layer-id="${id}"] .layer-main`);
+    assert.ok(
+      reopened.nodes.some(
+        (n) =>
+          !n.parentId &&
+          n.type === "frame" &&
+          ![home.id, empty.id].includes(n.id),
+      ),
+      "A third artboard makes over-sharing observable",
+    );
+    await layer(home.id).click();
+    await layer(empty.id).click({ modifiers: [mod] });
+    await button("AI 设计助手").click();
+    await drawer.getByRole("button", { name: "归档当前画板" }).click();
+    await drawer.getByText(/已归档/).waitFor();
+    const manualArchive = (await readMemory("episodes")).filter(
+      (ep) =>
+        ep.scopeProjectId === projectScope &&
+        !draftEpisodes.some((d) => d.id === ep.id),
+    );
+    assert.equal(manualArchive.length, 1);
+    assert.deepEqual(
+      manualArchive[0].screens.map((s) => s.rootId).sort(),
+      [home.id, empty.id].sort(),
+    );
+
+    await button("图层").click();
+    // Expand exactly the ancestors of the Stage 1 custom module.
+    const ancestors = [];
+    for (let n = promo; n.parentId;) {
+      n = reopened.nodes.find((node) => node.id === n.parentId);
+      ancestors.unshift(n);
+    }
+    for (const n of ancestors) {
+      const expand = page
+        .locator(`[data-layer-id="${n.id}"]`)
+        .getByRole("button", { name: "展开 " + n.name, exact: true });
+      if (await expand.count()) await expand.click();
+    }
+    await layer(promo.id).click();
+    await button("资源").click();
+    await button("沉淀选区到组件库").click();
+    const promote = page.getByRole("dialog", { name: "沉淀为组件库模块" });
+    await promote
+      .getByLabel("目标组件库")
+      .selectOption("__new_project_library__");
+    await promote.getByLabel("组件名称", { exact: true }).fill("尖货促销楼层");
+    await promote.getByLabel("资产层级").selectOption("block");
+    await promote.getByLabel(/自动增量刷新/).check();
+    await promote.getByLabel(/同时将画布选区替换/).check();
+    await promote.getByLabel("设为当前项目默认组件库").check();
+    // Fail only the next workspace write, leaving the real IDB and document intact.
+    await page.evaluate(() => {
+      const original = IDBDatabase.prototype.transaction;
+      IDBDatabase.prototype.transaction = function (...args) {
+        if (
+          this.name === "forma-workspace-libraries-v1" &&
+          args[1] === "readwrite"
+        ) {
+          IDBDatabase.prototype.transaction = original;
+          throw new DOMException("存储空间不足", "QuotaExceededError");
+        }
+        return original.apply(this, args);
+      };
+    });
+    await promote.getByRole("button", { name: "沉淀到组件库" }).click();
+    await promote
+      .getByRole("alert")
+      .filter({ hasText: "存储空间不足" })
+      .waitFor();
+    assert.equal(
+      (await readMemory("projects")).find((p) => p.id === projectId)
+        .defaultLibraryId,
+      undefined,
+    );
+    await promote.getByRole("button", { name: "沉淀到组件库" }).click();
+    await promote.waitFor({ state: "hidden" });
+    await page
+      .locator(".project-status-toast")
+      .filter({ hasText: "AI 说明书已更新" })
+      .waitFor();
+    const promoted = await downloadDocument();
+    assert.equal(promoted.revision, reopened.revision + 1);
+    const defaultId = (await readMemory("projects")).find(
+      (p) => p.id === projectId,
+    ).defaultLibraryId;
+    const library = promoted.libraries[defaultId];
+    assert.match(defaultId, /^proj-lib-/);
+    assert.ok(library.aiGuide.playbookMarkdown.includes("尖货促销楼层"));
+    assert.equal(library.components.length, 1);
+    const component = library.components[0];
+    assert.deepEqual(promoted.nodes.find((n) => n.id === promo.id).instance, {
+      libraryId: defaultId,
+      componentId: component.id,
+      variantId: component.variants[0].id,
+    });
+    await undo();
+    const unpromoted = await downloadDocument();
+    assert.deepEqual(unpromoted.nodes, reopened.nodes);
+    assert.deepEqual(unpromoted.libraries, reopened.libraries);
+    await redo();
+    assert.deepEqual((await downloadDocument()).nodes, promoted.nodes);
+    await saved();
+
+    await breadcrumb.click();
+    await browser
+      .getByRole("button", { name: projectName, exact: true })
+      .click();
+    await Promise.all([
+      page.waitForURL(
+        (url) =>
+          !!url.searchParams.get("file") &&
+          url.searchParams.get("file") !== fileA,
+      ),
+      banner.getByRole("button", { name: "在此项目中新建" }).click(),
+    ]);
+    await canvas.waitFor();
+    const fileB = new URL(page.url()).searchParams.get("file");
+    await breadcrumb.filter({ hasText: projectName }).waitFor();
+    await button("AI 设计助手").click();
+    await page
+      .getByText("项目记忆 · " + projectName, { exact: true })
+      .waitFor();
+    await drawerToggle.click();
+    await campaignCard
+      .getByText("跨稿 · " + campaign.sourceFileName, { exact: true })
+      .waitFor();
+    await drawerToggle.click();
+    assert.ok(!(await downloadDocument()).libraries?.[defaultId]);
+    await button("载入项目默认库").click();
+    await page
+      .locator(".project-status-toast")
+      .filter({ hasText: library.name })
+      .waitFor();
+    const installed = (await downloadDocument()).libraries[defaultId];
+    assert.equal(installed.components[0].id, component.id);
+    assert.equal(
+      installed.aiGuide.playbookMarkdown,
+      library.aiGuide.playbookMarkdown,
+    );
+    const libCheckSettings = await openSettings();
+    assert.equal(
+      await libCheckSettings.getByLabel("目标组件库").inputValue(),
+      defaultId,
+    );
+    await closeSettings();
+    await button("引用组件、变量、样式、画板或历史需求").click();
+    const picker = page.getByRole("dialog", { name: "引用设计元素" });
+    await picker.getByRole("tab", { name: "历史需求" }).click();
+    const combo = picker.getByRole("combobox");
+    await combo.fill(campaign.title);
+    const option = picker.getByRole("option", { selected: true });
+    await option.filter({ hasText: campaign.title }).waitFor();
+    assert.equal(
+      await combo.getAttribute("aria-controls"),
+      await picker.getByRole("listbox").getAttribute("id"),
+    );
+    assert.equal(
+      await combo.getAttribute("aria-activedescendant"),
+      await option.getAttribute("id"),
+    );
+    await combo.press("Enter");
+    await page
+      .locator(".agent-composer")
+      .getByRole("button", { name: "移除引用 " + campaign.title, exact: true })
+      .waitFor();
+    page.off("request", trackOffline);
+    assert.deepEqual(offlineRequests, []);
+    controls.projectFixture = {
+      episodeId: campaign.id,
+      libraryId: defaultId,
+      componentId: component.id,
+      variantId: component.variants[0].id,
+    };
+    await button("连接模型服务").click();
+    await page.getByLabel("切换当前模型").waitFor();
+    const projSettings = await openSettings();
+    await projSettings.getByLabel("生成引擎模式").selectOption("blueprint");
+    await closeSettings();
+    const projectChatRequests = [];
+    const onProjectChat = (r) => {
+      if (new URL(r.url()).pathname === "/api/agent/chat")
+        projectChatRequests.push(r.postDataJSON());
+    };
+    page.on("request", onProjectChat);
+    const projectArchives = async () =>
+      (await readMemory("episodes")).filter(
+        (ep) => ep.scopeProjectId === projectScope,
+      );
+    const initialCount = (await projectArchives()).length;
+    const rootIds = [];
+    async function acceptInstance(prompt, fromCanvas) {
+      const before = await downloadDocument();
+      if (fromCanvas) {
+        await canvas.focus();
+        await page.keyboard.press("Escape");
+        await page.keyboard.press(mod + "+Enter");
+        await sendCanvasPrompt(prompt);
+      } else {
+        await composer.fill(prompt);
+        await button("生成设计").click();
+      }
+      await proposal.waitFor();
+      const preview = canvas
+        .locator(".is-ai-preview[data-node-type=frame]")
+        .first();
+      await preview.waitFor();
+      const previewId = await preview.getAttribute("data-node-id");
+      if (fromCanvas)
+        await hud.getByRole("button", { name: "采纳到画布" }).click();
+      else await proposal.getByRole("button", { name: "应用到画布" }).click();
+      await proposal.waitFor({ state: "hidden" });
+      await page
+        .locator(".agent-undo-bar")
+        .getByText("已应用并存入设计记忆", { exact: true })
+        .waitFor();
+      await replies.last().getByText("已应用", { exact: true }).waitFor();
+      const after = await downloadDocument();
+      const root = after.nodes.find(
+        (n) => !n.parentId && !before.nodes.some((old) => old.id === n.id),
+      );
+      assert.ok(root);
+      assert.notEqual(
+        root.id,
+        previewId,
+        "insertComponent generated a fresh ID at commit",
+      );
+      assert.deepEqual(root.instance, {
+        libraryId: defaultId,
+        componentId: component.id,
+        variantId: component.variants[0].id,
+      });
+      const archive = (await projectArchives()).find(
+        (ep) => ep.sourceFileKey === fileB && ep.prompt === prompt,
+      );
+      assert.deepEqual(
+        archive.screens.map((s) => s.rootId),
+        [root.id],
+      );
+      assert.deepEqual(archive.screens[0].componentIds, [component.id]);
+      assert.deepEqual(
+        archive.componentsUsed.map(
+          ({ libraryId, componentId, variantId, count }) => ({
+            libraryId,
+            componentId,
+            variantId,
+            count,
+          }),
+        ),
+        [{ ...root.instance, count: 1 }],
+      );
+      rootIds.push(root.id);
+    }
+    await acceptInstance(projectPrompt + " · 面板", false);
+    const expectedScope = {
+      projectId: projectScope,
+      projectName,
+      fileKey: fileB,
+      libraryId: defaultId,
+      userId: "local-default",
+    };
+    assert.deepEqual(projectChatRequests[0].memoryScope, expectedScope);
+    assert.deepEqual(
+      projectChatRequests[0].mentions.map((m) => m.id),
+      [campaign.id],
+    );
+    assert.ok(
+      projectChatRequests[0].recalledEpisodes.some(
+        (ep) =>
+          ep.id === campaign.id && ep.explicitlyMentioned && !ep.isCurrentFile,
+      ),
+    );
+    assert.equal(projectRounds.length, 4);
+    for (const round of projectRounds) {
+      assert.deepEqual(round.ctx.memoryScope, expectedScope);
+      assert.ok(
+        round.ctx.recalledEpisodes.some(
+          (ep) => ep.id === campaign.id && ep.explicitlyMentioned,
+        ),
+      );
+      for (const value of [
+        campaign.id,
+        campaignPrompt,
+        campaign.decisions[0].question,
+      ])
+        assert.ok(
+          !round.system.includes(value),
+          "Archive data appeared in system message: " + value,
+        );
+    }
+    assert.ok(
+      projectRounds[0].tools.includes("search_project_episodes") &&
+        projectRounds[0].tools.includes("get_episode_details"),
+    );
+    assert.ok(
+      projectRounds[1].result.episodes.some((ep) => ep.id === campaign.id),
+    );
+    assert.deepEqual(projectRounds[2].result.decisions, campaign.decisions);
+    assert.equal(projectRounds[2].result.prompt, campaign.prompt);
+    await undo();
+    assert.ok(
+      !(await downloadDocument()).nodes.some((n) => n.id === rootIds[0]),
+    );
+    assert.equal((await projectArchives()).length, initialCount + 1);
+    await redo();
+    await acceptInstance(projectPrompt + " · 画布", true);
+    await sendCanvasPrompt(projectPrompt + " · 丢弃");
+    await hud.getByRole("button", { name: "丢弃" }).click();
+    await hud.waitFor({ state: "hidden" });
+    assert.equal((await projectArchives()).length, initialCount + 2);
+    assert.equal(projectChatRequests.length, 3);
+    const fileBSnapshot = await downloadDocument();
+    await saved();
+    await page.reload();
+    await canvas.waitFor();
+    await breadcrumb.filter({ hasText: projectName }).waitFor();
+    const durable = await downloadDocument();
+    assert.deepEqual(durable.nodes, fileBSnapshot.nodes);
+    assert.equal(
+      durable.libraries[defaultId].aiGuide.playbookMarkdown,
+      library.aiGuide.playbookMarkdown,
+    );
+    const persisted = await projectArchives();
+    assert.deepEqual(
+      persisted
+        .filter((ep) => ep.sourceFileKey === fileB)
+        .flatMap((ep) => ep.screens.map((s) => s.rootId))
+        .sort(),
+      [...rootIds].sort(),
+    );
+    assert.ok(persisted.some((ep) => ep.id === campaign.id && ep.pinned));
+
+    // A Canvas prompt sent on a named page is consumed once, even after switching back.
+    await button("图层").click();
+    await button("新建页面").click();
+    const pages = page.locator(".file-page .page-name");
+    const originalPage = pages.first();
+    await button("AI 设计助手").click();
+    await button("连接模型服务").click();
+    await page.getByLabel("切换当前模型").waitFor();
+    const pageSwitchSettings = await openSettings();
+    await pageSwitchSettings
+      .getByLabel("生成引擎模式")
+      .selectOption("blueprint");
+    await closeSettings();
+    await canvas.focus();
+    await page.keyboard.press(mod + "+Enter");
+    await sendCanvasPrompt(projectPrompt + " · 页面切换");
+    await button("图层").click();
+    await originalPage.click();
+    await hud.waitFor({ state: "hidden" });
+    await saved();
+    assert.equal(projectChatRequests.length, 4);
+    assert.equal((await projectArchives()).length, initialCount + 2);
+    page.off("request", onProjectChat);
+    // A document-only library must be installable from a project-bound native import.
+    await layer(rootIds[0]).click();
+    await button("资源").click();
+    await button("保存选区").click();
+    const withLocalLibrary = await downloadDocument();
+    const localLibrary = Object.values(withLocalLibrary.libraries).find(
+      (lib) => !durable.libraries[lib.id],
+    );
+    assert.ok(localLibrary);
+    await saved();
+    await breadcrumb.click();
+    const fileRow = browser.locator(`[data-file-key="${fileB}"]`);
+    await fileRow.getByRole("button", { name: /^重命名 / }).click();
+    await browser.getByLabel("重命名文件", { exact: true }).press("Escape");
+    await page.waitForFunction(
+      (key) =>
+        document.activeElement?.matches(
+          `[data-file-key="${CSS.escape(key)}"] a[href]`,
+        ),
+      fileB,
+    );
+    await browser
+      .getByRole("button", { name: "重命名项目 " + projectName, exact: true })
+      .click();
+    await browser.getByLabel("项目名称").press("Escape");
+    await page.waitForFunction(
+      (label) => document.activeElement?.getAttribute("aria-label") === label,
+      "重命名项目 " + projectName,
+    );
+    await browser.evaluate(() => document.activeElement.blur());
+    await page.keyboard.press("Tab");
+    assert.ok(
+      await button("关闭本机文件").evaluate(
+        (b) => b === document.activeElement,
+      ),
+    );
+    const importProject = "淘宝外部原稿";
+    await browser.getByRole("button", { name: "新建项目空间" }).click();
+    await browser.getByLabel("项目名称").fill(importProject);
+    await browser
+      .getByLabel("默认组件库", { exact: true })
+      .selectOption(localLibrary.id);
+    await browser.getByRole("button", { name: "创建", exact: true }).click();
+    await banner.getByText(importProject, { exact: true }).waitFor();
+    assert.equal(
+      await banner.getByLabel("项目默认组件库").inputValue(),
+      localLibrary.id,
+    );
+    await browser
+      .getByTestId("browser-design-file-input")
+      .setInputFiles(
+        path.resolve(
+          process.env.FORMA_REPO_ROOT || process.cwd(),
+          "docs/evidence/2026-11-22/design-import/shared-paint.fig",
+        ),
+      );
+    const importDialog = page.getByRole("dialog", { name: "设计文件导入报告" });
+    await Promise.all([
+      page.waitForURL(
+        (url) =>
+          !!url.searchParams.get("file") &&
+          url.searchParams.get("file") !== fileB,
+      ),
+      importDialog.getByRole("button", { name: "导入为新文件" }).click(),
+    ]);
+    await breadcrumb.filter({ hasText: importProject }).waitFor();
+    await button("AI 设计助手").click();
+    await button("载入项目默认库").click();
+    await page
+      .locator(".project-status-toast")
+      .filter({ hasText: localLibrary.name })
+      .waitFor();
+    const importedDocument = await downloadDocument();
+    assert.equal(importedDocument.importReport.format, "Figma");
+    assert.equal(
+      importedDocument.libraries[localLibrary.id].components[0].id,
+      localLibrary.components[0].id,
+    );
     assert.deepEqual(errors, []);
     return {
+      projectMemory: {
+        migratedEpisodes: migrated.length,
+        selectedBoardsArchived: 2,
+        durableCommittedRoots: rootIds.length,
+        promotionRetriedAfterQuotaError: true,
+        crossFileTools: ["search_project_episodes", "get_episode_details"],
+      },
       guideContrast,
       officialGuideAndAnnotationsPreserved: true,
       reviewedArtboards: images.length,
@@ -1816,8 +1954,8 @@ async (page) => {
       critiqueCancellationKeptDraft: true,
     };
   } finally {
-    critiqueGate.resolve();
-    delayedConfirmation?.resume.resolve();
+    controls.critiqueGate.resolve();
+    controls.delayedConfirmation?.resume.resolve();
     page.off("request", recordProbe);
     try {
       const cleanupErrors = await page.evaluate(

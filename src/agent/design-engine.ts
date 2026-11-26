@@ -21,6 +21,8 @@ import {
   buildDesignContextPayload,
   buildDesignSystemPrompt,
   buildToolModeSystemPrompt,
+  episodeReference,
+  deduplicateRecalledEpisodes,
   type DesignChatContext,
   type ScopeProposal,
 } from "./context-builder";
@@ -30,6 +32,7 @@ import {
   FormaToolExecutor,
   compileValidatedProposal,
   getFormaToolDefinitions,
+  isEpisodeTool,
   toolProgress,
   type AgentToolTraceItem,
   type SkillRuntimeProvider,
@@ -59,6 +62,7 @@ export interface AgentChatResult {
   critiqueNotes?: string[];
   toolTrace?: AgentToolTraceItem[];
   activatedSkills?: string[];
+  recalledEpisodeIds?: string[];
   diagnostics?: CompileDiagnostic[];
   mode: "generate" | "edit" | "answer" | "clarify";
   scopeProposal?: ScopeProposal;
@@ -102,16 +106,7 @@ function buildConversationMessages(
   executor: FormaToolExecutor,
   toolMode: boolean,
   enableScopePlan: boolean,
-): AdapterMessage[] {
-  const systemPrompt = (
-    toolMode ? buildToolModeSystemPrompt : buildDesignSystemPrompt
-  )(
-    ctx,
-    capabilities,
-    executor.enabledSkills,
-    executor.preloadedSkills,
-    enableScopePlan,
-  );
+) {
   const contextPayload = toolMode
     ? {
         document: ctx.document.name,
@@ -121,11 +116,36 @@ function buildConversationMessages(
         editableSelectionId: ctx.selection,
         viewportCenter: ctx.viewportCenter,
         targetLibraryId: ctx.targetLibraryId ?? null,
+        componentLibraries: Object.values(ctx.document.libraries ?? {}).map(
+          ({ id, name }) => ({ id, name }),
+        ),
         confirmedScope: ctx.confirmedScope ?? null,
         memoryScope: ctx.memoryScope ?? null,
+        ...(ctx.recalledEpisodes?.length && {
+          recalledEpisodes: ctx.recalledEpisodes.map(episodeReference),
+        }),
       }
     : buildDesignContextPayload(ctx, capabilities);
 
+  const recalledEpisodeIds = contextPayload.recalledEpisodes?.map(
+    (ep) => ep.id,
+  );
+  const systemPrompt = (
+    toolMode ? buildToolModeSystemPrompt : buildDesignSystemPrompt
+  )(
+    toolMode
+      ? ctx
+      : {
+          ...ctx,
+          recalledEpisodes: ctx.recalledEpisodes?.filter((ep) =>
+            recalledEpisodeIds?.includes(ep.id),
+          ),
+        },
+    capabilities,
+    executor.enabledSkills,
+    executor.preloadedSkills,
+    enableScopePlan,
+  );
   const messages: AdapterMessage[] = [{ role: "system", text: systemPrompt }];
 
   // Include recent conversation turns for natural multi-turn iterative design
@@ -138,11 +158,12 @@ function buildConversationMessages(
     });
   }
 
+  const assetMentions = ctx.mentions?.filter((m) => m.kind !== "episode");
   const userBody = [
     `## Designer Request`,
     ctx.prompt,
-    ctx.mentions?.length
-      ? `\n## Explicit @Mentions\n${ctx.mentions.map((m) => `- @${m.label} (${m.kind}: ${m.id})`).join("\n")}`
+    assetMentions?.length
+      ? `\n## Explicit @Mentions\n${assetMentions.map((m) => `- @${m.label} (${m.kind}: ${m.id})`).join("\n")}`
       : "",
     `\n## Current Forma Canvas & Design System Context (JSON)\n${JSON.stringify(contextPayload)}`,
   ]
@@ -155,7 +176,10 @@ function buildConversationMessages(
     ...(ctx.attachments?.length ? { images: ctx.attachments } : {}),
   });
 
-  return messages;
+  return {
+    messages,
+    recalledEpisodeIds,
+  };
 }
 
 function parseToolModeText(text: string): unknown {
@@ -187,6 +211,17 @@ async function applyToolCalls(
     "fetchImpl" | "signal" | "allowNetworkMedia" | "onProgress"
   >,
 ) {
+  const fitsBatch = executor.prepareEpisodeToolBatch(
+    (response.toolCalls ?? []).filter((call) => isEpisodeTool(call.name))
+      .length,
+  );
+  if (!fitsBatch) {
+    history.push({
+      role: "user",
+      text: "历史档案工具响应预算已耗尽，请根据已收到的信息继续。",
+    });
+    return;
+  }
   history.push({
     role: "assistant",
     text: response.text,
@@ -196,12 +231,13 @@ async function applyToolCalls(
   });
   for (const call of response.toolCalls ?? []) {
     options.signal.throwIfAborted();
+    const knownTool = tools.find((tool) => tool.name === call.name);
     options.onProgress?.({
+      ...(knownTool && { detail: knownTool.name }),
       stage: call.name.startsWith("propose_") ? "validating" : "analyzing",
-      message:
-        toolProgress[call.name as keyof typeof toolProgress] ??
-        "正在检查工具请求…",
-      detail: call.name,
+      message: Object.hasOwn(toolProgress, call.name)
+        ? toolProgress[call.name as keyof typeof toolProgress]
+        : "正在检查工具请求…",
     });
     let result: Record<string, unknown>;
     if (tools.some((tool) => tool.name === call.name)) {
@@ -210,6 +246,12 @@ async function applyToolCalls(
         signal: options.signal,
         allowNetworkMedia: options.allowNetworkMedia,
       });
+    } else if (isEpisodeTool(call.name)) {
+      result = executor.execute(
+        call.name,
+        call.arguments,
+        "当前模式未启用工具：" + call.name,
+      );
     } else {
       const error =
         (call.name === "propose_scope_plan" &&
@@ -260,9 +302,17 @@ export async function runDesignChat(
 
   emit("analyzing", "正在分析画布结构与设计系统上下文…");
   const document = parseDocument(rawContext.document);
+  const explicitEpisodes = new Set(
+    rawContext.mentions?.filter((m) => m.kind === "episode").map((m) => m.id),
+  );
   const ctx: DesignChatContext = {
     ...rawContext,
     document,
+    recalledEpisodes: deduplicateRecalledEpisodes(
+      rawContext.recalledEpisodes ?? [],
+    ).map((ep) =>
+      explicitEpisodes.has(ep.id) ? { ...ep, explicitlyMentioned: true } : ep,
+    ),
   };
   const hasSelection = Boolean(ctx.selection || (ctx.selectionCount ?? 0) > 0);
   if (hasSelection) ctx.confirmedScope = undefined;
@@ -279,15 +329,19 @@ export async function runDesignChat(
     (options.enableTools ?? supported.supportsTools !== false) && turns > 0;
   const enableScopePlan =
     !ctx.confirmedScope && !hasSelection && options.enableScopePlan !== false;
-  const messagesFor = (native: boolean) =>
-    buildConversationMessages(
+  let recalledEpisodeIds: string[] | undefined;
+  const messagesFor = (native: boolean) => {
+    const conversation = buildConversationMessages(
       ctx,
       adapterConfig.capabilities,
       executor,
       native,
       enableScopePlan,
     );
-  emit("planning", `正在通过 ${adapterConfig.model} 构思设计方案…`);
+    recalledEpisodeIds = conversation.recalledEpisodeIds;
+    return conversation.messages;
+  };
+  emit("planning", "正在构思设计方案…");
 
   const invoke = (req: AdapterRequest, label: string) => {
     signal.throwIfAborted();
@@ -313,7 +367,7 @@ export async function runDesignChat(
       Pick<AgentChatResult, "mode" | "htmlDraft" | "scopeProposal">,
   ): AgentChatResult => {
     signal.throwIfAborted();
-    emit("done", compiled.summary || "设计方案已就绪");
+    emit("done", "设计方案已就绪");
     return {
       ...compiled,
       targetLibraryId:
@@ -323,6 +377,9 @@ export async function runDesignChat(
         compiled.scopeProposal?.targetLibraryId,
       toolTrace: executor.toolTrace,
       activatedSkills: [...executor.activatedSkills],
+      recalledEpisodeIds: recalledEpisodeIds?.length
+        ? recalledEpisodeIds
+        : undefined,
       modelUsed: adapterConfig.model,
       providerId: adapterConfig.providerId,
       providerName,
@@ -353,7 +410,7 @@ export async function runDesignChat(
   const repair = async (raw: string, error: unknown) => {
     if (maxRepairAttempts <= 0 || signal.aborted) throw error;
     const reason = conciseErrorMessage(error);
-    emit("repairing", "检测到结构或约束问题，正在自动修复…", reason);
+    emit("repairing", "检测到结构或约束问题，正在自动修复…");
     const messages: AdapterMessage[] = [
       ...messagesFor(false),
       { role: "assistant", text: raw.slice(0, 12000) },
@@ -373,6 +430,7 @@ export async function runDesignChat(
   if (toolMode) {
     const tools = getFormaToolDefinitions({
       hasSkills: executor.enabledSkills.length > 0,
+      hasEpisodes: Boolean(ctx.recalledEpisodes?.length),
       enableScopePlan,
       enableHtmlDesign: !hasSelection && ctx.generationMode !== "blueprint",
     });
@@ -385,7 +443,10 @@ export async function runDesignChat(
       : tools;
     for (let round = 0; round <= turns; round++) {
       const closing = round === turns;
-      const available = closing ? closingTools : tools;
+      const roundTools = closing ? closingTools : tools;
+      const available = executor.episodeToolBudgetExhausted
+        ? roundTools.filter((tool) => !isEpisodeTool(tool.name))
+        : roundTools;
       let response;
       try {
         response = await invoke(

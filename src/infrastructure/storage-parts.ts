@@ -34,7 +34,12 @@ export function transactionDone(tx: IDBTransaction): Promise<void> {
     tx.onabort = () => rej(tx.error ?? Error("写入中断"));
   });
 }
+export function isValidGeneration(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
 export function partitionRange(key: string, generation?: number) {
+  if (generation !== undefined && !isValidGeneration(generation))
+    throw new Error("本机文档分片代次无效");
   const prefix = generation === undefined ? [key] : [key, generation];
   return IDBKeyRange.bound(prefix, [...prefix, []]);
 }
@@ -44,6 +49,13 @@ export async function readSnapshot(
   snap: StoredSnapshot,
 ) {
   if (!isPartitioned(snap)) return snap;
+  if (
+    !isValidGeneration(snap.generation) ||
+    !isValidGeneration(snap.chunks) ||
+    !Array.isArray(snap.assets) ||
+    !Array.from(snap.assets).every((id) => typeof id === "string")
+  )
+    throw new Error("本机文档存储快照头无效");
   const builder = joinDocumentParts(),
     assets = new Map<string, string>();
   const storedAssets = tx.objectStore(assetStore),

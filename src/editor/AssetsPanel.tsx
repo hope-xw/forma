@@ -25,6 +25,7 @@ import {
   MousePointerClick,
   ChevronRight,
   Library,
+  PackagePlus,
 } from "lucide-react";
 import {
   BUILTIN_LIBRARIES,
@@ -156,10 +157,12 @@ export function AssetsPanel({
   editor: e,
   managerOpen,
   setManagerOpen,
+  onPromoteModule,
 }: {
   editor: EditorController;
   managerOpen: boolean;
   setManagerOpen: (open: boolean) => void;
+  onPromoteModule?(): void;
 }) {
   const [preferred, setPreferred] = useState(() => preferredIds(e.doc));
   const [coupled] = useState(() => {
@@ -509,6 +512,17 @@ export function AssetsPanel({
               }
             >
               <Component size={15} />
+            </button>
+            <button
+              className="icon-btn icon-btn-sm"
+              aria-label="沉淀选区到组件库"
+              data-tip="沉淀选区到组件库"
+              data-tip-desc="将选中的新造或派生模块沉淀到项目衍生库或自定义库，并自动刷新 AI 说明书"
+              data-tip-side="bottom"
+              disabled={!!e.componentUnavailable}
+              onClick={() => onPromoteModule?.()}
+            >
+              <PackagePlus size={15} />
             </button>
             <span style={{ flex: 1 }} />
             <button

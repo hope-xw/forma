@@ -1,0 +1,66 @@
+{
+  "initiative": "2026-11-25-forma-ai-stage2-project-memory",
+  "date": "2026-11-26",
+  "targetRelease": "0.11.0",
+  "platform": "darwin-arm64",
+  "nodeVersion": "v25.8.0",
+  "gates": {
+    "formatCheck": "passed",
+    "typecheck": "passed",
+    "viteBuild": "passed",
+    "desktopAgentBundle": "passed",
+    "unitTests": {
+      "total": 896,
+      "passed": 895,
+      "failed": 0,
+      "skipped": 1,
+      "skippedReason": "Native IndexedDB transaction test requires browser IndexedDB runtime unavailable in plain Node",
+      "deltaPassedVsV0100": 300
+    }
+  },
+  "browserE2E": {
+    "engine": "Playwright Chromium",
+    "passed": 9,
+    "total": 9,
+    "scenarios": [
+      "agent-canvas-chat",
+      "assets-libraries",
+      "editor-panels",
+      "optional-gateway",
+      "library-tokens",
+      "panel-parity",
+      "mcp",
+      "files",
+      "storage"
+    ],
+    "agentCanvasChatMetrics": {
+      "migratedEpisodes": 3,
+      "selectedBoardsArchived": 2,
+      "durableCommittedRoots": 2,
+      "promotionRetriedAfterQuotaError": true,
+      "crossFileTools": ["search_project_episodes", "get_episode_details"],
+      "startupAgentRequests": 0,
+      "guideContrastLight": { "status": 6.41, "error": 6.47 },
+      "guideContrastDark": { "status": 7.31, "error": 7.36 },
+      "exportedProjectZip": "output/playwright/agent-canvas-chat-check.zip",
+      "exportedProjectBytes": 83803,
+      "singleStepUndo": true
+    }
+  },
+  "exportVerification": {
+    "command": "npm run test:exports -- agent-canvas-chat",
+    "result": "passed"
+  },
+  "independentReview": {
+    "reviewer": "Codex CLI (read-only)",
+    "rounds": 18,
+    "p0Remaining": 0,
+    "realisticDataIntegrityIssuesRemaining": 0,
+    "documentedKnownBoundaries": [
+      "Concurrent multi-tab offline eviction race at 97-98 pinned capacity during draft migration",
+      "Non-ASCII dotless-i/combining-mark font family name edge cases affecting only proposal board ranking (no archive data loss)",
+      "Rebinding 25+ boards to equal-value tokens in one proposal affecting only board candidate ranking (no archive data loss)",
+      "Browser and export E2E verified in Chromium; Firefox/WebKit cross-engine re-verification deferred"
+    ]
+  }
+}

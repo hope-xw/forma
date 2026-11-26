@@ -69,6 +69,7 @@ const names = chosen.length
     ];
 const engine = process.env.BROWSER_ENGINE || "chromium";
 const browser = await launchQaBrowser(engine);
+process.env.FORMA_REPO_ROOT = path.resolve(dir, "..");
 if (engine !== "chromium") {
   const output = path.resolve("output/playwright", engine);
   await mkdir(output, { recursive: true });

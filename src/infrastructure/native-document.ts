@@ -7,47 +7,14 @@ import {
 } from "../domain/asset-bytes";
 import {
   joinDocumentParts,
-  splitDocument,
-  useLargeDocumentFormat,
+  nativeTextParts,
+  nativePartsPrefix,
+  nativePartsEnd,
+  type NativeAssetPart,
   type DocumentPart,
-} from "./document-parts";
-const prefix = '{"format":"forma/design-parts","version":1,"records":[';
-const end = '{"kind":"end"}]}';
-type DataRow = {
-  kind: "asset";
-  id: string;
-  offset: number;
-  size: number;
-  data: string;
-};
+} from "../domain/document-parts";
+export { nativeDocumentText } from "../domain/document-parts";
 
-// Each line is a bounded complete JSON value. The outer file is ordinary
-// valid JSON and can be inspected without a custom decompressor.
-function* nativeTextParts(doc: DesignDocument): Generator<string> {
-  if (!useLargeDocumentFormat(doc)) {
-    yield JSON.stringify(doc, null, 2);
-    return;
-  }
-  const split = splitDocument(doc);
-  yield prefix + "\n";
-  for (const part of split.parts()) yield JSON.stringify(part) + ",\n";
-  for (const [id, value] of split.assets)
-    for (let offset = 0; offset < value.length; offset += 512 * 1024)
-      yield (
-        JSON.stringify({
-          kind: "asset",
-          id,
-          offset,
-          size: value.length,
-          data: value.slice(offset, offset + 512 * 1024),
-        } satisfies DataRow) + ",\n"
-      );
-  yield end + "\n";
-}
-/** Synchronous compiler API for callers that require the source as text. */
-export function nativeDocumentText(doc: DesignDocument): string {
-  return Array.from(nativeTextParts(doc)).join("");
-}
 export function nativeDocumentBlob(doc: DesignDocument): Blob {
   const groups: Blob[] = [],
     batch: string[] = [];
@@ -67,7 +34,8 @@ export function nativeDocumentBlob(doc: DesignDocument): Blob {
 
 export async function readNativeDocument(file: Blob): Promise<DesignDocument> {
   const canonical =
-    (await file.slice(0, prefix.length + 1).text()) === prefix + "\n";
+    (await file.slice(0, nativePartsPrefix.length + 1).text()) ===
+    nativePartsPrefix + "\n";
   const result = joinDocumentParts(),
     assets = new Map<string, string>(),
     sizes = new Map<string, { width: number; height: number }>();
@@ -84,11 +52,11 @@ export async function readNativeDocument(file: Blob): Promise<DesignDocument> {
   async function line(text: string) {
     if (first) {
       first = false;
-      if (text !== prefix) throw Error("分块设计文件头无效");
+      if (text !== nativePartsPrefix) throw Error("分块设计文件头无效");
       return;
     }
     if (ended) throw Error("设计文件结尾含额外数据");
-    if (text === end) {
+    if (text === nativePartsEnd) {
       if (pending) throw Error("设计文件资源末尾不完整");
       ended = true;
       return;
@@ -96,7 +64,7 @@ export async function readNativeDocument(file: Blob): Promise<DesignDocument> {
     if (!text.endsWith(",")) throw Error("分块设计文件截断");
     await record(JSON.parse(text.slice(0, -1)));
   }
-  async function record(row: DocumentPart | DataRow) {
+  async function record(row: DocumentPart | NativeAssetPart) {
     if (!row || typeof row !== "object") throw Error("分块文件包含无效的记录");
     if (row.kind !== "asset") {
       if (pending) throw Error("设计文件资源分块错序");

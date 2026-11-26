@@ -7,7 +7,8 @@ async (page) => {
   const title = await row.innerText();
   await row.click();
   await page.getByRole("button", { name: "AI 设计助手", exact: true }).click();
-  await page.getByText("外部 Agent / 事务导入", { exact: true }).click();
+  await page.getByRole("button", { name: "创作设置", exact: true }).click();
+  await page.getByText("开发者接入（MCP / JSON）", { exact: true }).click();
   await page.getByRole("button", { name: "连接外部 Agent" }).click();
   const key = await page.getByLabel("MCP 会话密钥").inputValue();
   const sidebar = page.getByRole("button", {
@@ -67,7 +68,9 @@ async (page) => {
       baseRevision: scope.revision,
       operations: [{ type: "update", id, patch: { name: "MCP revised" } }],
     });
-    await page.getByRole("button", { name: "应用到设计" }).click();
+    const applyButton = page.getByRole("button", { name: "应用到画布" });
+    await applyButton.click();
+    await applyButton.waitFor({ state: "hidden" });
     await page.getByText("MCP revised", { exact: false }).first().waitFor();
     await page.keyboard.press(
       process.platform === "darwin" ? "Meta+z" : "Control+z",

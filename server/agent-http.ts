@@ -3,6 +3,7 @@ import { z } from "zod";
 import { imageAssets } from "../src/domain/images";
 import { parseDocument } from "../src/domain/document";
 import {
+  assetTierSchema,
   libraryAiGuideSchema,
   parseLibrary,
 } from "../src/domain/library-schema";
@@ -104,13 +105,75 @@ const libraryPlaybookRequestSchema = z.strictObject({
 });
 const targetLibraryId = z.string().trim().min(1).max(128);
 const memoryId = z.string().max(128).optional();
+const episodeId = z.string().min(1).max(128);
+const episodeName = z.string().max(200).trim().min(1);
+const recalledEpisodeSchema = z.strictObject({
+  id: episodeId,
+  title: z.string().max(120).trim().min(1),
+  sourceFileKey: z.string().min(1).max(200),
+  sourceFileName: episodeName,
+  isCurrentFile: z.boolean(),
+  libraryId: episodeId.optional(),
+  libraryName: episodeName.optional(),
+  prompt: z.string().max(16000),
+  summary: z.string().max(2000),
+  mode: z.enum(["generate", "edit"]),
+  screens: z
+    .array(
+      z.strictObject({
+        rootId: episodeId,
+        name: episodeName,
+        role: z.enum(["primary", "overlay", "exception", "detail"]),
+        width: z.number().nonnegative(),
+        height: z.number().nonnegative(),
+        nodeCount: z.number().int().positive(),
+        componentIds: z.array(episodeId).max(64),
+        sampleTexts: z.array(z.string().max(240)).max(6),
+      }),
+    )
+    .max(24),
+  componentsUsed: z
+    .array(
+      z.strictObject({
+        libraryId: episodeId,
+        componentId: episodeId,
+        componentName: episodeName,
+        assetTier: assetTierSchema.optional(),
+        variantId: episodeId.optional(),
+        count: z.number().int().positive(),
+      }),
+    )
+    .max(64),
+  customModules: z.array(episodeName).max(32),
+  decisions: z
+    .array(
+      z.strictObject({
+        question: z.string().max(240).trim().min(1),
+        choice: z.string().max(400).trim().min(1),
+      }),
+    )
+    .max(16),
+  tags: z.array(z.string().max(64).trim().min(1)).max(32),
+  createdAt: z.iso.datetime({ offset: true }).max(64),
+  pinned: z.boolean().optional(),
+  explicitlyMentioned: z.boolean().optional(),
+  matchScore: z.number().optional(),
+  matchReasons: z.array(z.string().max(160)).max(12).optional(),
+});
 
-const chatRequestSchema = z.object({
+const chatFields = z.object({
   targetLibraryId: targetLibraryId.nullable().optional(),
   confirmedScope: scopeProposalSchema.optional(),
   memoryScope: z
-    .object({ projectId: memoryId, libraryId: memoryId, userId: memoryId })
+    .strictObject({
+      projectId: z.string().max(205).optional(),
+      projectName: z.string().max(160).optional(),
+      fileKey: z.string().max(200).optional(),
+      libraryId: memoryId,
+      userId: memoryId,
+    })
     .optional(),
+  recalledEpisodes: z.array(recalledEpisodeSchema).max(8).optional(),
   generationMode: z.enum(["auto", "html", "blueprint"]).optional(),
   activeSkills: z.array(z.string().trim().min(1).max(120)).max(16).optional(),
   prompt: z.string().trim().min(1).max(16000),
@@ -130,11 +193,18 @@ const chatRequestSchema = z.object({
     .optional(),
   mentions: z
     .array(
-      z.object({
-        kind: z.enum(["component", "variable", "style", "node"]),
-        id: z.string().min(1).max(260),
-        label: z.string().max(200),
-      }),
+      z.discriminatedUnion("kind", [
+        z.object({
+          kind: z.enum(["component", "variable", "style", "node"]),
+          id: z.string().min(1).max(260),
+          label: z.string().max(200),
+        }),
+        z.strictObject({
+          kind: z.literal("episode"),
+          id: episodeId,
+          label: z.string().max(200),
+        }),
+      ]),
     )
     .max(40)
     .optional(),
@@ -156,6 +226,25 @@ const chatRequestSchema = z.object({
     .optional(),
 });
 
+const chatRequestSchema = chatFields.superRefine((value, ctx) => {
+  const mentions = value.mentions ?? [];
+  if (mentions.filter((m) => m.kind === "episode").length > 8)
+    ctx.addIssue({
+      code: "custom",
+      path: ["mentions"],
+      message: "单轮最多引用 8 条历史需求档案",
+    });
+  const recalledIds = new Set(value.recalledEpisodes?.map((ep) => ep.id));
+  mentions.forEach((mention, index) => {
+    if (mention.kind === "episode" && !recalledIds.has(mention.id))
+      ctx.addIssue({
+        code: "custom",
+        path: ["mentions", index, "id"],
+        message: "引用的历史需求档案不在本轮召回上下文中",
+      });
+  });
+});
+
 const count = z.number().int().nonnegative().optional();
 const localizedArtboard = htmlArtboardSchema.extend({
   // The original HTML can now contain up to twelve localized 1.5 MiB photos.
@@ -167,7 +256,7 @@ const localizedArtboard = htmlArtboardSchema.extend({
   componentSlotsResolved: count,
 });
 const screenshotUrl = z.string().max(20_000_000).regex(critiquePngDataUrl);
-const critiqueRequestSchema = chatRequestSchema
+const critiqueRequestSchema = chatFields
   .pick({
     prompt: true,
     activeSkills: true,

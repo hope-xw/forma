@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 import { localMasters } from "../domain/component-masters";
 import { instantiateComponent } from "../domain/library";
-import { findBuiltinLibrary } from "../design-system/catalog";
+import { OFFICIAL_BUILTIN_LIBRARY_IDS } from "../domain/library-schema";
 import {
   createNode,
   type DesignComment,
@@ -1788,43 +1788,57 @@ export function Canvas({
           );
           if (assetPayload) {
             ev.preventDefault();
-            e.attempt(() => {
-              const parsed = JSON.parse(assetPayload) as {
-                libraryId: string;
-                componentId: string;
-                variantId: string;
-              };
-              const current = e.historyRef.current.present;
-              const installed = current.libraries?.[parsed.libraryId];
-              const builtin = findBuiltinLibrary(parsed.libraryId);
-              const library =
-                builtin &&
-                (!installed || installed.revision === builtin.revision)
-                  ? builtin
-                  : (installed ?? builtin);
-              const component = library?.components.find(
-                (c) => c.id === parsed.componentId,
-              );
-              if (!library || !component) throw new Error("找不到拖入的组件");
-              const point = world({ x: ev.clientX, y: ev.clientY });
-              const parentId = containerAt(point, current);
-              if (parentId && isLocked(current, parentId))
-                throw new Error("目标容器已锁定");
-              const placement = parentId
-                ? transform(inverse(matrices.get(parentId)!), point)
-                : point;
-              const scoped = { ...library, components: [component] };
-              const result = instantiateComponent(
-                current,
-                scoped,
-                component.id,
-                parsed.variantId,
-                parentId,
-                { x: Math.round(placement.x), y: Math.round(placement.y) },
-              );
-              e.apply(result.operations);
-              e.setSelection([result.id]);
-            });
+            const dropPoint = { x: ev.clientX, y: ev.clientY };
+            void (async () => {
+              try {
+                const parsed = JSON.parse(assetPayload) as {
+                  libraryId: string;
+                  componentId: string;
+                  variantId: string;
+                };
+                const builtin = OFFICIAL_BUILTIN_LIBRARY_IDS.has(
+                  parsed.libraryId,
+                )
+                  ? (
+                      await import("../design-system/catalog")
+                    ).findBuiltinLibrary(parsed.libraryId)
+                  : undefined;
+                e.attempt(() => {
+                  const current = e.historyRef.current.present;
+                  const installed = current.libraries?.[parsed.libraryId];
+                  const library =
+                    builtin &&
+                    (!installed || installed.revision === builtin.revision)
+                      ? builtin
+                      : (installed ?? builtin);
+                  const component = library?.components.find(
+                    (c) => c.id === parsed.componentId,
+                  );
+                  if (!library || !component)
+                    throw new Error("找不到拖入的组件");
+                  const point = world(dropPoint);
+                  const parentId = containerAt(point, current);
+                  if (parentId && isLocked(current, parentId))
+                    throw new Error("目标容器已锁定");
+                  const placement = parentId
+                    ? transform(inverse(matrices.get(parentId)!), point)
+                    : point;
+                  const scoped = { ...library, components: [component] };
+                  const result = instantiateComponent(
+                    current,
+                    scoped,
+                    component.id,
+                    parsed.variantId,
+                    parentId,
+                    { x: Math.round(placement.x), y: Math.round(placement.y) },
+                  );
+                  e.apply(result.operations);
+                  e.setSelection([result.id]);
+                });
+              } catch (err) {
+                e.setError(err instanceof Error ? err.message : String(err));
+              }
+            })();
             return;
           }
           if (!ev.dataTransfer.files.length) return;

@@ -133,7 +133,7 @@ async (page) => {
     .screenshot({ path: "output/playwright/author-variants-panel.png" });
   await b("移出变体集").click();
   await page.getByText(/仍有实例使用此变体/).waitFor();
-  await page.getByTitle("已保存到此浏览器", { exact: true }).waitFor();
+  await page.getByTitle(/^已保存到(此浏览器|本机)$/).waitFor();
   await page.reload();
   await inst.getByText("待发送", { exact: true }).waitFor();
   if ((await dimension()) !== 232)

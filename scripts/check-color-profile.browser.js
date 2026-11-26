@@ -93,7 +93,7 @@ async (page) => {
     "转换未保留外观 " +
       JSON.stringify({ original, converted, hex: await hex.inputValue() }),
   );
-  await page.getByTitle("已保存到此浏览器", { exact: true }).waitFor();
+  await page.getByTitle(/^已保存到(此浏览器|本机)$/).waitFor();
   await page.reload();
   await select();
   expect(

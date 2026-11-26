@@ -5,6 +5,7 @@ import type { Operation } from "../domain/commands";
 import { parseDocument, type DesignDocument } from "../domain/document";
 import { createStarter } from "../domain/seed";
 import { openPage } from "../domain/pages";
+import { FileLifetimeMismatchError } from "../infrastructure/project-memory-store";
 import {
   BrowserDocumentRepository,
   download,
@@ -37,25 +38,86 @@ export function useDocument({
   });
   const historyRef = useRef(history);
   historyRef.current = history;
+  const branchIdsRef = useRef(new WeakMap<DesignDocument, number>());
+  if (!branchIdsRef.current.has(initial.document))
+    branchIdsRef.current.set(initial.document, 0);
+  const nextBranchIdRef = useRef(1);
+  const lastSavedBranchRef = useRef(0);
+  const branchOf = useCallback(
+    (doc: DesignDocument) => branchIdsRef.current.get(doc) ?? 0,
+    [],
+  );
   const [error, setError] = useState(initial.error);
   const [savedDocument, setSavedDocument] = useState<DesignDocument | null>(
     initialSaved ? (initialDocument ?? null) : null,
   );
   const [protectCache, setProtectCache] = useState(!!initial.error);
+  const recoveryInProgress = useRef(false);
   const [preview, setPreview] = useState<DesignDocument | null>(null);
   const pending = useRef<{
     doc: DesignDocument;
     promise: Promise<void>;
   } | null>(null);
+  // Autosaves queued behind an import share its marker until one write succeeds.
+  const pendingReplacementDocRef = useRef<{ document: DesignDocument | null }>({
+    document: null,
+  });
   const saveLatest = useCallback(
     (doc: DesignDocument) => {
       if (pending.current?.doc === doc) return pending.current.promise;
-      const promise = repository.save(doc);
+      const replacement = pendingReplacementDocRef.current;
+      const write = async () => {
+        // A failed import save leaves the replacement flag on its next autosave.
+        if (replacement.document) {
+          await repository.save(doc, { replacedDocument: true });
+          replacement.document = null;
+        } else await repository.save(doc);
+        lastSavedBranchRef.current = branchOf(doc);
+      };
+      const previous = pending.current;
+      const promise = (
+        previous ? previous.promise.then(write, write) : write()
+      ).catch((error) => {
+        if (pending.current?.promise === promise) pending.current = null;
+        throw error;
+      });
       pending.current = { doc, promise };
       return promise;
     },
-    [repository],
+    [repository, branchOf],
   );
+  const hasUncommittedReplacementBoundary = useCallback(
+    () =>
+      branchOf(historyRef.current.present) !== lastSavedBranchRef.current ||
+      pendingReplacementDocRef.current.document !== null,
+    [branchOf],
+  );
+  const getLifetimeToken = useCallback(async () => {
+    const active = pending.current;
+    if (active) {
+      try {
+        await active.promise;
+      } catch {
+        /* Keep the session's last valid token if the save failed. */
+      }
+    }
+    return repository.getLifetimeToken?.();
+  }, [repository]);
+  const getDocumentEpoch = useCallback(async () => {
+    const active = pending.current;
+    if (active) {
+      try {
+        await active.promise;
+      } catch {
+        /* A failed ordinary edit can still use its branch's saved epoch. */
+      }
+    }
+    if (hasUncommittedReplacementBoundary())
+      throw new FileLifetimeMismatchError(
+        "当前文件已在其他标签页更新，请重新打开文件",
+      );
+    return repository.getDocumentEpoch?.();
+  }, [repository, hasUncommittedReplacementBoundary]);
   const saved = !protectCache && savedDocument === history.present;
   useEffect(() => {
     if (protectCache || saved) return;
@@ -64,7 +126,7 @@ export function useDocument({
     const delay =
       doc.nodes.length > 2000 ? 300 : doc.nodes.length > 500 ? 100 : 0;
     const run = () => {
-      if (!active) return;
+      if (!active || historyRef.current.present !== doc) return;
       saveLatest(doc)
         .then(() => {
           if (active) setSavedDocument(doc);
@@ -107,10 +169,11 @@ export function useDocument({
         operations,
         baseRevision ?? current.present.revision,
       );
+      branchIdsRef.current.set(next, branchOf(current.present));
       replaceHistory(commit(current, next));
       setError("");
     },
-    [replaceHistory],
+    [branchOf, replaceHistory],
   );
   const attempt = useCallback((work: () => void) => {
     try {
@@ -119,33 +182,68 @@ export function useDocument({
       setError(e instanceof Error ? e.message : String(e));
     }
   }, []);
-  const undo = useCallback(
-    () => replaceHistory(travel(historyRef.current, "undo")),
-    [replaceHistory],
+  const saveReplacement = useCallback(
+    (doc: DesignDocument) => {
+      pendingReplacementDocRef.current = { document: doc };
+      void saveLatest(doc).catch((err) => {
+        if (historyRef.current.present === doc)
+          setError(err instanceof Error ? err.message : String(err));
+      });
+    },
+    [saveLatest],
   );
-  const redo = useCallback(
-    () => replaceHistory(travel(historyRef.current, "redo")),
-    [replaceHistory],
+  const travelHistory = useCallback(
+    (direction: "undo" | "redo") => {
+      const current = historyRef.current;
+      const traveled = travel(current, direction);
+      if (traveled.present === current.present) return;
+      // travel clones the history target to give it a new revision.
+      const target = (direction === "undo" ? current.past : current.future).at(
+        -1,
+      )!;
+      const branch = branchOf(target);
+      branchIdsRef.current.set(traveled.present, branch);
+      replaceHistory(traveled);
+      if (branch !== branchOf(current.present) && !protectCache)
+        saveReplacement(traveled.present);
+    },
+    [branchOf, protectCache, replaceHistory, saveReplacement],
   );
+  const undo = useCallback(() => travelHistory("undo"), [travelHistory]);
+  const redo = useCallback(() => travelHistory("redo"), [travelHistory]);
   const importDocument = useCallback(
-    (input: unknown) => {
+    (input: unknown, options?: { replacedDocument?: boolean }) => {
       const document = parseDocument(input);
       const current = historyRef.current;
-      replaceHistory(
-        commit(current, {
-          ...document,
-          revision: current.present.revision + 1,
-        }),
+      const next = { ...document, revision: current.present.revision + 1 };
+      branchIdsRef.current.set(
+        next,
+        options?.replacedDocument
+          ? nextBranchIdRef.current++
+          : branchOf(current.present),
       );
-      setProtectCache(false);
+      replaceHistory(commit(current, next));
       setError("");
+      if (options?.replacedDocument && !protectCache) {
+        // Queue every explicit replacement, even if React batches another edit
+        // or a second import before the autosave effect runs.
+        saveReplacement(next);
+      }
     },
-    [replaceHistory],
+    [branchOf, replaceHistory, protectCache, saveReplacement],
   );
   return {
     doc: preview ?? history.present,
     committed: history.present,
     historyRef,
+    getLifetimeToken,
+    getDocumentEpoch,
+    getCurrentDocumentEpoch: () =>
+      hasUncommittedReplacementBoundary()
+        ? undefined
+        : repository.getDocumentEpoch?.(),
+    getCurrentLifetimeToken: () => repository.getLifetimeToken?.(),
+    protectCache,
     preview,
     setPreview,
     apply,
@@ -154,12 +252,27 @@ export function useDocument({
     redo,
     importDocument,
     async recoverPrevious() {
+      if (recoveryInProgress.current) return;
+      recoveryInProgress.current = true;
       try {
         const previous = await repository.recovery();
         if (!previous) throw new Error("本机没有更早的保存版本");
-        importDocument(previous);
+        if (protectCache) {
+          // The failed-load placeholder does not belong in the restored history.
+          branchIdsRef.current.set(previous, nextBranchIdRef.current++);
+          replaceHistory({ present: previous, past: [], future: [] });
+          pendingReplacementDocRef.current = { document: previous };
+          await saveLatest(previous);
+          setSavedDocument(previous);
+          setProtectCache(false);
+          setError("");
+        } else {
+          importDocument(previous, { replacedDocument: true });
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        recoveryInProgress.current = false;
       }
     },
     async downloadBackup() {
@@ -178,12 +291,12 @@ export function useDocument({
     },
     switchPage(id: string) {
       const current = historyRef.current;
-      const next = openPage(current.present, id);
-      if (next !== current.present)
-        replaceHistory({
-          ...current,
-          present: { ...next, revision: current.present.revision + 1 },
-        });
+      const page = openPage(current.present, id);
+      if (page !== current.present) {
+        const next = { ...page, revision: current.present.revision + 1 };
+        branchIdsRef.current.set(next, branchOf(current.present));
+        replaceHistory({ ...current, present: next });
+      }
     },
     error,
     setError,

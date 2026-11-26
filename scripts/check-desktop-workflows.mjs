@@ -119,7 +119,7 @@ async function editorFlow(name) {
     };
     const result = await run(page, { newWindow });
     await page
-      .getByTitle("已保存到此浏览器", { exact: true })
+      .getByTitle("已保存到本机", { exact: true })
       .waitFor({ state: "attached" });
     console.log(JSON.stringify({ check: name, result }));
   } finally {
@@ -184,7 +184,7 @@ async function systemPinyin() {
     const layer = page.locator(".design-node").last();
     assert.notEqual(await layer.innerText(), value);
     await page.getByRole("button", { name: "重做", exact: true }).click();
-    await page.getByTitle("已保存到此浏览器", { exact: true }).waitFor();
+    await page.getByTitle("已保存到本机", { exact: true }).waitFor();
     await page.reload();
     await page
       .locator(".design-node")

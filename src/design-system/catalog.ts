@@ -224,9 +224,7 @@ export const DEFAULT_ENABLED_BUILTIN_IDS: readonly string[] =
     (entry) => entry.id,
   );
 
-export const BUILTIN_LIBRARY_IDS: ReadonlySet<string> = new Set(
-  BUILTIN_LIBRARIES.map((entry) => entry.id),
-);
+export { OFFICIAL_BUILTIN_LIBRARY_IDS as BUILTIN_LIBRARY_IDS } from "../domain/library-schema";
 
 export const BUILTIN_TEMPLATES: readonly KitTemplateMeta[] =
   BUILTIN_LIBRARIES.flatMap((entry) => entry.templates);

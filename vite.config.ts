@@ -164,6 +164,31 @@ function serveLocalAgent(server: ViteDevServer | PreviewServer) {
 export default defineConfig({
   worker: { format: "es" },
   optimizeDeps: { exclude: ["harfbuzzjs"] },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("/node_modules/")) {
+            if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id)) {
+              return "vendor-react";
+            }
+            if (id.includes("/node_modules/lucide-react/")) {
+              return "vendor-lucide";
+            }
+            if (id.includes("/node_modules/zod/")) {
+              return "vendor-zod";
+            }
+            if (id.includes("/node_modules/paper/")) {
+              return "vendor-paper";
+            }
+            if (id.includes("/node_modules/fflate/")) {
+              return "vendor-fflate";
+            }
+          }
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     {

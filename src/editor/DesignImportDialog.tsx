@@ -22,6 +22,7 @@ import type {
   ImportIssue,
   ImportReport,
 } from "../domain/document";
+import { assignFileToProject } from "../infrastructure/project-memory-store";
 import { download } from "../infrastructure/storage";
 import { SourceName } from "./SourceName";
 import { useModalDialog } from "./useModalDialog";
@@ -57,11 +58,13 @@ interface GroupedIssue {
 
 export function DesignImportDialog({
   file,
+  targetProjectId,
   existing,
   close,
   locate,
 }: {
   file?: File;
+  targetProjectId?: string | null;
   existing?: DesignDocument;
   close(): void;
   locate?(pageId: string, nodeId: string): void;
@@ -81,6 +84,25 @@ export function DesignImportDialog({
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {},
   );
+  const savedFile = useRef<{ key: string; url: string } | null>(null);
+  async function openSavedFile(result: { key: string; url: string }) {
+    try {
+      if (targetProjectId) {
+        if (!result.key) throw new Error("缺少本机文件标识");
+        await assignFileToProject(result.key, targetProjectId, {
+          migrateDraftEpisodes: false,
+          requireDurable: true,
+        });
+      }
+      location.assign(result.url);
+    } catch (error) {
+      setError(
+        `设计已保存，归入项目失败，请重试：${error instanceof Error ? error.message : String(error)}`,
+      );
+      savingRef.current = false;
+      setSaving(false);
+    }
+  }
   const savingRef = useRef(false);
   const dismiss = () => {
     if (!savingRef.current) close();
@@ -89,6 +111,7 @@ export function DesignImportDialog({
 
   useEffect(() => {
     if (!file) return;
+    savedFile.current = null;
     setPreview(undefined);
     setError("");
     setStage("正在读取设计文件");
@@ -115,7 +138,8 @@ export function DesignImportDialog({
           setSaving(false);
         } else if (data.url) {
           worker?.terminate();
-          location.assign(data.url);
+          savedFile.current = { key: data.key, url: data.url };
+          void openSavedFile(savedFile.current);
         } else {
           setPreview(data);
         }
@@ -132,7 +156,7 @@ export function DesignImportDialog({
       setError(e instanceof Error ? e.message : String(e));
     }
     return () => worker?.terminate();
-  }, [file]);
+  }, [file, targetProjectId]);
 
   const report = existing?.importReport ?? preview?.report;
   const summary = useMemo(
@@ -215,7 +239,8 @@ export function DesignImportDialog({
     savingRef.current = true;
     setSaving(true);
     setError("");
-    reader.current.postMessage("save");
+    if (savedFile.current) void openSavedFile(savedFile.current);
+    else reader.current.postMessage("save");
   }
 
   function renderNodeTag(issue: ImportIssue) {

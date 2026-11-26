@@ -6,6 +6,17 @@ import {
 import { displayColor, profileLabel } from "../domain/color-profile";
 import { ColorProfileDialog, FileColorContext } from "./ColorProfileDialog";
 import { loadFonts } from "../infrastructure/font-import";
+import {
+  resolveProjectMemoryScope,
+  type ProjectSpace,
+} from "../agent/project-memory";
+import {
+  getFileProjectSpace,
+  isFileLifetimeMismatchError,
+  subscribeProjectMemory,
+} from "../infrastructure/project-memory-store";
+import { getWorkspaceLibraryRecord } from "../infrastructure/library-catalog-store";
+import { parseLibrary } from "../domain/library-schema";
 import { ModeSelectors } from "./TokenBinding";
 import {
   Variable,
@@ -15,7 +26,6 @@ import {
   EyeOff,
   FolderOpen,
   FileCode2,
-  FileText,
   FolderSync,
   History,
   HardDriveDownload,
@@ -23,17 +33,11 @@ import {
   Palette,
   Package,
   Settings2,
-  Share2,
   ShieldCheck,
   Sun,
   Moon,
   LayoutGrid,
   Type as TypeIcon,
-  Smartphone,
-  Tablet,
-  Monitor,
-  Presentation,
-  Watch,
   ArrowUpRight,
   Code2,
   Download,
@@ -54,33 +58,48 @@ import { resolveVariable } from "../domain/design-system";
 import { indexPublishedScene } from "../domain/scene-index";
 import { linkedPrototypeScene } from "../domain/prototype";
 import { currentPageOnly } from "../domain/pages";
-import {
-  applyReactProjectUpdate,
-  downloadReactProject,
-  previewReactProjectUpdate,
-} from "../infrastructure/export-project";
 import type { ProjectRevisionPreview } from "../infrastructure/project-revision";
-import { PreviewDialog } from "./PreviewDialog";
 import { prototypeProgram } from "../compiler/runtime";
 import { PrototypeInspector } from "./PrototypeInspector";
-import { useMemo, useRef, useState, useEffect, lazy, Suspense } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  lazy,
+  Suspense,
+} from "react";
 import type { Viewport } from "../domain/geometry";
-import { FileBrowser, newBlankFile } from "./FileBrowser";
+import { newBlankFile, ownLibrary } from "./file-actions";
 import { transact, type Operation } from "../domain/commands";
 import { download, createLocalFile } from "../infrastructure/storage";
 import { type DesignComment } from "../domain/document";
-import { AgentPanel, type ExternalChatRequest } from "./AgentPanel";
-import { CanvasAgentBar, type PendingAgentProposal } from "./CanvasAgentBar";
-import { ModelConfigModal } from "./ModelConfigModal";
+import {
+  AgentPanel,
+  archiveAppliedProposal,
+  capturePickerMention,
+  projectMemoryReadErrorMessage,
+  readFileProjectEpisodes,
+  staleProposalMessage,
+  useEpisodeArchive,
+  type AppliedProposalEvent,
+  type ExternalChatRequest,
+} from "./AgentPanel";
+import {
+  CanvasAgentBar,
+  type CanvasAgentBarProps,
+  type PendingAgentProposal,
+} from "./CanvasAgentBar";
 import type { AgentStatusResponse } from "./agent-client";
-import { DevModePanel } from "./DevModePanel";
 import { BatchExportModal } from "./ExportPanel";
-import { DesignLintPanel } from "./DesignLintPanel";
 import { CommentsPanel } from "./CommentsOverlay";
 import type { CanvasViewOptions } from "./ViewOptionsMenu";
 import { Canvas } from "./Canvas";
+import { CanvasWelcomeOverlay } from "./CanvasWelcomeOverlay";
 import { ColorField } from "./ColorField";
-import { CodePreviewModal, ProjectUpdateModal } from "./CodeAndUpdateModals";
+import { ErrorBoundary } from "./ErrorBoundary";
 import { Inspector } from "./Inspector";
 import { LayersPanel } from "./LayersPanel";
 import { CommandPalette, ShortcutHelp } from "./ActionMenu";
@@ -88,9 +107,8 @@ import { ContextMenu } from "./ContextMenu";
 import { PanelDivider } from "./PanelDivider";
 import { TooltipHost } from "./TooltipHost";
 import { useEditor } from "./useEditor";
+import { saveStateCopy, UNIFIED_FRAME_PRESET_GROUPS } from "./ux-copy";
 
-import { ReleaseNotesDialog } from "./ReleaseNotesDialog";
-import { DesignImportDialog } from "./DesignImportDialog";
 import {
   acceptedDesignFiles,
   isExternalDesign,
@@ -98,86 +116,6 @@ import {
 } from "../infrastructure/design-import/types";
 
 const UI_THEME_KEY = "forma.ui-theme";
-
-const FRAME_PRESET_GROUPS = [
-  {
-    id: "phone",
-    label: "Phone",
-    icon: Smartphone,
-    defaultOpen: true,
-    items: [
-      { label: "iPhone 16", w: 393, h: 852 },
-      { label: "iPhone 16 Pro", w: 402, h: 874 },
-      { label: "iPhone 16 Pro Max", w: 440, h: 956 },
-      { label: "iPhone 13 / 14", w: 390, h: 844 },
-      { label: "Android Compact", w: 412, h: 917 },
-    ],
-  },
-  {
-    id: "tablet",
-    label: "Tablet",
-    icon: Tablet,
-    defaultOpen: false,
-    items: [
-      { label: 'iPad Pro 11"', w: 834, h: 1194 },
-      { label: "平板横屏", w: 1024, h: 768 },
-      { label: "iPad Mini", w: 744, h: 1133 },
-    ],
-  },
-  {
-    id: "desktop",
-    label: "Desktop",
-    icon: Monitor,
-    defaultOpen: false,
-    items: [
-      { label: "Desktop", w: 1440, h: 1024 },
-      { label: "Desktop 1440×900", w: 1440, h: 900 },
-      { label: 'MacBook Pro 14"', w: 1512, h: 982 },
-      { label: "Landing", w: 1440, h: 1024 },
-    ],
-  },
-  {
-    id: "presentation",
-    label: "Presentation",
-    icon: Presentation,
-    defaultOpen: false,
-    items: [
-      { label: "Slide 16:9", w: 1920, h: 1080 },
-      { label: "Slide 4:3", w: 1024, h: 768 },
-    ],
-  },
-  {
-    id: "watch",
-    label: "Watch",
-    icon: Watch,
-    defaultOpen: false,
-    items: [
-      { label: "Apple Watch 45mm", w: 198, h: 242 },
-      { label: "Apple Watch Ultra", w: 205, h: 251 },
-    ],
-  },
-  {
-    id: "paper",
-    label: "Paper",
-    icon: FileText,
-    defaultOpen: false,
-    items: [
-      { label: "A4", w: 595, h: 842 },
-      { label: "Letter", w: 612, h: 792 },
-    ],
-  },
-  {
-    id: "social",
-    label: "Social media",
-    icon: Share2,
-    defaultOpen: false,
-    items: [
-      { label: "Instagram Post", w: 1080, h: 1080 },
-      { label: "X Header", w: 1500, h: 500 },
-      { label: "Open Graph", w: 1200, h: 630 },
-    ],
-  },
-] as const;
 
 const STYLE_GROUPS = [
   { kind: "paint", label: "颜色样式" },
@@ -194,6 +132,80 @@ const DesignSystemDialog = lazy(() =>
 const AssetsPanel = lazy(() =>
   import("./AssetsPanel").then((m) => ({ default: m.AssetsPanel })),
 );
+const FileBrowser = lazy(() =>
+  import("./FileBrowser").then((m) => ({ default: m.FileBrowser })),
+);
+const PromoteModuleModal = lazy(() =>
+  import("./PromoteModuleModal").then((m) => ({
+    default: m.PromoteModuleModal,
+  })),
+);
+const DesignImportDialog = lazy(() =>
+  import("./DesignImportDialog").then((m) => ({
+    default: m.DesignImportDialog,
+  })),
+);
+const DevModePanel = lazy(() =>
+  import("./DevModePanel").then((m) => ({ default: m.DevModePanel })),
+);
+const DesignLintPanel = lazy(() =>
+  import("./DesignLintPanel").then((m) => ({ default: m.DesignLintPanel })),
+);
+const ModelConfigModal = lazy(() =>
+  import("./ModelConfigModal").then((m) => ({ default: m.ModelConfigModal })),
+);
+const PreviewDialog = lazy(() =>
+  import("./PreviewDialog").then((m) => ({ default: m.PreviewDialog })),
+);
+const CodePreviewModal = lazy(() =>
+  import("./CodeAndUpdateModals").then((m) => ({
+    default: m.CodePreviewModal,
+  })),
+);
+const ProjectUpdateModal = lazy(() =>
+  import("./CodeAndUpdateModals").then((m) => ({
+    default: m.ProjectUpdateModal,
+  })),
+);
+const ReleaseNotesDialog = lazy(() =>
+  import("./ReleaseNotesDialog").then((m) => ({
+    default: m.ReleaseNotesDialog,
+  })),
+);
+
+// The canvas composer removes chips absent from its picker options. Keep the
+// options offered to this draft until send, so the panel can reject a retired
+// reference instead of receiving a request with the reference silently omitted.
+function CanvasChatDraft({
+  projectEpisodes,
+  onSendPrompt,
+  ...props
+}: CanvasAgentBarProps & {
+  projectEpisodes: NonNullable<CanvasAgentBarProps["projectEpisodes"]>;
+}) {
+  const [offered, setOffered] = useState(projectEpisodes);
+  useLayoutEffect(() => {
+    if (!props.open) return;
+    const live = new Set(projectEpisodes.map((ep) => ep.id));
+    setOffered((previous) => {
+      const retired = previous.filter((ep) => !live.has(ep.id));
+      return retired.length
+        ? [...projectEpisodes, ...retired]
+        : projectEpisodes;
+    });
+  }, [projectEpisodes, props.open]);
+  return (
+    <CanvasAgentBar
+      {...props}
+      projectEpisodes={offered}
+      onSendPrompt={(input) => {
+        setOffered(projectEpisodes);
+        onSendPrompt(input);
+      }}
+    />
+  );
+}
+
 export function App(options: import("./useDocument").EditorFileOptions) {
   const editor = useEditor(options);
   const [uiTheme, setUiTheme] = useState<"dark" | "light">(() => {
@@ -477,8 +489,13 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   );
   const [pendingProposal, setPendingProposal] =
     useState<PendingAgentProposal | null>(null);
+  const [committingProposal, setCommittingProposal] = useState(false);
+  const committingProposalRef = useRef(false);
   const [externalChatRequest, setExternalChatRequest] =
     useState<ExternalChatRequest | null>(null);
+  const appliedSeqRef = useRef(0);
+  const [lastAppliedProposalEvent, setLastAppliedProposalEvent] =
+    useState<AppliedProposalEvent | null>(null);
   const [agentCancelToken, setAgentCancelToken] = useState(0);
   const [agentBusyState, setAgentBusyState] = useState({
     busy: false,
@@ -559,6 +576,162 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [filesOpen, setFilesOpen] = useState(false);
+  const { doc, getLifetimeToken, getDocumentEpoch, setError } = editor;
+  const currentDocumentEpoch = editor.getCurrentDocumentEpoch();
+  const currentFileKey = options.fileKey ?? "forma.document.v1";
+  const editingFailedDocument = editor.protectCache;
+  const [fileLifetimeInvalid, setFileLifetimeInvalid] = useState(
+    editingFailedDocument,
+  );
+  const [activeProject, setActiveProject] = useState<ProjectSpace | null>();
+  const currentScopeId = resolveProjectMemoryScope({
+    fileKey: currentFileKey,
+    project: activeProject,
+  }).scopeProjectId;
+  const chatSessionKey = JSON.stringify([
+    currentFileKey,
+    doc.id,
+    currentDocumentEpoch,
+    doc.activePage,
+    currentScopeId,
+  ]);
+  const proposalContext = useRef({
+    pendingProposal,
+    currentScopeId,
+    currentFileKey,
+  });
+  proposalContext.current = { pendingProposal, currentScopeId, currentFileKey };
+  const [memoryNotice, setMemoryNotice] = useState("");
+  const clearMemoryNotice = useCallback(() => setMemoryNotice(""), []);
+  const episodeArchive = useEpisodeArchive(
+    currentFileKey,
+    doc.id,
+    currentScopeId,
+    fileLifetimeInvalid,
+    clearMemoryNotice,
+    currentDocumentEpoch,
+  );
+  const { beginRead: beginEpisodeRead } = episodeArchive;
+  const [promoteModalOpen, setPromoteModalOpen] = useState(false);
+  const [statusToast, setStatusToast] = useState("");
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
+  useEffect(() => {
+    setWelcomeDismissed(false);
+  }, [doc.id, doc.activePage]);
+  const saveCopy = saveStateCopy(editor.saved);
+  const memoryRead = useRef(0);
+  useLayoutEffect(() => {
+    setFileLifetimeInvalid(editingFailedDocument);
+    setActiveProject(undefined);
+    setMemoryNotice("");
+    setPendingProposal(null);
+    setExternalChatRequest(null);
+    setLastAppliedProposalEvent(null);
+    return () => {
+      memoryRead.current++;
+    };
+  }, [doc.id, currentFileKey, currentDocumentEpoch, editingFailedDocument]);
+  const invalidateFileLifetime = useCallback(
+    (
+      message = "当前文件已在其他窗口删除或替换，已隔离项目记忆，请重新打开文件",
+    ) => {
+      memoryRead.current++;
+      setFileLifetimeInvalid(true);
+      setActiveProject(undefined);
+      setPendingProposal(null);
+      setLastAppliedProposalEvent(null);
+      setExternalChatRequest(null);
+      setMemoryNotice(message);
+    },
+    [],
+  );
+  const refreshProjectMemory = useCallback(async () => {
+    if (editingFailedDocument || fileLifetimeInvalid) return;
+    const read = ++memoryRead.current;
+    const updateEpisodes = beginEpisodeRead();
+    try {
+      const [expectedLifetimeToken, expectedDocumentEpoch] = await Promise.all([
+        getLifetimeToken(),
+        getDocumentEpoch(),
+      ]);
+      const archive = await readFileProjectEpisodes(
+        currentFileKey,
+        { expectedLifetimeToken, expectedDocumentEpoch, expectedDocId: doc.id },
+        () => read === memoryRead.current,
+      );
+      if (archive && read === memoryRead.current) {
+        setActiveProject(archive.project);
+        updateEpisodes(archive.episodes);
+      }
+    } catch (error) {
+      if (read !== memoryRead.current) return;
+      if (isFileLifetimeMismatchError(error)) invalidateFileLifetime();
+      else setMemoryNotice(projectMemoryReadErrorMessage(error));
+    }
+  }, [
+    currentFileKey,
+    doc.id,
+    editingFailedDocument,
+    fileLifetimeInvalid,
+    getLifetimeToken,
+    getDocumentEpoch,
+    invalidateFileLifetime,
+    beginEpisodeRead,
+  ]);
+  useEffect(() => {
+    const refresh = () => void refreshProjectMemory();
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const unsubscribe = subscribeProjectMemory(refresh);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    refresh();
+    return () => {
+      memoryRead.current++;
+      unsubscribe();
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [refreshProjectMemory]);
+  function resetProjectScope(project: ProjectSpace | null, message: string) {
+    setPendingProposal(null);
+    setActiveProject(project);
+    beginEpisodeRead()([]);
+    setStatusToast(message);
+    void refreshProjectMemory();
+  }
+  useEffect(() => {
+    if (!statusToast) return;
+    const timer = window.setTimeout(() => setStatusToast(""), 4800);
+    return () => window.clearTimeout(timer);
+  }, [statusToast]);
+  async function installProjectLibrary(libraryId: string) {
+    const start = editor.historyRef.current.present;
+    if (ownLibrary(start.libraries, libraryId)) return;
+    try {
+      const { findBuiltinEntry } = await import("../design-system/catalog");
+      const builtin = findBuiltinEntry(libraryId);
+      const source =
+        builtin?.library ??
+        (await getWorkspaceLibraryRecord(libraryId))?.library;
+      if (!source)
+        throw new Error("本机找不到项目默认组件库，请重新选择或导入组件库");
+      if (!builtin) await loadFonts(source.fonts);
+      const current = editor.historyRef.current.present;
+      if (start.id !== current.id)
+        throw new Error("文件已切换，请在当前文件重新载入组件库");
+      if (ownLibrary(current.libraries, libraryId)) return;
+      const library = parseLibrary(source);
+      editor.apply([{ type: "putLibrary", library }]);
+      if (!ownLibrary(editor.historyRef.current.present.libraries, libraryId))
+        throw new Error("组件库未能成功写入当前文档");
+      setStatusToast(`已载入项目组件库「${library.name}」`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }
   const [menu, setMenu] = useState<{
     x: number;
     y: number;
@@ -571,7 +744,11 @@ export function App(options: import("./useDocument").EditorFileOptions) {
     options.externalFile,
   );
   const [showImportReport, setShowImportReport] = useState(false);
-  const openExternalFile = (next: File) => {
+  const [externalImportProjectId, setExternalImportProjectId] = useState<
+    string | null
+  >(null);
+  const openExternalFile = (next: File, projectId: string | null = null) => {
+    setExternalImportProjectId(projectId);
     setShowImportReport(false);
     setExternalFile(next);
   };
@@ -620,7 +797,6 @@ export function App(options: import("./useDocument").EditorFileOptions) {
     });
     return offMenu;
   }, []);
-  const { doc } = editor;
   const agentDocument = useMemo(
     () => currentPageOnly(editor.committed),
     [editor.committed],
@@ -630,7 +806,6 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   const openMenu = (x: number, y: number, layers?: string[]) =>
     setMenu({ x, y, layers });
   const runAgent = (operations: Operation[], baseRevision: number) => {
-    transact(editor.historyRef.current.present, { baseRevision, operations });
     editor.apply(operations, baseRevision);
   };
   const aiPreviewState = useMemo(() => {
@@ -662,19 +837,126 @@ export function App(options: import("./useDocument").EditorFileOptions) {
       editor.setPreview(null);
     }
   }, [aiPreviewState, editor.setPreview]);
+  const previousIdentity = useRef({
+    file: doc.id,
+    page: doc.activePage,
+    scope: currentScopeId,
+  });
   useEffect(() => {
+    const previous = previousIdentity.current;
+    if (
+      previous.file === doc.id &&
+      previous.page === doc.activePage &&
+      previous.scope === currentScopeId
+    )
+      return;
+    previousIdentity.current = {
+      file: doc.id,
+      page: doc.activePage,
+      scope: currentScopeId,
+    };
+    if (
+      previous.scope !== currentScopeId &&
+      (pendingProposal || agentBusyState.busy)
+    ) {
+      setStatusToast(staleProposalMessage);
+    }
     setPendingProposal(null);
+    setExternalChatRequest(null);
+    setLastAppliedProposalEvent(null);
+    setAgentCancelToken((token) => token + 1);
     setActiveCommentId(null);
-  }, [editor.committed.id, editor.committed.activePage]);
-  const applyPendingProposal = () => {
+  }, [doc.id, doc.activePage, currentScopeId]);
+
+  async function commitAgentProposal(proposal: PendingAgentProposal) {
+    if (fileLifetimeInvalid || committingProposalRef.current) return false;
+    committingProposalRef.current = true;
+    setCommittingProposal(true);
+    try {
+      let expectedLifetimeToken: string | undefined;
+      let expectedDocumentEpoch: number | undefined;
+      let liveProject: ProjectSpace | null;
+      try {
+        [expectedLifetimeToken, expectedDocumentEpoch] = await Promise.all([
+          getLifetimeToken(),
+          getDocumentEpoch(),
+        ]);
+        liveProject = await getFileProjectSpace(currentFileKey, {
+          requireDurable: typeof indexedDB !== "undefined",
+          expectedLifetimeToken,
+          expectedDocumentEpoch,
+          expectedDocId: doc.id,
+          requireBoundLifetime: typeof indexedDB !== "undefined",
+        });
+      } catch (error) {
+        if (isFileLifetimeMismatchError(error)) {
+          if (
+            proposalContext.current.currentFileKey === currentFileKey &&
+            editor.historyRef.current.present.id === doc.id
+          )
+            invalidateFileLifetime();
+        } else if (proposalContext.current.pendingProposal === proposal) {
+          setPendingProposal(null);
+          setError("无法核验当前文件所属项目空间，已丢弃本次结果");
+        }
+        return false;
+      }
+      const liveScopeId = resolveProjectMemoryScope({
+        fileKey: currentFileKey,
+        project: liveProject,
+      }).scopeProjectId;
+      if (proposalContext.current.pendingProposal !== proposal) return false;
+      if (
+        liveScopeId !== proposal.scopeProjectId ||
+        liveScopeId !== proposalContext.current.currentScopeId
+      ) {
+        resetProjectScope(liveProject, staleProposalMessage);
+        return false;
+      }
+      const beforeDoc = editor.historyRef.current.present;
+      if (
+        beforeDoc.id !== doc.id ||
+        beforeDoc.activePage !== doc.activePage ||
+        proposal.transaction.baseRevision !== beforeDoc.revision
+      )
+        throw new Error("文件或页面已变更，请重新生成提案");
+      runAgent(
+        proposal.transaction.operations,
+        proposal.transaction.baseRevision,
+      );
+      const afterDoc = editor.historyRef.current.present;
+      setPendingProposal(null);
+      setLastAppliedProposalEvent({
+        id: ++appliedSeqRef.current,
+        proposal,
+        beforeDoc,
+        afterDoc,
+        scopeProjectId: currentScopeId,
+        fileKey: currentFileKey,
+        archiveNote: archiveAppliedProposal(
+          proposal,
+          beforeDoc,
+          afterDoc,
+          currentFileKey,
+          expectedLifetimeToken,
+          expectedDocumentEpoch,
+          episodeArchive.recordReceipt,
+        ),
+      });
+      return true;
+    } finally {
+      committingProposalRef.current = false;
+      setCommittingProposal(false);
+    }
+  }
+
+  const applyPendingProposal = async () => {
     if (!pendingProposal) return;
     try {
-      const rootIds = pendingProposal.createdRootIds;
-      runAgent(
-        pendingProposal.transaction.operations,
-        pendingProposal.transaction.baseRevision,
+      if (!(await commitAgentProposal(pendingProposal))) return;
+      const rootIds = pendingProposal.createdRootIds.filter((id) =>
+        editor.historyRef.current.present.nodes.some((node) => node.id === id),
       );
-      setPendingProposal(null);
       if (rootIds.length) {
         editor.setSelection(rootIds);
         requestAnimationFrame(() => editor.api.current?.fit(rootIds));
@@ -712,6 +994,8 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             event.target.value = "";
             if (selectedFile)
               try {
+                const { applyReactProjectUpdate, previewReactProjectUpdate } =
+                  await import("../infrastructure/export-project");
                 const bytes = new Uint8Array(await selectedFile.arrayBuffer());
                 const report = await previewReactProjectUpdate(
                   editor.committed,
@@ -728,10 +1012,24 @@ export function App(options: import("./useDocument").EditorFileOptions) {
           }}
         />
         {releaseNotesOpen && (
-          <ReleaseNotesDialog
-            version={appVersion}
-            close={() => setReleaseNotesOpen(false)}
-          />
+          <ErrorBoundary
+            scope="modal"
+            title="版本日志加载异常"
+            onReset={() => setReleaseNotesOpen(false)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载版本日志…
+                </div>
+              }
+            >
+              <ReleaseNotesDialog
+                version={appVersion}
+                close={() => setReleaseNotesOpen(false)}
+              />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {profileOpen && (
           <ColorProfileDialog
@@ -864,11 +1162,15 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               <hr />
               <button
                 onClick={() =>
-                  void downloadReactProject(
-                    editor.committed,
-                    editor.selection,
-                    "file",
-                  ).catch((error) => editor.setError(String(error)))
+                  void import("../infrastructure/export-project")
+                    .then(({ downloadReactProject }) =>
+                      downloadReactProject(
+                        editor.committed,
+                        editor.selection,
+                        "file",
+                      ),
+                    )
+                    .catch((error) => editor.setError(String(error)))
                 }
               >
                 <FileCode2 size={13} />
@@ -957,11 +1259,17 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               type="button"
               className="breadcrumb-workspace"
               aria-label="打开本机工作空间文件列表"
-              data-tip="浏览本机文件"
+              data-tip={
+                activeProject === null
+                  ? "未归类草稿 · 点击归入项目空间或浏览本机文件"
+                  : "点击管理项目与本机文件"
+              }
               data-tip-side="bottom"
               onClick={() => setFilesOpen(true)}
             >
-              个人空间
+              {activeProject === undefined
+                ? "项目归属待核验"
+                : (activeProject?.name ?? "个人空间")}
             </button>
             <span className="breadcrumb-sep">/</span>
             <input
@@ -982,9 +1290,9 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             />
             <span
               className="save-state"
-              title={editor.saved ? "已保存到此浏览器" : "保存中"}
-              data-tip={editor.saved ? "已保存到此浏览器" : "正在保存…"}
-              data-tip-desc="变更自动持久化到本地 IndexedDB，换设备前可下载源文件"
+              title={saveCopy.title}
+              data-tip={saveCopy.tip}
+              data-tip-desc={saveCopy.desc}
               data-tip-side="bottom"
             >
               {editor.saved ? (
@@ -1146,10 +1454,11 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               data-tip-desc="打包选中画板与原型依赖为可直接构建的 Vite + TS ZIP"
               data-tip-side="bottom"
               onClick={() =>
-                void downloadReactProject(
-                  editor.committed,
-                  editor.selection,
-                ).catch((error) => editor.setError(String(error)))
+                void import("../infrastructure/export-project")
+                  .then(({ downloadReactProject }) =>
+                    downloadReactProject(editor.committed, editor.selection),
+                  )
+                  .catch((error) => editor.setError(String(error)))
               }
             >
               导出 React 项目 <ArrowUpRight size={15} />
@@ -1195,6 +1504,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               <Sparkles size={14} />
               <span>助手</span>
             </button>
+            <span className="panel-tabs-sep" aria-hidden="true" />
             <button
               className="icon-btn"
               title="导入设计文件"
@@ -1235,61 +1545,88 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               </>
             )}
           </nav>
-          <div
-            className={`sidebar-content ${tab === "agent" ? "" : tab + "-sidebar"}`}
-          >
-            {tab === "layers" ? (
-              <>
-                <PagesPanel editor={editor} />
-                <LayersPanel
-                  key={doc.id + ":" + doc.activePage}
-                  editor={editor}
-                  contextMenu={openMenu}
-                  onSelectMatching={() => editor.perform("selectMatching")}
+          <div className={`sidebar-content ${tab}-sidebar`}>
+            <ErrorBoundary
+              scope="panel"
+              title="侧栏面板加载异常"
+              resetKey={`${tab}:${doc.id}`}
+            >
+              {tab === "layers" ? (
+                <>
+                  <PagesPanel editor={editor} />
+                  <LayersPanel
+                    key={doc.id + ":" + doc.activePage}
+                    editor={editor}
+                    contextMenu={openMenu}
+                    onSelectMatching={() => editor.perform("selectMatching")}
+                  />
+                </>
+              ) : tab === "assets" ? (
+                <Suspense
+                  fallback={<div className="compact-empty">加载资源…</div>}
+                >
+                  <AssetsPanel
+                    key={doc.id}
+                    editor={editor}
+                    managerOpen={libraryManagerOpen}
+                    setManagerOpen={setLibraryManagerOpen}
+                    onPromoteModule={() => setPromoteModalOpen(true)}
+                  />
+                </Suspense>
+              ) : null}
+              <div className="agent-sidebar-host" hidden={tab !== "agent"}>
+                <AgentPanel
+                  key={chatSessionKey}
+                  document={agentDocument}
+                  activePageId={doc.activePage}
+                  fileKey={currentFileKey}
+                  getFileLifetimeToken={editor.getLifetimeToken}
+                  getFileDocumentEpoch={editor.getDocumentEpoch}
+                  fileLifetimeInvalid={fileLifetimeInvalid}
+                  onFileLifetimeInvalidated={invalidateFileLifetime}
+                  activeProject={activeProject}
+                  onProjectScopeChanged={resetProjectScope}
+                  episodeArchive={episodeArchive}
+                  onRefreshEpisodes={refreshProjectMemory}
+                  onOpenFileBrowser={() => setFilesOpen(true)}
+                  onOpenPromoteModule={() => setPromoteModalOpen(true)}
+                  canPromoteSelection={!editor.componentUnavailable}
+                  onInstallProjectLibrary={installProjectLibrary}
+                  selectionCount={editor.selection.length}
+                  selection={
+                    editor.selection.length === 1 ? editor.selection[0] : null
+                  }
+                  selectionIds={editor.selection}
+                  onCommitProposal={commitAgentProposal}
+                  applyingProposal={committingProposal}
+                  lastAppliedProposalEvent={lastAppliedProposalEvent}
+                  onExternalChatConsumed={(id) =>
+                    setExternalChatRequest((cur) =>
+                      cur?.id === id ? null : cur,
+                    )
+                  }
+                  focusNode={(id) => {
+                    editor.setSelection([id]);
+                    requestAnimationFrame(() => editor.api.current?.fit([id]));
+                  }}
+                  status={agentStatus}
+                  onStatusChange={setAgentStatus}
+                  onOpenConfig={() => setModelConfigOpen(true)}
+                  pendingProposal={pendingProposal}
+                  onPendingProposalChange={setPendingProposal}
+                  viewportCenter={editor.api.current?.center()}
+                  externalChatRequest={externalChatRequest}
+                  cancelToken={agentCancelToken}
+                  onBusyChange={(busy, progressText, error) =>
+                    setAgentBusyState({ busy, progressText, error })
+                  }
+                  onUndoLastApply={() => editor.undo()}
                 />
-              </>
-            ) : tab === "assets" ? (
-              <Suspense
-                fallback={<div className="compact-empty">加载资源…</div>}
-              >
-                <AssetsPanel
-                  key={doc.id}
-                  editor={editor}
-                  managerOpen={libraryManagerOpen}
-                  setManagerOpen={setLibraryManagerOpen}
-                />
-              </Suspense>
-            ) : null}
-            <div hidden={tab !== "agent"}>
-              <AgentPanel
-                key={doc.id + ":" + doc.activePage}
-                document={agentDocument}
-                selectionCount={editor.selection.length}
-                selection={
-                  editor.selection.length === 1 ? editor.selection[0] : null
-                }
-                apply={(tx) => runAgent(tx.operations, tx.baseRevision)}
-                focusNode={(id) => {
-                  editor.setSelection([id]);
-                  requestAnimationFrame(() => editor.api.current?.fit([id]));
-                }}
-                status={agentStatus}
-                onStatusChange={setAgentStatus}
-                onOpenConfig={() => setModelConfigOpen(true)}
-                pendingProposal={pendingProposal}
-                onPendingProposalChange={setPendingProposal}
-                viewportCenter={editor.api.current?.center()}
-                externalChatRequest={externalChatRequest}
-                cancelToken={agentCancelToken}
-                onBusyChange={(busy, progressText, error) =>
-                  setAgentBusyState({ busy, progressText, error })
-                }
-                onUndoLastApply={() => editor.undo()}
-              />
-            </div>
+              </div>
+            </ErrorBoundary>
             <div
               className="milestone"
-              title={`文档修订 ${doc.revision} · ${editor.saved ? "已保存到此浏览器" : "保存中"}`}
+              title={`文档修订 ${doc.revision} · ${saveCopy.title}`}
             >
               <i />
               {doc.nodes.length} 图层
@@ -1298,46 +1635,78 @@ export function App(options: import("./useDocument").EditorFileOptions) {
         </aside>
         <PanelDivider side="left" visible={showLeft && !compact} />
         <PanelDivider side="right" visible={showRight && !compact} />
-        <Canvas
-          onImportDesign={openExternalFile}
-          onOpenNativeDesign={(selected) =>
-            void openNativeDroppedFile(selected)
+        <ErrorBoundary
+          scope="workspace"
+          title="画布视图遇到意外错误"
+          resetKey={`${doc.id}:${doc.activePage}`}
+          getRecoveryDocument={() => editor.historyRef.current.present}
+        >
+          <Canvas
+            onImportDesign={openExternalFile}
+            onOpenNativeDesign={(selected) =>
+              void openNativeDroppedFile(selected)
+            }
+            prototypeMode={inspectorTab === "prototype"}
+            views={views}
+            key={doc.id + ":" + doc.activePage}
+            editor={editor}
+            contextMenu={openMenu}
+            onPlayFlow={(frameId) =>
+              editor.attempt(() => {
+                prototypeProgram(linkedPrototypeScene(doc));
+                setPreview({ open: true, startFrameId: frameId });
+              })
+            }
+            viewOptions={viewOptions}
+            onToggleViewOption={toggleViewOption}
+            onToggleUI={toggleAllUI}
+            uiHidden={uiHidden}
+            devMode={devMode}
+            onToggleDevMode={() =>
+              setDevMode((v) => {
+                const next = !v;
+                if (next) {
+                  if (compact) setCompactPanel("right");
+                  else setRightOpen(true);
+                }
+                return next;
+              })
+            }
+            comments={doc.comments ?? []}
+            activeCommentId={activeCommentId}
+            onSelectComment={setActiveCommentId}
+            onUpdateComments={updateComments}
+            onOpenInlineAgent={() => setInlineAgentOpen((v) => !v)}
+            aiPreviewNodeIds={aiPreviewState?.changedIds}
+            onOpenDesignLint={() => setLintOpen((v) => !v)}
+          />
+        </ErrorBoundary>
+        <CanvasWelcomeOverlay
+          visible={
+            doc.nodes.length === 0 &&
+            editor.tool === "select" &&
+            !pendingProposal &&
+            !welcomeDismissed &&
+            !inlineAgentOpen
           }
-          prototypeMode={inspectorTab === "prototype"}
-          views={views}
-          key={doc.id + ":" + doc.activePage}
-          editor={editor}
-          contextMenu={openMenu}
-          onPlayFlow={(frameId) =>
-            editor.attempt(() => {
-              prototypeProgram(linkedPrototypeScene(doc));
-              setPreview({ open: true, startFrameId: frameId });
-            })
-          }
-          viewOptions={viewOptions}
-          onToggleViewOption={toggleViewOption}
-          onToggleUI={toggleAllUI}
-          uiHidden={uiHidden}
-          devMode={devMode}
-          onToggleDevMode={() =>
-            setDevMode((v) => {
-              const next = !v;
-              if (next) {
-                if (compact) setCompactPanel("right");
-                else setRightOpen(true);
-              }
-              return next;
-            })
-          }
-          comments={doc.comments ?? []}
-          activeCommentId={activeCommentId}
-          onSelectComment={setActiveCommentId}
-          onUpdateComments={updateComments}
-          onOpenInlineAgent={() => setInlineAgentOpen((v) => !v)}
-          aiPreviewNodeIds={aiPreviewState?.changedIds}
-          onOpenDesignLint={() => setLintOpen((v) => !v)}
+          onCreateFrame={(label, width, height) => {
+            editor.addPresetFrame(label, width, height);
+            setWelcomeDismissed(true);
+          }}
+          onOpenAi={() => {
+            setWelcomeDismissed(true);
+            openInlineAgent();
+          }}
+          onImportFile={() => {
+            openAsFile.current = false;
+            file.current?.click();
+          }}
+          onDismiss={() => setWelcomeDismissed(true)}
         />
-        <CanvasAgentBar
+        <CanvasChatDraft
+          key={JSON.stringify([chatSessionKey, fileLifetimeInvalid])}
+          scopeProjectId={currentScopeId}
+          projectEpisodes={episodeArchive.pickerEpisodes}
           open={inlineAgentOpen}
           focusTick={inlineAgentFocusTick}
           onClose={() => setInlineAgentOpen(false)}
@@ -1347,6 +1716,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
           viewportCenter={editor.api.current?.center()}
           status={agentStatus}
           pendingProposal={pendingProposal}
+          applyingProposal={committingProposal}
           busy={agentBusyState.busy}
           progressText={agentBusyState.progressText}
           error={agentBusyState.error}
@@ -1355,8 +1725,10 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             chatSeqRef.current += 1;
             setExternalChatRequest({
               id: chatSeqRef.current,
+              pageId: doc.activePage,
+              scopeProjectId: currentScopeId,
               prompt: input.prompt,
-              mentions: input.mentions,
+              mentions: input.mentions.map(capturePickerMention),
               attachments: input.attachments,
             });
           }}
@@ -1375,471 +1747,621 @@ export function App(options: import("./useDocument").EditorFileOptions) {
           className={`right-panel ${devMode ? "is-dev-mode" : ""}`}
           hidden={!showRight}
         >
-          {devMode ? (
-            <>
-              <div className="inspector-tabs fp-dev-header-tabs">
-                <span className="fp-dev-mode-pill">
-                  <Code2 size={12} />
-                  开发检查 (Dev Mode)
-                </span>
-                <button
-                  type="button"
-                  className="icon-btn icon-btn-sm"
-                  aria-label="退出开发模式"
-                  title="退出开发模式"
-                  data-tip="退出开发模式"
-                  data-tip-kbd="⇧D"
-                  data-tip-side="left"
-                  onClick={() => setDevMode(false)}
-                >
-                  <X size={13} />
-                </button>
-              </div>
-              <DevModePanel
-                document={editor.committed}
-                selectedIds={editor.selection}
-                onSelectNode={(id) => {
-                  editor.setSelection([id]);
-                  requestAnimationFrame(() => editor.api.current?.fit([id]));
-                }}
-                onUpdateNode={(id, patch) =>
-                  editor.attempt(() =>
-                    editor.apply([{ type: "update", id, patch }]),
-                  )
-                }
-                onOpenFullCode={() => editor.attempt(() => setCodeOpen(true))}
-                onExportReact={() =>
-                  void downloadReactProject(
-                    editor.committed,
-                    editor.selection,
-                  ).catch((error) => editor.setError(String(error)))
-                }
-              />
-            </>
-          ) : (
-            <>
-              <div className="inspector-tabs">
-                <button
-                  aria-pressed={inspectorTab === "design"}
-                  onClick={() => setInspectorTab("design")}
-                >
-                  设计
-                </button>
-                <button
-                  aria-pressed={inspectorTab === "prototype"}
-                  onClick={() => setInspectorTab("prototype")}
-                >
-                  原型
-                </button>
-                {editor.selected.length > 1 && editor.tool !== "frame" ? (
-                  <span className="selection-pill">
-                    {editor.selection.length} 项
+          <ErrorBoundary
+            scope="panel"
+            title="属性面板加载异常"
+            resetKey={`${devMode ? "dev" : inspectorTab}:${doc.id}:${editor.selection.join(",")}`}
+          >
+            {devMode ? (
+              <>
+                <div className="inspector-tabs fp-dev-header-tabs">
+                  <span className="fp-dev-mode-pill">
+                    <Code2 size={12} />
+                    开发检查 (Dev Mode)
                   </span>
-                ) : !editor.selected.length || editor.tool === "frame" ? (
                   <button
                     type="button"
-                    className={`inspector-ai-btn inspector-tabs-ai ${agentStatus?.configured && agentStatus.activeProfile ? "is-ready" : ""}`}
-                    title="用 AI 对话生成设计稿"
-                    aria-label="用 AI 对话生成新画板"
-                    data-tip="AI 对话生成"
-                    data-tip-kbd="⌘↵"
-                    data-tip-desc="打开画布 Agent 对话框，直接通过对话生成新的页面或组件"
+                    className="icon-btn icon-btn-sm"
+                    aria-label="退出开发模式"
+                    title="退出开发模式"
+                    data-tip="退出开发模式"
+                    data-tip-kbd="⇧D"
                     data-tip-side="left"
-                    onClick={openInlineAgent}
+                    onClick={() => setDevMode(false)}
                   >
-                    <Sparkles size={12} />
-                    <span>AI</span>
+                    <X size={13} />
                   </button>
-                ) : null}
-              </div>
-              {inspectorTab === "prototype" ? (
-                <PrototypeInspector
-                  editor={editor}
-                  openVariables={() => openDesignSystem("variables")}
-                />
-              ) : editor.selected.length && editor.tool !== "frame" ? (
-                <Inspector
-                  editor={editor}
-                  tool={editor.tool}
-                  onExitScale={() => editor.setTool("select")}
-                  onOpenBatchExport={() => setBatchExportOpen(true)}
-                  onOpenDesignLint={() => setLintOpen(true)}
-                  onOpenInlineAgent={openInlineAgent}
-                  agentConfigured={Boolean(
-                    agentStatus?.configured && agentStatus.activeProfile,
-                  )}
-                  onApplyOperations={(ops) =>
-                    editor.attempt(() => editor.apply(ops))
-                  }
-                />
-              ) : (
-                <div className="page-inspector">
-                  <section>
-                    <div className="section-title">页面背景</div>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                </div>
+                <Suspense
+                  fallback={<div className="compact-empty">加载开发检查…</div>}
+                >
+                  <DevModePanel
+                    document={editor.committed}
+                    selectedIds={editor.selection}
+                    onSelectNode={(id) => {
+                      editor.setSelection([id]);
+                      requestAnimationFrame(() =>
+                        editor.api.current?.fit([id]),
+                      );
+                    }}
+                    onUpdateNode={(id, patch) =>
+                      editor.attempt(() =>
+                        editor.apply([{ type: "update", id, patch }]),
+                      )
+                    }
+                    onOpenFullCode={() =>
+                      editor.attempt(() => setCodeOpen(true))
+                    }
+                    onExportReact={() =>
+                      void import("../infrastructure/export-project")
+                        .then(({ downloadReactProject }) =>
+                          downloadReactProject(
+                            editor.committed,
+                            editor.selection,
+                          ),
+                        )
+                        .catch((error) => editor.setError(String(error)))
+                    }
+                  />
+                </Suspense>
+              </>
+            ) : (
+              <>
+                <div className="inspector-tabs">
+                  <button
+                    aria-pressed={inspectorTab === "design"}
+                    onClick={() => setInspectorTab("design")}
+                  >
+                    设计
+                  </button>
+                  <button
+                    aria-pressed={inspectorTab === "prototype"}
+                    onClick={() => setInspectorTab("prototype")}
+                  >
+                    原型
+                  </button>
+                  {editor.selected.length > 1 && editor.tool !== "frame" ? (
+                    <span className="selection-pill">
+                      {editor.selection.length} 项
+                    </span>
+                  ) : !editor.selected.length || editor.tool === "frame" ? (
+                    <button
+                      type="button"
+                      className={`inspector-ai-btn inspector-tabs-ai ${agentStatus?.configured && agentStatus.activeProfile ? "is-ready" : ""}`}
+                      title="用 AI 对话生成设计稿"
+                      aria-label="用 AI 对话生成新画板"
+                      data-tip="AI 对话生成"
+                      data-tip-kbd="⌘↵"
+                      data-tip-desc="打开画布 Agent 对话框，直接通过对话生成新的页面或组件"
+                      data-tip-side="left"
+                      onClick={openInlineAgent}
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <ColorField
-                          label="页面背景色"
-                          color={
-                            doc.pageBackground ??
-                            (uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5")
+                      <Sparkles size={12} />
+                      <span>AI</span>
+                    </button>
+                  ) : null}
+                </div>
+                {inspectorTab === "prototype" ? (
+                  <PrototypeInspector
+                    editor={editor}
+                    openVariables={() => openDesignSystem("variables")}
+                  />
+                ) : editor.selected.length && editor.tool !== "frame" ? (
+                  <Inspector
+                    editor={editor}
+                    tool={editor.tool}
+                    onExitScale={() => editor.setTool("select")}
+                    onOpenBatchExport={() => setBatchExportOpen(true)}
+                    onOpenDesignLint={() => setLintOpen(true)}
+                    onOpenInlineAgent={openInlineAgent}
+                    agentConfigured={Boolean(
+                      agentStatus?.configured && agentStatus.activeProfile,
+                    )}
+                    onApplyOperations={(ops) =>
+                      editor.attempt(() => editor.apply(ops))
+                    }
+                  />
+                ) : (
+                  <div className="page-inspector">
+                    <section>
+                      <div className="section-title">页面背景</div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <ColorField
+                            label="页面背景色"
+                            color={
+                              doc.pageBackground ??
+                              (uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5")
+                            }
+                            alpha={doc.pageBackgroundOpacity ?? 1}
+                            onChange={(color, alpha) =>
+                              editor.attempt(() =>
+                                editor.apply([
+                                  {
+                                    type: "setPageBackground",
+                                    color,
+                                    opacity: alpha,
+                                    visible: true,
+                                  },
+                                ]),
+                              )
+                            }
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="icon-btn icon-btn-sm"
+                          aria-label={
+                            doc.pageBackgroundVisible === false
+                              ? "显示页面背景"
+                              : "隐藏页面背景"
                           }
-                          alpha={doc.pageBackgroundOpacity ?? 1}
-                          onChange={(color, alpha) =>
+                          data-tip={
+                            doc.pageBackgroundVisible === false
+                              ? "显示页面背景"
+                              : "隐藏页面背景"
+                          }
+                          data-tip-side="left"
+                          onClick={() =>
                             editor.attempt(() =>
                               editor.apply([
                                 {
                                   type: "setPageBackground",
-                                  color,
-                                  opacity: alpha,
-                                  visible: true,
+                                  color:
+                                    doc.pageBackground ??
+                                    (uiTheme === "dark"
+                                      ? "#1e1e1e"
+                                      : "#f5f5f5"),
+                                  opacity: doc.pageBackgroundOpacity ?? 1,
+                                  visible: doc.pageBackgroundVisible === false,
                                 },
                               ]),
                             )
                           }
-                        />
+                        >
+                          {doc.pageBackgroundVisible === false ? (
+                            <EyeOff size={13} />
+                          ) : (
+                            <Eye size={13} />
+                          )}
+                        </button>
+                      </div>
+                    </section>
+                    {editor.tool === "frame" && (
+                      <section>
+                        <div className="section-title">画板预设</div>
+                        {UNIFIED_FRAME_PRESET_GROUPS.map((group) => {
+                          const GroupIcon = group.icon;
+                          return (
+                            <details
+                              key={group.id}
+                              className="preset-category"
+                              open={group.defaultOpen}
+                            >
+                              <summary>
+                                <GroupIcon size={12} />
+                                <span>{group.label}</span>
+                              </summary>
+                              <div className="preset-list">
+                                {group.items.map((item) => (
+                                  <button
+                                    key={item.label}
+                                    type="button"
+                                    className="preset-row-btn"
+                                    onClick={() =>
+                                      editor.addPresetFrame(
+                                        item.label,
+                                        item.w,
+                                        item.h,
+                                      )
+                                    }
+                                  >
+                                    <span>{item.label}</span>
+                                    <small>
+                                      {item.w}×{item.h}
+                                    </small>
+                                  </button>
+                                ))}
+                              </div>
+                            </details>
+                          );
+                        })}
+                      </section>
+                    )}
+                    <section>
+                      <div className="section-title">
+                        本地变量
+                        <button
+                          className="icon-btn icon-btn-sm"
+                          title="管理变量与样式"
+                          aria-label="管理变量与样式"
+                          data-tip="管理本地变量"
+                          data-tip-desc="编辑颜色、尺寸、圆角与文字变量及多主题模式"
+                          data-tip-side="left"
+                          onClick={() => openDesignSystem("variables")}
+                        >
+                          <Variable size={15} />
+                        </button>
                       </div>
                       <button
-                        type="button"
-                        className="icon-btn icon-btn-sm"
-                        aria-label={
-                          doc.pageBackgroundVisible === false
-                            ? "显示页面背景"
-                            : "隐藏页面背景"
-                        }
-                        data-tip={
-                          doc.pageBackgroundVisible === false
-                            ? "显示页面背景"
-                            : "隐藏页面背景"
-                        }
-                        data-tip-side="left"
-                        onClick={() =>
-                          editor.attempt(() =>
-                            editor.apply([
-                              {
-                                type: "setPageBackground",
-                                color:
-                                  doc.pageBackground ??
-                                  (uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5"),
-                                opacity: doc.pageBackgroundOpacity ?? 1,
-                                visible: doc.pageBackgroundVisible === false,
-                              },
-                            ]),
-                          )
-                        }
-                      >
-                        {doc.pageBackgroundVisible === false ? (
-                          <EyeOff size={13} />
-                        ) : (
-                          <Eye size={13} />
-                        )}
-                      </button>
-                    </div>
-                  </section>
-                  {editor.tool === "frame" && (
-                    <section>
-                      <div className="section-title">画板预设</div>
-                      {FRAME_PRESET_GROUPS.map((group) => {
-                        const GroupIcon = group.icon;
-                        return (
-                          <details
-                            key={group.id}
-                            className="preset-category"
-                            open={group.defaultOpen}
-                          >
-                            <summary>
-                              <GroupIcon size={12} />
-                              <span>{group.label}</span>
-                            </summary>
-                            <div className="preset-list">
-                              {group.items.map((item) => (
-                                <button
-                                  key={item.label}
-                                  type="button"
-                                  className="preset-row-btn"
-                                  onClick={() =>
-                                    editor.addPresetFrame(
-                                      item.label,
-                                      item.w,
-                                      item.h,
-                                    )
-                                  }
-                                >
-                                  <span>{item.label}</span>
-                                  <small>
-                                    {item.w}×{item.h}
-                                  </small>
-                                </button>
-                              ))}
-                            </div>
-                          </details>
-                        );
-                      })}
-                    </section>
-                  )}
-                  <section>
-                    <div className="section-title">
-                      本地变量
-                      <button
-                        className="icon-btn icon-btn-sm"
-                        title="管理变量与样式"
-                        aria-label="管理变量与样式"
-                        data-tip="管理本地变量"
-                        data-tip-desc="编辑颜色、尺寸、圆角与文字变量及多主题模式"
-                        data-tip-side="left"
+                        className="wide local-system-button"
                         onClick={() => openDesignSystem("variables")}
                       >
-                        <Variable size={15} />
+                        <Variable size={14} />
+                        变量与样式
+                        <span>
+                          {
+                            Object.keys(doc.designSystem?.variables ?? {})
+                              .length
+                          }
+                        </span>
                       </button>
-                    </div>
-                    <button
-                      className="wide local-system-button"
-                      onClick={() => openDesignSystem("variables")}
+                    </section>
+                    <ModeSelectors editor={editor} document />
+                    <section
+                      className={
+                        !Object.keys(doc.designSystem?.styles ?? {}).length
+                          ? "is-collapsed-section"
+                          : undefined
+                      }
                     >
-                      <Variable size={14} />
-                      变量与样式
-                      <span>
-                        {Object.keys(doc.designSystem?.variables ?? {}).length}
-                      </span>
-                    </button>
-                  </section>
-                  <ModeSelectors editor={editor} document />
-                  <section
-                    className={
-                      !Object.keys(doc.designSystem?.styles ?? {}).length
-                        ? "is-collapsed-section"
-                        : undefined
-                    }
-                  >
-                    <div className="section-title">
-                      本地样式
-                      <button
-                        className="icon-btn icon-btn-sm"
-                        title="管理样式"
-                        aria-label="管理样式"
-                        data-tip="新建或管理本地样式"
-                        data-tip-desc="打开样式库以创建或编辑颜色、文本与效果样式"
-                        data-tip-side="left"
-                        onClick={() => openDesignSystem("styles")}
-                      >
-                        +
-                      </button>
-                    </div>
-                    {(() => {
-                      const allStyles = Object.values(
-                        doc.designSystem?.styles ?? {},
-                      );
-                      const activeStyles = allStyles.filter(
-                        (s) => !s.sourceArchived,
-                      );
-                      const archivedStyles = allStyles.filter(
-                        (s) => s.sourceArchived,
-                      );
-                      const renderStyleRow = (
-                        style: (typeof allStyles)[number],
-                      ) => {
-                        let swatchColor: string | undefined;
-                        if (style.kind === "paint") {
-                          const boundId = style.bindings.fill;
-                          if (boundId && doc.designSystem) {
-                            try {
-                              swatchColor = String(
-                                resolveVariable(
-                                  doc.designSystem,
-                                  boundId,
-                                  doc.designSystem.activeModes,
-                                ),
-                              );
-                            } catch {
+                      <div className="section-title">
+                        本地样式
+                        <button
+                          className="icon-btn icon-btn-sm"
+                          title="管理样式"
+                          aria-label="管理样式"
+                          data-tip="新建或管理本地样式"
+                          data-tip-desc="打开样式库以创建或编辑颜色、文本与效果样式"
+                          data-tip-side="left"
+                          onClick={() => openDesignSystem("styles")}
+                        >
+                          +
+                        </button>
+                      </div>
+                      {(() => {
+                        const allStyles = Object.values(
+                          doc.designSystem?.styles ?? {},
+                        );
+                        const activeStyles = allStyles.filter(
+                          (s) => !s.sourceArchived,
+                        );
+                        const archivedStyles = allStyles.filter(
+                          (s) => s.sourceArchived,
+                        );
+                        const renderStyleRow = (
+                          style: (typeof allStyles)[number],
+                        ) => {
+                          let swatchColor: string | undefined;
+                          if (style.kind === "paint") {
+                            const boundId = style.bindings.fill;
+                            if (boundId && doc.designSystem) {
+                              try {
+                                swatchColor = String(
+                                  resolveVariable(
+                                    doc.designSystem,
+                                    boundId,
+                                    doc.designSystem.activeModes,
+                                  ),
+                                );
+                              } catch {
+                                swatchColor = style.properties.fill;
+                              }
+                            } else {
                               swatchColor = style.properties.fill;
                             }
-                          } else {
-                            swatchColor = style.properties.fill;
                           }
-                        }
+                          return (
+                            <button
+                              className="local-style-row"
+                              key={style.id}
+                              title={style.description || style.name}
+                              onClick={() =>
+                                openDesignSystem("styles", style.id)
+                              }
+                            >
+                              {style.kind === "paint" && swatchColor ? (
+                                <i
+                                  className="local-style-swatch"
+                                  style={{
+                                    background: displayColor(
+                                      swatchColor,
+                                      doc.colorProfile,
+                                    ),
+                                  }}
+                                />
+                              ) : style.kind === "text" ? (
+                                <TypeIcon size={12} />
+                              ) : style.kind === "grid" ? (
+                                <LayoutGrid size={12} />
+                              ) : (
+                                <Sparkles size={12} />
+                              )}
+                              <span className="truncate">{style.name}</span>
+                            </button>
+                          );
+                        };
                         return (
-                          <button
-                            className="local-style-row"
-                            key={style.id}
-                            title={style.description || style.name}
-                            onClick={() => openDesignSystem("styles", style.id)}
-                          >
-                            {style.kind === "paint" && swatchColor ? (
-                              <i
-                                className="local-style-swatch"
-                                style={{
-                                  background: displayColor(
-                                    swatchColor,
-                                    doc.colorProfile,
-                                  ),
-                                }}
-                              />
-                            ) : style.kind === "text" ? (
-                              <TypeIcon size={12} />
-                            ) : style.kind === "grid" ? (
-                              <LayoutGrid size={12} />
-                            ) : (
-                              <Sparkles size={12} />
-                            )}
-                            <span className="truncate">{style.name}</span>
-                          </button>
-                        );
-                      };
-                      return (
-                        <>
-                          {STYLE_GROUPS.map(({ kind, label }) => {
-                            const list = activeStyles.filter(
-                              (s) => s.kind === kind,
-                            );
-                            if (!list.length) return null;
-                            return (
-                              <div key={kind}>
-                                <div className="local-style-group-title">
-                                  {label}
+                          <>
+                            {STYLE_GROUPS.map(({ kind, label }) => {
+                              const list = activeStyles.filter(
+                                (s) => s.kind === kind,
+                              );
+                              if (!list.length) return null;
+                              return (
+                                <div key={kind}>
+                                  <div className="local-style-group-title">
+                                    {label}
+                                  </div>
+                                  {list.map(renderStyleRow)}
                                 </div>
-                                {list.map(renderStyleRow)}
-                              </div>
-                            );
-                          })}
-                          {archivedStyles.length > 0 && (
-                            <details className="archived-styles-group">
-                              <summary className="local-style-group-title archived-styles-summary">
-                                <span>已归档源样式</span>
+                              );
+                            })}
+                            {archivedStyles.length > 0 && (
+                              <details className="archived-styles-group">
+                                <summary className="local-style-group-title archived-styles-summary">
+                                  <span>已归档源样式</span>
+                                  <span className="fp-count-pill">
+                                    {archivedStyles.length}
+                                  </span>
+                                </summary>
+                                {archivedStyles.map(renderStyleRow)}
+                              </details>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </section>
+                    {(() => {
+                      const exportCount = doc.nodes.filter(
+                        (n) =>
+                          n.type === "slice" ||
+                          (n.exportSettings?.length ?? 0) > 0,
+                      ).length;
+                      return (
+                        <section
+                          className={
+                            exportCount === 0
+                              ? "is-collapsed-section"
+                              : undefined
+                          }
+                        >
+                          <div className="section-title">
+                            <span className="fp-section-heading">
+                              导出
+                              {exportCount > 0 && (
                                 <span className="fp-count-pill">
-                                  {archivedStyles.length}
+                                  {exportCount}
                                 </span>
-                              </summary>
-                              {archivedStyles.map(renderStyleRow)}
-                            </details>
+                              )}
+                            </span>
+                            <button
+                              className="icon-btn icon-btn-sm"
+                              title="批量导出资源"
+                              aria-label="批量导出资源"
+                              data-tip="批量导出切片与资源"
+                              data-tip-kbd="⇧⌘E"
+                              data-tip-desc="导出文档内所有已配置导出预设的图层与切片"
+                              data-tip-side="left"
+                              onClick={() => setBatchExportOpen(true)}
+                            >
+                              +
+                            </button>
+                          </div>
+                          {exportCount > 0 && (
+                            <button
+                              type="button"
+                              className="wide local-system-button"
+                              onClick={() => setBatchExportOpen(true)}
+                            >
+                              <Package size={14} />
+                              批量导出切图与切片
+                              <span>{exportCount}</span>
+                            </button>
                           )}
-                        </>
+                        </section>
                       );
                     })()}
-                  </section>
-                  {(() => {
-                    const exportCount = doc.nodes.filter(
-                      (n) =>
-                        n.type === "slice" ||
-                        (n.exportSettings?.length ?? 0) > 0,
-                    ).length;
-                    return (
-                      <section
-                        className={
-                          exportCount === 0 ? "is-collapsed-section" : undefined
-                        }
-                      >
-                        <div className="section-title">
-                          <span className="fp-section-heading">
-                            导出
-                            {exportCount > 0 && (
-                              <span className="fp-count-pill">
-                                {exportCount}
-                              </span>
-                            )}
-                          </span>
-                          <button
-                            className="icon-btn icon-btn-sm"
-                            title="批量导出资源"
-                            aria-label="批量导出资源"
-                            data-tip="批量导出切片与资源"
-                            data-tip-kbd="⇧⌘E"
-                            data-tip-desc="导出文档内所有已配置导出预设的图层与切片"
-                            data-tip-side="left"
-                            onClick={() => setBatchExportOpen(true)}
-                          >
-                            +
-                          </button>
-                        </div>
-                        {exportCount > 0 && (
-                          <button
-                            type="button"
-                            className="wide local-system-button"
-                            onClick={() => setBatchExportOpen(true)}
-                          >
-                            <Package size={14} />
-                            批量导出切图与切片
-                            <span>{exportCount}</span>
-                          </button>
-                        )}
-                      </section>
-                    );
-                  })()}
-                </div>
-              )}
-            </>
-          )}
+                  </div>
+                )}
+              </>
+            )}
+          </ErrorBoundary>
         </aside>
         {designSystemTarget && (
-          <Suspense
-            fallback={
-              <div role="status" className="toast">
-                加载变量与样式…
-              </div>
-            }
+          <ErrorBoundary
+            scope="modal"
+            title="变量与样式窗口加载异常"
+            onReset={() => setDesignSystemTarget(null)}
           >
-            <DesignSystemDialog
-              editor={editor}
-              key={
-                designSystemTarget.view +
-                ":" +
-                (designSystemTarget.styleId ?? "")
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载变量与样式…
+                </div>
               }
-              initialView={designSystemTarget.view}
-              initialStyleId={designSystemTarget.styleId}
-              close={() => setDesignSystemTarget(null)}
-            />
-          </Suspense>
+            >
+              <DesignSystemDialog
+                editor={editor}
+                key={
+                  designSystemTarget.view +
+                  ":" +
+                  (designSystemTarget.styleId ?? "")
+                }
+                initialView={designSystemTarget.view}
+                initialStyleId={designSystemTarget.styleId}
+                close={() => setDesignSystemTarget(null)}
+              />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {filesOpen && (
-          <FileBrowser
-            externalImport={(selected) => {
-              setFilesOpen(false);
-              openExternalFile(selected);
-            }}
-            current={editor.committed}
-            currentKey={options.fileKey ?? "forma.document.v1"}
-            renameCurrent={(name) =>
-              editor.importDocument({ ...editor.committed, name })
-            }
-            close={() => setFilesOpen(false)}
-          />
+          <ErrorBoundary
+            scope="modal"
+            title="本机文件浏览器加载异常"
+            onReset={() => setFilesOpen(false)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载本机文件列表…
+                </div>
+              }
+            >
+              <FileBrowser
+                externalImport={(selected, projectId) => {
+                  setFilesOpen(false);
+                  openExternalFile(selected, projectId);
+                }}
+                current={editor.committed}
+                currentKey={currentFileKey}
+                renameCurrent={(name) =>
+                  editor.importDocument({ ...editor.committed, name })
+                }
+                close={() => setFilesOpen(false)}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {promoteModalOpen && (
+          <ErrorBoundary
+            scope="modal"
+            title="沉淀组件模块窗口异常"
+            onReset={() => setPromoteModalOpen(false)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载组件沉淀窗口…
+                </div>
+              }
+            >
+              <PromoteModuleModal
+                key={JSON.stringify([
+                  currentFileKey,
+                  doc.id,
+                  activeProject?.id,
+                ])}
+                editor={editor}
+                fileKey={currentFileKey}
+                fileLifetimeInvalid={fileLifetimeInvalid}
+                getFileLifetimeToken={editor.getLifetimeToken}
+                onFileLifetimeInvalidated={invalidateFileLifetime}
+                activeProject={activeProject}
+                preferredLibraryId={activeProject?.defaultLibraryId}
+                onSuccess={setStatusToast}
+                close={() => setPromoteModalOpen(false)}
+              />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {(externalFile || showImportReport) && (
-          <DesignImportDialog
-            file={externalFile}
-            existing={
-              showImportReport && !externalFile ? editor.committed : undefined
-            }
-            close={() => {
+          <ErrorBoundary
+            scope="modal"
+            title="设计文件导入窗口异常"
+            onReset={() => {
               setExternalFile(undefined);
               setShowImportReport(false);
             }}
-            locate={(page, id) => {
-              if (
-                page !== editor.committed.activePage &&
-                editor.committed.pages
-              )
-                editor.switchPage(page);
-              editor.setSelection([id]);
-              setShowImportReport(false);
-              requestAnimationFrame(() => editor.api.current?.fit([id]));
-            }}
-          />
-        )}
-        {editor.error && (
-          <div role="alert" className="toast">
-            {editor.error}
-            <button
-              className="icon-btn icon-btn-sm"
-              aria-label="关闭错误"
-              data-tip="关闭提示"
-              data-tip-side="top"
-              onClick={() => editor.setError("")}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载设计导入工具…
+                </div>
+              }
             >
-              <X size={16} />
-            </button>
+              <DesignImportDialog
+                file={externalFile}
+                targetProjectId={externalImportProjectId}
+                existing={
+                  showImportReport && !externalFile
+                    ? editor.committed
+                    : undefined
+                }
+                close={() => {
+                  setExternalFile(undefined);
+                  setShowImportReport(false);
+                }}
+                locate={(page, id) => {
+                  if (
+                    page !== editor.committed.activePage &&
+                    editor.committed.pages
+                  )
+                    editor.switchPage(page);
+                  editor.setSelection([id]);
+                  setShowImportReport(false);
+                  requestAnimationFrame(() => editor.api.current?.fit([id]));
+                }}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {(editor.error || memoryNotice || statusToast) && (
+          <div
+            style={{
+              position: "fixed",
+              right: 20,
+              bottom: 18,
+              zIndex: 90,
+              display: "grid",
+              justifyItems: "end",
+              gap: 6,
+              maxWidth: "calc(100vw - 40px)",
+              pointerEvents: "none",
+            }}
+          >
+            {statusToast && !editor.error && (
+              <div
+                role="status"
+                className="toast project-status-toast"
+                style={{ position: "static" }}
+              >
+                {statusToast}
+              </div>
+            )}
+            {memoryNotice && (
+              <div
+                role="status"
+                className="toast project-status-toast"
+                style={{ position: "static", pointerEvents: "auto" }}
+              >
+                {memoryNotice}
+                <button
+                  className="icon-btn icon-btn-sm"
+                  aria-label="关闭项目记忆提示"
+                  data-tip="关闭项目记忆提示"
+                  data-tip-side="top"
+                  onClick={() => setMemoryNotice("")}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+            {editor.error && (
+              <div
+                role="alert"
+                className="toast"
+                style={{ position: "static", pointerEvents: "auto" }}
+              >
+                {editor.error}
+                <button
+                  className="icon-btn icon-btn-sm"
+                  aria-label="关闭错误"
+                  data-tip="关闭提示"
+                  data-tip-side="top"
+                  onClick={() => editor.setError("")}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
           </div>
         )}
         {menu && (
@@ -1850,6 +2372,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             onWrapSection={() => editor.perform("wrapSection")}
             onSelectMatching={() => editor.perform("selectMatching")}
             onToggleDevStatus={() => editor.perform("toggleDevStatus")}
+            onPromoteModule={() => setPromoteModalOpen(true)}
           />
         )}
         <BatchExportModal
@@ -1857,17 +2380,35 @@ export function App(options: import("./useDocument").EditorFileOptions) {
           document={editor.committed}
           onClose={() => setBatchExportOpen(false)}
         />
-        <DesignLintPanel
-          open={lintOpen}
-          document={editor.committed}
-          selectedIds={editor.selection}
-          onClose={() => setLintOpen(false)}
-          onFocusNode={(id) => {
-            editor.setSelection([id]);
-            requestAnimationFrame(() => editor.api.current?.fit([id]));
-          }}
-          onApplyOperations={(ops) => editor.attempt(() => editor.apply(ops))}
-        />
+        {lintOpen && (
+          <ErrorBoundary
+            scope="modal"
+            title="设计规范校验面板异常"
+            onReset={() => setLintOpen(false)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载规范校验…
+                </div>
+              }
+            >
+              <DesignLintPanel
+                open={lintOpen}
+                document={editor.committed}
+                selectedIds={editor.selection}
+                onClose={() => setLintOpen(false)}
+                onFocusNode={(id) => {
+                  editor.setSelection([id]);
+                  requestAnimationFrame(() => editor.api.current?.fit([id]));
+                }}
+                onApplyOperations={(ops) =>
+                  editor.attempt(() => editor.apply(ops))
+                }
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         <CommentsPanel
           open={commentsOpen}
           comments={doc.comments ?? []}
@@ -1879,12 +2420,28 @@ export function App(options: import("./useDocument").EditorFileOptions) {
           onUpdateComments={updateComments}
           onClose={() => setCommentsOpen(false)}
         />
-        <ModelConfigModal
-          open={modelConfigOpen}
-          onClose={() => setModelConfigOpen(false)}
-          status={agentStatus}
-          onStatusChange={setAgentStatus}
-        />
+        {modelConfigOpen && (
+          <ErrorBoundary
+            scope="modal"
+            title="模型配置窗口异常"
+            onReset={() => setModelConfigOpen(false)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载模型配置…
+                </div>
+              }
+            >
+              <ModelConfigModal
+                open={modelConfigOpen}
+                onClose={() => setModelConfigOpen(false)}
+                status={agentStatus}
+                onStatusChange={setAgentStatus}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         {editor.palette && (
           <CommandPalette
             editor={editor}
@@ -1893,29 +2450,73 @@ export function App(options: import("./useDocument").EditorFileOptions) {
         )}
         {editor.help && <ShortcutHelp close={() => editor.setHelp(false)} />}
         {preview.open && (
-          <PreviewDialog
-            document={editor.committed}
-            selection={
-              preview.startFrameId ? [preview.startFrameId] : editor.selection
-            }
-            close={() => setPreview({ open: false })}
-          />
+          <ErrorBoundary
+            scope="modal"
+            title="原型预览窗口异常"
+            onReset={() => setPreview({ open: false })}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载原型预览…
+                </div>
+              }
+            >
+              <PreviewDialog
+                document={editor.committed}
+                selection={
+                  preview.startFrameId
+                    ? [preview.startFrameId]
+                    : editor.selection
+                }
+                close={() => setPreview({ open: false })}
+              />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {codeOpen && (
-          <CodePreviewModal
-            doc={editor.committed}
-            selection={editor.selection}
-            close={() => setCodeOpen(false)}
-          />
+          <ErrorBoundary
+            scope="modal"
+            title="代码预览窗口异常"
+            onReset={() => setCodeOpen(false)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载代码预览…
+                </div>
+              }
+            >
+              <CodePreviewModal
+                doc={editor.committed}
+                selection={editor.selection}
+                close={() => setCodeOpen(false)}
+              />
+            </Suspense>
+          </ErrorBoundary>
         )}
         {projectUpdate && (
-          <ProjectUpdateModal
-            doc={editor.committed}
-            zipBytes={projectUpdate.zipBytes}
-            preview={projectUpdate.preview}
-            close={() => setProjectUpdate(null)}
-            onError={(message) => editor.setError(message)}
-          />
+          <ErrorBoundary
+            scope="modal"
+            title="工程更新窗口异常"
+            onReset={() => setProjectUpdate(null)}
+          >
+            <Suspense
+              fallback={
+                <div role="status" className="toast">
+                  加载工程更新视图…
+                </div>
+              }
+            >
+              <ProjectUpdateModal
+                doc={editor.committed}
+                zipBytes={projectUpdate.zipBytes}
+                preview={projectUpdate.preview}
+                close={() => setProjectUpdate(null)}
+                onError={(message) => editor.setError(message)}
+              />
+            </Suspense>
+          </ErrorBoundary>
         )}
         <TooltipHost />
         <input
@@ -1942,7 +2543,8 @@ export function App(options: import("./useDocument").EditorFileOptions) {
                 location.assign(await createLocalFile(content));
                 return;
               }
-              editor.importDocument(content);
+              editor.importDocument(content, { replacedDocument: true });
+              setPromoteModalOpen(false);
               editor.setSelection([]);
               requestAnimationFrame(() => editor.api.current?.fit());
             } catch (error) {

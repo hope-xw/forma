@@ -93,7 +93,7 @@ async (page) => {
     throw Error("Undo did not restore both regions");
   await button("重做").click();
   await page
-    .getByTitle("已保存到此浏览器", { exact: true })
+    .getByTitle(/^已保存到(此浏览器|本机)$/)
     .waitFor({ state: "attached" });
   await page.reload();
   await paths.first().waitFor();

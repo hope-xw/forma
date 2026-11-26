@@ -1,6 +1,6 @@
 {
   "name": "design-platform",
-  "version": "0.10.0",
+  "version": "0.12.0",
   "description": "Forma — Web & 移动 H5 设计与 React/TypeScript 工程交付工作台",
   "author": "Forma Team",
   "license": "MIT",
@@ -15,6 +15,7 @@
     "dev:agent": "node --env-file-if-exists=.env --import tsx server/index.ts",
     "format": "prettier --write src server tests electron \"scripts/**/*.{ts,js,mjs}\" *.json *.ts",
     "format:check": "prettier --check src server tests electron \"scripts/**/*.{ts,js,mjs}\" *.json *.ts",
+    "lint:arch": "node scripts/check-architecture.mjs",
     "test:browser": "node scripts/run-browser-checks.mjs",
     "test:exports": "node scripts/verify-exports.mjs",
     "release:assess": "tsx scripts/release/pipeline.ts assess",

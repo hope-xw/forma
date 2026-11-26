@@ -7,7 +7,7 @@ async (page) => {
 
   await saved();
 
-  // 1. 04.01 Collapsible Frame Presets matching Figma (Phone open, Watch/Paper/Social media present)
+  // 1. 04.01 Collapsible Frame Presets (手机 open, 智能手表/打印纸张/社交媒体 present)
   await canvas.focus();
   await page.keyboard.press("Escape");
   await page.keyboard.press("f");
@@ -15,10 +15,10 @@ async (page) => {
   const presetSummaries = await page
     .locator(".preset-category > summary")
     .allInnerTexts();
-  assert.ok(presetSummaries.some((s) => s.includes("Phone")));
-  assert.ok(presetSummaries.some((s) => s.includes("Watch")));
-  assert.ok(presetSummaries.some((s) => s.includes("Paper")));
-  assert.ok(presetSummaries.some((s) => s.includes("Social media")));
+  assert.ok(presetSummaries.some((s) => s.includes("手机")));
+  assert.ok(presetSummaries.some((s) => s.includes("智能手表")));
+  assert.ok(presetSummaries.some((s) => s.includes("打印纸张")));
+  assert.ok(presetSummaries.some((s) => s.includes("社交媒体")));
   await page.keyboard.press("v");
 
   // 2. 03.08 Canvas Section (Shift+S -> Enter) + Ready for dev badge

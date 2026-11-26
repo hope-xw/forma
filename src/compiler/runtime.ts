@@ -6,12 +6,12 @@ import {
 } from "./figma-glass";
 import { separateCapsuleFill } from "./capsule-fill";
 import { blendedStrokePaint, linearBurnLayer } from "./layer-blend";
-import { siblingMaskPaint } from "../infrastructure/static-export";
+import { siblingMaskPaint } from "./svg-export";
 import { findLayer, indexPublishedScene } from "../domain/scene-index";
 import { independentShadows } from "./material-composite";
 import { symbolPaintForView } from "../domain/symbol-background";
 import { textInkPaints } from "./paints";
-import { nativeDocumentText } from "../infrastructure/native-document";
+import { nativeDocumentText } from "../domain/document-parts";
 import { fontFaceWeight } from "../domain/fonts";
 import { currentTextLayout, currentTextShape } from "../domain/text-shape";
 import { imagePaint } from "../domain/images";

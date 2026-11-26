@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 import { commit, travel, type History } from "../src/application/history";
 import { nativeDesignSystem } from "../src/design-system/tokens";
 import { transact, type Operation } from "../src/domain/commands";
@@ -24,12 +24,16 @@ import {
   type ComponentLibrary,
 } from "../src/domain/library-schema";
 import { addPage } from "../src/domain/pages";
+import { promoteSelectionToLibrary } from "../src/domain/library-promotion";
 import {
   deleteWorkspaceLibrary,
   getEnabledBuiltinLibraries,
   hasSavedBuiltinPreference,
   listWorkspaceLibraries,
+  getWorkspaceLibraryRecord,
   saveWorkspaceLibrary,
+  saveWorkspaceLibraryDurable,
+  WorkspaceLibraryConflictError,
   updateWorkspaceLibraryAiGuide,
   type WorkspaceLibraryRecord,
   setEnabledBuiltinLibraries,
@@ -615,54 +619,50 @@ test("putLibrary checks remapped brand bindings before publishing the component 
   );
 });
 
-test("workspace guide compare-and-update commits only against the latest durable library revision", async (t) => {
-  const library = snapshot("guide-cas");
-  const initial: WorkspaceLibraryRecord = {
-    library,
-    id: library.id,
-    name: library.name,
-    revision: library.revision,
-    componentCount: 1,
-    variantCount: 1,
-    sourceKind: "json",
-    savedAt: new Date().toISOString(),
-  };
-  let disk = structuredClone(initial);
-  let failCommit = false;
+// Schedule store reads in transaction order and expose writes only at commit.
+function workspaceDatabase(t: TestContext) {
+  const disk = new Map<string, WorkspaceLibraryRecord>();
   const calls: string[] = [];
-  // A request is readable before transaction completion. Stage puts until commit.
+  const state = { failCommit: false, failOpen: false };
   const db = {
     onclose: () => {},
-    transaction(_store: string, mode: string) {
-      assert.equal(mode, "readwrite");
+    transaction(storeName: string, mode: string) {
+      assert.equal(storeName, "libraries");
+      let aborted = false;
+      let staged: WorkspaceLibraryRecord | undefined;
+      const store = {
+        get(id: string) {
+          calls.push("get");
+          const req = {
+            result: undefined as WorkspaceLibraryRecord | undefined,
+            onsuccess: () => {},
+          };
+          queueMicrotask(() => {
+            req.result = structuredClone(disk.get(id));
+            req.onsuccess();
+            if (aborted || (mode === "readwrite" && state.failCommit)) {
+              tx.onabort();
+            } else {
+              if (staged) disk.set(staged.id, staged);
+              tx.oncomplete();
+            }
+          });
+          return req;
+        },
+        put(record: WorkspaceLibraryRecord) {
+          assert.equal(mode, "readwrite");
+          calls.push("put");
+          staged = structuredClone(record);
+        },
+      };
       const tx = {
+        error: new Error("disk commit failed"),
         oncomplete: () => {},
         onabort: () => {},
-        objectStore() {
-          let staged: WorkspaceLibraryRecord | undefined;
-          return {
-            get(id: string) {
-              calls.push("get");
-              const req = {
-                result: id === disk.id ? structuredClone(disk) : undefined,
-                onsuccess: () => {},
-              };
-              queueMicrotask(() => {
-                req.onsuccess();
-                if (failCommit) tx.onabort();
-                else {
-                  if (staged) disk = staged;
-                  tx.oncomplete();
-                }
-              });
-              return req;
-            },
-            put(record: WorkspaceLibraryRecord) {
-              calls.push("put");
-              staged = structuredClone(record);
-            },
-          };
+        abort() {
+          aborted = true;
         },
+        objectStore: () => store,
       };
       return tx;
     },
@@ -670,19 +670,36 @@ test("workspace guide compare-and-update commits only against the latest durable
   t.after(
     overrideGlobal("indexedDB", {
       open() {
-        const req = { result: db, onsuccess: () => {} };
-        queueMicrotask(() => req.onsuccess());
+        const req = {
+          result: db,
+          error: new Error("open failed"),
+          onsuccess: () => {},
+          onerror: () => {},
+        };
+        queueMicrotask(() =>
+          state.failOpen ? req.onerror() : req.onsuccess(),
+        );
         return req;
       },
     }),
   );
   t.after(() => db.onclose());
+  return { disk, calls, state };
+}
+
+test("workspace guide compare-and-update commits only against the latest durable library revision", async (t) => {
+  const library = snapshot("guide-cas");
+  const { disk: records, calls, state } = workspaceDatabase(t);
+  const initial = await saveWorkspaceLibraryDurable(library, "json");
+  calls.length = 0;
   const guide = { playbookMarkdown: "使用当前版本的业务规则" };
   const update = (revision: number) =>
     updateWorkspaceLibraryAiGuide(library.id, revision, guide);
   const result = await update(library.revision);
   assert.equal(result.status, "updated");
   assert.deepEqual(calls, ["get", "put"]);
+  const disk = records.get(library.id)!;
+  assert.ok(disk.savedAt > initial.savedAt);
   assert.deepEqual(disk.library, { ...library, aiGuide: guide });
   if (result.status === "updated") assert.deepEqual(result.record, disk);
   // A different window publishes a component, leaving this window's cache stale.
@@ -698,12 +715,12 @@ test("workspace guide compare-and-update commits only against the latest durable
     status: "conflict",
     currentRevision: disk.revision,
   });
-  assert.deepEqual(disk, newer);
+  assert.deepEqual(records.get(library.id), newer);
   assert.deepEqual(await updateWorkspaceLibraryAiGuide("missing", 0, guide), {
     status: "not-found",
   });
   assert.deepEqual(calls, ["get", "put", "get", "get"]);
-  failCommit = true;
+  state.failCommit = true;
   assert.equal(
     (
       await updateWorkspaceLibraryAiGuide(library.id, disk.revision, {
@@ -712,14 +729,148 @@ test("workspace guide compare-and-update commits only against the latest durable
     ).status,
     "error",
   );
-  assert.deepEqual(disk, newer);
+  assert.deepEqual(records.get(library.id), newer);
+});
+
+test("durable saves compare revision and guide timestamp inside the write transaction", async (t) => {
+  const { disk } = workspaceDatabase(t);
+  t.mock.timers.enable({
+    apis: ["Date"],
+    now: new Date("2026-11-25T00:00:00Z"),
+  });
+  const library = snapshot("durable-compare");
+  assert.equal(await getWorkspaceLibraryRecord(library.id), null);
+  const [created, raced] = await Promise.allSettled([
+    saveWorkspaceLibraryDurable(library, "packaged"),
+    saveWorkspaceLibraryDurable(library, "json"),
+  ]);
+  assert.equal(created.status, "fulfilled");
+  assert.equal(raced.status, "rejected");
+  assert.ok(raced.reason instanceof WorkspaceLibraryConflictError);
+  assert.deepEqual(raced.reason.current, created.value);
+
+  // A different file edits only the guide while this file holds its old token.
+  const guide = {
+    playbookMarkdown:
+      "<!-- forma:custom-notes -->file A's hand-edited guide<!-- /forma:custom-notes -->",
+  };
+  const board = createNode("frame");
+  const fileB = apply(
+    { ...blank("file-b"), nodes: [board] },
+    { type: "putLibrary", library },
+  );
+  const plan = (record: WorkspaceLibraryRecord) =>
+    promoteSelectionToLibrary(fileB, board.id, {
+      targetLibraryId: library.id,
+      existingWorkspaceLibrary: record.library,
+    });
+  const stale = plan(created.value);
+  const edited = await updateWorkspaceLibraryAiGuide(
+    library.id,
+    library.revision,
+    guide,
+  );
+  assert.equal(edited.status, "updated");
+  assert.equal(edited.record.revision, created.value.revision);
+  assert.notEqual(edited.record.savedAt, created.value.savedAt);
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(stale.library, "packaged", created.value),
+    (err) => {
+      assert.ok(err instanceof WorkspaceLibraryConflictError);
+      assert.deepEqual(err.current, edited.record);
+      err.current.library.components.length = 0;
+      return true;
+    },
+  );
+  const latest = await getWorkspaceLibraryRecord(library.id);
+  assert.ok(latest);
+  const promotion = plan(latest);
+  const next = promotion.library;
+  assert.ok(next.aiGuide?.playbookMarkdown?.includes(guide.playbookMarkdown));
+  assert.deepEqual(
+    apply(fileB, ...promotion.operations).libraries![library.id],
+    next,
+  );
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(next, "packaged", {
+      ...edited.record,
+      revision: 0,
+    }),
+    WorkspaceLibraryConflictError,
+  );
+  const saved = await saveWorkspaceLibraryDurable(
+    next,
+    "packaged",
+    edited.record,
+  );
+  assert.deepEqual(await getWorkspaceLibraryRecord(library.id), saved);
+  disk.set(library.id, { ...saved, componentCount: 999 });
+  await assert.rejects(getWorkspaceLibraryRecord(library.id), /损坏/);
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(next, "packaged", saved),
+    /损坏/,
+  );
+  disk.delete(library.id);
+  assert.equal(await getWorkspaceLibraryRecord(library.id), null);
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(next, "packaged", saved),
+    /已删除/,
+  );
+});
+
+test("durable saves reject open and commit failures without publishing a cache entry or blocking a retry", async (t) => {
+  const { disk, state } = workspaceDatabase(t);
+  const library = snapshot("durable-failure");
+  state.failOpen = true;
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(library, "packaged"),
+    /无法持久化组件库到本机工作区：open failed/,
+  );
+  state.failOpen = false;
+  state.failCommit = true;
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(library, "packaged"),
+    /无法持久化组件库到本机工作区：disk commit failed/,
+  );
+  await assert.rejects(
+    saveWorkspaceLibrary(library, "packaged"),
+    /无法持久化组件库到本机工作区：disk commit failed/,
+  );
+  assert.equal(disk.has(library.id), false);
+  const restore = overrideGlobal("indexedDB", undefined);
+  try {
+    assert.equal(await getWorkspaceLibraryRecord(library.id), null);
+  } finally {
+    restore();
+  }
+  state.failCommit = false;
+  const saved = await saveWorkspaceLibraryDurable(library, "packaged");
+  const restoreDisk = overrideGlobal("indexedDB", undefined);
+  try {
+    await saveWorkspaceLibrary(
+      { ...library, revision: library.revision + 1 },
+      "json",
+    );
+  } finally {
+    restoreDisk();
+  }
+  await assert.rejects(
+    saveWorkspaceLibraryDurable(library, "packaged", saved),
+    /工作区有未持久化的组件库变更，请刷新后重试/,
+  );
+  assert.deepEqual(await getWorkspaceLibraryRecord(library.id), saved);
 });
 
 test("memory-only catalog never reports a durable guide update", async (t) => {
   t.after(overrideGlobal("indexedDB", undefined));
   const lib = snapshot("offline-guide");
-  await saveWorkspaceLibrary(lib, "json");
+  const fallback = await saveWorkspaceLibrary(lib, "json");
   try {
+    assert.deepEqual(await getWorkspaceLibraryRecord(lib.id), fallback);
+    await assert.rejects(
+      saveWorkspaceLibraryDurable(lib, "json"),
+      /当前环境不支持本机持久化组件库仓库/,
+    );
     assert.equal(
       (
         await updateWorkspaceLibraryAiGuide(lib.id, lib.revision, {

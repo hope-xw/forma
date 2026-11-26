@@ -1,12 +1,14 @@
+import "./editor/layers.css";
+import "./editor/styles.css";
+import "./editor/design-system.css";
+import "./editor/ui3-theme.css";
 import { readNativeDocument } from "./infrastructure/native-document";
 import { isExternalDesign } from "./infrastructure/design-import/types";
 import { loadFonts } from "./infrastructure/font-import";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./editor/App";
-import "./editor/styles.css";
-import "./editor/design-system.css";
-import "./editor/ui3-theme.css";
+import { ErrorBoundary } from "./editor/ErrorBoundary";
 import {
   BrowserDocumentRepository,
   createLocalFile,
@@ -126,7 +128,9 @@ async function launch() {
     options.initialSelection = [node];
   root.render(
     <React.StrictMode>
-      <App {...options} />
+      <ErrorBoundary scope="workspace" title="Forma 工作台遇到意外错误">
+        <App {...options} />
+      </ErrorBoundary>
     </React.StrictMode>,
   );
 }

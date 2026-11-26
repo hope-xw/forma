@@ -6,7 +6,6 @@ import {
   parseDocument,
   type DesignDocument,
 } from "../../domain/document";
-import { createLocalFile } from "../storage";
 import { importSummary } from "./summary";
 import { openDesignArchive } from "./archive";
 import { importSketch } from "./sketch";
@@ -32,9 +31,10 @@ self.onmessage = async ({ data: file }: MessageEvent<File | "save">) => {
       if (!draft || saving) return;
       saving = true;
       try {
-        const url = await createLocalFile(draft);
+        const { createLocalFileWithKey } = await import("../storage");
+        const { key, url } = await createLocalFileWithKey(draft);
         draft = undefined;
-        self.postMessage({ url });
+        self.postMessage({ key, url });
       } finally {
         saving = false;
       }

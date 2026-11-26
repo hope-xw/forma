@@ -17,6 +17,7 @@ import { SkillRegistry } from "../server/skill-registry";
 import type { ExternalChatRequest } from "../src/editor/AgentPanel";
 import type { AgentChatRequest } from "../src/editor/agent-client";
 import type { AgentChatResult } from "../src/agent/design-engine";
+import type { RecalledEpisodePayload } from "../src/agent/context-builder";
 import { validateProposal } from "../src/agent/provider";
 import type { SkillSummary } from "../src/agent/skills";
 import { transact } from "../src/domain/commands";
@@ -486,6 +487,267 @@ function streamedDelta(delta: unknown) {
   });
 }
 
+const archive: RecalledEpisodePayload = {
+  id: "ep-cart",
+  title: "购物车",
+  sourceFileKey: "cart",
+  sourceFileName: "交易流程",
+  isCurrentFile: false,
+  libraryId: "shop",
+  libraryName: "商城库",
+  summary: "沿用结算栏",
+  prompt: "补充购物车的空态",
+  mode: "edit",
+  screens: [
+    {
+      rootId: "empty",
+      role: "exception",
+      name: "空购物车",
+      width: 390,
+      height: 844,
+      nodeCount: 4,
+      componentIds: ["empty-cart"],
+      sampleTexts: ["去逛逛"],
+    },
+  ],
+  componentsUsed: [
+    {
+      libraryId: "shop",
+      componentId: "empty-cart",
+      componentName: "空态",
+      variantId: "compact",
+      assetTier: "block",
+      count: 1,
+    },
+  ],
+  customModules: ["推荐楼层"],
+  decisions: [{ question: "空态保留什么？", choice: "继续浏览入口" }],
+  tags: ["交易"],
+  createdAt: "2026-11-25T00:00:00Z",
+  pinned: true,
+  explicitlyMentioned: true,
+  matchReasons: ["显式引用"],
+  matchScore: 40,
+};
+
+test("chat forwards project memory to the model and its read tools, and reports unique recalled IDs", async (t) => {
+  const memoryScope = {
+    projectId: "proj:shop",
+    projectName: "商店项目",
+    fileKey: "winter-campaign",
+    libraryId: "shop",
+    userId: "designer",
+  };
+  const additional = Array.from({ length: 6 }, (_, i) => ({
+    ...archive,
+    id: "ep-other-" + i,
+    explicitlyMentioned: false,
+  }));
+  const recalledEpisodes = [archive, ...additional, archive];
+  let turn = 0;
+  const { json } = fixture(t, async (url, init) => {
+    if (String(url).endsWith("/models"))
+      return Response.json({ data: [{ id: "gpt-4.1" }] });
+    const body = JSON.parse(String(init?.body));
+    switch (++turn) {
+      case 1: {
+        const tools = body.tools.map(
+          (tool: { function: { name: string } }) => tool.function.name,
+        );
+        assert.ok(
+          tools.includes("search_project_episodes") &&
+            tools.includes("get_episode_details"),
+        );
+        assert.match(body.messages[0].content, /项目历史需求记忆（L2）/);
+        const message = body.messages[1].content;
+        assert.ok(!message.split("Context (JSON)\n")[0].includes(archive.id));
+        for (const value of [
+          memoryScope.projectName,
+          archive.title,
+          archive.prompt,
+          archive.decisions[0].choice,
+        ])
+          assert.ok(!body.messages[0].content.includes(value));
+        const context = JSON.parse(message.split("Context (JSON)\n")[1]);
+        assert.deepEqual(context.memoryScope, memoryScope);
+        assert.deepEqual(context.recalledEpisodes[0], {
+          id: archive.id,
+          title: archive.title,
+          sourceFileName: archive.sourceFileName,
+          isCurrentFile: false,
+          libraryId: archive.libraryId,
+          explicitlyMentioned: true,
+          matchReasons: archive.matchReasons,
+        });
+        return streamedDelta({
+          tool_calls: [
+            toolCall(0, "search_project_episodes", {
+              query: "空购物车",
+              libraryId: "shop",
+              limit: 1,
+            }),
+          ],
+        });
+      }
+      case 2: {
+        const search = JSON.parse(body.messages.at(-1).content);
+        assert.equal(search.ok, true);
+        assert.deepEqual(search.scope, memoryScope);
+        assert.equal(search.episodes.length, 1);
+        assert.equal(search.episodes[0].id, archive.id);
+        return streamedDelta({
+          tool_calls: [
+            toolCall(0, "get_episode_details", {
+              episodeId: search.episodes[0].id,
+            }),
+          ],
+        });
+      }
+      case 3: {
+        const details = JSON.parse(body.messages.at(-1).content);
+        assert.equal(details.ok, true);
+        assert.deepEqual(details.screens, archive.screens);
+        assert.deepEqual(details.componentsUsed, archive.componentsUsed);
+        assert.deepEqual(details.decisions, archive.decisions);
+        return streamedDelta({ content: "复用购物车空态，保留继续浏览入口。" });
+      }
+      default:
+        assert.fail("Unexpected model turn");
+    }
+  });
+  await json("POST", "/profiles", { providerId: "openai", apiKey });
+  const result: AgentChatResult = await json("POST", "/chat", {
+    prompt: "参考购物车改版",
+    document: createStarter(),
+    selection: null,
+    memoryScope,
+    recalledEpisodes,
+    mentions: [{ kind: "episode", id: archive.id, label: archive.title }],
+  });
+  assert.equal(turn, 3);
+  assert.equal(result.mode, "answer");
+  assert.deepEqual(
+    result.toolTrace?.map((t) => [t.name, t.status]),
+    [
+      ["search_project_episodes", "ok"],
+      ["get_episode_details", "ok"],
+    ],
+  );
+  assert.deepEqual(result.recalledEpisodeIds, [
+    archive.id,
+    ...additional.map((ep) => ep.id),
+  ]);
+});
+
+test("episode mentions enforce their count, wire shape and membership before accessing a model", async (t) => {
+  const { json } = fixture(t);
+  const req = {
+    prompt: "引用档案",
+    selection: null,
+    document: createStarter(),
+    recalledEpisodes: [archive],
+  };
+  const mention = { kind: "episode", id: archive.id, label: archive.title };
+  for (const [mentions, pattern] of [
+    [Array(9).fill(mention), /单轮最多引用 8 条历史需求档案/],
+    [[{ ...mention, extra: "x" }], /mentions.*|Unrecognized key/],
+    [[{ ...mention, id: "a".repeat(129) }], /128/],
+    [
+      [mention, { ...mention, id: "unknown" }],
+      /引用的历史需求档案不在本轮召回上下文中/,
+    ],
+  ] as const) {
+    const { error } = await json("POST", "/chat", { ...req, mentions }, 400);
+    assert.match(error, pattern);
+  }
+  const { error } = await json(
+    "POST",
+    "/chat",
+    { ...req, recalledEpisodes: undefined, mentions: [mention] },
+    400,
+  );
+  assert.match(error, /引用的历史需求档案不在本轮召回上下文中/);
+});
+
+test("legacy asset mentions still accept 260-character IDs and extra fields without recalling any episodes", async (t) => {
+  const mentions = ["component", "variable", "style", "node"].map((kind) => ({
+    kind,
+    id: kind.padEnd(260, "x"),
+    label: "legacy " + kind,
+    oldClientField: true,
+  }));
+  const { json } = fixture(t, async (url, init) => {
+    if (String(url).endsWith("/models"))
+      return Response.json({ data: [{ id: "gpt-4.1" }] });
+    const body = JSON.parse(String(init?.body));
+    for (const m of mentions)
+      assert.ok(
+        body.messages[1].content.includes(`@${m.label} (${m.kind}: ${m.id})`),
+      );
+    return streamedDelta({ content: "已读取引用。" });
+  });
+  await json("POST", "/profiles", { providerId: "openai", apiKey });
+  const result = await json("POST", "/chat", {
+    prompt: "使用已有引用",
+    selection: null,
+    document: createStarter(),
+    mentions,
+  });
+  assert.equal(result.mode, "answer");
+});
+
+test("chat rejects oversized archives, unexpected local data and invalid nested wire fields before model access", async (t) => {
+  const upstream = t.mock.fn(noUpstream);
+  const { json } = fixture(t, upstream);
+  const request = {
+    prompt: "使用项目记忆",
+    document: createStarter(),
+    selection: null,
+  };
+  for (const invalid of [
+    { recalledEpisodes: Array(9).fill(archive) },
+    { recalledEpisodes: [{ ...archive, thumbnailSvg: "<svg />" }] },
+    {
+      recalledEpisodes: [
+        {
+          ...archive,
+          screens: [{ ...archive.screens[0], thumbnailSvg: "<svg />" }],
+        },
+      ],
+    },
+    {
+      recalledEpisodes: [
+        {
+          ...archive,
+          componentsUsed: [
+            { ...archive.componentsUsed[0], assetTier: "unknown" },
+          ],
+        },
+      ],
+    },
+    {
+      recalledEpisodes: [
+        {
+          ...archive,
+          decisions: [{ question: "x".repeat(2000), choice: "yes" }],
+        },
+      ],
+    },
+    { recalledEpisodes: [{ ...archive, tags: Array(1000).fill("标签") }] },
+    { memoryScope: { projectName: "a".repeat(161) } },
+    { memoryScope: { fileKey: "a".repeat(201) } },
+  ]) {
+    const { error } = await json(
+      "POST",
+      "/chat",
+      { ...request, ...invalid },
+      400,
+    );
+    assert.match(error, /recalledEpisodes|memoryScope/);
+  }
+  assert.equal(upstream.mock.callCount(), 0);
+});
+
 for (const transport of ["SSE chat", "JSON chat", "generate"] as const) {
   test(
     transport +
@@ -613,6 +875,7 @@ for (const transport of ["SSE chat", "JSON chat", "generate"] as const) {
         result = await json("POST", "/generate", context);
       }
       assert.equal(round, 3);
+      assert.equal(result.recalledEpisodeIds, undefined);
       assert.deepEqual(
         timeouts.mock.calls.map((call) => call.arguments[0]),
         [transport === "generate" ? 180_000 : 240_000, 240_000],
@@ -891,7 +1154,7 @@ for (const format of ["JSON", "SSE"]) {
         assert.equal(names.includes("propose_scope_plan"), turns === 0);
         if (turns)
           assert.ok(
-            body.messages[0].content.includes(
+            !body.messages[0].content.includes(
               JSON.stringify(context.confirmedScope),
             ),
           );

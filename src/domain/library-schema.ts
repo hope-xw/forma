@@ -5,6 +5,20 @@ import { validateDesignSystem } from "./design-system";
 import { nodeSchema, validateLayerGeometry } from "./node";
 import { imageAssets } from "./images";
 
+export const OFFICIAL_BUILTIN_LIBRARY_IDS: ReadonlySet<string> = new Set([
+  "forma-mobile-v1",
+  "forma-material3-v1",
+  "forma-antd5-v1",
+  "forma-shadcn-v1",
+]);
+
+export function isSafeIdentifierKey(value: string) {
+  return !["__proto__", "constructor", "prototype"].includes(value);
+}
+export function migratedLibraryId(id: string) {
+  return isSafeIdentifierKey(id) ? id : "legacy-lib-" + id;
+}
+
 const id = z.string().min(1).max(128);
 export const assetTierSchema = z.enum(["page", "block", "component"]);
 export type AssetTier = z.infer<typeof assetTierSchema>;
@@ -41,7 +55,9 @@ export type ExposedProperty = z.infer<typeof exposedProperty>;
 export const librarySchema = z.object({
   format: z.literal("forma/library"),
   version: z.literal(1),
-  id,
+  id: id.refine(isSafeIdentifierKey, {
+    error: (issue) => "组件库 ID 不能为保留键名 " + String(issue.input),
+  }),
   name: z.string().min(1).max(200),
   description: z.string().max(2000),
   revision: z.number().int().nonnegative(),

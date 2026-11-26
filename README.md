@@ -2,7 +2,7 @@
 
 Forma 是面向设计师的本地设计工具。你可以从空白画板开始，也可以导入 Sketch 或 Figma 文件，编辑图层和组件、预览交互，再导出可运行的 React + TypeScript 工程。手动编辑、组件库、原型预览和工程导出都可以离线使用。
 
-**[下载 Forma 0.10.0 · macOS Apple Silicon（DMG）](https://github.com/hope-xw/forma/releases/download/v0.10.0/Forma-0.10.0-arm64.dmg)** · [最新发布与 ZIP 下载](https://github.com/hope-xw/forma/releases/latest) · [版本日志](docs/CHANGELOG.md)
+**[下载 Forma 0.12.0 · macOS Apple Silicon（DMG）](https://github.com/hope-xw/forma/releases/download/v0.12.0/Forma-0.12.0-arm64.dmg)** · [最新发布与 ZIP 下载](https://github.com/hope-xw/forma/releases/latest) · [版本日志](docs/CHANGELOG.md)
 
 打开 DMG，把 Forma 拖入「应用程序」。此安装包使用本地 ad-hoc 签名，尚未经过 Apple 公证，macOS 首次打开时可能显示安全提示。
 
@@ -30,6 +30,7 @@ Web 开发模式和桌面版都内置了本机 Agent 服务。需要让外部 MC
 | 开发操作 | 命令 |
 | --- | --- |
 | 运行单元测试 | `npm test` |
+| 检查架构依赖边界 | `npm run lint:arch` |
 | 检查格式、构建 Web 版 | `npm run format:check`、`npm run build` |
 | 检查编辑器操作 | 启动 Web 编辑器后运行 `npm run test:browser` |
 | 验证界面导出的 React 工程 | 完成浏览器导出用例后运行 `npm run test:exports` |

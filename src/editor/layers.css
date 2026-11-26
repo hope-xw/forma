@@ -1,0 +1,358 @@
+@layer legacy, design-system, ui3, panels, overrides;
+
+@layer panels {
+  .left-panel .panel-tabs .panel-tabs-sep {
+    height: 1px;
+    margin: 4px 6px;
+    background: var(--border-subtle);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 949px) {
+    .left-panel .panel-tabs .panel-tabs-sep {
+      width: 1px;
+      height: 18px;
+      margin: 0 3px;
+      align-self: center;
+    }
+  }
+
+  .forma-error-boundary {
+    min-width: 0;
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    overflow-wrap: anywhere;
+  }
+
+  .forma-error-boundary h2,
+  .canvas-welcome-head h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .forma-error-boundary p,
+  .canvas-welcome-head p {
+    margin: 4px 0 0;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  .forma-error-boundary.is-panel {
+    margin: 12px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .forma-error-boundary.is-modal {
+    padding: 16px;
+    border-radius: 10px;
+    max-width: 420px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-modal);
+  }
+
+  .forma-error-boundary.is-workspace {
+    min-height: 260px;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    place-content: safe center;
+    grid-template-columns: minmax(0, 420px);
+    grid-template-rows: repeat(5, auto);
+    padding: 24px;
+    border: 0;
+    overflow: auto;
+    isolation: isolate;
+    text-align: center;
+  }
+
+  #root > .forma-error-boundary.is-workspace {
+    min-height: 100dvh;
+  }
+
+  /* One card behind the fallback's heading, message, actions, status and details. */
+  .forma-error-boundary.is-workspace::before {
+    content: "";
+    grid-area: 1 / 1 / -1 / -1;
+    place-self: stretch;
+    z-index: -1;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    box-shadow: var(--shadow-modal);
+  }
+
+  .forma-error-boundary.is-workspace > * {
+    grid-column: 1;
+    max-width: calc(100% - 32px);
+  }
+
+  .forma-error-boundary.is-workspace > h2 {
+    grid-row: 1;
+    margin-top: 20px;
+  }
+
+  .forma-error-boundary.is-workspace > p {
+    grid-row: 2;
+  }
+
+  .forma-error-boundary.is-workspace > .forma-error-actions {
+    grid-row: 3;
+    justify-content: center;
+  }
+
+  .forma-error-boundary.is-workspace > [role="status"] {
+    grid-row: 4;
+  }
+
+  .forma-error-boundary.is-workspace > .forma-error-details {
+    grid-row: 5;
+    margin-bottom: 20px;
+  }
+
+  .forma-error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .forma-error-actions button {
+    min-height: 28px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: var(--bg-panel-alt);
+    color: var(--text-primary);
+    font-size: 11px;
+  }
+
+  .forma-error-actions button:hover:not(:disabled) {
+    background: var(--bg-hover);
+  }
+
+  .forma-error-boundary [role="status"] {
+    display: inline-block;
+    margin: 8px 0 0;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  .forma-error-details {
+    margin-top: 10px;
+    min-width: 0;
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  .forma-error-details summary {
+    cursor: pointer;
+  }
+
+  .forma-error-details pre {
+    max-height: 12em;
+    margin: 6px 0 0;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--bg-panel-alt);
+    color: var(--text-primary);
+    text-align: left;
+    white-space: pre-wrap;
+    overflow: auto;
+  }
+
+  .forma-boot-loading .design-import-spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--figma-blue) 26%, transparent);
+    border-top-color: var(--figma-blue);
+    animation: forma-boot-spin 0.75s linear infinite;
+    flex: none;
+  }
+
+  @keyframes forma-boot-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .app > .forma-error-boundary.is-workspace {
+    grid-area: 2 / 2;
+  }
+
+  .app > .canvas-welcome-overlay {
+    grid-area: 2 / 2;
+    position: relative;
+    inset: auto;
+  }
+
+  .canvas-welcome-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    place-items: center;
+    padding: 20px;
+  }
+
+  .canvas-welcome-card {
+    pointer-events: auto;
+    width: min(440px, calc(100% - 24px));
+    max-height: 100%;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 18px 20px 16px;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--bg-elevated) 94%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-modal);
+    color: var(--text-primary);
+    cursor: default;
+  }
+
+  .canvas-welcome-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .canvas-welcome-head > svg {
+    flex: none;
+    color: var(--figma-purple-soft);
+  }
+
+  .canvas-welcome-head .icon-btn {
+    margin-left: auto;
+    color: var(--text-secondary);
+  }
+
+  .canvas-welcome-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .canvas-welcome-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 10px 11px;
+    border-radius: 10px;
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 120ms ease,
+      background-color 120ms ease;
+  }
+
+  .canvas-welcome-action:hover:not(:disabled) {
+    border-color: var(--figma-blue);
+    background: var(--bg-hover);
+  }
+
+  .canvas-welcome-action svg {
+    color: var(--text-secondary);
+  }
+
+  .canvas-welcome-action strong,
+  .canvas-welcome-action small {
+    display: block;
+  }
+
+  .canvas-welcome-action strong {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .canvas-welcome-action small {
+    margin-top: 2px;
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  .canvas-welcome-samples {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  .canvas-welcome-samples a {
+    color: var(--figma-blue);
+    text-decoration: none;
+  }
+
+  .canvas-welcome-samples a:hover {
+    text-decoration: underline;
+  }
+
+  :is(.canvas-welcome-card, .forma-error-boundary)
+    :is(button, a, summary):focus-visible {
+    outline: 2px solid var(--figma-blue);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .canvas-welcome-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
+@layer overrides {
+  /* Icon buttons reserve their entire box for the centered glyph. */
+  .icon-btn {
+    padding: 0;
+  }
+
+  [hidden] {
+    display: none;
+  }
+
+  /* Portaled editor dialogs share this utility; authored artboards keep their own paint. */
+  .primary:not(
+    :where(.canvas-world, .runtime-stage, .canvas-world *, .runtime-stage *)
+  ) {
+    background: var(--figma-blue);
+    color: #ffffff;
+    border-color: transparent;
+    font-weight: 500;
+  }
+
+  .primary:not(
+      :where(.canvas-world, .runtime-stage, .canvas-world *, .runtime-stage *)
+    ):hover:not(:disabled) {
+    background: var(--figma-blue-hover);
+  }
+
+  .editor-canvas:not(.is-outline-mode) .design-node[data-editing-text] {
+    outline: calc(1px / var(--canvas-zoom)) solid var(--ui-accent, #0d99ff);
+    outline-offset: 0;
+  }
+}

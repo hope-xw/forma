@@ -37,7 +37,7 @@ async (page) => {
   if ((await layers.last().innerText()).includes("会员中心 Studio"))
     throw Error("undo did not restore initial text");
   await press("Control+Shift+z");
-  await page.getByTitle("已保存到此浏览器", { exact: true }).waitFor();
+  await page.getByTitle(/^已保存到(此浏览器|本机)$/).waitFor();
   await page.reload();
   await page.getByText("会员中心 Studio", { exact: true }).first().waitFor();
   return {

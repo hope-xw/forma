@@ -251,7 +251,7 @@ async (page) => {
     await edit("选区可变字体轴", '"wdth" 72');
     await button("提交文字").click();
     const richWidth = (await geom("data-node-id", "Type"))[2];
-    await page.getByTitle("已保存到此浏览器", { exact: true }).waitFor();
+    await page.getByTitle(/^已保存到(此浏览器|本机)$/).waitFor();
     await page.reload();
     await layer("Workspace").click();
     assert(
