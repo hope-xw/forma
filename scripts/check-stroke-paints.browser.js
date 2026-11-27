@@ -111,8 +111,8 @@ async (page) => {
   await page.getByLabel("设计文件", { exact: true }).click();
   const saved = await readFile(await (await pending).path());
   await input.setInputFiles({
-    name: "roundtrip.forma.json",
-    mimeType: "application/json",
+    name: "roundtrip.forma",
+    mimeType: "application/vnd.forma.design+zip",
     buffer: saved,
   });
   await button("选择图层 board").click();

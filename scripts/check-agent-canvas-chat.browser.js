@@ -366,16 +366,6 @@ async (page) => {
     );
     return response.json();
   }
-  async function openSettings() {
-    const dlg = page.getByRole("dialog", { name: "创作设置" });
-    if (!(await dlg.isVisible())) await button("创作设置").click();
-    return dlg;
-  }
-  async function closeSettings() {
-    const dlg = page.getByRole("dialog", { name: "创作设置" });
-    if (await dlg.isVisible())
-      await dlg.getByRole("button", { name: "关闭创作设置" }).click();
-  }
   try {
     await button("AI 设计助手").click();
     await page.getByText("未连接模型", { exact: true }).waitFor();
@@ -383,13 +373,13 @@ async (page) => {
     await checkOfficialGuide();
     const guideContrast = await checkGuideContrast();
     await button("AI 设计助手").click();
-    const settingsDlg = await openSettings();
-    await settingsDlg.getByLabel("目标组件库").selectOption(libraryId);
-    await settingsDlg
-      .getByText("规范已就绪 · 1 个页面模板 · 1 个模块 · 2 个组件", {
-        exact: true,
-      })
-      .waitFor();
+    assert.equal(
+      await page.getByRole("button", { name: "创作设置" }).count(),
+      0,
+      "Legacy 创作设置 popover button must not exist",
+    );
+    await page.getByLabel("目标组件库").selectOption(libraryId);
+    assert.equal(await page.getByLabel("目标组件库").inputValue(), libraryId);
     assert.deepEqual(
       initialAgentRequests,
       [],
@@ -397,8 +387,7 @@ async (page) => {
     );
     page.off("request", onReq);
     // Keep the existing unscoped scenarios independent of the shopping library.
-    await settingsDlg.getByLabel("目标组件库").selectOption("");
-    await closeSettings();
+    await page.getByLabel("目标组件库").selectOption("");
     const original = await act("GET", "status", () =>
       button("配置模型供应商").click(),
     );
@@ -496,11 +485,8 @@ async (page) => {
     await page.keyboard.press("Escape");
     await modal.waitFor({ state: "hidden" });
 
-    const skillSettings = await openSettings();
     const skillList = await act("GET", "skills", () =>
-      skillSettings
-        .getByRole("button", { name: "管理设计技能（Skills）", exact: true })
-        .click(),
+      button("管理设计技能（Skills）").click(),
     );
     const manager = page.getByRole("dialog", { name: "管理设计技能" });
     for (const name of [craftId, "mobile-h5-accessibility-audit"]) {
@@ -536,8 +522,9 @@ async (page) => {
     await skillCard.locator("pre").filter({ hasText: instructions }).waitFor();
     await page.keyboard.press("Escape");
     await manager.waitFor({ state: "hidden" });
-    const turnSettings = await openSettings();
-    await turnSettings
+    const turnSkills = page.locator(".agent-turn-skills");
+    await turnSkills.locator("summary").click();
+    await turnSkills
       .getByRole("checkbox", { name: testSkill, exact: true })
       .check();
     await page
@@ -545,8 +532,6 @@ async (page) => {
       .getByRole("button", { name: "移除本轮技能 " + testSkill })
       .waitFor();
 
-    await turnSettings.getByLabel("生成引擎模式").selectOption("html");
-    await closeSettings();
     // 1.5 Verify right-sidebar contextual AI entry on ANY selected layer
     await page.getByRole("button", { name: "图层", exact: true }).click();
     const firstFrame = page
@@ -559,11 +544,6 @@ async (page) => {
       .locator("#right-panel")
       .getByRole("button", { name: "用 AI 生成或编辑选中图层", exact: true });
     await button("AI 设计助手").click();
-    const selSettings = await openSettings();
-    await selSettings
-      .getByText("当前已选中图层，将自动对选区执行局部修改", { exact: true })
-      .waitFor();
-    await closeSettings();
     await rightAiBtn.waitFor();
     await rightAiBtn.click();
     const bar = page.locator(".canvas-agent-bar");
@@ -603,9 +583,6 @@ async (page) => {
     await page.keyboard.press("Escape");
     await bar.waitFor({ state: "hidden" });
 
-    const autoSettings = await openSettings();
-    await autoSettings.getByLabel("生成引擎模式").selectOption("auto");
-    await closeSettings();
     // 2. Open Canvas Inline Agent Bar via Cmd/Ctrl+Enter
     await canvas.focus();
     await page.keyboard.press("Escape");
@@ -727,21 +704,15 @@ async (page) => {
       observer.observe(document.body, { childList: true });
       return { observer, permissions };
     });
-    const v2Settings = await openSettings();
-    const mode = v2Settings.getByLabel("生成引擎模式");
-    const selfReview = v2Settings.getByRole("button", {
-      name: "视觉自审精修",
-      exact: true,
-    });
-    assert.equal(await mode.inputValue(), "auto");
-    assert.equal(await selfReview.getAttribute("aria-pressed"), "true");
     const themeSwitch = page.getByRole("button", {
       name: /^切换[浅深]色主题$/,
     });
     for (let appearance = 0; appearance < 2; appearance++) {
       assert.ok(
-        await v2Settings.evaluate((el) => el.scrollWidth <= el.clientWidth),
-        "Settings popover must fit at 1280 × 650",
+        await page
+          .locator(".agent-composer")
+          .evaluate((el) => el.scrollWidth <= el.clientWidth),
+        "Composer must fit at 1280 × 650",
       );
       assert.ok(
         await page
@@ -751,11 +722,6 @@ async (page) => {
       );
       await themeSwitch.click();
     }
-    await selfReview.click();
-    assert.equal(await selfReview.getAttribute("aria-pressed"), "false");
-    await selfReview.click();
-    await mode.selectOption("html");
-    await closeSettings();
     const critiqueRequest = () =>
       page.waitForRequest(
         (r) =>
@@ -766,7 +732,7 @@ async (page) => {
       sendCanvasPrompt(htmlPrompt),
       critiqueRequest(),
     ]);
-    assert.equal(htmlChat.generationMode, "html");
+    assert.equal(htmlChat.generationMode, "auto");
     assert.equal(htmlChat.selection, null);
     await canvas.getByText(firstTitle, { exact: true }).waitFor();
     await bar
@@ -906,16 +872,7 @@ async (page) => {
     // Stage 1: exercise the real HTTP tool loop, sandbox compiler and editor history.
     await page.setViewportSize({ width: 1024, height: 480 });
     await button("清空对话历史").click();
-    const s1Settings = await openSettings();
-    assert.equal(
-      await s1Settings
-        .getByRole("button", { name: "视觉自审精修", exact: true })
-        .getAttribute("aria-pressed"),
-      "true",
-    );
-    const target = s1Settings.getByLabel("目标组件库");
-    await target.selectOption(libraryId);
-    await closeSettings();
+    await page.getByLabel("目标组件库").selectOption(libraryId);
     const chatRequests = [];
     const onChat = (r) => {
       if (new URL(r.url()).pathname === "/api/agent/chat")
@@ -1068,7 +1025,24 @@ async (page) => {
         page.waitForEvent("download"),
         button("设计文件").click(),
       ]);
-      return JSON.parse(await readFile(await file.path(), "utf8"));
+      assert.ok(
+        file.suggestedFilename().endsWith(".forma"),
+        `Expected .forma native package, got ${file.suggestedFilename()}`,
+      );
+      const bytes = await readFile(await file.path());
+      if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
+        const archive = unzipSync(new Uint8Array(bytes));
+        assert.ok(
+          archive["manifest.json"],
+          ".forma must include manifest.json",
+        );
+        assert.ok(
+          archive["document.json"],
+          ".forma must include document.json",
+        );
+        return JSON.parse(strFromU8(archive["document.json"]));
+      }
+      return JSON.parse(bytes.toString("utf8"));
     }
     const beforeApply = await downloadDocument();
     await proposal.getByRole("button", { name: "应用到画布" }).click();
@@ -1127,8 +1101,11 @@ async (page) => {
     const label = created.find(
       (n) => n.parentId === instances[0].id && n.templateKey === "label",
     );
-    const devSettings = await openSettings();
-    const manual = devSettings.locator(".agent-external-details");
+    await page.getByLabel("文件菜单", { exact: true }).click();
+    await page.getByRole("button", { name: /外部工具集成（MCP）/ }).click();
+    const integrations = page.getByRole("dialog", { name: "外部工具集成" });
+    await integrations.waitFor();
+    const manual = integrations.locator(".agent-external-details");
     await manual.locator("summary").first().click();
     await manual.getByLabel("Agent 事务 JSON").fill(
       JSON.stringify({
@@ -1137,12 +1114,12 @@ async (page) => {
       }),
     );
     await manual.getByRole("button", { name: "校验并预览" }).click();
-    await closeSettings();
-    await page
-      .locator(".agent-panel-root")
+    await integrations
       .getByRole("alert")
       .filter({ hasText: "组件结构受保护" })
       .waitFor();
+    await page.keyboard.press("Escape");
+    await integrations.waitFor({ state: "hidden" });
     assert.equal(await proposal.count(), 0);
     await canvas.focus();
     await page.keyboard.press("Shift+1");
@@ -1248,17 +1225,13 @@ async (page) => {
       await scopeCard.getByText(scopePlan.summary, { exact: true }).waitFor();
     }
     await askForScope();
-    const switchSettings = await openSettings();
-    await switchSettings.getByLabel("目标组件库").selectOption("");
-    await closeSettings();
+    await page.getByLabel("目标组件库").selectOption("");
     await scopeCard
       .getByText("优先组件库已切换为「自动匹配」，原范围规划已失效")
       .waitFor();
     const confirm = scopeCard.getByRole("button", { name: "确认并直接生成" });
     assert.ok(await confirm.isDisabled());
-    const restoreSettings = await openSettings();
-    await restoreSettings.getByLabel("目标组件库").selectOption(libraryId);
-    await closeSettings();
+    await page.getByLabel("目标组件库").selectOption(libraryId);
     assert.ok(await confirm.isDisabled());
     await askForScope();
     await scopeCard.getByRole("button", { name: "满减" }).click();
@@ -1375,11 +1348,7 @@ async (page) => {
     );
     await page.setViewportSize({ width: 1460, height: 960 });
     await button("AI 设计助手").click();
-    await button("连接模型服务").click();
     await page.getByLabel("切换当前模型").waitFor();
-    const isoSettings = await openSettings();
-    await isoSettings.getByLabel("生成引擎模式").selectOption("blueprint");
-    await closeSettings();
     controls.isolationRoot = home.id;
     await composer.fill(isolationPrompt);
     await button("生成设计").click();
@@ -1387,8 +1356,15 @@ async (page) => {
 
     const offlineRequests = [];
     const trackOffline = (req) => {
-      if (new URL(req.url()).pathname.startsWith("/api/agent/"))
-        offlineRequests.push(req.url());
+      const pathname = new URL(req.url()).pathname;
+      if (
+        pathname.startsWith("/api/agent/") &&
+        !(
+          req.method() === "GET" &&
+          (pathname === "/api/agent/status" || pathname === "/api/agent/skills")
+        )
+      )
+        offlineRequests.push(req.method() + " " + pathname);
     };
     page.on("request", trackOffline);
     await breadcrumb.click();
@@ -1625,12 +1601,7 @@ async (page) => {
       installed.aiGuide.playbookMarkdown,
       library.aiGuide.playbookMarkdown,
     );
-    const libCheckSettings = await openSettings();
-    assert.equal(
-      await libCheckSettings.getByLabel("目标组件库").inputValue(),
-      defaultId,
-    );
-    await closeSettings();
+    assert.equal(await page.getByLabel("目标组件库").inputValue(), defaultId);
     await button("引用组件、变量、样式、画板或历史需求").click();
     const picker = page.getByRole("dialog", { name: "引用设计元素" });
     await picker.getByRole("tab", { name: "历史需求" }).click();
@@ -1659,11 +1630,7 @@ async (page) => {
       componentId: component.id,
       variantId: component.variants[0].id,
     };
-    await button("连接模型服务").click();
     await page.getByLabel("切换当前模型").waitFor();
-    const projSettings = await openSettings();
-    await projSettings.getByLabel("生成引擎模式").selectOption("blueprint");
-    await closeSettings();
     const projectChatRequests = [];
     const onProjectChat = (r) => {
       if (new URL(r.url()).pathname === "/api/agent/chat")
@@ -1823,13 +1790,7 @@ async (page) => {
     const pages = page.locator(".file-page .page-name");
     const originalPage = pages.first();
     await button("AI 设计助手").click();
-    await button("连接模型服务").click();
     await page.getByLabel("切换当前模型").waitFor();
-    const pageSwitchSettings = await openSettings();
-    await pageSwitchSettings
-      .getByLabel("生成引擎模式")
-      .selectOption("blueprint");
-    await closeSettings();
     await canvas.focus();
     await page.keyboard.press(mod + "+Enter");
     await sendCanvasPrompt(projectPrompt + " · 页面切换");
@@ -1982,6 +1943,7 @@ async (page) => {
               await clean("profiles/" + encodeURIComponent(original), "PATCH", {
                 activate: true,
               });
+            else localStorage.removeItem("forma.agent.configured-hint");
           }
           return errors;
         },

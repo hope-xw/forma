@@ -6,11 +6,22 @@ async (page) => {
   const row = page.locator('[data-layer-id="' + id + '"] .layer-main');
   const title = await row.innerText();
   await row.click();
-  await page.getByRole("button", { name: "AI 设计助手", exact: true }).click();
-  await page.getByRole("button", { name: "创作设置", exact: true }).click();
-  await page.getByText("开发者接入（MCP / JSON）", { exact: true }).click();
+  const openIntegrations = async () => {
+    await page.getByLabel("文件菜单", { exact: true }).click();
+    await page
+      .getByRole("button", { name: "外部工具集成（MCP）…", exact: true })
+      .click();
+    await page
+      .getByRole("dialog", { name: "外部工具集成", exact: true })
+      .waitFor();
+  };
+  await openIntegrations();
   await page.getByRole("button", { name: "连接外部 Agent" }).click();
   const key = await page.getByLabel("MCP 会话密钥").inputValue();
+  await page.keyboard.press("Escape");
+  await page
+    .getByRole("dialog", { name: "外部工具集成", exact: true })
+    .waitFor({ state: "hidden" });
   const sidebar = page.getByRole("button", {
     name: "图层与资源面板",
     exact: true,
@@ -19,8 +30,15 @@ async (page) => {
   await sidebar.click();
   await page.getByRole("button", { name: "图层", exact: true }).click();
   await page.getByRole("button", { name: "AI 设计助手", exact: true }).click();
+  await openIntegrations();
   if ((await page.getByLabel("MCP 会话密钥").inputValue()) !== key)
-    throw Error("Sidebar navigation closed the external session");
+    throw Error(
+      "Closing integrations modal or sidebar navigation closed the external session",
+    );
+  await page.keyboard.press("Escape");
+  await page
+    .getByRole("dialog", { name: "外部工具集成", exact: true })
+    .waitFor({ state: "hidden" });
   const child = spawn(process.execPath, ["--import", "tsx", "server/mcp.ts"], {
     cwd: process.env.INIT_CWD ?? process.cwd(),
     env: { ...process.env, FORMA_SESSION: key },

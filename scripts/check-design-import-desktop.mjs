@@ -75,7 +75,7 @@ try {
   // The verifier gives this helper 180s. Leave time for launch and profile cleanup.
   if (resultFile) watchdog = setTimeout(() => child.kill("SIGKILL"), 130_000);
   const first = await app.firstWindow();
-  await first.locator(".editor-canvas").waitFor();
+  await first.locator(".workspace-home, .editor-canvas").first().waitFor();
   assert.equal(
     await first.evaluate(() => window.formaDesktop.version),
     pkg.version,
@@ -248,7 +248,7 @@ try {
       assert.equal(report.storageFormat, "parts-v1");
       // Capture the real Electron DownloadItem. The application then reopens
       // the downloaded portable file through macOS' open-file handler.
-      const portablePath = path.join(userData, expected + ".forma.json");
+      const portablePath = path.join(userData, expected + ".forma");
       await app.evaluate(({ session }, path) => {
         globalThis.formaSavedDownload = new Promise((resolve) => {
           session.defaultSession.once("will-download", (_, item) => {

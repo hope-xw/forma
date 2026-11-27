@@ -1,6 +1,10 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import type { DesignDocument } from "../domain/document";
-import { nativeDocumentBlob } from "../infrastructure/native-document";
+import {
+  formaFilename,
+  formaPackageBlob,
+  nativeDocumentBlob,
+} from "../infrastructure/native-document";
 import { download } from "../infrastructure/storage";
 
 export interface ErrorBoundaryProps {
@@ -78,10 +82,15 @@ export class ErrorBoundary extends Component<
         .trim()
         .replace(/[^\p{L}\p{N}_-]+/gu, "-")
         .replace(/^-|-$/g, "");
-      download(
-        `${slug || "forma-recovery"}.forma.json`,
-        nativeDocumentBlob(document),
-      );
+      const backupBase = slug || "forma-recovery";
+      try {
+        download(
+          formaFilename(backupBase),
+          formaPackageBlob(document, { includePreview: false }),
+        );
+      } catch {
+        download(`${backupBase}.forma.json`, nativeDocumentBlob(document));
+      }
       this.setState({ backupStatus: "已导出恢复备份文件" });
     } catch (cause) {
       const detail = cause instanceof Error ? cause.message : String(cause);

@@ -1,12 +1,12 @@
 # Forma 多模型配置、能力识别与画布对话设计规格
 
-- **最近更新日期**：2026-11-26
-- **状态**：已实施并验收（v2.1：设计师视角对话工作区与画布条收口；单测 + HTTP 集成测试 + 生产构建 + 真实浏览器端到端验收）
+- **最近更新日期**：2026-11-27
+- **状态**：已实施并验收（v2.2：跨文件/重启模型自动水合、彻底移除「创作设置」浮层与引擎模式暴露、独立 MCP 集成弹窗；单测 + HTTP 集成测试 + 生产构建 + 真实浏览器端到端验收）
 - **关联源码**：
   - 后端供应商与能力真相源：[provider-registry.ts](../../src/agent/provider-registry.ts)、[model-catalog.ts](../../src/agent/model-catalog.ts)、[capabilities.ts](../../src/agent/capabilities.ts)、[adapters.ts](../../src/agent/adapters.ts)
   - 工具调用与蓝图引擎：[forma-tools.ts](../../src/agent/forma-tools.ts)、[context-builder.ts](../../src/agent/context-builder.ts)、[blueprint-compiler.ts](../../src/agent/blueprint-compiler.ts)、[design-engine.ts](../../src/agent/design-engine.ts)
   - 第三方技能与本地安全存储：[skills.ts](../../src/agent/skills.ts)、[skill-registry.ts](../../server/skill-registry.ts)、[agent-config-store.ts](../../server/agent-config-store.ts)、[agent-http.ts](../../server/agent-http.ts)、[agent-service.ts](../../server/agent-service.ts)
-  - 编辑器界面：[ModelConfigModal.tsx](../../src/editor/ModelConfigModal.tsx)（`08.03`）、[SkillsModal.tsx](../../src/editor/SkillsModal.tsx)、[CanvasAgentBar.tsx](../../src/editor/CanvasAgentBar.tsx)（`08.04`）、[AgentPanel.tsx](../../src/editor/AgentPanel.tsx)（`08.01`–`08.02`）及子模块 [src/editor/agent/](../../src/editor/agent/agent-copy.ts)、[agent-client.ts](../../src/editor/agent-client.ts)
+  - 编辑器界面：[ModelConfigModal.tsx](../../src/editor/ModelConfigModal.tsx)（`08.03`）、[SkillsModal.tsx](../../src/editor/SkillsModal.tsx)、[IntegrationsModal.tsx](../../src/editor/IntegrationsModal.tsx)、[CanvasAgentBar.tsx](../../src/editor/CanvasAgentBar.tsx)（`08.04`）、[AgentPanel.tsx](../../src/editor/AgentPanel.tsx)（`08.01`–`08.02`）及子模块 [src/editor/agent/](../../src/editor/agent/agent-copy.ts)、[agent-client.ts](../../src/editor/agent-client.ts)
 - **相关规格**：[Forma Agent 原生工具调用与第三方 Skill 生态规格](AGENT-TOOLS-AND-SKILLS.md) · [Agent 事务协议](../AGENT-PROTOCOL.md)
 - **验收脚本**：[tests/agent-providers.test.ts](../../tests/agent-providers.test.ts)、[tests/agent-blueprint.test.ts](../../tests/agent-blueprint.test.ts)、[tests/agent-tools.test.ts](../../tests/agent-tools.test.ts)、[tests/agent-skills.test.ts](../../tests/agent-skills.test.ts)、[scripts/check-agent-canvas-chat.browser.js](../../scripts/check-agent-canvas-chat.browser.js)
 
@@ -147,9 +147,10 @@ Web 开发/预览服务（[vite.config.ts](../../vite.config.ts)）与 Electron 
 ## 五、画布原生对话与侧栏设计师工作区闭环
 
 - **三处统一入口**：右栏 `✦ AI`、左栏「助手」面板、快捷键 `⌘↵` / `Ctrl+Enter` 均可唤起画布悬浮对话条 [CanvasAgentBar.tsx](../../src/editor/CanvasAgentBar.tsx)。
-- **设计师视角满高对话工作区（v2.1）**：
-  - 左侧栏 `AgentPanel` 采用「极简顶栏 + `flex: 1` 独立滚动欢迎/对话画布 + 吸底一体化输入卡」三段式布局，统一支持 `Enter` 发送 / `Shift+Enter` 换行（并兼容 `⌘↵`）。
-  - 未连接模型时每处界面仅展示一次温和引导，移除双重提示与原始像素坐标；已连接后在输入卡底栏提供紧凑模型切换胶囊，未归入项目且无历史记录的草稿不常驻展示「单稿记忆 0 条档案」工程条。
-  - 组件库、生成方式、生成后自动视觉优化、本轮设计技能与开发者 MCP/JSON 接入统一收口至输入卡「创作设置」浮层（[ComposerSettingsPopover.tsx](../../src/editor/agent/ComposerSettingsPopover.tsx)）；用户主动指定非默认组件库、模式或技能时，在输入卡顶部以可移除胶囊明确呈现。
+- **设计师视角满高对话工作区与跨文件连接保持（v2.2）**：
+  - **跨文件/重启零丢失自动水合**：保存或激活模型配置后仅写入非敏感本地标记（`localStorage["forma.agent.configured-hint"]`），桌面端结合 `window.formaDesktop.hasConfiguredAgent()` 零网络磁盘探测本机配置文件；工作台首页、编辑器顶栏与 AI 面板在新建文件、切换文件、切页或重启桌面端后自动恢复已连接模型，未配置模型的新环境严格保持 `0` 次 `/api/agent/*` 请求。
+  - 左侧栏 `AgentPanel` 采用「极简顶栏（含设计记忆、设计技能管理与模型设置直达入口）+ `flex: 1` 独立滚动欢迎/对话画布 + 吸底一体化输入卡」三段式布局，统一支持 `Enter` 发送 / `Shift+Enter` 换行（并兼容 `⌘↵`）。
+  - **零内部工程参数暴露**：彻底移除「创作设置」浮层、「生成方式」底层引擎切换下拉（固定按选区自动智能路由）以及「生成后自动视觉优化」手动开关（支持视觉识别的模型默认自动自审，纯文本模型静默跳过）；目标组件库以内联紧凑药丸（默认继承项目默认库）直接置于输入卡工具栏；外部 Agent MCP 实时配对与高级 JSON 事务导入抽离至独立的 [IntegrationsModal.tsx](../../src/editor/IntegrationsModal.tsx)（从主菜单「外部工具集成（MCP）…」打开，以 `hidden` 保活会话）。
+  - 未连接模型时每处界面仅展示一次温和引导，移除双重提示与原始像素坐标；已连接后在输入卡底栏提供紧凑模型切换胶囊（窄栏自动双行排列并将发送按钮固定在右下角），未归入项目且无历史记录的草稿不常驻展示工程条。
   - 视觉参考图上传按钮按 `capabilities.supportsVision` 控制；对于未知模型，用户可在「已保存连接 → 调整能力」手动开启视觉识图。
 - 所有画布写入均先通过 `useDocument.setPreview` 高保真预览（`.is-ai-preview` + 浮动 HUD「采纳到画布 / 继续微调 / 丢弃」），确认后写入单步可撤销原子事务，详见[Forma Agent 原生工具调用与第三方 Skill 生态规格](AGENT-TOOLS-AND-SKILLS.md)。

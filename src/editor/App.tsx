@@ -1,8 +1,5 @@
 import { sourceNameFonts } from "./SourceName";
-import {
-  nativeDocumentBlob,
-  readNativeDocument,
-} from "../infrastructure/native-document";
+import { readNativeDocument } from "../infrastructure/native-document";
 import { displayColor, profileLabel } from "../domain/color-profile";
 import { ColorProfileDialog, FileColorContext } from "./ColorProfileDialog";
 import { loadFonts } from "../infrastructure/font-import";
@@ -20,6 +17,7 @@ import { parseLibrary } from "../domain/library-schema";
 import { ModeSelectors } from "./TokenBinding";
 import {
   Variable,
+  Cable,
   Check,
   ChevronDown,
   Eye,
@@ -28,10 +26,13 @@ import {
   FileCode2,
   FolderSync,
   History,
+  Home,
   HardDriveDownload,
+  Inbox,
   MessageSquare,
   Palette,
   Package,
+  Save,
   Settings2,
   ShieldCheck,
   Sun,
@@ -72,9 +73,29 @@ import {
   Suspense,
 } from "react";
 import type { Viewport } from "../domain/geometry";
-import { newBlankFile, ownLibrary } from "./file-actions";
+import {
+  downloadFormaFile,
+  homeUrl,
+  newBlankFile,
+  ownLibrary,
+  saveFormaDocument,
+  type QuickStartPreset,
+} from "./file-actions";
 import { transact, type Operation } from "../domain/commands";
-import { download, createLocalFile } from "../infrastructure/storage";
+import {
+  createLocalFile,
+  createLocalFileWithKey,
+  fileUrl,
+} from "../infrastructure/storage";
+import { RecentFilesSubmenu } from "./RecentFilesSubmenu";
+import {
+  countPendingInboxTasks,
+  type BridgeTabSummary,
+} from "../application/external-bridge";
+import type { Transaction } from "../agent/provider";
+import type { ExternalBridgeSnapshot } from "./ExternalAgentSession";
+import type { PendingIntegrationProposal } from "./IntegrationsModal";
+import type { EditorFileOptions } from "./useDocument";
 import { type DesignComment } from "../domain/document";
 import {
   AgentPanel,
@@ -92,7 +113,11 @@ import {
   type CanvasAgentBarProps,
   type PendingAgentProposal,
 } from "./CanvasAgentBar";
-import type { AgentStatusResponse } from "./agent-client";
+import {
+  fetchAgentStatus,
+  hasConfiguredAgentHint,
+  type AgentStatusResponse,
+} from "./agent-client";
 import { BatchExportModal } from "./ExportPanel";
 import { CommentsPanel } from "./CommentsOverlay";
 import type { CanvasViewOptions } from "./ViewOptionsMenu";
@@ -107,7 +132,11 @@ import { ContextMenu } from "./ContextMenu";
 import { PanelDivider } from "./PanelDivider";
 import { TooltipHost } from "./TooltipHost";
 import { useEditor } from "./useEditor";
-import { saveStateCopy, UNIFIED_FRAME_PRESET_GROUPS } from "./ux-copy";
+import {
+  saveStateCopy,
+  UNIFIED_FRAME_PRESET_GROUPS,
+  WELCOME_FRAME_PRESETS,
+} from "./ux-copy";
 
 import {
   acceptedDesignFiles,
@@ -172,6 +201,16 @@ const ReleaseNotesDialog = lazy(() =>
     default: m.ReleaseNotesDialog,
   })),
 );
+const IntegrationsModal = lazy(() =>
+  import("./IntegrationsModal").then((m) => ({
+    default: m.IntegrationsModal,
+  })),
+);
+const AgentInboxPopover = lazy(() =>
+  import("./AgentInboxPopover").then((m) => ({
+    default: m.AgentInboxPopover,
+  })),
+);
 
 // The canvas composer removes chips absent from its picker options. Keep the
 // options offered to this draft until send, so the panel can reject a retired
@@ -206,8 +245,47 @@ function CanvasChatDraft({
   );
 }
 
-export function App(options: import("./useDocument").EditorFileOptions) {
-  const editor = useEditor(options);
+export interface AppProps extends EditorFileOptions {
+  tabActive?: boolean;
+  workspaceTabs?: BridgeTabSummary[];
+  activeWorkspaceTabId?: string | null;
+  initialPreset?: QuickStartPreset;
+  initialViews?: Map<string, Viewport>;
+  onTabMetaChange?(meta: {
+    title: string;
+    dirty: boolean;
+    busyReason: "ai" | "mcp" | null;
+    nativePath?: string | null;
+  }): void;
+  onTabViewSnapshot?(snapshot: {
+    activePage?: string;
+    selectionIds: string[];
+    views: Map<string, Viewport>;
+  }): void;
+  onTabPresetConsumed?(): void;
+  onOpenHome?(): void;
+  onOpenFileTab?(target: {
+    fileKey: string;
+    title: string;
+    preset?: QuickStartPreset;
+  }): void;
+  onOpenExampleTab?(target: {
+    example: string;
+    edition?: string;
+    page?: string;
+    node?: string;
+    title?: string;
+  }): void;
+  onNewDesignTab?(options?: {
+    projectId?: string | null;
+    preset?: QuickStartPreset;
+  }): void;
+  onThemeSync?(theme: "dark" | "light"): void;
+}
+
+export function App(options: AppProps) {
+  const tabActive = options.tabActive !== false;
+  const editor = useEditor({ ...options, active: tabActive });
   const [uiTheme, setUiTheme] = useState<"dark" | "light">(() => {
     try {
       const saved = localStorage.getItem(UI_THEME_KEY);
@@ -218,13 +296,28 @@ export function App(options: import("./useDocument").EditorFileOptions) {
     return "dark";
   });
   useEffect(() => {
+    if (!tabActive) return;
     document.documentElement.dataset.theme = uiTheme;
+    options.onThemeSync?.(uiTheme);
     try {
       localStorage.setItem(UI_THEME_KEY, uiTheme);
     } catch {
       /* ignore */
     }
-  }, [uiTheme]);
+  }, [uiTheme, tabActive, options.onThemeSync]);
+  useEffect(() => {
+    const sync = () => {
+      const next =
+        document.documentElement.dataset.theme === "light" ? "light" : "dark";
+      setUiTheme((prev) => (prev === next ? prev : next));
+    };
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    return () => observer.disconnect();
+  }, []);
   const [tab, setTab] = useState<"layers" | "assets" | "agent">("layers");
   const [libraryManagerOpen, setLibraryManagerOpen] = useState(false);
   const [compact, setCompact] = useState(
@@ -251,6 +344,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   const previousCompact = useRef<"right" | "left">("left");
   const previousPanels = useRef({ left: true, right: true });
   useEffect(() => {
+    if (!tabActive) return;
     function shortcut(event: KeyboardEvent) {
       if (
         event.key === "F6" &&
@@ -396,19 +490,10 @@ export function App(options: import("./useDocument").EditorFileOptions) {
         if (
           (event.metaKey || event.ctrlKey) &&
           !event.altKey &&
-          !event.shiftKey &&
           event.code === "KeyS"
         ) {
           event.preventDefault();
-          const current = editorRef.current.committed;
-          const slug = current.name
-            .trim()
-            .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-            .replace(/^-|-$/g, "");
-          download(
-            `${slug || "design"}.forma.json`,
-            nativeDocumentBlob(current),
-          );
+          void handleSaveNativeRef.current(event.shiftKey);
           return;
         }
         if (
@@ -462,7 +547,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
     }
     window.addEventListener("keydown", shortcut);
     return () => window.removeEventListener("keydown", shortcut);
-  }, [compact, compactPanel, leftOpen, rightOpen]);
+  }, [compact, compactPanel, leftOpen, rightOpen, tabActive]);
   const [designSystemTarget, setDesignSystemTarget] = useState<{
     view: "variables" | "styles";
     styleId?: string;
@@ -483,12 +568,32 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
   const [modelConfigOpen, setModelConfigOpen] = useState(false);
+  const [integrationsOpen, setIntegrationsOpen] = useState(false);
+  const [integrationsMounted, setIntegrationsMounted] = useState(false);
+  const [mcpSessionActive, setMcpSessionActive] = useState(false);
+  const [bridgeSnapshot, setBridgeSnapshot] =
+    useState<ExternalBridgeSnapshot | null>(null);
+  const bridgeSnapshotRef = useRef<ExternalBridgeSnapshot | null>(null);
+  bridgeSnapshotRef.current = bridgeSnapshot;
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const taskProposalsRef = useRef(
+    new Map<string, PendingIntegrationProposal>(),
+  );
+  const [fileMenuOpen, setFileMenuOpen] = useState(false);
+  const openIntegrations = useCallback(() => {
+    setIntegrationsMounted(true);
+    setIntegrationsOpen(true);
+  }, []);
+  const [boundFile, setBoundFile] = useState<{
+    filePath: string;
+    fileName: string;
+  } | null>(null);
   const [inlineAgentOpen, setInlineAgentOpen] = useState(false);
   const [agentStatus, setAgentStatus] = useState<AgentStatusResponse | null>(
     null,
   );
   const [pendingProposal, setPendingProposal] =
-    useState<PendingAgentProposal | null>(null);
+    useState<PendingIntegrationProposal | null>(null);
   const [committingProposal, setCommittingProposal] = useState(false);
   const committingProposalRef = useRef(false);
   const [externalChatRequest, setExternalChatRequest] =
@@ -768,6 +873,105 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   const editorRef = useRef(editor);
   editorRef.current = editor;
   const appVersion = window.formaDesktop?.version || __FORMA_VERSION__;
+  const handleSaveNative = useCallback(
+    async (saveAs = false) => {
+      try {
+        const result = await saveFormaDocument(editorRef.current.committed, {
+          fileKey: currentFileKey,
+          saveAs,
+          appVersion,
+        });
+        if (result.saved) {
+          if (result.filePath) {
+            setBoundFile({
+              filePath: result.filePath,
+              fileName: result.fileName,
+            });
+          }
+          setStatusToast(`已保存设计文件「${result.fileName}」`);
+        }
+      } catch (error) {
+        editorRef.current.setError(
+          `保存失败：${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    },
+    [appVersion, currentFileKey],
+  );
+  const handleSaveNativeRef = useRef(handleSaveNative);
+  handleSaveNativeRef.current = handleSaveNative;
+  useEffect(() => {
+    const desktop = window.formaDesktop;
+    if (!desktop?.getBoundFile) return;
+    let active = true;
+    void desktop
+      .getBoundFile(currentFileKey)
+      .then((bound) => {
+        if (active) setBoundFile(bound);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [currentFileKey]);
+  useEffect(() => {
+    if (agentStatus) return;
+    let active = true;
+    const controller = new AbortController();
+    void (async () => {
+      let shouldHydrate = hasConfiguredAgentHint();
+      if (!shouldHydrate && window.formaDesktop?.hasConfiguredAgent) {
+        try {
+          shouldHydrate = await window.formaDesktop.hasConfiguredAgent();
+        } catch {
+          shouldHydrate = false;
+        }
+      }
+      if (!shouldHydrate || !active) return;
+      try {
+        const next = await fetchAgentStatus(controller.signal);
+        if (active) setAgentStatus(next);
+      } catch {
+        /* Leave manual workspace unaffected if agent service is unavailable. */
+      }
+    })();
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [agentStatus]);
+  const presetConsumedRef = useRef(false);
+  useEffect(() => {
+    if (presetConsumedRef.current) return;
+    const url = new URL(location.href);
+    const preset = options.initialPreset ?? url.searchParams.get("preset");
+    const openAi =
+      options.initialPreset === "ai" || url.searchParams.get("ai") === "1";
+    if (!preset && !openAi) return;
+    presetConsumedRef.current = true;
+    if (editorRef.current.committed.nodes.length === 0) {
+      if (preset === "mobile") {
+        const { label, w, h } = WELCOME_FRAME_PRESETS.mobile;
+        editorRef.current.addPresetFrame(label, w, h);
+        setWelcomeDismissed(true);
+      } else if (preset === "desktop") {
+        const { label, w, h } = WELCOME_FRAME_PRESETS.desktop;
+        editorRef.current.addPresetFrame(label, w, h);
+        setWelcomeDismissed(true);
+      }
+    }
+    if (openAi) {
+      setWelcomeDismissed(true);
+      setInlineAgentOpen(true);
+      setInlineAgentFocusTick((n) => n + 1);
+    }
+    options.onTabPresetConsumed?.();
+    if (url.searchParams.has("preset") || url.searchParams.has("ai")) {
+      url.searchParams.delete("preset");
+      url.searchParams.delete("ai");
+      history.replaceState(null, "", url.pathname + url.search + url.hash);
+    }
+  }, [options.initialPreset, options.onTabPresetConsumed]);
   useEffect(() => {
     const dismiss = (event: PointerEvent) => {
       const menu = fileMenu.current;
@@ -778,30 +982,75 @@ export function App(options: import("./useDocument").EditorFileOptions) {
   }, []);
   useEffect(() => {
     const desktop = window.formaDesktop;
-    if (!desktop) return;
+    if (!desktop || !tabActive) return;
     const isEditable = (el: Element | null) =>
       el instanceof HTMLElement &&
       (el.isContentEditable ||
         el.tagName === "INPUT" ||
         el.tagName === "TEXTAREA" ||
         el.tagName === "SELECT");
-    const offMenu = desktop.onMenuAction((action) => {
-      if (
-        (action === "undo" || action === "redo" || action === "selectAll") &&
-        isEditable(document.activeElement)
-      ) {
-        document.execCommand(action);
-        return;
-      }
-      editorRef.current.perform(action);
-    });
+    const offMenu = desktop.onMenuAction(
+      (action) => {
+        if (
+          (action === "undo" || action === "redo" || action === "selectAll") &&
+          isEditable(document.activeElement)
+        ) {
+          document.execCommand(action);
+          return;
+        }
+        editorRef.current.perform(action);
+      },
+      (fileAction) => {
+        if (fileAction === "save" || fileAction === "saveAs") {
+          void handleSaveNativeRef.current(fileAction === "saveAs");
+        }
+      },
+    );
     return offMenu;
-  }, []);
+  }, [tabActive]);
   const agentDocument = useMemo(
     () => currentPageOnly(editor.committed),
     [editor.committed],
   );
-  const views = useMemo(() => new Map<string, Viewport>(), [doc.id]);
+  const views = useMemo(
+    () => options.initialViews ?? new Map<string, Viewport>(),
+    [doc.id, options.initialViews],
+  );
+  const busyReason: "ai" | "mcp" | null = agentBusyState.busy
+    ? "ai"
+    : mcpSessionActive
+      ? "mcp"
+      : null;
+  const tabMetaCbRef = useRef(options.onTabMetaChange);
+  tabMetaCbRef.current = options.onTabMetaChange;
+  useEffect(() => {
+    tabMetaCbRef.current?.({
+      title: doc.name,
+      dirty: !editor.saved,
+      busyReason,
+      nativePath: boundFile?.filePath ?? null,
+    });
+  }, [doc.name, editor.saved, busyReason, boundFile?.filePath]);
+  const snapshotCbRef = useRef(options.onTabViewSnapshot);
+  snapshotCbRef.current = options.onTabViewSnapshot;
+  const latestSnapshotRef = useRef({
+    activePage: doc.activePage,
+    selectionIds: editor.selection,
+    views,
+  });
+  latestSnapshotRef.current = {
+    activePage: doc.activePage,
+    selectionIds: editor.selection,
+    views,
+  };
+  useEffect(() => {
+    snapshotCbRef.current?.(latestSnapshotRef.current);
+  }, [doc.activePage, editor.selection, views]);
+  useEffect(() => {
+    return () => {
+      snapshotCbRef.current?.(latestSnapshotRef.current);
+    };
+  }, []);
   indexPublishedScene(doc);
   const openMenu = (x: number, y: number, layers?: string[]) =>
     setMenu({ x, y, layers });
@@ -952,9 +1201,21 @@ export function App(options: import("./useDocument").EditorFileOptions) {
 
   const applyPendingProposal = async () => {
     if (!pendingProposal) return;
+    const applied = pendingProposal;
     try {
-      if (!(await commitAgentProposal(pendingProposal))) return;
-      const rootIds = pendingProposal.createdRootIds.filter((id) =>
+      if (!(await commitAgentProposal(applied))) return;
+      if (applied.proposalId) {
+        void bridgeSnapshotRef.current
+          ?.ackProposal(applied.proposalId, "applied")
+          .catch(() => {});
+      }
+      if (applied.taskId) {
+        taskProposalsRef.current.delete(applied.taskId);
+        setStatusToast(
+          "已应用外部任务方案，可继续微调并在顶栏「外部 Agent 任务」中确认回传",
+        );
+      }
+      const rootIds = applied.createdRootIds.filter((id) =>
         editor.historyRef.current.present.nodes.some((node) => node.id === id),
       );
       if (rootIds.length) {
@@ -966,9 +1227,109 @@ export function App(options: import("./useDocument").EditorFileOptions) {
     }
   };
   const discardPendingProposal = () => {
+    const discarded = pendingProposal;
     setPendingProposal(null);
     editor.setPreview(null);
+    if (discarded?.proposalId && !discarded.taskId) {
+      void bridgeSnapshotRef.current
+        ?.ackProposal(discarded.proposalId, "discarded")
+        .catch(() => {});
+    }
   };
+  const handleExternalPendingProposal = useCallback(
+    (proposal: PendingIntegrationProposal) => {
+      if (proposal.taskId) {
+        taskProposalsRef.current.set(proposal.taskId, proposal);
+        setStatusToast("收到外部 Agent 设计任务，可在画布审阅或顶栏任务箱回传");
+      }
+      setPendingProposal(proposal);
+    },
+    [],
+  );
+  const handleAutoApplyTransaction = useCallback(
+    async (
+      tx: Transaction,
+      meta: { proposalId?: string; taskId?: string; summary?: string },
+    ) => {
+      const beforeDoc = editor.historyRef.current.present;
+      if (tx.baseRevision !== beforeDoc.revision) {
+        throw new Error("画布已发生变更，无法自动应用外部方案");
+      }
+      runAgent(tx.operations, tx.baseRevision);
+      const afterDoc = editor.historyRef.current.present;
+      setPendingProposal(null);
+      editor.setPreview(null);
+      if (meta.proposalId) {
+        await bridgeSnapshotRef.current
+          ?.ackProposal(meta.proposalId, "applied")
+          .catch(() => {});
+      }
+      if (meta.taskId) {
+        taskProposalsRef.current.delete(meta.taskId);
+        await bridgeSnapshotRef.current?.completeTask(
+          meta.taskId,
+          "已按受信任会话自动应用并回传",
+          afterDoc,
+        );
+      }
+      setStatusToast("已自动应用外部 Agent 方案（可按 ⌘Z 单步撤销）");
+    },
+    [editor, runAgent],
+  );
+  const handleCompleteInboxTask = useCallback(
+    async (taskId: string) => {
+      const snapshot = bridgeSnapshotRef.current;
+      if (!snapshot?.connected) throw new Error("外部 Agent 会话已断开");
+      if (pendingProposal?.taskId === taskId) {
+        const applied = await commitAgentProposal(pendingProposal);
+        if (!applied) throw new Error("应用外部任务方案失败");
+        if (pendingProposal.proposalId) {
+          await snapshot
+            .ackProposal(pendingProposal.proposalId, "applied")
+            .catch(() => {});
+        }
+        taskProposalsRef.current.delete(taskId);
+      } else {
+        const cached = taskProposalsRef.current.get(taskId);
+        if (
+          cached &&
+          cached.transaction.baseRevision ===
+            editor.historyRef.current.present.revision
+        ) {
+          runAgent(
+            cached.transaction.operations,
+            cached.transaction.baseRevision,
+          );
+          if (cached.proposalId) {
+            await snapshot
+              .ackProposal(cached.proposalId, "applied")
+              .catch(() => {});
+          }
+          taskProposalsRef.current.delete(taskId);
+        }
+      }
+      const latestDoc = editor.historyRef.current.present;
+      await snapshot.completeTask(taskId, undefined, latestDoc);
+      setStatusToast("已将最新画布产物回传给外部 Agent");
+    },
+    [editor, pendingProposal, runAgent],
+  );
+  const handleRejectInboxTask = useCallback(
+    async (taskId: string, reason?: string) => {
+      if (pendingProposal?.taskId === taskId) {
+        setPendingProposal(null);
+        editor.setPreview(null);
+      }
+      taskProposalsRef.current.delete(taskId);
+      await bridgeSnapshotRef.current?.rejectTask(taskId, reason);
+      setStatusToast("已拒绝外部 Agent 任务");
+    },
+    [editor, pendingProposal],
+  );
+  const pendingInboxCount = countPendingInboxTasks(bridgeSnapshot?.tasks ?? []);
+  const showAgentInboxButton =
+    Boolean(bridgeSnapshot?.connected) ||
+    (bridgeSnapshot?.tasks.length ?? 0) > 0;
   const updateComments = (nextComments: DesignComment[]) => {
     editor.attempt(() =>
       editor.apply([{ type: "setComments", comments: nextComments }]),
@@ -1045,6 +1406,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
           <details
             className="file-menu"
             ref={fileMenu}
+            onToggle={(e) => setFileMenuOpen(e.currentTarget.open)}
             onBlur={(e) => {
               if (
                 e.relatedTarget &&
@@ -1101,9 +1463,25 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             >
               <button
                 onClick={() => {
-                  void newBlankFile().catch((err) =>
-                    editor.setError(String(err)),
-                  );
+                  if (options.onOpenHome) options.onOpenHome();
+                  else location.assign(homeUrl());
+                }}
+              >
+                <Home size={13} />
+                <span>返回工作台首页</span>
+              </button>
+              <button
+                onClick={() => {
+                  if (options.onNewDesignTab) {
+                    options.onNewDesignTab({
+                      projectId: activeProject?.id,
+                      preset: "blank",
+                    });
+                  } else {
+                    void newBlankFile(activeProject?.id).catch((err) =>
+                      editor.setError(String(err)),
+                    );
+                  }
                 }}
               >
                 <FilePlus2 size={13} />
@@ -1118,6 +1496,20 @@ export function App(options: import("./useDocument").EditorFileOptions) {
                 <FolderOpen size={13} />
                 <span>打开设计文件…</span>
               </button>
+              <RecentFilesSubmenu
+                currentFileKey={currentFileKey}
+                menuOpen={fileMenuOpen}
+                onOpenFile={(target) => {
+                  if (fileMenu.current) fileMenu.current.open = false;
+                  if (options.onOpenFileTab) options.onOpenFileTab(target);
+                  else location.assign(fileUrl(target.fileKey));
+                }}
+                onOpenHome={() => {
+                  if (fileMenu.current) fileMenu.current.open = false;
+                  if (options.onOpenHome) options.onOpenHome();
+                  else location.assign(homeUrl());
+                }}
+              />
               {editor.committed.importReport && (
                 <button onClick={() => setShowImportReport(true)}>
                   <Layers size={13} />
@@ -1128,21 +1520,29 @@ export function App(options: import("./useDocument").EditorFileOptions) {
                 <Layers size={13} />
                 <span>浏览本机文件…</span>
               </button>
+              <button onClick={() => void handleSaveNative(false)}>
+                <Save size={13} />
+                <span>
+                  {boundFile
+                    ? `保存到 ${boundFile.fileName}`
+                    : "保存设计文件 (.forma)"}
+                </span>
+                <kbd>⌘S</kbd>
+              </button>
+              {window.formaDesktop && (
+                <button onClick={() => void handleSaveNative(true)}>
+                  <Save size={13} />
+                  <span>另存为 .forma…</span>
+                  <kbd>⇧⌘S</kbd>
+                </button>
+              )}
               <button
                 onClick={() => {
-                  const slug = editor.committed.name
-                    .trim()
-                    .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-                    .replace(/^-|-$/g, "");
-                  download(
-                    `${slug || "design"}.forma.json`,
-                    nativeDocumentBlob(editor.committed),
-                  );
+                  downloadFormaFile(editor.committed, appVersion);
                 }}
               >
                 <Download size={13} />
-                <span>保存本地副本</span>
-                <kbd>⌘S</kbd>
+                <span>保存本地副本 (.forma)</span>
               </button>
               <hr />
               <button onClick={() => setProfileOpen(true)}>
@@ -1194,15 +1594,58 @@ export function App(options: import("./useDocument").EditorFileOptions) {
                 <Settings2 size={13} />
                 <span>配置 AI 模型供应商…</span>
               </button>
+              <button onClick={openIntegrations}>
+                <Cable size={13} />
+                <span>外部工具集成（MCP）…</span>
+              </button>
               <hr />
               <a
                 href="?example=mobile-studio&edition=atlas&page=atlas&node=atlas-tablet-root"
                 target="_blank"
                 rel="noreferrer"
+                onClick={(event) => {
+                  if (
+                    options.onOpenExampleTab &&
+                    !event.metaKey &&
+                    !event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey &&
+                    event.button === 0
+                  ) {
+                    event.preventDefault();
+                    options.onOpenExampleTab({
+                      example: "mobile-studio",
+                      edition: "atlas",
+                      page: "atlas",
+                      node: "atlas-tablet-root",
+                      title: "移动设计研究室",
+                    });
+                  }
+                }}
               >
                 打开移动设计研究室 ↗
               </a>
-              <a href="?example=aura-showcase" target="_blank" rel="noreferrer">
+              <a
+                href="?example=aura-showcase"
+                target="_blank"
+                rel="noreferrer"
+                onClick={(event) => {
+                  if (
+                    options.onOpenExampleTab &&
+                    !event.metaKey &&
+                    !event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey &&
+                    event.button === 0
+                  ) {
+                    event.preventDefault();
+                    options.onOpenExampleTab({
+                      example: "aura-showcase",
+                      title: "SaaS 工作台样例",
+                    });
+                  }
+                }}
+              >
                 打开 SaaS 产品与营销样例 ↗
               </a>
               <hr />
@@ -1232,6 +1675,19 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               </button>
             </div>
           </details>
+          {!options.onOpenHome && (
+            <a
+              href={homeUrl()}
+              className="header-home-btn"
+              aria-label="返回工作台"
+              data-tip="返回工作台首页"
+              data-tip-desc="管理项目空间、最近文件或新建设计"
+              data-tip-side="bottom"
+            >
+              <Home size={14} />
+              <span>工作台</span>
+            </a>
+          )}
           <div className="panel-switches">
             {(["left", "right"] as const).map((side) => {
               const left = side === "left";
@@ -1353,6 +1809,27 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             >
               <MessageSquare size={15} />
             </button>
+            {showAgentInboxButton && (
+              <button
+                type="button"
+                className={`icon-btn header-inbox-btn ${inboxOpen ? "active" : ""}`}
+                title="外部 Agent 任务"
+                aria-label="外部 Agent 任务"
+                aria-expanded={inboxOpen}
+                aria-haspopup="dialog"
+                data-tip="外部 Agent 任务收件箱"
+                data-tip-desc="查看、审阅并回传通过 MCP / A2A 委派的设计任务"
+                data-tip-side="bottom"
+                onClick={() => setInboxOpen((v) => !v)}
+              >
+                <Inbox size={15} />
+                {pendingInboxCount > 0 && (
+                  <span className="header-inbox-badge">
+                    {pendingInboxCount > 9 ? "9+" : pendingInboxCount}
+                  </span>
+                )}
+              </button>
+            )}
             <button
               className="icon-btn"
               title="快捷键 ?"
@@ -1367,19 +1844,31 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             </button>
             <span className="toolbar-sep" aria-hidden="true" />
             <button
-              className="icon-btn"
+              className="header-new-btn"
               title="新建空白文件"
               aria-label="新建空白文件"
-              data-tip="新建空白文件"
-              data-tip-desc="在独立存储空间创建一份新的空白设计文件"
+              data-tip="新建设计文件"
+              data-tip-desc={
+                activeProject
+                  ? `在「${activeProject.name}」项目中新建设计文件`
+                  : "创建一份新的空白设计文件"
+              }
               data-tip-side="bottom"
               onClick={() => {
-                void newBlankFile().catch((err) =>
-                  editor.setError(String(err)),
-                );
+                if (options.onNewDesignTab) {
+                  options.onNewDesignTab({
+                    projectId: activeProject?.id,
+                    preset: "blank",
+                  });
+                } else {
+                  void newBlankFile(activeProject?.id).catch((err) =>
+                    editor.setError(String(err)),
+                  );
+                }
               }}
             >
-              <FilePlus2 size={15} />
+              <FilePlus2 size={14} />
+              <span>新建</span>
             </button>
             {(!showLeft || compact) && (
               <button
@@ -1399,20 +1888,15 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               className="icon-btn"
               title="下载设计文件"
               aria-label="设计文件"
-              data-tip="下载设计源文件"
+              data-tip={
+                boundFile
+                  ? `保存到 ${boundFile.fileName}`
+                  : "保存 .forma 设计文件"
+              }
               data-tip-kbd="⌘S"
-              data-tip-desc="保存可继续编辑的 .forma.json 本地文件"
+              data-tip-desc="保存可双击直接打开的 .forma 原生设计文件"
               data-tip-side="bottom"
-              onClick={() => {
-                const slug = editor.committed.name
-                  .trim()
-                  .replace(/[^\p{L}\p{N}_-]+/gu, "-")
-                  .replace(/^-|-$/g, "");
-                download(
-                  `${slug || "design"}.forma.json`,
-                  nativeDocumentBlob(editor.committed),
-                );
-              }}
+              onClick={() => void handleSaveNative(false)}
             >
               <Download size={15} />
             </button>
@@ -2219,6 +2703,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
                   setFilesOpen(false);
                   openExternalFile(selected, projectId);
                 }}
+                onOpenFileTab={options.onOpenFileTab}
                 current={editor.committed}
                 currentKey={currentFileKey}
                 renameCurrent={(name) =>
@@ -2285,6 +2770,7 @@ export function App(options: import("./useDocument").EditorFileOptions) {
                     ? editor.committed
                     : undefined
                 }
+                onImported={options.onOpenFileTab}
                 close={() => {
                   setExternalFile(undefined);
                   setShowImportReport(false);
@@ -2442,6 +2928,69 @@ export function App(options: import("./useDocument").EditorFileOptions) {
             </Suspense>
           </ErrorBoundary>
         )}
+        {integrationsMounted && (
+          <ErrorBoundary
+            scope="modal"
+            title="外部工具集成窗口异常"
+            onReset={() => {
+              setIntegrationsOpen(false);
+              setIntegrationsMounted(false);
+            }}
+          >
+            <Suspense
+              fallback={
+                integrationsOpen ? (
+                  <div role="status" className="toast">
+                    加载外部工具集成…
+                  </div>
+                ) : null
+              }
+            >
+              <IntegrationsModal
+                open={integrationsOpen}
+                onClose={() => setIntegrationsOpen(false)}
+                document={agentDocument}
+                selection={
+                  editor.selection.length === 1 ? editor.selection[0] : null
+                }
+                scopeProjectId={currentScopeId}
+                fileKey={currentFileKey}
+                tabs={options.workspaceTabs}
+                activeTabId={options.activeWorkspaceTabId}
+                onPendingProposalChange={handleExternalPendingProposal}
+                onAutoApplyTransaction={handleAutoApplyTransaction}
+                onSessionActiveChange={setMcpSessionActive}
+                onBridgeSnapshotChange={setBridgeSnapshot}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+        {inboxOpen && (
+          <ErrorBoundary
+            scope="modal"
+            title="外部任务收件箱异常"
+            onReset={() => setInboxOpen(false)}
+          >
+            <Suspense fallback={null}>
+              <AgentInboxPopover
+                open={inboxOpen}
+                onClose={() => setInboxOpen(false)}
+                connected={Boolean(bridgeSnapshot?.connected)}
+                tasks={bridgeSnapshot?.tasks ?? []}
+                onOpenIntegrations={openIntegrations}
+                onPreviewTaskProposal={(task) => {
+                  const cached = taskProposalsRef.current.get(task.id);
+                  if (cached) {
+                    setPendingProposal(cached);
+                    setInboxOpen(false);
+                  }
+                }}
+                onCompleteTask={handleCompleteInboxTask}
+                onRejectTask={handleRejectInboxTask}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
         {editor.palette && (
           <CommandPalette
             editor={editor}
@@ -2540,7 +3089,12 @@ export function App(options: import("./useDocument").EditorFileOptions) {
               const content = await readNativeDocument(selected);
               await loadFonts(content.fonts);
               if (openAsFile.current) {
-                location.assign(await createLocalFile(content));
+                if (options.onOpenFileTab) {
+                  const { key } = await createLocalFileWithKey(content);
+                  options.onOpenFileTab({ fileKey: key, title: content.name });
+                } else {
+                  location.assign(await createLocalFile(content));
+                }
                 return;
               }
               editor.importDocument(content, { replacedDocument: true });

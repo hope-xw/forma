@@ -14,6 +14,14 @@ import {
   type DocumentPart,
 } from "../domain/document-parts";
 export { nativeDocumentText } from "../domain/document-parts";
+export {
+  formaFilename,
+  encodeFormaPackage,
+  formaPackageBlob,
+  decodeFormaPackage,
+  isFormaPackageZip,
+} from "./forma-package";
+import { checkDesignFileSize } from "./design-import/types";
 
 export function nativeDocumentBlob(doc: DesignDocument): Blob {
   const groups: Blob[] = [],
@@ -33,6 +41,12 @@ export function nativeDocumentBlob(doc: DesignDocument): Blob {
 }
 
 export async function readNativeDocument(file: Blob): Promise<DesignDocument> {
+  const header = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  if (header[0] === 0x50 && header[1] === 0x4b) {
+    checkDesignFileSize(file.size, false);
+    const { decodeFormaPackage } = await import("./forma-package");
+    return decodeFormaPackage(new Uint8Array(await file.arrayBuffer()));
+  }
   const canonical =
     (await file.slice(0, nativePartsPrefix.length + 1).text()) ===
     nativePartsPrefix + "\n";

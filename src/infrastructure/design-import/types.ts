@@ -1,4 +1,5 @@
 import type { DesignDocument, ImportIssue } from "../../domain/document";
+import { inflateSync, strFromU8, unzipSync } from "fflate";
 export type { ImportIssue };
 export interface ExternalDesignImport {
   document: DesignDocument;
@@ -45,8 +46,79 @@ export function requireImportCrypto() {
       "导入设计文件需要安全连接，请使用 HTTPS 或在 localhost 打开 Forma。",
     );
 }
+const manifestName = "manifest.json";
+// The native writer puts the manifest first. Inspect just that range on disk.
+// Other ZIP writers may reorder entries or use data descriptors.
+export const maxManifestBytes = 32 * 1024 * 1024;
+function packageMarker(bytes: Uint8Array) {
+  return JSON.parse(strFromU8(bytes))?.format === "forma/package";
+}
+export function isFormaPackageZip(bytes: Uint8Array): boolean {
+  if (
+    bytes[0] !== 80 ||
+    bytes[1] !== 75 ||
+    bytes[2] !== 3 ||
+    bytes[3] !== 4 ||
+    bytes.length < 22 ||
+    bytes.length > maxNativeBytes
+  )
+    return false;
+  try {
+    let found = false;
+    const entries = unzipSync(bytes, {
+      filter: ({ name, size, originalSize }) => {
+        if (name !== manifestName) return false;
+        if (found || size > maxManifestBytes || originalSize > maxManifestBytes)
+          throw Error("无效的 Forma 包清单");
+        found = true;
+        return true;
+      },
+    });
+    return !!entries[manifestName] && packageMarker(entries[manifestName]);
+  } catch {
+    return false;
+  }
+}
 export async function isExternalDesign(file: File) {
   if (/\.(sketch|fig)$/i.test(file.name)) return true;
-  const header = new Uint8Array(await file.slice(0, 8).arrayBuffer());
-  return (header[0] === 80 && header[1] === 75) || !!figmaHeader(header);
+  const header = new Uint8Array(
+    await file.slice(0, 30 + manifestName.length).arrayBuffer(),
+  );
+  if (figmaHeader(header)) return true;
+  if (header[0] !== 80 || header[1] !== 75) return false;
+  checkDesignFileSize(file.size, false);
+  if (header[2] !== 3 || header[3] !== 4) return true;
+  if (header.length === 30 + manifestName.length) {
+    const view = new DataView(header.buffer);
+    const method = view.getUint16(8, true);
+    if (
+      !(view.getUint16(6, true) & 9) &&
+      (method === 0 || method === 8) &&
+      view.getUint16(26, true) === manifestName.length &&
+      strFromU8(header.subarray(30)) === manifestName
+    ) {
+      const size = view.getUint32(18, true),
+        expanded = view.getUint32(22, true);
+      const start = header.length + view.getUint16(28, true);
+      if (
+        size > maxManifestBytes ||
+        expanded > maxManifestBytes ||
+        start + size > file.size
+      )
+        return true;
+      try {
+        const data = new Uint8Array(
+          await file.slice(start, start + size).arrayBuffer(),
+        );
+        return !packageMarker(
+          method === 0
+            ? data
+            : inflateSync(data, { out: new Uint8Array(expanded) }),
+        );
+      } catch {
+        return true;
+      }
+    }
+  }
+  return !isFormaPackageZip(new Uint8Array(await file.arrayBuffer()));
 }

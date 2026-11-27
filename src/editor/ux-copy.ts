@@ -21,8 +21,8 @@ export function saveStateCopy(saved: boolean, isDesktop = isDesktopRuntime()) {
     title: saved ? destination : "保存中",
     tip: saved ? destination : "正在保存…",
     desc: isDesktop
-      ? "变更已自动保存在本机工作空间，随时可导出 .forma.json 备份"
-      : "变更已自动保存在当前浏览器中，换设备前可下载设计源文件",
+      ? "变更已自动保存在本机工作空间，随时可保存 .forma 设计文件"
+      : "变更已自动保存在当前浏览器中，换设备前可下载 .forma 设计文件",
     shortStatus: saved ? "已保存" : "保存中",
   };
 }

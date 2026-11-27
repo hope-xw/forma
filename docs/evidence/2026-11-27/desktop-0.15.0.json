@@ -1,0 +1,147 @@
+{
+  "version": "0.15.0",
+  "date": "2026-11-27",
+  "plistVersion": "0.15.0",
+  "signature": "codesign --verify --deep --strict",
+  "signatureDetails": {
+    "verified": true,
+    "adhoc": true,
+    "identifier": "com.forma.design"
+  },
+  "readOnlyDmg": true,
+  "zipMatchesDmgBundle": true,
+  "previousDmgIntact": true,
+  "previousDmg": {
+    "filename": "Forma-0.14.0-arm64.dmg",
+    "sha256": "4048ab601551a4dfb670607c45ecc22339350f0273f3b3f32b5b1c368a5c3b12",
+    "baseline": "pre-build"
+  },
+  "distribution": [
+    {
+      "filename": "Forma-0.15.0-arm64.dmg",
+      "bytes": 125685552,
+      "sha256": "693c84a9be5317c7248c1f48837c295a809225d21f0974b50fa14208dab65ba0"
+    },
+    {
+      "filename": "Forma-0.15.0-arm64.zip",
+      "bytes": 121227387,
+      "sha256": "b75f2cfa124b24116a18cba148acbe9e4f0c13e51a6aa56e17152269b357c14f"
+    },
+    {
+      "filename": "Forma-0.15.0-arm64.dmg.blockmap",
+      "bytes": 132576,
+      "sha256": "035a05e93ef9f90c9a320123fcdfc463a8875e44725fa0ed28737dd94b27f922"
+    },
+    {
+      "filename": "Forma-0.15.0-arm64.zip.blockmap",
+      "bytes": 128079,
+      "sha256": "73f527c262a79bb6febfa104f17a3b9e691bb5d07d635e112482ea8a92e8a2cd"
+    }
+  ],
+  "matchingWebAndApp": {
+    "dist/assets/AgentInboxPopover-D2VKrhwd.js": "c438b8eca40f6c383113b22e15ffd398817f22e9968f141a4d884e64fa630a6f",
+    "dist/assets/App-B8CluBAG.css": "c6961c51a1cd394b47264d191a4f1a67c0f82c7a5c5017814729dfac92e1495e",
+    "dist/assets/App-Dn10dDSW.js": "f334bff4a701e131b447e64d380ce9a907b82194a1b0f0202cdebad29cadd110",
+    "dist/assets/AssetsPanel-4KI6P_NI.js": "2439200e8b1409a6a34b20cc830c881211be517bf7ab8bd6b48b6c85ee77d042",
+    "dist/assets/AssetsPanel-CUG-QKTO.css": "8bcb0f1aad25e7fd72fda8d69b669eb021912e50c7fb724094d8c92876d01da3",
+    "dist/assets/CodeAndUpdateModals-BJOzWfDU.js": "5a1efb2c3f239b88bb4e449653dca190c6e9c1936706e52cd095cb68073a64f4",
+    "dist/assets/DesignImportDialog-B3eLzDfN.js": "d7239e4eedd7ecd8210eb06418bd234d3ccc37593dd54658513710f01bbe98e5",
+    "dist/assets/DesignImportDialog-BeJUQPvH.css": "e9e362559d9c64ddb9f7bda5edff50925ce556cef7f53f2408dc0cde7642c89d",
+    "dist/assets/DesignLintPanel-DDTb_M1u.js": "f1b8c758fde455bd284aa5a7623ec8b8ec95ee38c5e48f208a29e921c0ee4117",
+    "dist/assets/DesignSystemDialog-BdhxOSPn.js": "4886123ab6de45e6dd780a1524103f26a72e69cdef987f11c5c29912a481ca01",
+    "dist/assets/DevModePanel-BvJgDa1h.js": "97b76907e1bab3b0d54d2e128dbcfbfda25593c50e77da474bffc425f6656b3a",
+    "dist/assets/FileBrowser-CLnZhqYe.js": "cf0c3cfda9ec532e50a8717cd25fb4b180caec5aa75340d21d968dd758fb9cc6",
+    "dist/assets/IntegrationsModal-CBtgsdAN.js": "7aae1a060572fd0ec892af646e46fc145e5f15a69f1fdbd18f2e74a495053554",
+    "dist/assets/ModelConfigModal-25U0slNI.js": "45eee46b37c3245913ab103beacb91c0ff34e6a81d37c0d2be2303cb5baa3ed0",
+    "dist/assets/ModelConfigModal-Cv24mSaD.css": "11f41279f5834952716f095670c72aef1ed6d9e453f38b5832cc3d5b26f9c5b5",
+    "dist/assets/PreviewDialog-Bc9DDX5D.js": "6aec84af72d5c450a50cda9e6d12660167ad48c7becac12ab0104d6a594f87e8",
+    "dist/assets/PromoteModuleModal-Ct-ooFvj.js": "441b0639b84eaa2d4791d6925c4376faa52b6ef1d970db01f1b7b5dca7744cc2",
+    "dist/assets/ReleaseNotesDialog-CGMMkmXM.js": "023ddbdb3120a3662da03e4eef849b63209ff3b127921d82b10c7775f1419ba3",
+    "dist/assets/SourceName-CmRXDirM.js": "269864d544486badae8dd74e0a6ad27ce1e94ef0a768dcb2170a5a192803b836",
+    "dist/assets/WorkspaceHomeShell-BCa2nEgr.js": "267765a6d4526d55047034a2f12de7cbeee914a73cb6bf5ea266afdfbcb457fc",
+    "dist/assets/WorkspaceHomeShell-Cu2xp_BE.css": "1c6c49e4e039e6b4858b141ea5929fdc77c5a8128afb460acb0dc2f4e1141f89",
+    "dist/assets/WorkspaceShell-DePwc_w8.css": "13aa8ae8baebd7802b8f8a476919a4a0f2c296b86bed52a7d894ae34c9b05aad",
+    "dist/assets/WorkspaceShell-bBkOoIW1.js": "b08797dd3e08f763d1e65c5917237b18137f120bdd32ed25cfaea6ae9ea459e3",
+    "dist/assets/catalog-BilQhHfZ.js": "7ef6ca85169510c5ee28b0df13a8137463fab7abe06459853791e6d637cd174e",
+    "dist/assets/dist-DG1INu-i.js": "021dabdcbbb58194bc033e71ace7b3fab47fbbe95d3b3f8c991170efccfab192",
+    "dist/assets/export-project-Cg3u1QiC.js": "1ffee035da1699ac244492465fffbc4a2ed38647468cad596dfc066118f957d0",
+    "dist/assets/external-bridge-D8-kkM8j.css": "89c745db73d90968862172141bbed670d2fcf2471eee6cd4d749cf25cc3f65ee",
+    "dist/assets/harfbuzz-CODTKW78.wasm": "6eeed8e1bc9ad7773038e48ff8f9e07e0ad228572c594b45e5357e9c2f7a0b2e",
+    "dist/assets/html-forma-sandbox-Dk-Q_eTY.js": "04fe43f9f4e7fcd5a174ba6c6e247ce9321c66ee5c03e8756fe6e464d2e54784",
+    "dist/assets/icon-library-CEVaNo1q.js": "f4f0e52ea0f467b86ebac48890957db5f102d68ea1b835e2857b2ebaef4ed3d5",
+    "dist/assets/index-CjeWEKNb.js": "2e56c6073021f9a99772877576bb342d7d15f511f90521650960592f6968ce0e",
+    "dist/assets/index-De-MnFsG.css": "5404a739e644f5d22edbf64af3c6e5964100f51e2e30791bc3fc462a2cbe6930",
+    "dist/assets/library-extract-worker-DyXxD2SA.js": "ff227908e375b68852c8d71f0ae7837a73e8cf1f92daab1f0a8056594d98b5db",
+    "dist/assets/library-packaging-BsjjTa-T.js": "94d8465ed87be18362c705de1cba8745edb54710177a179b0b110d815a375a91",
+    "dist/assets/mobile-foundations-Dnz_K1qw.js": "250aebf4ee4d01027ddcb3e0164b82b2a3ffceefd63e05c712cf23ee5b7c2042",
+    "dist/assets/pdfium-BJ2Yip8Q.wasm": "5e4cd023c3dad4a895b3571ca573d3fc51bac6de48360d95283134385b954eaa",
+    "dist/assets/storage-QKhUow19.js": "d87a7813d621e85bf22c62cd00a4ae4977d0059a052c24ebf545c291ff2302d6",
+    "dist/assets/ux-copy-D1f8QzT-.js": "157b2a233a3fbaee3df3727c96d0a9008dd60b66489e33f4aacff40f64fc846f",
+    "dist/assets/vendor-fflate-Cup_8qXT.js": "ec9f60ad7ee6668e41a0d8b2f326e4e458b64195f845da55d3eb982f8a51d656",
+    "dist/assets/vendor-lucide-ceAW1xSc.js": "17caf3b0da4a02713d7b7023880b570ba7092414fdeeec3cd92be0e5e5f25a6b",
+    "dist/assets/vendor-paper-DwOCrw47.js": "422c7a9f48233d94bc21975a551f77140d23c873ce0ea8c542bb2c280bbf293c",
+    "dist/assets/vendor-react-CxaX-SXL.js": "8acff16d51a3858e83574710508135e1f09cb25735745d127e3738b6e93a7ec2",
+    "dist/assets/vendor-zod-DJdROor8.js": "6fc46d2adbd6e5c64935da167dff0ed34b4ae9af3ea18fb254d49082eb9e2f0d",
+    "dist/assets/worker-o-VFoNsU.js": "dd0ee9363b13e77524ef91ec310e6cade0eba5febd44f75d96d5450d0f85b5ce",
+    "dist/examples/aura-showcase.forma.json": "c3a0e6a619edb26ddc8b98e713203d828ddf1a51e6d0058675862da19bd03970",
+    "dist/examples/mobile-studio.forma.json": "eccabd591b7ae856b7969104b582d16642d25de5f8b4554588c4f815b0560372",
+    "dist/favicon.svg": "509f8a28c3655e3d6d8fbc960670a4aed2f27090726482ed8c796c11f8a0d838",
+    "dist/index.html": "e438ed3fd58e2cde8bca7e824be24182490462d5c070aab562a9e3fa865be0b0",
+    "electron/after-sign.mjs": "d309d9bb0b24d34df247fc8b6e8cbd5c73d571711bcbacac28cd99f98a28e35d",
+    "electron/main.mjs": "e5f6394bb8a7a26ac995bacc2ea9c5add21dc45eaefa11516d8415a2a9843da1",
+    "electron/preload.cjs": "99bf9e745e22bef42443c5b3bf179382438d22d2b505483764a4302aacdc61dc",
+    "package.json": "a52b227ec1d61cdd51c2556b131da74dbaec1244005f2d90489491cd46b452fe"
+  },
+  "bundledServices": {
+    "out-electron/library-service.mjs": {
+      "bytes": 821254,
+      "sha256": "bbda1bd42681dacebd847545d22501eec519b483450f5ceb214bfaf610cce9f3"
+    },
+    "out-electron/agent-service.mjs": {
+      "bytes": 3837515,
+      "sha256": "0bf55e558979357c7759968a6d2d64d9c29281fd13eefad2ec9084d74eb6f4ee"
+    }
+  },
+  "releaseNotesChecked": true,
+  "electron": "45.4.1",
+  "agentServiceChecks": {
+    "protocol": "forma:",
+    "providersStatus": 200,
+    "providerCount": 13,
+    "statusCode": 200,
+    "configuredInCleanProfile": false,
+    "skillsStatus": 200,
+    "builtinSkillsCount": 2,
+    "totalSkillsCount": 2,
+    "critiqueRouteStatus": 400,
+    "critiqueRouteHasErrorField": true,
+    "libraryPlaybookRouteStatus": 400,
+    "libraryPlaybookRouteHasErrorField": true
+  },
+  "releaseNotesResult": {
+    "versions": 20,
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "selection": "ws-modal-h",
+    "currentVersion": "0.15.0",
+    "latestPublicVersion": "0.15.0"
+  },
+  "desktopOpenFileResult": {
+    "version": "0.15.0",
+    "protocol": "forma:",
+    "filename": "shared-paint.fig",
+    "sha256": "5ef901a1829f3013cfb218ec7a376ae4e6dc463314bd4b2586622089b3df8eab",
+    "format": "Figma",
+    "pages": 1,
+    "sourceNodes": 6,
+    "pageNodes": 2,
+    "components": 0,
+    "instances": 0,
+    "pdfRasters": 0,
+    "images": 0,
+    "fonts": 0,
+    "storageFormat": "single"
+  }
+}

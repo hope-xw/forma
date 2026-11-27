@@ -132,7 +132,14 @@ function serveLocalAgent(server: ViteDevServer | PreviewServer) {
   });
 
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
-    if (!req.url?.startsWith("/api/agent/")) return next();
+    const url = req.url ?? "";
+    const isAgentApi = url.startsWith("/api/agent/");
+    const isMcp = url === "/mcp" || url.startsWith("/mcp?");
+    const isA2a =
+      url === "/.well-known/agent-card.json" ||
+      url === "/api/a2a" ||
+      url.startsWith("/api/a2a?");
+    if (!isAgentApi && !isMcp && !isA2a) return next();
     if (!isLoopbackRequest(req)) {
       res.writeHead(403, {
         "Content-Type": "application/json; charset=utf-8",
@@ -141,7 +148,8 @@ function serveLocalAgent(server: ViteDevServer | PreviewServer) {
       return;
     }
 
-    const isSessionRoute = req.url.startsWith("/api/agent/sessions");
+    const isSessionRoute =
+      url.startsWith("/api/agent/sessions") || isMcp || isA2a;
     const checkExternal = isSessionRoute
       ? isLoopbackPortListening(agentPort)
       : isModernExternalAgent(agentPort);

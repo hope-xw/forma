@@ -111,6 +111,35 @@ export interface AgentStatusResponse {
   profiles: MaskedProviderProfile[];
 }
 
+export const AGENT_CONFIGURED_HINT_KEY = "forma.agent.configured-hint";
+
+export function hasConfiguredAgentHint(): boolean {
+  if (
+    typeof window !== "undefined" &&
+    (window as Window & { formaDesktop?: { agentConfigured?: boolean } })
+      .formaDesktop?.agentConfigured === true
+  )
+    return true;
+  try {
+    return (
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem(AGENT_CONFIGURED_HINT_KEY) === "1"
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function syncConfiguredAgentHint(configured: boolean): void {
+  try {
+    if (typeof localStorage === "undefined") return;
+    if (configured) localStorage.setItem(AGENT_CONFIGURED_HINT_KEY, "1");
+    else localStorage.removeItem(AGENT_CONFIGURED_HINT_KEY);
+  } catch {
+    // Storage can be unavailable in private or restricted contexts.
+  }
+}
+
 export interface DetectProviderRequest {
   providerId: string;
   apiKey?: string;
@@ -499,7 +528,10 @@ export async function fetchAgentStatus(
   if (!response.ok) {
     throw new Error(await parseErrorResponse(response, "无法连接本地 AI 服务"));
   }
-  return normalizeStatus(await response.json());
+  const status = normalizeStatus(await response.json());
+  signal?.throwIfAborted();
+  syncConfiguredAgentHint(Boolean(status.configured && status.activeProfile));
+  return status;
 }
 
 function requireSelectedProvider(id: string) {
@@ -548,10 +580,11 @@ export async function saveProviderProfile(
     profile: MaskedProviderProfile;
     status: AgentStatusResponse;
   };
-  return {
-    profile: data.profile,
-    status: normalizeStatus(data.status),
-  };
+  const res = { profile: data.profile, status: normalizeStatus(data.status) };
+  syncConfiguredAgentHint(
+    Boolean(res.status.configured && res.status.activeProfile),
+  );
+  return res;
 }
 
 export async function updateProviderProfile(
@@ -578,10 +611,11 @@ export async function updateProviderProfile(
     profile: MaskedProviderProfile;
     status: AgentStatusResponse;
   };
-  return {
-    profile: data.profile,
-    status: normalizeStatus(data.status),
-  };
+  const res = { profile: data.profile, status: normalizeStatus(data.status) };
+  syncConfiguredAgentHint(
+    Boolean(res.status.configured && res.status.activeProfile),
+  );
+  return res;
 }
 
 export async function deleteProviderProfile(
@@ -603,10 +637,11 @@ export async function deleteProviderProfile(
     deleted: true;
     status: AgentStatusResponse;
   };
-  return {
-    deleted: true,
-    status: normalizeStatus(data.status),
-  };
+  const res = { deleted: data.deleted, status: normalizeStatus(data.status) };
+  syncConfiguredAgentHint(
+    Boolean(res.status.configured && res.status.activeProfile),
+  );
+  return res;
 }
 
 async function requestAgentJson<T>(

@@ -2,6 +2,27 @@
 
 本文按发版时间倒序记录每个版本的完整更新内容、问题修复与兼容说明。产品内「版本日志」面板会展示面向设计师的精简摘要，日常小修补会归并到下一次重要更新中统一呈现。详细维护规范见[发布与归并规则](specs/VERSIONING-AND-DESKTOP.md#4-文件菜单里的版本日志)。
 
+## 0.15.0 · 2026-11-27
+
+- 新增纯 Node 零 DOM 共享运行时能力层（server/runtime-capabilities.ts），提供 list_open_tabs、render_artboard_preview（离线 SVG 渲染图）、export_react_code（真实 Forma 编译器输出 React/TSX/CSS Tokens）与 delegate_design_task 4 项高阶能力
+- 基于 @modelcontextprotocol/server v2.4.0 新增 MCP Streamable HTTP 适配器（server/mcp-http.ts，/mcp）并与 server/mcp.ts stdio 共用 11 工具工厂（server/mcp-tools.ts）；升级 server/agent-sessions.ts 为持久化跨 Tab 同步桥（PUT /sync、proposal/ack、只读权限、审阅/自动落画布策略与客户端遥测），Electron 桌面端自动回传真实回环 endpointBase 消除源码依赖
+- 新增标准 Linux Foundation A2A Server（server/a2a-protocol.ts、server/a2a-server.ts），暴露 GET /.well-known/agent-card.json 与 POST /api/a2a（message/send、message/stream SSE、tasks/get、tasks/cancel、tasks/list、tasks/resubscribe），实现离线审校/React 导出以及 input-required 人机协同画布精修与最终产物回传闭环
+- 新增纯应用层外部连接模型（src/application/external-bridge.ts）、产品化零配置连接中心（IntegrationsModal / ExternalAgentSession）与顶栏轻量收件箱浮层（AgentInboxPopover，@layer panels 零 !important），支持受信任自动落画布与单步 ⌘Z 撤销，未连接时冷启动仍保持 0 次 /api/agent/* 请求
+
+## 0.14.0 · 2026-11-27
+
+- 新增纯应用层多文件 Tab 状态机（src/application/workspace-tabs.ts，含 20 项单测）、36px 顶部 Tab 栏（WorkspaceTabBar.tsx / workspace-tabs.css，@layer panels 零 !important）与顶层多 Tab 协调容器（WorkspaceShell.tsx），默认首位固定不可关闭「工作台」Tab 并同步 History API 与 localStorage 会话恢复
+- 打通四大入口统一入 Tab 与去重聚焦：工作台首页卡片/样例/快速起稿（并显示「已打开」徽标）、左上角 Forma ▾ 菜单新增「最近打开 ▸」子菜单（RecentFilesSubmenu.tsx）、本地文件打开/拖放、编辑器内 + 新建 / FileBrowser / 外部设计导入（onImported）均无刷新打开或聚焦已有 Tab
+- 实现单活画布 + 卸载前自动 flushSave() + 视图快照（页面/选区/视口相机）还原 + AI 流式/MCP 配对后台 hidden 保活池，并隔离非活跃保活 Tab 的全局键盘快捷键与剪贴板事件
+- macOS Electron 桌面端启用 hiddenInset 融合标题栏（trafficLightPosition: { x: 14, y: 11 }），通过 FIFO 队列与 forma:open-file-in-tab IPC 将访达双击与 ⌘O 送入当前活跃窗口新 Tab，并补齐 ⌘T / ⌘N / ⌘W / ⇧⌘T 原生菜单动作与 openInNewWindow / closeCurrentWindow 受控 IPC
+
+## 0.13.0 · 2026-11-27
+
+- 全新全屏工作台首页：默认启动（/）进入独立懒加载的全屏工作台首页（WorkspaceHome），支持最近打开、全部文件、未归类草稿、项目空间管理、强视觉「+ 新建设计」主按钮与四类快速起稿卡片；带 ?file= / ?example= / ?editor=1 深链与系统双击文件仍直达编辑器，编辑器顶栏新增「工作台」返回与「+ 新建」按钮
+- 原生 .forma 容器格式与桌面直接保存：新增 forma/package v1 ZIP 格式（manifest.json、document.json 或万层分块 document.parts.ndjson、preview.svg 与原始二进制 assets/images/*、assets/fonts/*，图片字体样本实测减重 61.5%），完全兼容读取历史 .forma.json；macOS 桌面端支持绑定已打开/保存路径实现 ⌘S 原子原地保存与 ⇧⌘S 原生另存为
+- 修复跨文件/重启模型连接丢失缺陷：通过非敏感本地配置标记与桌面端零网络磁盘配置探测实现已配置模型自动水合，解决新建或切换设计文件后重复提示「未连接模型」的问题，同时严格保持未配置环境的 0 次 /api/agent/* 请求
+- AI 创作流净化与独立 MCP 弹窗：彻底移除「创作设置」浮层、底层生成引擎下拉与禁用态视觉优化开关（视觉模型自动自审，纯文本模型静默跳过）；目标组件库内联至输入栏并自适应窄栏排版，设计技能管理移至 AI 顶栏直达，外部 MCP 配对与高级 JSON 事务导入抽离至独立保活弹窗 IntegrationsModal
+
 ## 0.12.0 · 2026-11-26
 
 - Forma AI 体验重构：左侧 AI 面板升级为满高三段式设计师对话工作区，高级偏好与外部 MCP 接入收纳至底部「创作设置」浮层，去除重复未配置引导、裸坐标与内部协议术语，同步打磨画布内联对话条

@@ -311,7 +311,8 @@ async function checkMountedApp(
   async function workflow() {
     const page = await app.firstWindow({ timeout: 30_000 });
     page.setDefaultTimeout(30_000);
-    await page.locator(".editor-canvas").waitFor();
+    await page.locator(".workspace-home").waitFor();
+    await page.getByRole("button", { name: "新建设计", exact: true }).waitFor();
     const info = await page.evaluate(() => ({
       version: window.formaDesktop?.version,
       protocol: location.protocol,

@@ -13,6 +13,7 @@ import {
 } from "../infrastructure/storage";
 const defaultRepository = new BrowserDocumentRepository();
 export interface EditorFileOptions {
+  active?: boolean;
   externalFile?: File;
   repository?: DocumentRepository;
   fileKey?: string;
@@ -51,7 +52,11 @@ export function useDocument({
   const [savedDocument, setSavedDocument] = useState<DesignDocument | null>(
     initialSaved ? (initialDocument ?? null) : null,
   );
+  const savedDocumentRef = useRef<DesignDocument | null>(savedDocument);
+  savedDocumentRef.current = savedDocument;
   const [protectCache, setProtectCache] = useState(!!initial.error);
+  const protectCacheRef = useRef(protectCache);
+  protectCacheRef.current = protectCache;
   const recoveryInProgress = useRef(false);
   const [preview, setPreview] = useState<DesignDocument | null>(null);
   const pending = useRef<{
@@ -145,6 +150,25 @@ export function useDocument({
       if (timer !== undefined) window.clearTimeout(timer);
     };
   }, [history.present, protectCache, saved, saveLatest]);
+  useEffect(() => {
+    return () => {
+      if (
+        !protectCacheRef.current &&
+        historyRef.current.present !== savedDocumentRef.current
+      ) {
+        void saveLatest(historyRef.current.present).catch(() => {});
+      }
+    };
+  }, [saveLatest]);
+  const flushSave = useCallback(async () => {
+    if (protectCacheRef.current) return;
+    if (historyRef.current.present !== savedDocumentRef.current) {
+      await saveLatest(historyRef.current.present);
+      setSavedDocument(historyRef.current.present);
+    } else if (pending.current) {
+      await pending.current.promise;
+    }
+  }, [saveLatest]);
   useEffect(() => {
     if (saved || protectCache) return;
     const guard = (event: BeforeUnloadEvent) => {
@@ -301,6 +325,7 @@ export function useDocument({
     error,
     setError,
     saved,
+    flushSave,
     canUndo: history.past.length > 0,
     canRedo: history.future.length > 0,
   };

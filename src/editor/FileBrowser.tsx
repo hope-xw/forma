@@ -1,5 +1,12 @@
 import { readNativeDocument } from "../infrastructure/native-document";
-import { useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 import { BUILTIN_LIBRARIES } from "../design-system/catalog";
 import { projectScopeId, type ProjectSpace } from "../agent/project-memory";
 import {
@@ -25,6 +32,7 @@ import {
   FilePlus2,
   FolderPlus,
   Copy,
+  Download,
   LayoutGrid,
   List,
   Pencil,
@@ -45,9 +53,18 @@ import {
 } from "../infrastructure/storage";
 import { exportNodeToSvg } from "../infrastructure/static-export";
 import { cloneDocument, type DesignDocument } from "../domain/document";
+import { createStarter } from "../domain/seed";
+import { preferredProfile } from "./ColorProfileDialog";
 import { useModalDialog } from "./useModalDialog";
 import { isDesktopRuntime, storageUnavailableCopy } from "./ux-copy";
-import { createBrowserFile, newBlankFile, ownLibrary } from "./file-actions";
+import {
+  createBrowserFile,
+  downloadFormaFile,
+  editorFileUrl,
+  newBlankFile,
+  ownLibrary,
+  type QuickStartPreset,
+} from "./file-actions";
 
 import {
   acceptedDesignFiles,
@@ -57,18 +74,85 @@ import {
 
 export { newBlankFile, ownLibrary };
 
-function sessionGroupingNotice() {
+export type OpenFileTab = (target: {
+  fileKey: string;
+  title: string;
+  preset?: QuickStartPreset;
+}) => void;
+
+const DesignImportDialog = lazy(() =>
+  import("./DesignImportDialog").then(({ DesignImportDialog }) => ({
+    default: DesignImportDialog,
+  })),
+);
+
+export function WorkspaceImportDialog(props: {
+  file: File;
+  targetProjectId: string | null;
+  close(): void;
+  onImported?: OpenFileTab;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="forma-boot-loading" role="status">
+          正在打开导入预览…
+        </div>
+      }
+    >
+      <DesignImportDialog {...props} />
+    </Suspense>
+  );
+}
+
+export function isPlainClick(event: MouseEvent) {
+  return (
+    !event.defaultPrevented &&
+    !event.button &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey
+  );
+}
+
+export async function createDocumentTab(
+  open: OpenFileTab,
+  doc: DesignDocument,
+  projectId?: string | null,
+  preset?: QuickStartPreset,
+) {
+  const url = await createBrowserFile(doc, projectId);
+  const fileKey = new URLSearchParams(url).get("file");
+  if (!fileKey) throw new Error("缺少本机文件标识");
+  open({ fileKey, title: doc.name, ...(preset && { preset }) });
+}
+
+export function createDesignTab(
+  open: OpenFileTab,
+  preset: QuickStartPreset,
+  projectId?: string | null,
+) {
+  const doc = createStarter();
+  doc.name = "无标题设计";
+  doc.colorProfile = preferredProfile();
+  doc.nodes = [];
+  doc.revision = 0;
+  return createDocumentTab(open, doc, projectId, preset);
+}
+
+export function sessionGroupingNotice() {
   return `${storageUnavailableCopy()}。分组仅在当前页面有效，离开后将丢失。`;
 }
 
-function FileThumbnail({
+export function FilePreview({
   file,
   current,
 }: {
   file: FileSummary;
   current?: DesignDocument;
 }) {
-  const holder = useRef<HTMLButtonElement>(null);
+  const holder = useRef<HTMLSpanElement>(null);
   const [src, setSrc] = useState("");
   useEffect(() => {
     let active = true;
@@ -85,6 +169,7 @@ function FileThumbnail({
       url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
       setSrc(url);
     };
+    if (typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
       observer.disconnect();
@@ -98,23 +183,52 @@ function FileThumbnail({
       observer.disconnect();
       if (url) URL.revokeObjectURL(url);
     };
-  }, [file.key, file.updatedAt, current]);
+  }, [file.key, file.updatedAt, file.lifetimeToken, current]);
+  return (
+    <span
+      ref={holder}
+      className="file-preview"
+      aria-hidden="true"
+      style={{
+        display: "grid",
+        placeItems: "center",
+        width: "100%",
+        height: "100%",
+        minHeight: 0,
+      }}
+    >
+      {src ? <img alt="" src={src} /> : <File size={26} strokeWidth={1.4} />}
+    </span>
+  );
+}
+
+function FileThumbnail({
+  file,
+  current,
+  onOpen,
+}: {
+  file: FileSummary;
+  current?: DesignDocument;
+  onOpen?: OpenFileTab;
+}) {
   return (
     <button
-      ref={holder}
       className="file-card-thumb"
       aria-label={`打开 ${file.name}`}
       data-tip="打开设计文件"
       data-tip-side="top"
-      onClick={() => location.assign(fileUrl(file.key))}
+      onClick={() => {
+        if (onOpen) onOpen({ fileKey: file.key, title: file.name });
+        else location.assign(editorFileUrl(fileUrl(file.key)));
+      }}
     >
-      {src ? <img alt="" src={src} /> : <File size={26} strokeWidth={1.4} />}
+      <FilePreview file={file} current={current} />
     </button>
   );
 }
 type LibraryChoice = { id: string; name: string };
 
-function LibraryOptions({
+export function LibraryOptions({
   libraries,
   value,
 }: {
@@ -365,12 +479,14 @@ export function FileBrowser({
   current,
   renameCurrent,
   externalImport,
+  onOpenFileTab,
 }: {
   close(): void;
   currentKey: string;
   current: DesignDocument;
   renameCurrent(name: string): void;
   externalImport(file: File, projectId?: string | null): void;
+  onOpenFileTab?: OpenFileTab;
 }) {
   const ref = useModalDialog(true, close),
     input = useRef<HTMLInputElement>(null),
@@ -389,8 +505,29 @@ export function FileBrowser({
   const [workspaceChoices, setWorkspaceChoices] = useState<LibraryChoice[]>([]);
   const [filter, setFilter] = useState("all");
   const [notice, setNotice] = useState("");
+  const [tabImport, setTabImport] = useState<{
+    file: File;
+    projectId: string | null;
+  } | null>(null);
   const pending = useRef(false);
   const refreshCatalog = useRef<(() => Promise<void>) | null>(null);
+  const openTab: OpenFileTab | undefined = onOpenFileTab
+    ? (target) => {
+        close();
+        onOpenFileTab(target);
+      }
+    : undefined;
+  function openLink(event: MouseEvent<HTMLAnchorElement>, file: FileSummary) {
+    if (openTab && isPlainClick(event)) {
+      event.preventDefault();
+      openTab({ fileKey: file.key, title: file.name });
+    }
+  }
+  function createBlank(projectId?: string) {
+    return openTab
+      ? createDesignTab(openTab, "blank", projectId)
+      : newBlankFile(projectId);
+  }
   function reportError(err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     setError(
@@ -558,7 +695,7 @@ export function FileBrowser({
       );
       if (target.key === currentKey) {
         const remaining = files.find((f) => f.key !== target.key);
-        if (remaining) location.replace(fileUrl(remaining.key));
+        if (remaining) location.replace(editorFileUrl(fileUrl(remaining.key)));
         else await newBlankFile();
         return;
       }
@@ -658,6 +795,27 @@ export function FileBrowser({
       <button
         type="button"
         className="icon-btn icon-btn-sm"
+        aria-label={`下载 ${f.name}`}
+        data-tip="下载设计源文件"
+        data-tip-side="top"
+        onClick={() =>
+          void run(async () => {
+            const doc =
+              f.key === currentKey
+                ? current
+                : await readLocalDocument(f.key, {
+                    expectedLifetimeToken: f.lifetimeToken,
+                  });
+            if (!doc) throw new Error("该设计文件已移除");
+            await downloadFormaFile(doc);
+          })
+        }
+      >
+        <Download size={12} />
+      </button>
+      <button
+        type="button"
+        className="icon-btn icon-btn-sm"
         aria-label={`删除 ${f.name}`}
         data-tip="删除文件"
         data-tip-side="top"
@@ -687,6 +845,15 @@ export function FileBrowser({
       }}
     />
   );
+  if (tabImport && openTab)
+    return (
+      <WorkspaceImportDialog
+        file={tabImport.file}
+        targetProjectId={tabImport.projectId}
+        close={close}
+        onImported={openTab}
+      />
+    );
   return (
     <div
       className="modal-backdrop"
@@ -761,7 +928,7 @@ export function FileBrowser({
                     </select>
                   </label>
                   <button
-                    onClick={() => run(() => newBlankFile(selectedProject.id))}
+                    onClick={() => run(() => createBlank(selectedProject.id))}
                   >
                     <FilePlus2 size={14} />
                     在此项目中新建
@@ -814,7 +981,6 @@ export function FileBrowser({
               </button>
               <span className="toolbar-sep" aria-hidden="true" />
               <button
-                className="icon-btn icon-btn-sm"
                 title="导入为独立文件"
                 aria-label="导入为独立文件"
                 data-tip="导入为独立文件"
@@ -823,17 +989,18 @@ export function FileBrowser({
                 onClick={() => input.current?.click()}
               >
                 <Upload size={15} />
+                导入
               </button>
               <button
-                className="icon-btn icon-btn-sm"
+                className="primary"
                 title="新建设计文件"
-                aria-label="新建设计文件"
+                aria-label="新建空白文件"
                 data-tip="新建设计文件"
                 data-tip-desc="创建一个空白设计文件并立即切换"
                 data-tip-side="bottom"
-                onClick={() => run(() => newBlankFile(selectedProject?.id))}
+                onClick={() => run(() => createBlank(selectedProject?.id))}
               >
-                <FilePlus2 size={16} />
+                + 新建设计
               </button>
             </div>
             {!filtered.length ? (
@@ -851,12 +1018,17 @@ export function FileBrowser({
                     <FileThumbnail
                       file={f}
                       current={f.key === currentKey ? current : undefined}
+                      onOpen={openTab}
                     />
                     <div className="file-card-meta">
                       {renaming?.key === f.key ? (
                         renameInput(renaming)
                       ) : (
-                        <a href={fileUrl(f.key)} title={f.name}>
+                        <a
+                          href={editorFileUrl(fileUrl(f.key))}
+                          title={f.name}
+                          onClick={(event) => openLink(event, f)}
+                        >
                           {f.name}
                         </a>
                       )}
@@ -890,7 +1062,10 @@ export function FileBrowser({
                     {renaming?.key === f.key ? (
                       renameInput(renaming)
                     ) : (
-                      <a href={fileUrl(f.key)}>
+                      <a
+                        href={editorFileUrl(fileUrl(f.key))}
+                        onClick={(event) => openLink(event, f)}
+                      >
                         <File size={15} />
                         <span className="truncate">{f.name}</span>
                         <small>{f.pages} 页</small>
@@ -933,15 +1108,18 @@ export function FileBrowser({
               const external = await isExternalDesign(file);
               checkDesignFileSize(file.size, external);
               if (external) {
-                externalImport(file, selectedProject?.id ?? null);
+                const projectId = selectedProject?.id ?? null;
+                if (openTab) setTabImport({ file, projectId });
+                else externalImport(file, projectId);
                 return;
               }
-              location.assign(
-                await createBrowserFile(
-                  await readNativeDocument(file),
-                  selectedProject?.id,
-                ),
-              );
+              const doc = await readNativeDocument(file);
+              if (openTab)
+                await createDocumentTab(openTab, doc, selectedProject?.id);
+              else
+                location.assign(
+                  await createBrowserFile(doc, selectedProject?.id),
+                );
             } catch (err) {
               reportError(err);
             }

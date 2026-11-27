@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
+import pkg from "../package.json";
 import { imageAssets } from "../src/domain/images";
 import { parseDocument } from "../src/domain/document";
 import {
@@ -24,8 +25,30 @@ import {
 } from "../src/agent/design-engine";
 import { generationSchema } from "../src/agent/provider";
 import { listPublicProviderPresets } from "../src/agent/provider-registry";
+import { jsonRpcErrorCodes } from "./a2a-protocol";
+import {
+  A2ARpcError,
+  createA2AServer,
+  type A2ARuntimeAdapter,
+} from "./a2a-server";
 import { AgentConfigStore } from "./agent-config-store";
-import { sessionRequest } from "./agent-sessions";
+import {
+  clearSessionProposalByTask,
+  getLiveSession,
+  recordSessionClient,
+  resolveBearerSessionKey,
+  runSessionDesignSystem,
+  runSessionExportReact,
+  runSessionLint,
+  runSessionRenderPreview,
+  sessionRequest,
+  submitSessionProposal,
+} from "./agent-sessions";
+import { createFormaMcpHttpHandler } from "./mcp-http";
+import {
+  runDelegatedDesignTask,
+  type DelegateDesignRunner,
+} from "./runtime-capabilities";
 import { SkillRegistry } from "./skill-registry";
 
 export interface AgentHttpOptions {
@@ -392,22 +415,242 @@ export function createAgentRequestHandler(options: AgentHttpOptions = {}) {
 
   let activeGenerations = 0;
 
+  const delegateRunner: DelegateDesignRunner = async (input) => {
+    const profile = store.getResolvedProfile();
+    if (!profile) {
+      throw Object.assign(
+        new Error(
+          "Forma 尚未配置 AI 模型，请先在 Forma 模型配置中连接供应商；只读查询、画板出图、React 导出与直接提交事务仍可离线使用",
+        ),
+        { status: 503 },
+      );
+    }
+    if (activeGenerations >= 3) {
+      throw Object.assign(new Error("生成任务繁忙，请稍后重试"), {
+        status: 429,
+      });
+    }
+    activeGenerations++;
+    try {
+      const result = await runDesignChat(
+        {
+          prompt: input.prompt,
+          document: input.document,
+          selection: input.selection,
+          generationMode: input.generationMode ?? "auto",
+          targetLibraryId: input.targetLibraryId,
+        },
+        {
+          adapterConfig: {
+            providerId: profile.providerId,
+            baseUrl: profile.baseUrl,
+            apiKey: profile.apiKey,
+            model: profile.selectedModel,
+            capabilities: profile.capabilities,
+            extraHeaders: profile.extraHeaders,
+          },
+          providerName: profile.providerName,
+          enableScopePlan: false,
+          skillProvider: skillRegistry.asRuntimeProvider(),
+          fetchImpl,
+          signal: AbortSignal.timeout(designChatTimeoutMs),
+        },
+      );
+      return {
+        transaction: result.transaction,
+        reply: result.reply,
+        toolTrace: result.toolTrace,
+        diagnostics: result.diagnostics,
+      };
+    } finally {
+      activeGenerations--;
+    }
+  };
+
+  const mcpHttpHandler = createFormaMcpHttpHandler({
+    isAllowedOrigin,
+    delegateRunner,
+    version: pkg.version,
+  });
+
+  const toA2ASession = (key: string) => {
+    const session = getLiveSession(key);
+    if (!session) return null;
+    return {
+      sessionKey: session.key,
+      approvalMode: session.approvalMode,
+      writeEnabled: session.writeEnabled,
+      documentId: session.context.document.id,
+      documentName: session.context.document.name,
+      revision: session.context.document.revision,
+      selection: session.context.selection,
+    };
+  };
+
+  const a2aAdapter: A2ARuntimeAdapter = {
+    authenticate(authHeader) {
+      const key = resolveBearerSessionKey(authHeader);
+      return key ? toA2ASession(key) : null;
+    },
+    recordClient(sessionKey, clientName) {
+      recordSessionClient(sessionKey, { name: clientName, protocol: "a2a" });
+    },
+    async auditDesign(sessionKey, input) {
+      const lint = runSessionLint(sessionKey, { rootId: input.rootId });
+      const designSystem = runSessionDesignSystem(sessionKey, { kind: "all" });
+      return { issues: lint.issues, designSystem };
+    },
+    async renderPreview(sessionKey, input) {
+      return runSessionRenderPreview(sessionKey, input);
+    },
+    async exportReact(sessionKey, input) {
+      return runSessionExportReact(sessionKey, input);
+    },
+    async generateProposal(sessionKey, input) {
+      const live = getLiveSession(sessionKey);
+      if (!live) {
+        throw new A2ARpcError(
+          jsonRpcErrorCodes.internalError,
+          "外部 Agent 会话已结束",
+        );
+      }
+      if (!live.writeEnabled) {
+        throw new A2ARpcError(
+          jsonRpcErrorCodes.permissionDenied,
+          "当前外部连接处于只读模式，不允许写入画布",
+        );
+      }
+      if (input.transaction !== undefined) {
+        const submitted = submitSessionProposal(sessionKey, input.transaction, {
+          source: "a2a",
+          taskId: input.taskId,
+          summary: input.prompt.slice(0, 120),
+        });
+        const after = getLiveSession(sessionKey);
+        return {
+          proposalId: submitted.id,
+          operations: submitted.operations,
+          reply: `已生成包含 ${submitted.operations} 项改动的设计方案`,
+          autoApply: after?.approvalMode === "auto-apply",
+        };
+      }
+      if (!store.getResolvedProfile()) {
+        throw new A2ARpcError(
+          jsonRpcErrorCodes.modelNotConfigured,
+          "Forma 尚未配置 AI 模型，请先在 Forma 模型配置中连接供应商；只读审校、React 导出或携带 transaction 数据仍可离线执行",
+        );
+      }
+      const generated = await runDelegatedDesignTask(
+        live.context.document,
+        live.context.selection,
+        null,
+        {
+          prompt: input.prompt,
+          selectionId: input.selectionId,
+          targetLibraryId: input.targetLibraryId,
+        },
+        delegateRunner,
+      );
+      if (!generated.transaction) {
+        throw new A2ARpcError(
+          jsonRpcErrorCodes.internalError,
+          generated.reply || "模型未返回设计事务",
+        );
+      }
+      const submitted = submitSessionProposal(
+        sessionKey,
+        generated.transaction,
+        {
+          source: "a2a",
+          taskId: input.taskId,
+          summary: input.prompt.slice(0, 120),
+        },
+      );
+      const after = getLiveSession(sessionKey);
+      return {
+        proposalId: submitted.id,
+        operations: submitted.operations,
+        reply: generated.reply,
+        autoApply: after?.approvalMode === "auto-apply",
+        diagnostics: generated.diagnostics,
+      };
+    },
+    clearTaskProposal(sessionKey, taskId) {
+      clearSessionProposalByTask(sessionKey, taskId);
+    },
+    getSessionSnapshot(sessionKey) {
+      return toA2ASession(sessionKey);
+    },
+  };
+
+  const a2aServer = createA2AServer({
+    adapter: a2aAdapter,
+    version: pkg.version,
+    isAllowedOrigin,
+  });
+
   const handler = async (req: IncomingMessage, res: ServerResponse) => {
     const urlObj = new URL(req.url ?? "/", "http://127.0.0.1");
     const pathname = urlObj.pathname;
     const method = (req.method ?? "GET").toUpperCase();
 
-    // 1. Existing external MCP / Agent sessions (100% backward compatible)
+    // 0. Zero-config local MCP Streamable HTTP & A2A endpoints
+    if (pathname === "/mcp") {
+      await mcpHttpHandler(req, res);
+      return;
+    }
+    if (pathname === "/.well-known/agent-card.json") {
+      const host = req.headers.host ?? "127.0.0.1:5174";
+      a2aServer.handleAgentCard(req, res, `http://${host}`);
+      return;
+    }
+    if (pathname === "/api/a2a") {
+      await a2aServer.handleRpc(req, res);
+      return;
+    }
+
+    // 1. Existing & upgraded external MCP / A2A workspace sessions
     if (pathname.startsWith("/api/agent/sessions")) {
       try {
         const result = await sessionRequest(
           req,
           () => readJsonBody(req),
           isAllowedOrigin(req),
+          {
+            delegateRunner,
+            onCompleteTask: (sessionKey, taskId, body) =>
+              a2aServer.completeTaskFromEditor(sessionKey, taskId, {
+                note: body.note,
+              }),
+            onRejectTask: async (sessionKey, taskId, body) =>
+              a2aServer.rejectTaskFromEditor(sessionKey, taskId, body.reason),
+            listSessionTasks: (sessionKey) =>
+              a2aServer.listInboxTasks(sessionKey),
+          },
         );
+        if (
+          pathname === "/api/agent/sessions" &&
+          method === "POST" &&
+          result &&
+          typeof result === "object" &&
+          !("endpointBase" in result)
+        ) {
+          const host = req.headers.host ?? "";
+          if (isLoopbackHost(host)) {
+            sendJson(res, 200, { ...result, endpointBase: `http://${host}` });
+            return;
+          }
+        }
         sendJson(res, 200, result);
       } catch (err) {
-        sendJson(res, 400, {
+        const status =
+          err &&
+          typeof err === "object" &&
+          "status" in err &&
+          typeof (err as { status?: unknown }).status === "number"
+            ? (err as { status: number }).status
+            : 400;
+        sendJson(res, status, {
           error: sanitizeError(err, "会话请求失败"),
         });
       }

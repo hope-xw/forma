@@ -9,6 +9,9 @@ const chosen = process.argv.slice(2);
 const names = chosen.length
   ? chosen
   : [
+      "workspace-home",
+      "multi-tab",
+      "mcp-agent-runtime",
       "color-profile",
       "professional-editor",
       "container-rules",
@@ -105,9 +108,15 @@ try {
           route.fulfill({ contentType: "application/json", body }),
         );
       }
-      await page.goto(process.env.FORMA_URL || "http://127.0.0.1:5173/");
+      const baseUrl = process.env.FORMA_URL || "http://127.0.0.1:5173/";
+      const homeBoot = name === "workspace-home" || name === "multi-tab";
+      const targetUrl =
+        homeBoot || baseUrl.includes("?") ? baseUrl : baseUrl + "?editor=1";
+      await page.goto(targetUrl);
       await page
-        .locator(".editor-canvas, [data-design-id]")
+        .locator(
+          homeBoot ? ".workspace-home" : ".editor-canvas, [data-design-id]",
+        )
         .first()
         .waitFor({ state: "attached" });
       console.log(

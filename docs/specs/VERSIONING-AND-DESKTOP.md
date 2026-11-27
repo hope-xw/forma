@@ -1,8 +1,8 @@
 # 产品版本号规范与 Electron 桌面客户端架构规格
 
-- **最近更新**：2026-11-25
+- **最近更新**：2026-11-27
 - **状态**：已实施并验收
-- **核心实现**：[package.json](../../package.json)、[vite.config.ts](../../vite.config.ts)、[electron/main.mjs](../../electron/main.mjs)、[electron/preload.cjs](../../electron/preload.cjs)、[src/editor/App.tsx](../../src/editor/App.tsx)、[scripts/release/pipeline.ts](../../scripts/release/pipeline.ts)
+- **核心实现**：[package.json](../../package.json)、[vite.config.ts](../../vite.config.ts)、[electron/main.mjs](../../electron/main.mjs)、[electron/preload.cjs](../../electron/preload.cjs)、[src/application/workspace-tabs.ts](../../src/application/workspace-tabs.ts)、[src/editor/WorkspaceShell.tsx](../../src/editor/WorkspaceShell.tsx)、[src/editor/WorkspaceTabBar.tsx](../../src/editor/WorkspaceTabBar.tsx)、[src/editor/RecentFilesSubmenu.tsx](../../src/editor/RecentFilesSubmenu.tsx)、[src/infrastructure/forma-package.ts](../../src/infrastructure/forma-package.ts)、[src/editor/WorkspaceHome.tsx](../../src/editor/WorkspaceHome.tsx)、[src/editor/App.tsx](../../src/editor/App.tsx)、[scripts/release/pipeline.ts](../../scripts/release/pipeline.ts)
 - **关联文档**：[架构约定](../ARCHITECTURE.md) · [规格目录](README.md) · [编辑器验收记录](../EDITOR-ACCEPTANCE.md)
 
 ---
@@ -110,7 +110,10 @@ Forma 采用语义化版本号 `MAJOR.MINOR.PATCH[-prerelease]`：
 - **保留给画布原生处理**：`⌘R`（重命名图层，因此强制刷新改为 `⇧⌘R`）、`⌘0` / `⌘+` / `⌘-`（画布缩放，不触发浏览器整页缩放）、`⌘K`（命令面板）、`⌘G` / `⌘D` / `⇧⌘H` / `⇧⌘L`。
 - **输入框与画布双态路由**：`撤销 (⌘Z)`、`重做 (⇧⌘Z)`、`全选 (⌘A)` 由原生菜单经 IPC `forma:menu-action` 转发给渲染进程；当前焦点位于可编辑文本控件时执行原生 `document.execCommand`，否则执行 `editor.perform(...)`。
 - **原生剪贴板直通**：`剪切 (⌘X)`、`复制 (⌘C)`、`粘贴 (⌘V)` 使用 Electron 原生菜单角色，触发标准 DOM `cut` / `copy` / `paste` 事件，同时兼容输入框文本与画布图层子树剪贴板协议。
-- **文件打开关联**：安装包在 macOS 注册 `.forma` 与 `.forma.json` 文件关联，支持从访达双击或 `文件 → 打开设计文件… (⌘O)` 打开本地文件（执行 128 MB 上限与 Zod `parseDocument` 校验）。
+- **文件打开关联与原生 `.forma` 保存**：安装包在 macOS 注册 `.forma` 与 `.forma.json` 文件关联，支持从访达双击或 `文件 → 打开设计文件… (⌘O)` 打开本地文件（执行 512 MiB 原生 / 256 MiB 外部设计文件上限与 Zod `parseDocument` 校验）。自 `0.13.0` 起默认保存为原生单后缀 `.forma` ZIP 容器格式（`forma/package` v1，含 `manifest.json`、`document.json` / `document.parts.ndjson`、`preview.svg` 与原始二进制 `assets/images/*`、`assets/fonts/*`；完全向后兼容读取旧版 `.forma.json`）；桌面端绑定已打开/保存的 `.forma` 本地路径，支持 `⌘S` 原子原地保存与 `⇧⌘S` 原生另存为，且常规启动默认进入全屏工作台首页（[WorkspaceHome.tsx](../../src/editor/WorkspaceHome.tsx)），深链（`?file=`、`?example=`、`?editor=1`）与双击文件直达编辑器。
+- **单窗口多文件顶部 Tab 栏与 macOS 融合标题栏（自 `0.14.0` 起）**：macOS 主窗口采用 `titleBarStyle: "hiddenInset"`（`trafficLightPosition: { x: 14, y: 11 }`）将原生红黄绿窗口按钮融入 36px 顶部 Tab 栏（[WorkspaceTabBar.tsx](../../src/editor/WorkspaceTabBar.tsx)），左侧保留固定不可关闭的「工作台」Tab（`⌂`），右侧支持多份设计稿/样例并行开启、拖拽重排、中键关闭与右键菜单（「在新窗口中打开」通过受控 `openInNewWindow` IPC 启动新窗）。访达双击或 `⌘O` 打开本地文件时，主进程将文件句柄按 FIFO 队列挂载到当前活跃窗口并触发 `forma:open-file-in-tab` IPC 直接在现有窗口新增或去重聚焦 Tab（无存活主窗时自动创建新窗；离屏导入回归模式 `--forma-offscreen-qa` 保持逐文件独立窗口契约）。原生菜单接入 `⌘T`/`⌘N`（新建设计标签页）、`⌘W`（优先关闭当前文件 Tab，仅在工作台 Tab 激活时经 `closeCurrentWindow` 关闭窗口）、`⇧⌘T`（恢复最近关闭标签页）与 `⇧⌘N`/`⇧⌘W`（新建/关闭窗口）。
+- **本地模型配置零网络探测**：桌面端通过 `window.formaDesktop.hasConfiguredAgent()` 同步探测本机 `agent-profiles.json` / `agent-config.json` 与环境变量，仅在确认已存在模型配置时自动水合连接状态，未配置环境保持 `0` 联网请求。
+- **桌面内置零配置 MCP Streamable HTTP 与 A2A 端点（自 `0.15.0` 起）**：用户主动在「外部工具集成（MCP & A2A）」开启连接时，主进程按需拉起内置 `out-electron/agent-service.mjs`（回环 `127.0.0.1`），向渲染端回传真实 `endpointBase`（`http://127.0.0.1:<port>`），同时开放 `/mcp`、`/.well-known/agent-card.json` 与 `/api/a2a` 端点与持久化跨 Tab 同步路由，安装 DMG 的设计师无需克隆源码目录或运行 `npm run mcp` 即可一键接入 Claude Code / Cursor / Codex 及任意 A2A 编排 Agent；未开启外部连接时冷启动仍保持 `0` 联网请求与 `0` 额外监听端口。
 
 ### 4. 构建命令与产物约定
 
@@ -124,10 +127,10 @@ Forma 采用语义化版本号 `MAJOR.MINOR.PATCH[-prerelease]`：
 
 ### 5. 当前边界与后续演进
 
-- **已实现**：macOS Apple Silicon（`arm64`）完整 `.app` / `.dmg` / `.zip` 打包、构建钩子 [electron/after-sign.mjs](../../electron/after-sign.mjs) 自动补齐有效 ad-hoc 深度签名（通过 `codesign --verify --deep --strict`）、自定义 `forma://app/` 协议、多窗口打开样例、原生菜单与快捷键无冲突路由、`.forma` / `.forma.json` 文件关联与打开导入、统一版本号注入。
+- **已实现**：macOS Apple Silicon（`arm64`）完整 `.app` / `.dmg` / `.zip` 打包、构建钩子 [electron/after-sign.mjs](../../electron/after-sign.mjs) 自动补齐有效 ad-hoc 深度签名（通过 `codesign --verify --deep --strict`）、自定义 `forma://app/` 协议、全屏工作台首页默认启动与多窗口打开样例、原生菜单与快捷键无冲突路由、`.forma`（v1 ZIP 容器）与 `.forma.json` 文件关联及本机 `⌘S` 原地原子保存 / `⇧⌘S` 另存为、本地模型配置零网络磁盘探测、统一版本号注入。
 - **当前边界**：
   - 当前安装包使用本机 ad-hoc 签名。其他 Mac 上通过 Gatekeeper 的公开分发还需要 Developer ID 签名、公证和独立设备验证。
   - 已在 `package.json` 预置 Windows（NSIS）与 Linux（AppImage）构建目标，但本次仅在 macOS `arm64` 环境完成实机打包与运行验收；
-  - 尚未接入本机文件系统原地 `⌘S` 覆写、系统字体全量枚举、自动更新（`electron-updater`）与内置 `server/mcp.ts` 子进程托管，将作为后续桌面能力演进。
+  - 系统字体全量枚举、自动更新（`electron-updater`）与内置 `server/mcp.ts` 子进程托管将作为后续桌面能力演进。
 
 默认桌面操作验收从临时后台副本启动，在离屏窗口执行并验证窗口不可见。显式系统拼音用例需要系统输入法焦点，独立于这组后台验收。

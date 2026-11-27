@@ -226,10 +226,7 @@ test("导出设计备份 downloads the latest readable native document and repor
     assert.match(host.textContent ?? "", /已导出恢复备份文件/);
   }
   assert.equal(getRecoveryDocument.mock.callCount(), 2);
-  assert.deepEqual(names, [
-    "品牌-新稿.forma.json",
-    "forma-recovery.forma.json",
-  ]);
+  assert.deepEqual(names, ["品牌-新稿.forma", "forma-recovery.forma"]);
 });
 
 test("missing documents and failed backups leave the recovery controls usable", async (t) => {
@@ -262,8 +259,8 @@ test("save copy preserves Web titles and reflects the desktop bridge", async (t)
     assert.equal(
       saved.desc,
       desktop
-        ? "变更已自动保存在本机工作空间，随时可导出 .forma.json 备份"
-        : "变更已自动保存在当前浏览器中，换设备前可下载设计源文件",
+        ? "变更已自动保存在本机工作空间，随时可保存 .forma 设计文件"
+        : "变更已自动保存在当前浏览器中，换设备前可下载 .forma 设计文件",
     );
     assert.equal(saving.desc, saved.desc);
     assert.doesNotMatch(

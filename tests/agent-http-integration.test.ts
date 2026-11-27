@@ -1747,6 +1747,7 @@ test("desktop protocol forwards trusted app requests to its owned listener unles
     assert.deepEqual(await response.json(), {
       key: expected,
       editor: "editor",
+      ...(status < 400 ? { endpointBase: "http://127.0.0.1:" + port } : {}),
     });
   }
 });

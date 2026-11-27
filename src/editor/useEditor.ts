@@ -659,7 +659,9 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
   };
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
+  const tabActive = options?.active !== false;
   useEffect(() => {
+    if (!tabActive) return;
     const key = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.isComposing || isInput(e.target)) return;
       if (
@@ -914,7 +916,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
       window.removeEventListener("cut", onCopy);
       window.removeEventListener("paste", onPaste);
     };
-  }, [document.attempt, document.historyRef]);
+  }, [document.attempt, document.historyRef, tabActive]);
   return {
     ...document,
     canPasteStyle: !!styleClipboard,

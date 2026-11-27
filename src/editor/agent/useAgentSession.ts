@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -11,7 +12,6 @@ import {
 import type { DesignDocument } from "../../domain/document";
 import { transact } from "../../domain/commands";
 import type { AgentProgressStage } from "../../agent/design-engine";
-import { buildLibraryManifest } from "../../agent/library-intelligence";
 import {
   buildManualEpisodeFromSelection,
   episodeIdentityKey,
@@ -45,6 +45,7 @@ import {
 import {
   fetchAgentStatus,
   fetchSkills,
+  hasConfiguredAgentHint,
   formatContextWindow,
   type SkillSummary,
   providerBadgeStyle,
@@ -86,7 +87,6 @@ import {
   useEpisodeArchive,
 } from "./EpisodeDrawer";
 
-import type { ComposerSettingsPopoverProps } from "./ComposerSettingsPopover";
 import {
   applyScopeChoiceToMessages,
   buildEpisodeMeta,
@@ -190,6 +190,15 @@ async function compileDraftProposal(
 // App remounts the panel when switching pages. Keep explicit choices for the open session.
 const manualLibraryByFile = new Map<string, string>();
 
+function desktopAgentBridge() {
+  if (typeof window === "undefined") return;
+  return (
+    window as Window & {
+      formaDesktop?: { hasConfiguredAgent?(): Promise<boolean> };
+    }
+  ).formaDesktop;
+}
+
 export function useAgentSession({
   document,
   activePageId = document.activePage,
@@ -232,22 +241,25 @@ export function useAgentSession({
   const [mentions, setMentions] = useState<ComposerMention[]>([]);
   const [attachments, setAttachments] = useState<AgentAttachment[]>([]);
   const [mentionOpen, setMentionOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [localStatus, setLocalStatus] = useState<AgentStatusResponse | null>(
     null,
   );
   const [connectionState, setConnectionState] = useState<
     "idle" | "checking" | "unavailable"
-  >("idle");
+  >(() =>
+    !status &&
+    (hasConfiguredAgentHint() || desktopAgentBridge()?.hasConfiguredAgent)
+      ? "checking"
+      : "idle",
+  );
   const [localConfigOpen, setLocalConfigOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
   const [skills, setSkills] = useState<SkillSummary[] | null>(null);
   const [activeSkills, setActiveSkills] = useState<string[]>([]);
   const [skillError, setSkillError] = useState("");
   const [switchingModel, setSwitchingModel] = useState(false);
-  const [generationMode, setGenerationMode] = useState<GenerationMode>("auto");
-  const [visualCritiqueEnabled, setVisualCritiqueEnabled] = useState(true);
+  const generationMode: GenerationMode = "auto";
 
   const effectiveFileKey = fileKey ?? "forma.document.v1";
   const [localArchive, setLocalArchive] = useState<{
@@ -343,7 +355,6 @@ export function useAgentSession({
   const [installingLibrary, setInstallingLibrary] = useState(false);
   const [episodeSavedNote, setEpisodeSavedNote] = useState("");
   const drawerToggleRef = useRef<HTMLButtonElement>(null);
-  const settingsToggleRef = useRef<HTMLButtonElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const scopeId = memoryScope.scopeProjectId;
 
@@ -417,11 +428,6 @@ export function useAgentSession({
     resolveSessionIdentity,
   ]);
 
-  const tiers = useMemo(
-    () => targetLibrary && buildLibraryManifest(targetLibrary).tierCounts,
-    [targetLibrary],
-  );
-
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const latestAssistant = [...messages]
     .reverse()
@@ -463,10 +469,16 @@ export function useAgentSession({
   const prevProposalRef = useRef<PendingAgentProposal | null>(null);
   const lastAppliedProposalRef = useRef<PendingAgentProposal | null>(null);
 
-  const effectiveStatus = status !== undefined ? status : localStatus;
+  const effectiveStatus =
+    onStatusChange && status !== undefined ? status : (status ?? localStatus);
   const activeProfile = effectiveStatus?.activeProfile ?? null;
+  const connectedProfileId = effectiveStatus?.configured
+    ? activeProfile?.id
+    : undefined;
+  const skillRequest = useRef<AbortController | null>(null);
 
   function updateSkills(list: SkillSummary[]) {
+    setSkillError("");
     const enabled = list.filter((skill) => skill.enabled);
     setSkills(enabled);
     setActiveSkills((previous) =>
@@ -475,8 +487,14 @@ export function useAgentSession({
   }
 
   useEffect(() => {
-    if (!settingsOpen || !activeProfile) return;
+    if (!connectedProfileId) {
+      setActiveSkills([]);
+      setSkills(null);
+      setSkillError("");
+      return;
+    }
     const controller = new AbortController();
+    skillRequest.current = controller;
     setSkillError("");
     void fetchSkills(controller.signal)
       .then(({ skills: list }) => {
@@ -486,7 +504,7 @@ export function useAgentSession({
         if (!controller.signal.aborted) setSkillError(err.message);
       });
     return () => controller.abort();
-  }, [settingsOpen, activeProfile?.id]);
+  }, [connectedProfileId]);
 
   // Auto-grow composer cleanly between 38px and 120px
   useEffect(() => {
@@ -642,7 +660,6 @@ export function useAgentSession({
       lastAppliedProposalRef.current = null;
       setEpisodeSavedNote("");
     }
-    if (next && next.source !== "chat") cancelChat();
     if (activeProposalMsgId && activeProposalMsgId !== msgId) {
       setMessages((prev) =>
         prev.map((m) =>
@@ -665,9 +682,8 @@ export function useAgentSession({
     }
   }
 
-  async function connect() {
+  async function connect(request = new AbortController()) {
     statusRequest.current?.abort();
-    const request = new AbortController();
     statusRequest.current = request;
     setConnectionState("checking");
     setError("");
@@ -683,8 +699,38 @@ export function useAgentSession({
       if (!request.signal.aborted) {
         setConnectionState("unavailable");
       }
+    } finally {
+      if (statusRequest.current === request) statusRequest.current = null;
     }
   }
+
+  const hydrate = useEffectEvent((request: AbortController) => {
+    if (!statusRequest.current || statusRequest.current.signal.aborted)
+      void connect(request);
+  });
+  useEffect(() => {
+    const hinted = hasConfiguredAgentHint();
+    const desktop = desktopAgentBridge();
+    if (effectiveStatus || (!hinted && !desktop?.hasConfiguredAgent)) {
+      setConnectionState("idle");
+      return;
+    }
+    setConnectionState("checking");
+    const request = new AbortController();
+    async function restore() {
+      let configured = false;
+      try {
+        configured = await (hinted || desktop?.hasConfiguredAgent?.() || false);
+      } catch {
+        // The optional desktop preflight can be unavailable during shutdown.
+      }
+      if (request.signal.aborted) return;
+      if (configured) hydrate(request);
+      else if (!statusRequest.current) setConnectionState("idle");
+    }
+    void restore();
+    return () => request.abort();
+  }, [effectiveStatus, effectiveFileKey, document.id]);
 
   async function handleModelSwitch(nextModel: string) {
     if (!activeProfile || nextModel === activeProfile.selectedModel) return;
@@ -903,7 +949,6 @@ export function useAgentSession({
       selection: sel,
     };
     setActiveSkills([]);
-    setSettingsOpen(false);
     const userMsgId = `u-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const userMsg: ChatMessage = {
       id: userMsgId,
@@ -1180,7 +1225,6 @@ export function useAgentSession({
       if (
         !result.htmlDraft ||
         result.transaction ||
-        !visualCritiqueEnabled ||
         !profile?.capabilities.supportsVision ||
         !rootId ||
         controller.signal.aborted
@@ -1453,19 +1497,29 @@ export function useAgentSession({
     updatePendingProposal(null);
   }
 
-  function receiveExternalProposal(tx: Transaction) {
-    if (lifetimeInvalid) return;
-    setError("");
+  // Proposals from the independent integrations dialog replace the current chat preview.
+  const receiveExternalProposal = useEffectEvent(() => {
+    cancelChat();
     setAppliedRevision(null);
-    updatePendingProposal({
-      transaction: tx,
-      summary: `来自外部工具的设计方案（${tx.operations.length} 项改动）`,
-      reply: "",
-      createdRootIds: extractCreatedRootIds(tx),
-      scopeProjectId: scopeId,
-      source: "external",
-    });
-  }
+    setError("");
+    if (activeProposalMsgId) {
+      setMessages((previous) =>
+        previous.map((message) =>
+          message.id === activeProposalMsgId
+            ? { ...message, discarded: true }
+            : message,
+        ),
+      );
+      setActiveProposalMsgId(null);
+    }
+  });
+  useLayoutEffect(() => {
+    if (
+      pendingProposal?.source === "external" ||
+      pendingProposal?.source === "manual"
+    )
+      receiveExternalProposal();
+  }, [pendingProposal]);
 
   function addMention(item: ComposerMention) {
     if (mentions.some((m) => mentionIdentity(m) === mentionIdentity(item)))
@@ -1511,11 +1565,6 @@ export function useAgentSession({
   const profileBadge = activeProfile
     ? providerBadgeStyle(activeProfile.providerId)
     : null;
-
-  const activeSettingsCount =
-    (selectedLibraryId ? 1 : 0) +
-    (generationMode !== "auto" ? 1 : 0) +
-    activeSkills.length;
 
   const showProjectContextStrip =
     Boolean(activeProject) ||
@@ -1630,52 +1679,6 @@ export function useAgentSession({
     changeTargetLibrary(id);
   }
 
-  const settings: ComposerSettingsPopoverProps = {
-    open: settingsOpen,
-    onClose: () => {
-      setSettingsOpen(false);
-      settingsToggleRef.current?.focus();
-    },
-    document,
-    selection,
-    hasSelection,
-    busy,
-    selectedLibraryId,
-    tiers,
-    onChangeLibrary: chooseLibrary,
-    generationMode,
-    onChangeGenerationMode: setGenerationMode,
-    supportsVision,
-    visualCritiqueEnabled,
-    onToggleVisualCritique: () => setVisualCritiqueEnabled((value) => !value),
-    activeProfile,
-    skills,
-    activeSkills,
-    skillError,
-    onToggleSkill: (skillId, checked) => {
-      setActiveSkills((previous) =>
-        checked
-          ? [...previous, skillId]
-          : previous.filter((id) => id !== skillId),
-      );
-    },
-    onOpenSkillsManager: () => setSkillsOpen(true),
-    onOpenModelConfig: openModelConfig,
-    onReceiveExternalProposal: receiveExternalProposal,
-    onImportManualTransaction: (validated) => {
-      updatePendingProposal({
-        transaction: validated,
-        summary: `导入的设计方案（${validated.operations.length} 项改动）`,
-        reply: "",
-        createdRootIds: extractCreatedRootIds(validated),
-        scopeProjectId: scopeId,
-        source: "manual",
-      });
-      setError("");
-    },
-    onManualImportError: setError,
-  };
-
   const picker: ComponentProps<typeof AgentMentionPopover> | null = mentionOpen
     ? {
         document,
@@ -1758,10 +1761,13 @@ export function useAgentSession({
       memoryDrawerOpen,
       activeModelSummary,
       openModelConfig,
+      openSkillsManager() {
+        skillRequest.current?.abort();
+        setSkillsOpen(true);
+      },
       hasMessages: messages.length > 0,
       busy,
       toggleMemory() {
-        setSettingsOpen(false);
         setMentionOpen(false);
         setMemoryDrawerOpen((open) => !open);
       },
@@ -1820,20 +1826,26 @@ export function useAgentSession({
     },
     composer: {
       picker,
-      settings,
-      targetLibrary,
-      generationMode,
+      libraries: Object.values(document.libraries ?? {}),
+      selectedLibraryId,
+      chooseLibrary,
       mentions,
       attachments,
       activeSkills,
       hasContext: Boolean(
-        targetLibrary ||
-        generationMode !== "auto" ||
         mentions.length ||
         attachments.length ||
-        activeSkills.length,
+        (connectedProfileId && activeSkills.length),
       ),
-      skills,
+      skills: connectedProfileId ? skills : null,
+      skillError,
+      toggleSkill(id: string) {
+        setActiveSkills((previous) =>
+          previous.includes(id)
+            ? previous.filter((active) => active !== id)
+            : [...previous, id],
+        );
+      },
       composerRef,
       hasSelection,
       prompt,
@@ -1842,19 +1854,11 @@ export function useAgentSession({
       onComposerKeyDown,
       mentionOpen,
       toggleMentions() {
-        setSettingsOpen(false);
         setMentionOpen((v) => !v);
-      },
-      toggleSettings() {
-        setMentionOpen(false);
-        setSettingsOpen((v) => !v);
       },
       connection,
       supportsVision,
       fileInputRef,
-      settingsToggleRef,
-      settingsOpen,
-      activeSettingsCount,
       handleAddImages,
       activeProfile,
       activeModelSummary,

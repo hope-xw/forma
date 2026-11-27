@@ -29,6 +29,7 @@ import {
   providerBadgeStyle,
   refreshProviderProfile,
   saveProviderProfile,
+  syncConfiguredAgentHint,
   updateProviderProfile,
   type AgentStatusResponse,
   type DetectProviderResponse,
@@ -751,7 +752,10 @@ function ModelDialog({
   const pending = useRef<AbortController | null>(null);
   const initialRead = useRef<AbortController | null>(null);
   const notify = useRef(onStatusChange);
-  notify.current = onStatusChange;
+  notify.current = (next) => {
+    syncConfiguredAgentHint(Boolean(next.configured && next.activeProfile));
+    onStatusChange(next);
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -879,7 +883,7 @@ function ModelDialog({
             busy={busy}
             run={run}
             saved={(next) => {
-              onStatusChange(next);
+              notify.current(next);
               onClose();
             }}
           />
@@ -898,7 +902,7 @@ function ModelDialog({
                 onClick={() =>
                   run(async (signal) => {
                     const next = await fetchAgentStatus(signal);
-                    if (!signal.aborted) onStatusChange(next);
+                    if (!signal.aborted) notify.current(next);
                   })
                 }
               >
@@ -925,7 +929,7 @@ function ModelDialog({
                 busy={busy}
                 run={run}
                 updated={(next, note) => {
-                  onStatusChange(next);
+                  notify.current(next);
                   setNotice(note ?? "");
                 }}
               />

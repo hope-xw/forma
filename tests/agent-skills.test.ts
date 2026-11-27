@@ -1111,6 +1111,10 @@ test(
         "get_node_details",
         "get_design_system",
         "lint_design",
+        "list_open_tabs",
+        "render_artboard_preview",
+        "export_react_code",
+        "delegate_design_task",
       ].sort(),
     );
     for (const [name, endpoint, args] of [

@@ -10,7 +10,6 @@ import {
   Loader2,
   Package,
   Settings2,
-  SlidersHorizontal,
   Sparkles,
   Square,
   Trash2,
@@ -21,14 +20,9 @@ import {
 import { AgentMentionPopover, MentionKindIcon } from "./CanvasAgentBar";
 import { ModelConfigModal } from "./ModelConfigModal";
 import { SkillsModal } from "./SkillsModal";
-import {
-  compactModelLabel,
-  GENERATION_MODE_META,
-  mentionIdentity,
-} from "./agent/agent-copy";
+import { compactModelLabel, mentionIdentity } from "./agent/agent-copy";
 import { EpisodeDrawer } from "./agent/EpisodeDrawer";
 import { ChatMessageItem, ProposalPreviewCard } from "./agent/ChatMessageItem";
-import { ComposerSettingsPopover } from "./agent/ComposerSettingsPopover";
 import { useAgentSession, type AgentPanelProps } from "./agent/useAgentSession";
 import "./agent-ui.css";
 
@@ -115,6 +109,19 @@ function PanelHeader(view: AgentSession["header"]) {
                 {view.episodes.length > 99 ? "99+" : view.episodes.length}
               </span>
             )}
+          </button>
+
+          <button
+            type="button"
+            className="icon-btn icon-btn-sm agent-header-skills-btn"
+            aria-label="管理设计技能（Skills）"
+            data-tip="设计技能"
+            data-tip-desc="管理或导入 SKILL.md 设计规范与风格技能"
+            data-tip-side="bottom"
+            aria-haspopup="dialog"
+            onClick={view.openSkillsManager}
+          >
+            <BookOpen size={14} />
           </button>
 
           <button
@@ -239,30 +246,33 @@ function Conversation(view: AgentSession["conversation"]) {
                       : "未连接模型"}
                 </span>
               </div>
-              <p>
-                {view.statusNote ||
-                  "连接 AI 模型即可对话创作，手动编辑与导出不受影响。"}
-              </p>
-              <div className="agent-connect-actions">
-                <button
-                  type="button"
-                  className="primary"
-                  onClick={view.openModelConfig}
-                >
-                  配置模型
-                </button>
-                <button
-                  type="button"
-                  className="agent-connect-probe"
-                  aria-label="连接模型服务"
-                  data-tip="检测本机已保存的模型配置"
-                  data-tip-side="bottom"
-                  disabled={view.connection === "checking"}
-                  onClick={() => void view.connect()}
-                >
-                  检测本地连接
-                </button>
-              </div>
+              {view.connection !== "checking" && (
+                <>
+                  <p>
+                    {view.statusNote ||
+                      "连接 AI 模型即可对话创作，手动编辑与导出不受影响。"}
+                  </p>
+                  <div className="agent-connect-actions">
+                    <button
+                      type="button"
+                      className="primary"
+                      onClick={view.openModelConfig}
+                    >
+                      配置模型
+                    </button>
+                    <button
+                      type="button"
+                      className="agent-connect-probe"
+                      aria-label="连接模型服务"
+                      data-tip="检测本机已保存的模型配置"
+                      data-tip-side="bottom"
+                      onClick={() => void view.connect()}
+                    >
+                      检测本地连接
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -381,19 +391,26 @@ function Conversation(view: AgentSession["conversation"]) {
         <div className="agent-reconnect-bar" role="status">
           <span className="agent-reconnect-label">
             <i aria-hidden="true" className="agent-status-dot" />
-            未连接模型
+            {view.connection === "checking"
+              ? "正在检测本地服务…"
+              : view.connection === "unavailable"
+                ? "模型服务暂不可用"
+                : "未连接模型"}
           </span>
-          <button type="button" onClick={view.openModelConfig}>
-            配置模型
-          </button>
-          <button
-            type="button"
-            aria-label="连接模型服务"
-            disabled={view.connection === "checking"}
-            onClick={() => void view.connect()}
-          >
-            检测连接
-          </button>
+          {view.connection !== "checking" && (
+            <>
+              <button type="button" onClick={view.openModelConfig}>
+                配置模型
+              </button>
+              <button
+                type="button"
+                aria-label="连接模型服务"
+                onClick={() => void view.connect()}
+              >
+                检测连接
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -404,47 +421,49 @@ function Composer(view: AgentSession["composer"]) {
   return (
     <div className="agent-composer">
       {view.picker && <AgentMentionPopover {...view.picker} />}
-      <ComposerSettingsPopover {...view.settings} />
+      {view.skills && view.skills.length > 0 && (
+        <details className="agent-turn-skills">
+          <summary>
+            本轮技能
+            {view.activeSkills.length > 0 && ` · ${view.activeSkills.length}`}
+          </summary>
+          <div
+            className="agent-skill-picker"
+            role="group"
+            aria-label="选择本轮技能"
+          >
+            {view.skills.map((skill) => (
+              <label
+                key={skill.id}
+                data-tip={skill.name}
+                data-tip-desc={skill.description}
+              >
+                <input
+                  type="checkbox"
+                  checked={view.activeSkills.includes(skill.id)}
+                  disabled={
+                    view.busy ||
+                    (view.activeSkills.length >= 16 &&
+                      !view.activeSkills.includes(skill.id))
+                  }
+                  onChange={() => view.toggleSkill(skill.id)}
+                />
+                {skill.name}
+              </label>
+            ))}
+          </div>
+        </details>
+      )}
+      {view.skillError && (
+        <p className="agent-config-error" role="status">
+          无法载入本轮技能，可在「设计技能」中重试。
+        </p>
+      )}
 
       <div className="agent-composer-box">
         {/* Active context tags — only shown when user set constraints or attached refs */}
         {view.hasContext && (
           <div className="agent-chips-row agent-composer-context">
-            {view.targetLibrary && (
-              <span className="agent-context-chip">
-                <Package size={11} />
-                <span className="agent-chip-label">
-                  {view.targetLibrary.name}
-                </span>
-                <button
-                  type="button"
-                  className="agent-chip-remove"
-                  aria-label={`取消指定组件库 ${view.targetLibrary.name}`}
-                  data-tip="恢复自动匹配组件库"
-                  data-tip-side="top"
-                  onClick={() => view.settings.onChangeLibrary("")}
-                >
-                  <X size={10} />
-                </button>
-              </span>
-            )}
-            {view.generationMode !== "auto" && (
-              <span className="agent-context-chip">
-                <span className="agent-chip-label">
-                  {GENERATION_MODE_META[view.generationMode].shortLabel}
-                </span>
-                <button
-                  type="button"
-                  className="agent-chip-remove"
-                  aria-label="恢复自动选择生成方式"
-                  data-tip="恢复自动选择"
-                  data-tip-side="top"
-                  onClick={() => view.settings.onChangeGenerationMode("auto")}
-                >
-                  <X size={10} />
-                </button>
-              </span>
-            )}
             {view.mentions.map((m) => (
               <span key={mentionIdentity(m)} className="agent-mention-chip">
                 <MentionKindIcon kind={m.kind} />
@@ -494,7 +513,7 @@ function Composer(view: AgentSession["composer"]) {
                     aria-label={"移除本轮技能 " + id}
                     data-tip="移除本轮技能"
                     data-tip-side="top"
-                    onClick={() => view.settings.onToggleSkill(id, false)}
+                    onClick={() => view.toggleSkill(id)}
                   >
                     <BookOpen size={10} />
                     {view.skills?.find((skill) => skill.id === id)?.name ?? id}
@@ -521,7 +540,7 @@ function Composer(view: AgentSession["composer"]) {
           onKeyDown={view.onComposerKeyDown}
         />
 
-        <div className="agent-composer-footer">
+        <div className="agent-composer-footer agent-composer-actions">
           <div className="agent-composer-tools">
             <button
               type="button"
@@ -562,23 +581,26 @@ function Composer(view: AgentSession["composer"]) {
               <ImagePlus size={13} />
             </button>
 
-            <button
-              ref={view.settingsToggleRef}
-              type="button"
-              className={`icon-btn icon-btn-sm agent-settings-trigger ${view.settingsOpen ? "active" : ""}`}
-              aria-label="创作设置"
-              aria-expanded={view.settingsOpen}
-              data-tip="创作设置"
-              data-tip-desc="选择组件库、生成方式、视觉优化、设计技能与外部接入"
+            <label
+              className="agent-composer-lib-pill"
+              data-tip="目标组件库"
               data-tip-side="top"
-              disabled={view.busy}
-              onClick={view.toggleSettings}
             >
-              <SlidersHorizontal size={13} />
-              {view.activeSettingsCount > 0 && (
-                <span className="agent-settings-dot" aria-hidden="true" />
-              )}
-            </button>
+              <Package size={12} aria-hidden="true" />
+              <select
+                aria-label="目标组件库"
+                value={view.selectedLibraryId}
+                disabled={view.busy}
+                onChange={(event) => view.chooseLibrary(event.target.value)}
+              >
+                <option value="">自动匹配</option>
+                {view.libraries.map((lib) => (
+                  <option key={lib.id} value={lib.id}>
+                    {lib.name}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             <input
               ref={view.fileInputRef}

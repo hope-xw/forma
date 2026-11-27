@@ -26,7 +26,11 @@ function inferSide(el: HTMLElement): Side {
     explicit === "right"
   )
     return explicit;
-  if (el.closest("header, .canvas-top, .panel-tabs, .ds-header, .vector-tools"))
+  if (
+    el.closest(
+      "header, .workspace-tabbar, .canvas-top, .panel-tabs, .ds-header, .vector-tools",
+    )
+  )
     return "bottom";
   if (el.closest(".toolbar")) return "top";
   if (el.closest(".right-panel")) return "top";
@@ -97,7 +101,23 @@ function findTipTarget(
   return null;
 }
 
+let activeTooltipHostOwner: symbol | null = null;
+
 export function TooltipHost() {
+  const hostOwnerRef = useRef<symbol | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
+  useEffect(() => {
+    if (!hostOwnerRef.current) hostOwnerRef.current = Symbol("tooltip-host");
+    if (activeTooltipHostOwner === null) {
+      activeTooltipHostOwner = hostOwnerRef.current;
+      setIsOwner(true);
+    }
+    return () => {
+      if (activeTooltipHostOwner === hostOwnerRef.current) {
+        activeTooltipHostOwner = null;
+      }
+    };
+  }, []);
   const [tip, setTip] = useState<TipState | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const hoveredRef = useRef<HTMLElement | null>(null);
@@ -106,6 +126,7 @@ export function TooltipHost() {
   const visibleRef = useRef(false);
 
   useEffect(() => {
+    if (!isOwner) return;
     const clearTimer = () => {
       if (timerRef.current !== null) {
         window.clearTimeout(timerRef.current);
@@ -239,7 +260,7 @@ export function TooltipHost() {
       window.removeEventListener("keydown", onKeyDown, true);
       window.removeEventListener("blur", onDismiss);
     };
-  }, []);
+  }, [isOwner]);
 
   useLayoutEffect(() => {
     const el = tipRef.current;
@@ -330,7 +351,7 @@ export function TooltipHost() {
     el.style.visibility = "visible";
   }, [tip]);
 
-  if (!tip) return null;
+  if (!isOwner || !tip) return null;
 
   return createPortal(
     <div

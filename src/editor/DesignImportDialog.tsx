@@ -62,12 +62,14 @@ export function DesignImportDialog({
   existing,
   close,
   locate,
+  onImported,
 }: {
   file?: File;
   targetProjectId?: string | null;
   existing?: DesignDocument;
   close(): void;
   locate?(pageId: string, nodeId: string): void;
+  onImported?(target: { fileKey: string; title: string }): void;
 }) {
   const [preview, setPreview] = useState<{
     report: ImportReport;
@@ -93,6 +95,16 @@ export function DesignImportDialog({
           migrateDraftEpisodes: false,
           requireDurable: true,
         });
+      }
+      if (onImported && result.key) {
+        const title =
+          (preview?.report.filename || file?.name || "导入的设计").replace(
+            /\.(fig|sketch|forma(?:\.json)?)$/i,
+            "",
+          ) || "导入的设计";
+        close();
+        onImported({ fileKey: result.key, title });
+        return;
       }
       location.assign(result.url);
     } catch (error) {

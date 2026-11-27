@@ -81,7 +81,7 @@ async function launch(profile) {
       );
     }
     observeDownloads(app, page);
-    await page.locator(".editor-canvas").waitFor();
+    await page.locator(".workspace-home, .editor-canvas").first().waitFor();
     assert.equal(
       await page.evaluate(() => window.formaDesktop?.version),
       version,
@@ -105,6 +105,10 @@ async function editorFlow(name) {
       importModuleDynamically: constants.USE_MAIN_CONTEXT_DEFAULT_LOADER,
     });
     page.setDefaultTimeout(12000);
+    if (await page.locator(".workspace-home").count()) {
+      await page.goto("forma://app/?editor=1");
+      await page.locator(".editor-canvas").waitFor();
+    }
     const newWindow = async () => {
       const opening = app.waitForEvent("window");
       await app.evaluate(({ Menu }) => {
@@ -136,8 +140,9 @@ async function systemPinyin() {
   ]);
   const { app, page } = await launch("macos-pinyin");
   try {
-    await page.getByTitle("新建空白文件").click();
+    await page.getByRole("button", { name: "新建设计", exact: true }).click();
     await page.waitForURL(/file=forma\.file\./);
+    await page.locator(".editor-canvas").waitFor();
     await page.locator(".editor-canvas").focus();
     for (const key of ["f", "Enter", "t", "Enter", "Enter"])
       await page.keyboard.press(key);
@@ -251,8 +256,11 @@ async function publishAndReopen() {
   let { app, page } = await launch("publisher");
   const button = (name) => page.getByRole("button", { name, exact: true });
   const blank = async () => {
-    await button("新建空白文件").click();
+    if (await page.locator(".workspace-home").count())
+      await button("新建设计").click();
+    else await button("新建空白文件").click();
     await page.waitForURL(/file=forma\.file\./);
+    await page.locator(".editor-canvas").waitFor();
   };
   try {
     await blank();

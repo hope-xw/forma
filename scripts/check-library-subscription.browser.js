@@ -94,7 +94,22 @@ async (page) => {
       await b("设计文件").click();
       const file = await pending;
       const { readFile } = await import("node:fs/promises");
-      return JSON.parse(await readFile(await file.path(), "utf8"));
+      const raw = new Uint8Array(await readFile(await file.path()));
+      if (raw[0] === 0x50 && raw[1] === 0x4b) {
+        const path = await import("node:path");
+        const { createRequire } = await import("node:module");
+        const { pathToFileURL } = await import("node:url");
+        const { strFromU8, unzipSync } = createRequire(
+          pathToFileURL(
+            path.resolve(
+              process.env.FORMA_REPO_ROOT ?? process.cwd(),
+              "scripts/run-browser-checks.mjs",
+            ),
+          ),
+        )("fflate");
+        return JSON.parse(strFromU8(unzipSync(raw)["document.json"]));
+      }
+      return JSON.parse(Buffer.from(raw).toString("utf8"));
     };
     await page.locator('[data-testid="design-file-input"]').setInputFiles({
       name: "subscriber.forma.json",
