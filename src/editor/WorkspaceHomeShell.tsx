@@ -184,7 +184,7 @@ export function WorkspaceHomeShell({
         >
           <Suspense
             fallback={
-              <div role="status" className="toast">
+              <div role="status" className="panel-loading-pill">
                 加载模型配置…
               </div>
             }
@@ -213,7 +213,7 @@ export function WorkspaceHomeShell({
         >
           <Suspense
             fallback={
-              <div role="status" className="toast">
+              <div role="status" className="panel-loading-pill">
                 加载版本日志…
               </div>
             }

@@ -5,7 +5,7 @@ import { referencedComponents } from "./component-slots";
 import { fontAsset, fontId, mergeFonts } from "./fonts";
 import { integrateLibrarySystem } from "./library-design-system";
 import { designSystemSchema } from "./design-system-schema";
-import { resolveNode } from "./design-system";
+import { resolvedDocument, resolveNode } from "./design-system";
 import {
   planBindVariable,
   planApplyReusableStyle,
@@ -23,6 +23,7 @@ import {
   parseDocument,
   styleSchema,
   type DesignDocument,
+  type DesignNode,
 } from "./document";
 import {
   ancestors,
@@ -46,6 +47,9 @@ import {
 } from "./component-masters";
 import { resizeAnchoredLayers } from "./constraints";
 import { replaceText } from "./rich-text";
+import { localTransform, transform, visualBounds } from "./transforms";
+import { union } from "./geometry";
+import { flow, sizeScene } from "./sizing";
 import { booleanVector } from "./boolean-shapes";
 import {
   validateInstanceStructure,
@@ -55,12 +59,53 @@ import {
   planSetSlot,
   planDetachInstance,
 } from "./library";
+const nodePatchSchema = nodeSchema
+  .pick({
+    name: true,
+    text: true,
+    textRuns: true,
+    hidden: true,
+    locked: true,
+    devStatus: true,
+    exportSettings: true,
+    annotations: true,
+    fillToken: true,
+    instance: true,
+    templateKey: true,
+    vector: true,
+    control: true,
+    interaction: true,
+    interactions: true,
+    image: true,
+    sourceTextShape: true,
+    sourceTextLayout: true,
+    booleanOperation: true,
+    operandOperation: true,
+    compoundWindingRule: true,
+    maskSourceId: true,
+    maskType: true,
+    siblingMask: true,
+    variableBindings: true,
+    variableModes: true,
+    styleBindings: true,
+    styleOverrides: true,
+    instanceOverrides: true,
+  })
+  .partial();
+const stylePatchSchema = styleSchema.partial();
 const operationSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("setGuides"),
     guides: documentSchema.shape.guides.unwrap(),
   }),
   z.object({ type: z.literal("putFont"), id: fontId, font: fontAsset }),
+  z.object({
+    type: z.literal("convertToVector"),
+    id: z.string(),
+    vector: nodeSchema.shape.vector.unwrap(),
+    patch: nodePatchSchema.optional(),
+    style: stylePatchSchema.optional(),
+  }),
   z.object({ type: z.literal("flattenBoolean"), id: z.string() }),
   z.object({ type: z.literal("putImage"), id: imageId, image: imageSchema }),
   z.object({
@@ -128,40 +173,8 @@ const operationSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("update"),
     id: z.string(),
-    patch: nodeSchema
-      .pick({
-        name: true,
-        text: true,
-        textRuns: true,
-        hidden: true,
-        locked: true,
-        devStatus: true,
-        exportSettings: true,
-        annotations: true,
-        fillToken: true,
-        instance: true,
-        templateKey: true,
-        vector: true,
-        control: true,
-        interaction: true,
-        interactions: true,
-        image: true,
-        sourceTextShape: true,
-        sourceTextLayout: true,
-        booleanOperation: true,
-        operandOperation: true,
-        compoundWindingRule: true,
-        maskSourceId: true,
-        maskType: true,
-        siblingMask: true,
-        variableBindings: true,
-        variableModes: true,
-        styleBindings: true,
-        styleOverrides: true,
-        instanceOverrides: true,
-      })
-      .partial(),
-    style: styleSchema.partial().optional(),
+    patch: nodePatchSchema,
+    style: stylePatchSchema.optional(),
   }),
   z.object({ type: z.literal("remove"), id: z.string() }),
   z.object({
@@ -546,6 +559,28 @@ export function transact(
       !(onlyUnlock && !ancestors(next, node.id).some((n) => n.locked))
     )
       throw new Error("图层或父图层已锁定");
+    if (op.type === "convertToVector") {
+      if (
+        instanceOwner(next, node.id) ||
+        op.patch?.instance ||
+        op.patch?.templateKey
+      )
+        throw protectionError();
+      if (!["rectangle", "ellipse", "text", "vector"].includes(node.type))
+        throw new Error("只能将可编辑的形状或文字图层转为矢量");
+      Object.assign(node, op.patch, {
+        type: "vector",
+        vector: op.vector,
+        text: "",
+      });
+      Object.assign(node.style, op.style);
+      delete node.textRuns;
+      delete node.sourceTextShape;
+      delete node.sourceTextLayout;
+      delete node.image;
+      delete node.booleanOperation;
+      continue;
+    }
     if (op.type === "flattenBoolean") {
       if (!node.booleanOperation || protectedOwner(node.id))
         throw new Error("请选择可编辑的布尔组");
@@ -704,42 +739,64 @@ export function transact(
   const valid = parseDocument(next);
   let mutated = resizeAnchoredLayers(document, valid);
   // A Group is a bounding collection, not a fixed Frame. Rebase its children
-  // while preserving their world positions, working from inner groups outward.
+  // from inner groups outward. Flow owns an in-flow group's position.
   const groups = valid.nodes
     .filter((n) => n.type === "group" && !instanceOwner(valid, n.id))
     .sort(
       (a, b) => ancestors(valid, b.id).length - ancestors(valid, a.id).length,
     );
+  let sizedById: Map<string, DesignNode> | undefined;
   for (const group of groups) {
     const children = valid.nodes.filter((n) => n.parentId === group.id);
     if (!children.length) continue;
-    const bounds = children.map((child) => resolveNode(valid, child).style);
-    const x = Math.min(...children.map((n) => n.style.x)),
-      y = Math.min(...children.map((n) => n.style.y));
-    const width = Math.max(...bounds.map((style) => style.x + style.width)) - x;
-    const height =
-      Math.max(...bounds.map((style) => style.y + style.height)) - y;
+    const sized = (sizedById ??= new Map(
+      sizeScene(resolvedDocument(valid)).nodes.map((n) => [n.id, n]),
+    ));
+    const bounds = children.map((child) => {
+      const sizedChild = sized.get(child.id)!;
+      const { width, height, rotation, flipX, flipY } = sizedChild.style;
+      const box = { x: child.style.x, y: child.style.y, width, height };
+      return rotation || flipX || flipY
+        ? visualBounds(box, localTransform(sizedChild, box))
+        : box;
+    });
+    const { x, y, width, height } = union(bounds)!;
     if (
-      x !== 0 ||
-      y !== 0 ||
-      group.style.width !== width ||
-      group.style.height !== height
+      Math.abs(x) >= 1e-9 ||
+      Math.abs(y) >= 1e-9 ||
+      Math.abs(group.style.width - width) >= 1e-9 ||
+      Math.abs(group.style.height - height) >= 1e-9
     ) {
+      const parent = valid.nodes.find((n) => n.id === group.parentId);
       mutated = true;
-      group.style.width = width;
-      group.style.height = height;
-      group.style.x += x;
-      group.style.y += y;
+      if (flow(parent) && !group.style.absolutePosition) {
+        group.style.width = width;
+        group.style.height = height;
+      } else {
+        const origin = { x: group.style.x + x, y: group.style.y + y };
+        const before = transform(localTransform(group, group.style), origin);
+        group.style.width = width;
+        group.style.height = height;
+        group.style.x += x;
+        group.style.y += y;
+        const after = transform(localTransform(group, group.style), origin);
+        group.style.x += before.x - after.x;
+        group.style.y += before.y - after.y;
+      }
       for (const child of children) {
         child.style.x -= x;
         child.style.y -= y;
       }
+      // Remeasure derived sizes, including any Hug frame above this group.
+      // In fixed layouts sizeScene can return the live nodes themselves.
+      if (sized.get(group.id) !== group) sizedById = undefined;
     }
   }
   // Library and design-system operations can change dependencies outside the active page.
   const localEdit = tx.operations.every((op) =>
     [
       "update",
+      "convertToVector",
       "move",
       "remove",
       "reorder",

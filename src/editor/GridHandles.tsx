@@ -2,7 +2,7 @@ import { layoutRuleAt, responsiveSpacing } from "../domain/layout-breakpoints";
 import { useEffect, useRef, type PointerEvent } from "react";
 import { previewGeometry } from "../application/geometry-preview";
 import type { Operation } from "../domain/commands";
-import type { DesignNode } from "../domain/document";
+import type { DesignDocument, DesignNode } from "../domain/document";
 import type { Rect } from "../domain/geometry";
 import { gridSceneMetrics } from "../domain/grid-drop";
 import { parseTracks } from "../domain/grid-tracks";
@@ -30,16 +30,30 @@ export function GridHandles({
     index: number;
     size: number;
     tracks: string[];
-    revision: number;
+    base: DesignDocument;
+    preview: DesignDocument | null;
     x: number;
     y: number;
     op?: Operation;
   } | null>(null);
-  const cancel = () => {
-    if (!gesture.current) return;
+  function clearOwnedPreview(owned: DesignDocument | null) {
+    if (owned && e.previewRef.current === owned)
+      e.setPreview((current) => (current === owned ? null : current));
+  }
+  function cancel() {
+    const g = gesture.current;
+    if (!g) return;
     gesture.current = null;
-    e.setPreview(null);
-  };
+    clearOwnedPreview(g.preview);
+  }
+  function canStartEdit() {
+    return (
+      !gesture.current &&
+      e.previewRef.current === null &&
+      e.doc === e.committed &&
+      e.historyRef.current.present === e.committed
+    );
+  }
   useEffect(() => {
     const escape = (ev: KeyboardEvent) => {
       if (ev.key === "Escape" && gesture.current) {
@@ -102,7 +116,10 @@ export function GridHandles({
   function move(ev: PointerEvent<HTMLButtonElement>) {
     const g = gesture.current;
     if (!g) return;
-    if (e.committed.revision !== g.revision) {
+    if (
+      e.historyRef.current.present !== g.base ||
+      e.previewRef.current !== g.preview
+    ) {
       cancel();
       return;
     }
@@ -113,11 +130,13 @@ export function GridHandles({
     const delta = g.axis === "column" ? d.x : d.y;
     if (Math.abs(delta) < 0.5) {
       g.op = undefined;
-      e.setPreview(null);
+      clearOwnedPreview(g.preview);
+      g.preview = null;
       return;
     }
     g.op = operation(g.axis, g.index, g.tracks, g.size + delta);
-    e.setPreview(previewGeometry(e.committed, [g.op]));
+    g.preview = previewGeometry(g.base, [g.op]);
+    e.setPreview(g.preview);
   }
   const handle = (axis: Axis, index: number, end: number, size: number) => {
     const col = axis === "column";
@@ -137,7 +156,7 @@ export function GridHandles({
           Math.round(size) + " px · 拖动后固定尺寸，方向键微调，Esc 取消"
         }
         onPointerDown={(ev) => {
-          if (ev.button !== 0) return;
+          if (ev.button !== 0 || !canStartEdit()) return;
           ev.preventDefault();
           ev.stopPropagation();
           ev.currentTarget.focus({ preventScroll: true });
@@ -149,7 +168,8 @@ export function GridHandles({
             tracks: specs(axis, index),
             x: ev.clientX,
             y: ev.clientY,
-            revision: e.committed.revision,
+            base: e.committed,
+            preview: null,
           };
         }}
         onDoubleClick={(ev) => ev.stopPropagation()}
@@ -158,8 +178,16 @@ export function GridHandles({
           const g = gesture.current;
           if (!g) return;
           ev.stopPropagation();
+          if (
+            e.historyRef.current.present !== g.base ||
+            e.previewRef.current !== g.preview
+          ) {
+            cancel();
+            return;
+          }
+          const { op, base } = g;
           cancel();
-          if (g.op) e.attempt(() => e.apply([g.op!], g.revision));
+          if (op) e.attempt(() => e.apply([op], base.revision));
         }}
         onLostPointerCapture={cancel}
         onPointerCancel={cancel}
@@ -171,6 +199,7 @@ export function GridHandles({
           if (k < 0) return;
           ev.preventDefault();
           ev.stopPropagation();
+          if (!canStartEdit()) return;
           e.attempt(() =>
             e.apply([
               operation(

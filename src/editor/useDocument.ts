@@ -38,7 +38,8 @@ export function useDocument({
     future: [],
   });
   const historyRef = useRef(history);
-  historyRef.current = history;
+  const [documentSession, setDocumentSession] = useState(1);
+  const documentSessionRef = useRef(documentSession);
   const branchIdsRef = useRef(new WeakMap<DesignDocument, number>());
   if (!branchIdsRef.current.has(initial.document))
     branchIdsRef.current.set(initial.document, 0);
@@ -53,12 +54,43 @@ export function useDocument({
     initialSaved ? (initialDocument ?? null) : null,
   );
   const savedDocumentRef = useRef<DesignDocument | null>(savedDocument);
-  savedDocumentRef.current = savedDocument;
   const [protectCache, setProtectCache] = useState(!!initial.error);
   const protectCacheRef = useRef(protectCache);
-  protectCacheRef.current = protectCache;
   const recoveryInProgress = useRef(false);
-  const [preview, setPreview] = useState<DesignDocument | null>(null);
+  const recoveryPromiseRef = useRef<Promise<DesignDocument | null> | null>(
+    null,
+  );
+  const [preview, publishPreview] = useState<DesignDocument | null>(null);
+  const previewRef = useRef<DesignDocument | null>(null);
+  const isExternalPreviewRef = useRef(false);
+  const [hasExternalPreview, setHasExternalPreview] = useState(false);
+  const publish = useCallback(
+    (next: DesignDocument | null, external: boolean) => {
+      previewRef.current = next;
+      isExternalPreviewRef.current = external && next !== null;
+      setHasExternalPreview(isExternalPreviewRef.current);
+      publishPreview(next);
+    },
+    [],
+  );
+  const setPreview = useCallback<typeof publishPreview>(
+    (update) => {
+      const current = previewRef.current;
+      const next = typeof update === "function" ? update(current) : update;
+      if (typeof update === "function" && next === current) return;
+      publish(next, true);
+    },
+    [publish],
+  );
+  const setLocalPreview = useCallback(
+    (owned: DesignDocument | null, next: DesignDocument | null) => {
+      if (isExternalPreviewRef.current || previewRef.current !== owned)
+        return false;
+      publish(next, false);
+      return true;
+    },
+    [publish],
+  );
   const pending = useRef<{
     doc: DesignDocument;
     promise: Promise<void>;
@@ -78,11 +110,16 @@ export function useDocument({
           replacement.document = null;
         } else await repository.save(doc);
         lastSavedBranchRef.current = branchOf(doc);
+        savedDocumentRef.current = doc;
+        setSavedDocument(doc);
       };
-      const previous = pending.current;
-      const promise = (
-        previous ? previous.promise.then(write, write) : write()
-      ).catch((error) => {
+      const previous = pending.current?.promise;
+      const recovery = recoveryPromiseRef.current;
+      const queued =
+        previous || recovery
+          ? Promise.allSettled([previous, recovery]).then(write)
+          : write();
+      const promise = queued.catch((error) => {
         if (pending.current?.promise === promise) pending.current = null;
         throw error;
       });
@@ -132,16 +169,12 @@ export function useDocument({
       doc.nodes.length > 2000 ? 300 : doc.nodes.length > 500 ? 100 : 0;
     const run = () => {
       if (!active || historyRef.current.present !== doc) return;
-      saveLatest(doc)
-        .then(() => {
-          if (active) setSavedDocument(doc);
-        })
-        .catch((err) => {
-          if (active)
-            setError(
-              err instanceof Error ? err.message : "保存失败，请下载当前设计",
-            );
-        });
+      saveLatest(doc).catch((err) => {
+        if (active && historyRef.current.present === doc)
+          setError(
+            err instanceof Error ? err.message : "保存失败，请下载当前设计",
+          );
+      });
     };
     const timer = delay ? window.setTimeout(run, delay) : undefined;
     if (!delay) run();
@@ -164,7 +197,6 @@ export function useDocument({
     if (protectCacheRef.current) return;
     if (historyRef.current.present !== savedDocumentRef.current) {
       await saveLatest(historyRef.current.present);
-      setSavedDocument(historyRef.current.present);
     } else if (pending.current) {
       await pending.current.promise;
     }
@@ -179,14 +211,27 @@ export function useDocument({
     return () => window.removeEventListener("beforeunload", guard);
   }, [saved, protectCache]);
   // Update the ref synchronously: rapid keyboard/pointer events must never commit against stale React state.
-  const replaceHistory = useCallback((next: History) => {
-    historyRef.current = next;
-    setHistory(next);
-    setPreview(null);
-  }, []);
+  const replaceHistory = useCallback(
+    (next: History, replacedDocument = false) => {
+      if (replacedDocument) setDocumentSession(++documentSessionRef.current);
+      historyRef.current = next;
+      setHistory(next);
+      publish(null, false);
+    },
+    [publish],
+  );
   const apply = useCallback(
-    (operations: Operation[], baseRevision?: number) => {
-      if (!operations.length) return;
+    (
+      operations: Operation[],
+      baseRevision?: number,
+      options?: { allowOverExternalPreview?: boolean },
+    ): false | void => {
+      if (
+        !operations.length ||
+        documentSession !== documentSessionRef.current ||
+        (isExternalPreviewRef.current && !options?.allowOverExternalPreview)
+      )
+        return false;
       const current = historyRef.current;
       const next = commitEditorOperations(
         current.present,
@@ -197,7 +242,7 @@ export function useDocument({
       replaceHistory(commit(current, next));
       setError("");
     },
-    [branchOf, replaceHistory],
+    [branchOf, documentSession, replaceHistory],
   );
   const attempt = useCallback((work: () => void) => {
     try {
@@ -219,6 +264,7 @@ export function useDocument({
   const travelHistory = useCallback(
     (direction: "undo" | "redo") => {
       const current = historyRef.current;
+      if (isExternalPreviewRef.current) return;
       const traveled = travel(current, direction);
       if (traveled.present === current.present) return;
       // travel clones the history target to give it a new revision.
@@ -226,10 +272,10 @@ export function useDocument({
         -1,
       )!;
       const branch = branchOf(target);
+      const replacedDocument = branch !== branchOf(current.present);
       branchIdsRef.current.set(traveled.present, branch);
-      replaceHistory(traveled);
-      if (branch !== branchOf(current.present) && !protectCache)
-        saveReplacement(traveled.present);
+      replaceHistory(traveled, replacedDocument);
+      if (replacedDocument && !protectCache) saveReplacement(traveled.present);
     },
     [branchOf, protectCache, replaceHistory, saveReplacement],
   );
@@ -237,27 +283,37 @@ export function useDocument({
   const redo = useCallback(() => travelHistory("redo"), [travelHistory]);
   const importDocument = useCallback(
     (input: unknown, options?: { replacedDocument?: boolean }) => {
+      if (isExternalPreviewRef.current) return;
       const document = parseDocument(input);
       const current = historyRef.current;
       const next = { ...document, revision: current.present.revision + 1 };
+      const replacedDocument =
+        options?.replacedDocument || next.id !== current.present.id;
       branchIdsRef.current.set(
         next,
-        options?.replacedDocument
+        replacedDocument
           ? nextBranchIdRef.current++
           : branchOf(current.present),
       );
-      replaceHistory(commit(current, next));
+      if (replacedDocument && protectCacheRef.current) {
+        protectCacheRef.current = false;
+        setProtectCache(false);
+        replaceHistory({ present: next, past: [], future: [] }, true);
+      } else {
+        replaceHistory(commit(current, next), replacedDocument);
+      }
       setError("");
-      if (options?.replacedDocument && !protectCache) {
+      if (replacedDocument) {
         // Queue every explicit replacement, even if React batches another edit
         // or a second import before the autosave effect runs.
         saveReplacement(next);
       }
     },
-    [branchOf, replaceHistory, protectCache, saveReplacement],
+    [branchOf, replaceHistory, saveReplacement],
   );
   return {
     doc: preview ?? history.present,
+    documentSession,
     committed: history.present,
     historyRef,
     getLifetimeToken,
@@ -269,6 +325,10 @@ export function useDocument({
     getCurrentLifetimeToken: () => repository.getLifetimeToken?.(),
     protectCache,
     preview,
+    previewRef,
+    isExternalPreviewRef,
+    hasExternalPreview,
+    setLocalPreview,
     setPreview,
     apply,
     attempt,
@@ -277,26 +337,50 @@ export function useDocument({
     importDocument,
     async recoverPrevious() {
       if (recoveryInProgress.current) return;
+      let recoverySession = documentSessionRef.current;
       recoveryInProgress.current = true;
       try {
-        const previous = await repository.recovery();
+        // Only the read owns this barrier. Its continuation may itself enqueue a save.
+        const read = () => repository.recovery();
+        const previousWrite = pending.current?.promise;
+        const reading = previousWrite ? previousWrite.then(read, read) : read();
+        recoveryPromiseRef.current = reading;
+        const previous = await reading;
+        if (
+          documentSessionRef.current !== recoverySession ||
+          isExternalPreviewRef.current
+        )
+          return;
         if (!previous) throw new Error("本机没有更早的保存版本");
-        if (protectCache) {
+        if (protectCacheRef.current) {
           // The failed-load placeholder does not belong in the restored history.
           branchIdsRef.current.set(previous, nextBranchIdRef.current++);
-          replaceHistory({ present: previous, past: [], future: [] });
+          replaceHistory({ present: previous, past: [], future: [] }, true);
+          recoverySession = documentSessionRef.current;
           pendingReplacementDocRef.current = { document: previous };
           await saveLatest(previous);
-          setSavedDocument(previous);
+          if (documentSessionRef.current !== recoverySession) return;
+          protectCacheRef.current = false;
           setProtectCache(false);
           setError("");
         } else {
           importDocument(previous, { replacedDocument: true });
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        if (documentSessionRef.current === recoverySession)
+          setError(err instanceof Error ? err.message : String(err));
       } finally {
         recoveryInProgress.current = false;
+        recoveryPromiseRef.current = null;
+        const latest = historyRef.current.present;
+        if (!protectCacheRef.current && savedDocumentRef.current !== latest) {
+          try {
+            await saveLatest(latest);
+          } catch (err) {
+            if (historyRef.current.present === latest)
+              setError(err instanceof Error ? err.message : String(err));
+          }
+        }
       }
     },
     async downloadBackup() {
@@ -314,6 +398,7 @@ export function useDocument({
       }
     },
     switchPage(id: string) {
+      if (isExternalPreviewRef.current) return;
       const current = historyRef.current;
       const page = openPage(current.present, id);
       if (page !== current.present) {

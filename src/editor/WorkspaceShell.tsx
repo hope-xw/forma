@@ -1,3 +1,4 @@
+import { ToastHost, type ShellNotice } from "./ToastHost";
 import {
   lazy,
   Suspense,
@@ -41,7 +42,10 @@ import {
   checkDesignFileSize,
   isExternalDesign,
 } from "../infrastructure/design-import/types";
-import { loadFonts } from "../infrastructure/font-import";
+import {
+  releaseDocumentFonts,
+  retainDocumentFonts,
+} from "../infrastructure/font-import";
 import { readNativeDocument } from "../infrastructure/native-document";
 import { assignFileToProject } from "../infrastructure/project-memory-store";
 import {
@@ -139,7 +143,6 @@ async function loadTabEditorOptions(
     options.initialDocument = parseDocument(await response.json());
     options.initialSaved = false;
   }
-  await loadFonts(options.initialDocument?.fonts);
   let doc: DesignDocument | undefined = options.initialDocument;
   const targetPage = snapshot?.activePage ?? tab.page;
   if (doc && targetPage && doc.pages?.some((p) => p.id === targetPage)) {
@@ -157,14 +160,22 @@ async function loadTabEditorOptions(
   return options;
 }
 
-async function readPendingDesktopFile(): Promise<{
-  file: File;
-  nativePath: string | null;
-} | null> {
-  const bridge = window.formaDesktop;
-  if (!bridge) return null;
-  const pending = await bridge.consumePendingFile();
-  if (!pending) return null;
+async function importNativeFile(file: File) {
+  const doc = await readNativeDocument(file);
+  const owner = `file-import:${crypto.randomUUID()}`;
+  try {
+    await retainDocumentFonts(owner, doc.fonts);
+    const { key } = await createLocalFileWithKey(doc);
+    return { fileKey: key, title: doc.name };
+  } finally {
+    releaseDocumentFonts(owner);
+  }
+}
+
+async function readPendingDesktopFile(
+  bridge: FormaDesktopBridge,
+  pending: { name: string; size: number },
+) {
   const parts: Blob[] = [];
   let received = 0;
   while (received < pending.size) {
@@ -174,10 +185,7 @@ async function readPendingDesktopFile(): Promise<{
     parts.push(new Blob([chunk]));
     received += chunk.length;
   }
-  return {
-    file: new File(parts, pending.name),
-    nativePath: pending.nativePath ?? null,
-  };
+  return new File(parts, pending.name);
 }
 
 function EditorTabPane({
@@ -185,6 +193,9 @@ function EditorTabPane({
   active,
   workspaceTabs,
   activeWorkspaceTabId,
+  shellNotices,
+  onActiveAppChange,
+  onDismissShellNotice,
   snapshot,
   onSnapshot,
   onMetaChange,
@@ -199,6 +210,9 @@ function EditorTabPane({
   active: boolean;
   workspaceTabs: BridgeTabSummary[];
   activeWorkspaceTabId: string;
+  shellNotices?: ShellNotice[];
+  onDismissShellNotice(id: string): void;
+  onActiveAppChange(tabId: string | null): void;
   snapshot?: TabSnapshot;
   onSnapshot(snapshot: TabSnapshot): void;
   onMetaChange(meta: {
@@ -230,13 +244,19 @@ function EditorTabPane({
   const [loaded, setLoaded] = useState<LoadedEditorOptions | null>(null);
   const [loadErr, setLoadErr] = useState("");
   const initialSnapshotRef = useRef(snapshot);
+  const preloadedFontOwner = `tab-preload:${tab.id}`;
 
   useEffect(() => {
     let alive = true;
     setLoaded(null);
     setLoadErr("");
     void loadTabEditorOptions(tab, initialSnapshotRef.current)
-      .then((opts) => {
+      .then(async (opts) => {
+        if (!alive) return;
+        await retainDocumentFonts(
+          preloadedFontOwner,
+          opts.initialDocument?.fonts,
+        );
         if (!alive) return;
         setLoaded(opts);
         if (opts.initialDocument?.name) {
@@ -249,12 +269,14 @@ function EditorTabPane({
       })
       .catch((error) => {
         if (!alive) return;
+        releaseDocumentFonts(preloadedFontOwner);
         setLoadErr(error instanceof Error ? error.message : String(error));
       });
     return () => {
       alive = false;
+      releaseDocumentFonts(preloadedFontOwner);
     };
-  }, [tab.id]);
+  }, [tab.id, preloadedFontOwner]);
 
   if (loadErr) {
     return (
@@ -302,6 +324,10 @@ function EditorTabPane({
           <App
             {...loaded}
             tabActive={active}
+            preloadedFontOwner={preloadedFontOwner}
+            shellNotices={shellNotices}
+            onActiveAppChange={onActiveAppChange}
+            onDismissShellNotice={onDismissShellNotice}
             workspaceTabs={workspaceTabs}
             activeWorkspaceTabId={activeWorkspaceTabId}
             initialPreset={tab.preset}
@@ -332,7 +358,26 @@ export function WorkspaceShell() {
     document.documentElement.dataset.theme === "light" ? "light" : "dark",
   );
   const [homeVisit, setHomeVisit] = useState(0);
-  const [shellError, setShellError] = useState("");
+  const [shellNotices, setShellNotices] = useState<ShellNotice[]>([]);
+  const addShellError = useCallback((text: string) => {
+    const notice: ShellNotice = {
+      id: crypto.randomUUID(),
+      text,
+      severity: "error",
+    };
+    setShellNotices((current) =>
+      current.some((item) => item.text === text)
+        ? current
+        : [...current.slice(-3), notice],
+    );
+  }, []);
+  const dismissShellNotice = useCallback((id: string) => {
+    setShellNotices((current) => current.filter((item) => item.id !== id));
+  }, []);
+  // Preload and Suspense can both delay the editor's own toast host.
+  const [readyTabId, setReadyTabId] = useState<string | null>(null);
+  const activeTabReady =
+    state.activeTabId !== HOME_TAB_ID && state.activeTabId === readyTabId;
   const [pendingExternalImport, setPendingExternalImport] =
     useState<File | null>(null);
   const snapshotsRef = useRef(new Map<string, TabSnapshot>());
@@ -494,27 +539,29 @@ export function WorkspaceShell() {
             setPendingExternalImport(file);
             return;
           }
-          const doc = await readNativeDocument(file);
-          await loadFonts(doc.fonts);
-          const { key } = await createLocalFileWithKey(doc);
-          openFileInTab({ fileKey: key, title: doc.name });
+          openFileInTab(await importNativeFile(file));
         } catch (error) {
-          setShellError(
+          addShellError(
             `打开 ${file.name} 失败：${error instanceof Error ? error.message : String(error)}`,
           );
         }
       }
     },
-    [openFileInTab],
+    [openFileInTab, addShellError],
   );
 
   // Process Electron pending files (cold start & live Finder / Cmd+O open-file-in-tab) strictly in FIFO order
   const drainDesktopPendingFile = useCallback(() => {
+    let filename: string | undefined;
     desktopQueueRef.current = desktopQueueRef.current
       .then(async () => {
-        const result = await readPendingDesktopFile();
-        if (!result) return;
-        const { file, nativePath } = result;
+        const bridge = window.formaDesktop;
+        if (!bridge) return;
+        const pending = await bridge.consumePendingFile();
+        if (!pending) return;
+        filename = pending.name;
+        const file = await readPendingDesktopFile(bridge, pending);
+        const nativePath = pending.nativePath ?? null;
         const external = await isExternalDesign(file);
         checkDesignFileSize(file.size, external);
         if (external) {
@@ -530,26 +577,20 @@ export function WorkspaceShell() {
             return;
           }
         }
-        const doc = await readNativeDocument(file);
-        await loadFonts(doc.fonts);
-        const { key } = await createLocalFileWithKey(doc);
+        const target = await importNativeFile(file);
         try {
-          await window.formaDesktop?.bindPendingFile?.(key);
+          await bridge.bindPendingFile?.(target.fileKey);
         } catch {
           /* Opening succeeds even if disk path binding is unavailable. */
         }
-        openFileInTab({
-          fileKey: key,
-          title: doc.name,
-          nativePath,
-        });
+        openFileInTab({ ...target, nativePath });
       })
       .catch((error) => {
-        setShellError(
-          `打开文件失败：${error instanceof Error ? error.message : String(error)}`,
+        addShellError(
+          `打开 ${filename ?? "文件"} 失败：${error instanceof Error ? error.message : String(error)}`,
         );
       });
-  }, [openFileInTab]);
+  }, [openFileInTab, addShellError]);
 
   useEffect(() => {
     const bridge = window.formaDesktop;
@@ -563,7 +604,7 @@ export function WorkspaceShell() {
       (fileAction) => {
         if (fileAction === "newTab") {
           void createNewDesignTab({ preset: "blank" }).catch((err) =>
-            setShellError(err instanceof Error ? err.message : String(err)),
+            addShellError(err instanceof Error ? err.message : String(err)),
           );
         } else if (fileAction === "reopenTab") {
           setState((prev) => reopenClosedTab(prev));
@@ -582,10 +623,28 @@ export function WorkspaceShell() {
       offOpen?.();
       offMenu?.();
     };
-  }, [createNewDesignTab, drainDesktopPendingFile]);
+  }, [createNewDesignTab, drainDesktopPendingFile, addShellError]);
 
   // Global tab switching shortcuts
   useEffect(() => {
+    // Switch before a picker's local Tab focus trap handles the keystroke.
+    const switchTab = (event: KeyboardEvent) => {
+      if (
+        event.key !== "Tab" ||
+        !event.ctrlKey ||
+        event.altKey ||
+        event.metaKey ||
+        event.isComposing ||
+        event.defaultPrevented ||
+        document.querySelector(
+          '[aria-modal="true"]:not(.color-popover, .binding-popover)',
+        )
+      )
+        return;
+      event.preventDefault();
+      event.stopPropagation();
+      setState((prev) => switchAdjacentTab(prev, event.shiftKey ? -1 : 1));
+    };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.isComposing || event.defaultPrevented) return;
       if (document.querySelector('[aria-modal="true"]')) return;
@@ -594,17 +653,6 @@ export function WorkspaceShell() {
         !!event.target.closest(
           'input,textarea,select,[contenteditable="true"],[role="dialog"]',
         );
-      // Ctrl+Tab / Ctrl+Shift+Tab switches adjacent tabs
-      if (
-        event.ctrlKey &&
-        !event.metaKey &&
-        !event.altKey &&
-        event.key === "Tab"
-      ) {
-        event.preventDefault();
-        setState((prev) => switchAdjacentTab(prev, event.shiftKey ? -1 : 1));
-        return;
-      }
       if (inInput) return;
       const mod = event.metaKey || event.ctrlKey;
       // Cmd/Ctrl+1..9 jumps directly to Home (1) or open tabs (2..9)
@@ -642,8 +690,12 @@ export function WorkspaceShell() {
         setState((prev) => closeTab(prev, closing));
       }
     };
+    window.addEventListener("keydown", switchTab, true);
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", switchTab, true);
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 
   const openFileKeys = useMemo(
@@ -705,7 +757,7 @@ export function WorkspaceShell() {
         onCloseTab={handleCloseTab}
         onNewTab={(preset) => {
           void createNewDesignTab({ preset: preset ?? "blank" }).catch((err) =>
-            setShellError(err instanceof Error ? err.message : String(err)),
+            addShellError(err instanceof Error ? err.message : String(err)),
           );
         }}
         onReopenClosed={() => setState((prev) => reopenClosedTab(prev))}
@@ -757,6 +809,13 @@ export function WorkspaceShell() {
             key={tab.id}
             tab={tab}
             active={tab.id === state.activeTabId}
+            shellNotices={
+              activeTabReady && tab.id === state.activeTabId
+                ? shellNotices
+                : undefined
+            }
+            onDismissShellNotice={dismissShellNotice}
+            onActiveAppChange={setReadyTabId}
             workspaceTabs={bridgeTabs}
             activeWorkspaceTabId={state.activeTabId}
             snapshot={snapshotsRef.current.get(tab.id)}
@@ -776,7 +835,7 @@ export function WorkspaceShell() {
             onOpenExampleTab={openExampleInTab}
             onNewDesignTab={(opts) => {
               void createNewDesignTab(opts).catch((err) =>
-                setShellError(err instanceof Error ? err.message : String(err)),
+                addShellError(err instanceof Error ? err.message : String(err)),
               );
             }}
             onThemeSync={setTheme}
@@ -792,7 +851,7 @@ export function WorkspaceShell() {
         >
           <Suspense
             fallback={
-              <div role="status" className="toast">
+              <div role="status" className="panel-loading-pill">
                 加载设计导入工具…
               </div>
             }
@@ -809,22 +868,11 @@ export function WorkspaceShell() {
         </ErrorBoundary>
       )}
 
-      {shellError && (
-        <div
-          role="alert"
-          className="toast"
-          style={{ position: "fixed", right: 20, bottom: 18, zIndex: 140 }}
-        >
-          <span>{shellError}</span>
-          <button
-            type="button"
-            className="icon-btn icon-btn-sm"
-            aria-label="关闭提示"
-            onClick={() => setShellError("")}
-          >
-            ×
-          </button>
-        </div>
+      {!activeTabReady && (
+        <ToastHost
+          shellNotices={shellNotices}
+          onDismissShellNotice={dismissShellNotice}
+        />
       )}
 
       <TooltipHost />

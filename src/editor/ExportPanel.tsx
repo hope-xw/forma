@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { zipSync, strToU8 } from "fflate";
 import {
   Download,
@@ -22,8 +22,7 @@ import {
 } from "../infrastructure/static-export";
 import {
   collectExportTargets,
-  exportBatchZip,
-  type ExportTarget,
+  exportTargetZip,
 } from "../infrastructure/batch-export";
 import { useModalDialog } from "./useModalDialog";
 import "./figma-panels.css";
@@ -31,6 +30,7 @@ import "./figma-panels.css";
 export interface ExportPanelProps {
   document: DesignDocument;
   node: DesignNode;
+  previewBlocked?: boolean;
   onUpdateSettings(settings: NonNullable<DesignNode["exportSettings"]>): void;
   onOpenBatchExport?(): void;
 }
@@ -110,27 +110,81 @@ function exportFilename(nodeName: string, setting: ExportSetting): string {
   return `${stem}@${setting.scale}x.${setting.format}`;
 }
 
+function ExportSuffix({
+  label,
+  suffix,
+  disabled,
+  commit,
+}: {
+  label: string;
+  suffix: string;
+  disabled: boolean;
+  commit(value: string): void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const cancelled = useRef(false);
+  useEffect(() => {
+    setDraft(null);
+  }, [suffix, disabled]);
+  return (
+    <input
+      type="text"
+      aria-label={label}
+      placeholder="后缀 (如 @2x)"
+      disabled={disabled}
+      maxLength={64}
+      value={draft ?? suffix}
+      onChange={(ev) => setDraft(ev.currentTarget.value.slice(0, 64))}
+      onKeyDown={(ev) => {
+        if (ev.nativeEvent.isComposing) return;
+        if (ev.key === "Escape" || ev.key === "Enter") {
+          ev.preventDefault();
+          ev.stopPropagation();
+          cancelled.current = ev.key === "Escape";
+          ev.currentTarget.blur();
+        }
+      }}
+      onBlur={() => {
+        if (
+          !cancelled.current &&
+          !disabled &&
+          draft !== null &&
+          draft !== suffix
+        )
+          commit(draft);
+        cancelled.current = false;
+        setDraft(null);
+      }}
+    />
+  );
+}
+
 export function ExportPanel({
   document,
   node,
+  previewBlocked = false,
   onUpdateSettings,
   onOpenBatchExport,
 }: ExportPanelProps) {
-  const [fallbackRow, setFallbackRow] = useState<ExportSetting>({
-    id: "default-export-row",
-    format: "png",
-    scale: 1,
-    suffix: "",
-  });
+  const fallbackRow = useMemo<ExportSetting>(
+    () => ({
+      id: crypto.randomUUID(),
+      format: "png",
+      scale: 1,
+      suffix: "",
+    }),
+    [document.id, node.id],
+  );
   const [previewOpen, setPreviewOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [localBatchOpen, setLocalBatchOpen] = useState(false);
 
-  const locked = useMemo(
+  const layerLocked = useMemo(
     () => isLocked(document, node.id),
     [document, node.id],
   );
+  const locked = previewBlocked || layerLocked;
   const hasSavedSettings = (node.exportSettings?.length ?? 0) > 0;
   const rows: ExportSetting[] = hasSavedSettings
     ? node.exportSettings!
@@ -170,16 +224,8 @@ export function ExportPanel({
   }, [document, node.id, node.style.width, node.style.height]);
 
   const updateRow = (index: number, patch: Partial<ExportSetting>) => {
-    setError("");
-    if (!hasSavedSettings) {
-      const updated: ExportSetting = { ...fallbackRow, ...patch };
-      setFallbackRow(updated);
-      if (!locked) {
-        onUpdateSettings([{ ...updated, id: crypto.randomUUID() }]);
-      }
-      return;
-    }
     if (locked) return;
+    setError("");
     const next = rows.map((row, i) =>
       i === index ? { ...row, ...patch } : row,
     );
@@ -189,10 +235,7 @@ export function ExportPanel({
   const addRow = () => {
     if (locked || rows.length >= MAX_EXPORT_ROWS) return;
     setError("");
-    const base: ExportSetting[] = hasSavedSettings
-      ? rows
-      : [{ ...fallbackRow, id: crypto.randomUUID() }];
-    onUpdateSettings([...base, nextPresetFor(base)]);
+    onUpdateSettings([...rows, nextPresetFor(rows)]);
   };
 
   const removeRow = (index: number) => {
@@ -330,7 +373,7 @@ export function ExportPanel({
             <div key={row.id} className="fp-export-row">
               <select
                 aria-label={isPrimary ? "导出倍率" : `导出倍率 ${idx + 1}`}
-                disabled={locked && hasSavedSettings}
+                disabled={locked}
                 value={String(row.scale)}
                 onChange={(ev) =>
                   updateRow(idx, { scale: Number(ev.target.value) || 1 })
@@ -346,20 +389,16 @@ export function ExportPanel({
                 ) && <option value={String(row.scale)}>{row.scale}x</option>}
               </select>
 
-              <input
-                type="text"
-                aria-label={isPrimary ? "导出后缀" : `导出后缀 ${idx + 1}`}
-                placeholder="后缀 (如 @2x)"
-                disabled={locked && hasSavedSettings}
-                value={row.suffix}
-                onChange={(ev) =>
-                  updateRow(idx, { suffix: ev.target.value.slice(0, 64) })
-                }
+              <ExportSuffix
+                label={isPrimary ? "导出后缀" : `导出后缀 ${idx + 1}`}
+                suffix={row.suffix}
+                disabled={locked}
+                commit={(suffix) => updateRow(idx, { suffix })}
               />
 
               <select
                 aria-label={isPrimary ? "导出格式" : `导出格式 ${idx + 1}`}
-                disabled={locked && hasSavedSettings}
+                disabled={locked}
                 value={row.format}
                 onChange={(ev) =>
                   updateRow(idx, {
@@ -506,42 +545,7 @@ export function BatchExportModal({
     setBusy(true);
     setError("");
     try {
-      let bytes: Uint8Array;
-      if (selectedTargets.length === targets.length) {
-        bytes = await exportBatchZip(document);
-      } else {
-        // Build a scoped view of the document containing only the checked export settings per node
-        const byNode = new Map<string, ExportTarget[]>();
-        for (const t of selectedTargets) {
-          const list = byNode.get(t.nodeId) ?? [];
-          list.push(t);
-          byNode.set(t.nodeId, list);
-        }
-        const selectedNodeIds = [...byNode.keys()];
-        const scopedDoc: DesignDocument = {
-          ...document,
-          nodes: document.nodes.map((n) => {
-            const chosen = byNode.get(n.id);
-            if (!chosen) {
-              return {
-                ...n,
-                exportSettings: undefined,
-                ...(n.type === "slice" ? { hidden: true } : {}),
-              };
-            }
-            return {
-              ...n,
-              exportSettings: chosen.map((t, idx) => ({
-                id: `${n.id}-${idx}`,
-                format: t.format,
-                scale: t.scale,
-                suffix: t.suffix,
-              })),
-            };
-          }),
-        };
-        bytes = await exportBatchZip(scopedDoc, selectedNodeIds);
-      }
+      const bytes = await exportTargetZip(document, selectedTargets);
       const zipCopy = new Uint8Array(bytes.byteLength);
       zipCopy.set(bytes);
       triggerDownload(

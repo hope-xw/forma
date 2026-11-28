@@ -8,6 +8,7 @@ import {
   shell,
 } from "electron";
 import fs from "node:fs";
+import { resolveSystemFonts } from "./system-fonts.mjs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -724,6 +725,20 @@ ipcMain.handle("forma:close-current-window", (event) => {
 ipcMain.handle("forma:local-library-address", (event) => {
   requireAppFrame(event);
   return localLibraryAddress();
+});
+ipcMain.handle("forma:resolve-system-fonts", async (event, req) => {
+  requireAppFrame(event);
+  try {
+    return await resolveSystemFonts(req);
+  } catch (error) {
+    return {
+      ok: false,
+      code:
+        error.code ??
+        (error instanceof TypeError ? "INVALID_REQUEST" : "RESOLVE_FAILED"),
+      error: error.message,
+    };
+  }
 });
 ipcMain.handle("forma:has-configured-agent", (event) => {
   requireAppFrame(event);

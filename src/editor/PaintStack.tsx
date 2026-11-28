@@ -11,9 +11,10 @@ export function PaintStack({
   kind = "fill",
   hideHeader = false,
   system,
-  disabled = false,
+  disabled: locked = false,
+  previewBlocked = false,
   palette,
-  update,
+  update: write,
   cancelPreview,
   headerActions,
 }: {
@@ -22,11 +23,16 @@ export function PaintStack({
   hideHeader?: boolean;
   system?: DesignSystem;
   disabled?: boolean;
+  previewBlocked?: boolean;
   palette?: string[] | (() => string[]);
   update(paints: Paint[], preview?: boolean): void;
   cancelPreview?(): void;
   headerActions?: ReactNode;
 }) {
+  const disabled = locked || previewBlocked;
+  const update = (paints: Paint[], preview = false) => {
+    if (!disabled) write(paints, preview);
+  };
   const label = kind === "stroke" ? "描边" : "填充";
   const change = (index: number, patch: Partial<Paint>, preview = false) =>
     update(
@@ -89,7 +95,7 @@ export function PaintStack({
             alpha={paint.opacity}
             disabled={disabled}
             palette={palette}
-            onCancelPreview={cancelPreview}
+            onCancelPreview={disabled ? undefined : cancelPreview}
             onPreview={
               cancelPreview
                 ? (color, opacity, channel) =>
@@ -153,9 +159,12 @@ export function PaintStack({
           <details>
             <summary>
               {paint.gradient
-                ? paint.gradient.type === "linear"
-                  ? "线性渐变"
-                  : "径向渐变"
+                ? {
+                    linear: "线性渐变",
+                    radial: "径向渐变",
+                    angular: "角度渐变",
+                    diamond: "菱形渐变",
+                  }[paint.gradient.type]
                 : "纯色"}
             </summary>
             <select
@@ -224,7 +233,7 @@ export function PaintStack({
               disabled={disabled}
               color={paint.color}
               gradient={paint.gradient}
-              cancelPreview={cancelPreview}
+              cancelPreview={disabled ? undefined : cancelPreview}
               update={(gradient, preview) =>
                 change(index, { gradient }, preview)
               }

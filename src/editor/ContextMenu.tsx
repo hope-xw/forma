@@ -1,8 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { ChevronRight, Layers, Check } from "lucide-react";
-import { editActions, type ActionId } from "./actions";
-import { canMask, canCombine } from "../domain/boolean-shapes";
-import { instanceAncestor, instanceOwner, isLocked } from "../domain/tree";
+import { editActions, isEditActionEnabled, type ActionId } from "./actions";
+import { instanceAncestor, isLocked } from "../domain/tree";
 import {
   detachInstance,
   instanceSource,
@@ -23,6 +22,8 @@ const groups = {
     "autoLayout",
     "mask",
     "releaseMask",
+    "outlineStroke",
+    "outlineText",
   ],
   布尔运算: ["union", "subtract", "intersect", "exclude"],
   对齐与分布: [
@@ -78,60 +79,10 @@ export function ContextMenu({
 
   const nodes = e.selected,
     locked = nodes.some((n) => isLocked(e.doc, n.id)),
-    inside = nodes.some((n) => instanceAncestor(e.doc, n.id)),
-    sameParent = nodes.every((n) => n.parentId === nodes[0]?.parentId);
+    inside = nodes.some((n) => instanceAncestor(e.doc, n.id));
 
   function allowed(id: ActionId) {
-    if (id === "createComponent") return !e.componentUnavailable;
-    if (id === "tidy") return !!e.smartGrid;
-    if (id === "mask") return canMask(e.doc, e.selection);
-    if (id === "releaseMask")
-      return (
-        nodes.length === 1 && !!nodes[0].maskSourceId && !inside && !locked
-      );
-    if (id === "ungroup")
-      return nodes.some((n) => n.type === "group") && !locked && !inside;
-    if (id.startsWith("align") || id.startsWith("distribute"))
-      return (
-        (id.startsWith("align")
-          ? nodes.length > 1 || !!nodes[0]?.parentId
-          : nodes.length >= 3) &&
-        !nodes.some((n) =>
-          e.doc.nodes.some(
-            (parent) =>
-              parent.id === n.parentId &&
-              parent.type === "frame" &&
-              parent.style.layout !== "free",
-          ),
-        ) &&
-        !locked &&
-        !inside
-      );
-    if (
-      [
-        "group",
-        "wrapFrame",
-        "autoLayout",
-        "front",
-        "back",
-        "forward",
-        "backward",
-      ].includes(id)
-    )
-      return (
-        sameParent &&
-        !locked &&
-        !inside &&
-        !(id === "autoLayout" && nodes.some((n) => instanceOwner(e.doc, n.id)))
-      );
-    if (["cut", "delete", "duplicate"].includes(id)) return !locked && !inside;
-    if (id === "lock")
-      return !nodes.some((n) => n.parentId && isLocked(e.doc, n.parentId));
-    if (id === "pasteStyle") return !locked && e.canPasteStyle;
-    if (["hide", "rename"].includes(id)) return !locked;
-    if (id === "undo") return e.canUndo;
-    if (id === "redo") return e.canRedo;
-    return true;
+    return isEditActionEnabled(id, e.actionEligibility);
   }
 
   useLayoutEffect(() => {
@@ -237,18 +188,16 @@ export function ContextMenu({
 
   const categories = (
     nodes.length
-      ? [
-          "排列",
-          "组织",
-          ...(canCombine(e.doc, e.selection) ? ["布尔运算"] : []),
-          "对齐与分布",
-          "图层与样式",
-        ]
+      ? ["排列", "组织", "布尔运算", "对齐与分布", "图层与样式"]
       : ["视图"]
   ) as (keyof typeof groups)[];
 
   const singleInstance =
-    nodes.length === 1 && nodes[0].instance && !locked && !inside
+    nodes.length === 1 &&
+    nodes[0].instance &&
+    !locked &&
+    !inside &&
+    !e.hasPreview
       ? nodes[0]
       : null;
   const masterRef = (() => {
@@ -258,21 +207,6 @@ export function ContextMenu({
       return null;
     return src.variant.masterNodeId ?? src.component.master.nodeId;
   })();
-
-  const canWrapSection =
-    nodes.length > 0 &&
-    sameParent &&
-    !locked &&
-    !inside &&
-    (nodes[0].parentId === null ||
-      e.doc.nodes.find((n) => n.id === nodes[0].parentId)?.type === "section");
-
-  const canMarkDev =
-    nodes.length > 0 &&
-    !locked &&
-    nodes.some(
-      (n) => n.type === "frame" || n.type === "section" || n.type === "group",
-    );
 
   const allDevReady =
     nodes.length > 0 &&
@@ -452,7 +386,7 @@ export function ContextMenu({
           <>
             <button
               role="menuitem"
-              disabled={!canWrapSection}
+              disabled={!allowed("wrapSection")}
               onMouseEnter={() => {
                 if (!submenuRef.current?.contains(document.activeElement))
                   setOpenGroup(null);
@@ -473,7 +407,7 @@ export function ContextMenu({
               <span>选择匹配图层</span>
               <kbd>⌥⌘A</kbd>
             </button>
-            {canMarkDev && (
+            {allowed("toggleDevStatus") && (
               <button
                 role="menuitem"
                 onMouseEnter={() => {
@@ -639,7 +573,7 @@ export function ContextMenu({
                 {groups[openGroup].filter(allowed).map(command)}
                 {openGroup === "组织" &&
                   nodes.length === 1 &&
-                  !e.componentUnavailable &&
+                  allowed("createComponent") &&
                   onPromoteModule && (
                     <button
                       role="menuitem"

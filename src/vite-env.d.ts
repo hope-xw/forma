@@ -13,7 +13,46 @@ interface DesktopOpenFileInfo {
   nativePath?: string | null;
 }
 
+interface SystemFontRequest {
+  fontFamily: string;
+  fontWeight: number;
+  fontStyle: "normal" | "italic";
+  text: string;
+  maxFaces?: number;
+  declaredOnly?: boolean;
+  excludeFaces?: string[];
+}
+interface SystemFontFace {
+  family: string;
+  faceIndex: number;
+  format: "ttf" | "otf" | "ttc" | "otc";
+  data: Uint8Array | string;
+}
+declare module "*/system-fonts.mjs" {
+  export function parseFontFamilies(
+    css: string,
+  ): { css: string; name: string; quoted: boolean }[];
+  export function resolveSystemFonts(
+    req: SystemFontRequest,
+  ): Promise<ResolvedSystemFontFace[]>;
+  export function listSystemFontFamilies(): Promise<string[]>;
+}
+declare module "wawoff2/decompress.js" {
+  export default function decompress(bytes: Uint8Array): Promise<Uint8Array>;
+}
+interface ResolvedSystemFontFace extends SystemFontFace {
+  faceId: string;
+  familyRank: number;
+  declaredMatch: boolean;
+  faceIndex: 0;
+  format: "ttf" | "otf";
+  data: string;
+}
+type SystemFontFailure = { ok: false; code?: string; error: string };
+type DesktopSystemFontResult = ResolvedSystemFontFace[] | SystemFontFailure;
+
 interface FormaDesktopBridge {
+  resolveSystemFonts(req: SystemFontRequest): Promise<DesktopSystemFontResult>;
   version: string;
   platform: string;
   agentConfigured: boolean;
@@ -53,4 +92,13 @@ interface FormaDesktopBridge {
 
 interface Window {
   formaDesktop?: FormaDesktopBridge;
+  queryLocalFonts?(): Promise<
+    {
+      family: string;
+      fullName: string;
+      postscriptName: string;
+      style: string;
+      blob(): Promise<Blob>;
+    }[]
+  >;
 }

@@ -31,7 +31,7 @@ async (page) => {
     !(await layers.last().innerText()).includes("会员中心 Studio")
   )
     throw Error("Frame or text missing");
-  await untilFocused("#right-panel", "F6", 5);
+  await untilFocused(".right-panel", "F6", 5);
   await untilFocused(".editor-canvas", "Shift+F6", 5);
   await press("Control+z");
   if ((await layers.last().innerText()).includes("会员中心 Studio"))

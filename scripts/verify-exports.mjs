@@ -28,6 +28,92 @@ async function replay(name, page) {
   })(page, name === "prototype-input" ? { touch: true } : undefined);
 }
 const checks = {
+  async "canvas-phase2"(page, doc) {
+    const nodes =
+      doc.format === "forma/design-parts"
+        ? doc.records
+            .filter((record) => record.kind === "page")
+            .flatMap((record) => record.nodes)
+        : doc.nodes;
+    const board = page.locator('[data-design-id="art"]');
+    await board.waitFor();
+    const children = nodes.filter((node) => node.parentId === "art");
+    assert.deepEqual(
+      children.map((node) => node.name),
+      ["stroke", "letters（轮廓）"],
+    );
+    assert.equal(children[0].id, "stroke");
+    assert.equal(children[1].id, "letters");
+    const glyphs = board.locator(
+      '[data-design-id="letters"] > svg path[stroke-width="0"]',
+    );
+    await glyphs.first().waitFor();
+    const closedContours = await glyphs.evaluateAll((paths) =>
+      paths.reduce(
+        (count, path) =>
+          count + (path.getAttribute("d").match(/z/gi) ?? []).length,
+        0,
+      ),
+    );
+    assert.ok(
+      closedContours >= 2,
+      "Rendered letters SVG retains both closed glyph contours",
+    );
+    for (const node of children) {
+      assert.equal(node.type, "vector");
+      assert.ok(node.vector.paths.length > 0);
+      for (const path of node.vector.paths) {
+        assert.ok(path.fill && path.strokeWidth === 0);
+        assert.match(path.d, /Z\s*$/i);
+      }
+      const paths = board.locator(`[data-design-id="${node.id}"] > svg path`);
+      await paths.first().waitFor();
+      assert.deepEqual(
+        await paths.evaluateAll((els) =>
+          els.map((el) => [
+            el.getAttribute("d"),
+            el.getAttribute("fill"),
+            el.getAttribute("stroke-width"),
+          ]),
+        ),
+        node.vector.paths.map((path) => [path.d, path.fillColor, "0"]),
+      );
+    }
+  },
+  async "canvas-pro-feel"(page, doc) {
+    const nodes =
+      doc.format === "forma/design-parts"
+        ? doc.records.filter((r) => r.kind === "page").flatMap((r) => r.nodes)
+        : doc.nodes;
+    const spacing = nodes.find((n) => n.id === "Spacing");
+    assert.ok(spacing, "Spacing node present in exported document");
+    const expectedRadii = spacing.style.corners
+      ? [
+          spacing.style.corners.tl,
+          spacing.style.corners.tr,
+          spacing.style.corners.br,
+          spacing.style.corners.bl,
+        ]
+      : Array(4).fill(spacing.style.radius);
+    const el = page.locator('[data-design-id="Spacing"]');
+    await el.waitFor();
+    const rendered = await el.evaluate((node) => {
+      const s = getComputedStyle(node);
+      return {
+        radii: [
+          s.borderTopLeftRadius,
+          s.borderTopRightRadius,
+          s.borderBottomRightRadius,
+          s.borderBottomLeftRadius,
+        ].map(parseFloat),
+        gap: parseFloat(s.columnGap),
+      };
+    });
+    assert.deepEqual(rendered, {
+      radii: expectedRadii,
+      gap: spacing.style.gap,
+    });
+  },
   async "agent-canvas-chat"(page, doc, files) {
     const nodes =
       doc.format === "forma/design-parts"

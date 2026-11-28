@@ -10,6 +10,7 @@ import {
   inverse,
   vector,
 } from "./transforms";
+import { findLayer } from "./scene-index";
 import { selectionRoots } from "./tree";
 export type Alignment =
   | "left"
@@ -63,21 +64,31 @@ export function alignOperations(
   if (!box) return [];
   if (
     nodes.some((n) => {
-      const p = doc.nodes.find((p) => p.id === n.parentId);
-      return p?.style.layout !== "free" && p?.type === "frame";
+      const p = findLayer(doc, n.parentId);
+      return (
+        p?.type === "frame" &&
+        p.style.layout !== "free" &&
+        !n.style.absolutePosition
+      );
     })
   )
-    throw new Error("自动布局内请调整布局间距，或先移出自动布局");
+    throw new Error("自动布局内请调整布局对齐，或开启绝对定位后对齐");
   if (alignment === "horizontal" || alignment === "vertical") {
     if (nodes.length < 3) throw new Error("分布至少需要三个图层");
     const axis = alignment === "horizontal" ? "x" : "y",
       size = axis === "x" ? "width" : "height";
     nodes.sort((a, b) => bounds.get(a.id)![axis] - bounds.get(b.id)![axis]);
+    const first = bounds.get(nodes[0].id)!;
+    const last = bounds.get(nodes[nodes.length - 1].id)!;
+    const middle = nodes.slice(1, -1);
+    const firstEnd = first[axis] + first[size];
     const gap =
-      (box[size] - nodes.reduce((sum, n) => sum + bounds.get(n.id)![size], 0)) /
+      (last[axis] -
+        firstEnd -
+        middle.reduce((sum, n) => sum + bounds.get(n.id)![size], 0)) /
       (nodes.length - 1);
-    let cursor = box[axis];
-    return nodes.map((n) => {
+    let cursor = firstEnd + gap;
+    return middle.map((n) => {
       const delta = cursor - bounds.get(n.id)![axis];
       cursor += bounds.get(n.id)![size] + gap;
       return reposition(n, axis === "x" ? delta : 0, axis === "y" ? delta : 0);
@@ -243,28 +254,45 @@ export function layerOrderOperations(
   const selected = new Set(roots.map((n) => n.id));
   const operations: Operation[] = [];
   for (const parent of new Set(roots.map((n) => n.parentId))) {
+    const parentNode = parent ? findLayer(doc, parent) : undefined;
+    const reversed =
+      parentNode?.type === "frame" &&
+      (parentNode.style.layout === "row" ||
+        parentNode.style.layout === "column") &&
+      parentNode.style.firstChildOnTop;
+    const effectiveAction = reversed
+      ? (
+          {
+            front: "back",
+            back: "front",
+            forward: "backward",
+            backward: "forward",
+          } as const
+        )[action]
+      : action;
     const siblings = doc.nodes.filter((n) => n.parentId === parent);
     let order = [...siblings];
-    if (action === "front")
+    if (effectiveAction === "front")
       order = [
         ...siblings.filter((n) => !selected.has(n.id)),
         ...siblings.filter((n) => selected.has(n.id)),
       ];
-    if (action === "back")
+    if (effectiveAction === "back")
       order = [
         ...siblings.filter((n) => selected.has(n.id)),
         ...siblings.filter((n) => !selected.has(n.id)),
       ];
-    if (action === "forward")
+    if (effectiveAction === "forward")
       for (let i = order.length - 2; i >= 0; i--)
         if (selected.has(order[i].id) && !selected.has(order[i + 1].id))
           [order[i], order[i + 1]] = [order[i + 1], order[i]];
-    if (action === "backward")
+    if (effectiveAction === "backward")
       for (let i = 1; i < order.length; i++)
         if (selected.has(order[i].id) && !selected.has(order[i - 1].id))
           [order[i], order[i - 1]] = [order[i - 1], order[i]];
     const moved = order.filter((n) => selected.has(n.id));
-    if (action === "front" || action === "forward") moved.reverse();
+    if (effectiveAction === "front" || effectiveAction === "forward")
+      moved.reverse();
     for (const node of moved)
       operations.push({
         type: "reorder",

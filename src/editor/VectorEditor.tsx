@@ -1,6 +1,7 @@
 import { displayColor } from "../domain/color-profile";
 import {
   useLayoutEffect,
+  useCallback,
   useMemo,
   useRef,
   useState,
@@ -13,10 +14,17 @@ import {
   GitBranch,
   Minus,
   Plus,
+  Spline,
 } from "lucide-react";
 import type { EditorController } from "./useEditor";
 import { createNode, type DesignNode } from "../domain/document";
-import type { Point, Rect, Viewport } from "../domain/geometry";
+import { findLayer } from "../domain/scene-index";
+import {
+  contains,
+  type Point,
+  type Rect,
+  type Viewport,
+} from "../domain/geometry";
 import {
   identity,
   inverse,
@@ -26,26 +34,126 @@ import {
   type Matrix,
 } from "../domain/transforms";
 import {
+  allAnchors,
+  anchorKey,
+  bendSegment,
+  branchVector,
   editablePaths,
   encodeVector,
   mapContours,
-  moveNetworkAnchor,
-  branchVector,
+  moveNetworkAnchors,
+  nearestSegmentPoint,
   pathData,
+  removeNetworkAnchors,
+  sameAnchor,
   splitSegment,
+  toggleAnchorsSmooth,
   vectorBounds,
+  type AnchorIndex,
   type EditablePath,
+  type SegmentHit,
 } from "../domain/vector-path";
 
-type Selection = { p: number; c: number; a: number };
 type Handle = "anchor" | "incoming" | "outgoing";
+interface PointerTrack {
+  start: Point;
+  current: Point;
+  pointer: number;
+}
+interface MarqueeDrag extends PointerTrack {
+  kind: "marquee";
+  additive: boolean;
+  baseSelection: AnchorIndex[];
+}
+interface GeometryDrag extends PointerTrack {
+  before: EditablePath[];
+  preview?: EditablePath[];
+}
+interface AnchorDrag extends GeometryDrag {
+  kind: "anchor";
+  pick: AnchorIndex;
+  handle: Handle;
+  selected: AnchorIndex[];
+  onClick: AnchorIndex[];
+  mirror: boolean;
+  previousDraft?: { paths: EditablePath[]; selection: AnchorIndex[] };
+}
+interface BendDrag extends GeometryDrag {
+  kind: "bend";
+  hit: SegmentHit;
+}
+type Drag = MarqueeDrag | AnchorDrag | BendDrag;
+
+export function normalizeMarqueeRect(start: Point, end: Point): Rect {
+  return {
+    x: Math.min(start.x, end.x),
+    y: Math.min(start.y, end.y),
+    width: Math.abs(end.x - start.x),
+    height: Math.abs(end.y - start.y),
+  };
+}
+
+export function resolveAnchorClickSelection(
+  selected: AnchorIndex[],
+  pick: AnchorIndex,
+  shift: boolean,
+) {
+  const included = selected.some((at) => sameAnchor(at, pick));
+  const onDown = included ? selected : shift ? [...selected, pick] : [pick];
+  const onClick = !shift
+    ? [pick]
+    : included
+      ? selected.filter((at) => !sameAnchor(at, pick))
+      : onDown;
+  return { onDown, onClick };
+}
+
+export function segmentPreviewPathData(
+  paths: EditablePath[],
+  { p, c, index }: Pick<SegmentHit, "p" | "c" | "index">,
+) {
+  const contour = paths[p]?.contours[c];
+  if (!contour || contour.anchors.length < 2) return "";
+  const a = contour.anchors[index];
+  const b =
+    contour.anchors[index + 1] ?? (contour.closed && contour.anchors[0]);
+  return a && b ? pathData([{ closed: false, anchors: [a, b] }]) : "";
+}
+
+function validMatrix(m: DOMMatrix | null | undefined): m is DOMMatrix {
+  if (!m) return false;
+  const det = m.a * m.d - m.b * m.c;
+  return (
+    [m.a, m.b, m.c, m.d, m.e, m.f, det].every(Number.isFinite) && det !== 0
+  );
+}
+function screenMatrix(element: SVGGraphicsElement | null | undefined) {
+  if (!element?.isConnected || !element.getClientRects().length) return null;
+  const matrix = element.getScreenCTM();
+  return validMatrix(matrix) ? matrix : null;
+}
 const newPaths = (): EditablePath[] => [
   { fill: false, strokeWidth: 2, contours: [{ anchors: [], closed: false }] },
 ];
 interface Props {
   panning: boolean;
-  editor: EditorController;
+  editor: Pick<
+    EditorController,
+    | "doc"
+    | "committed"
+    | "historyRef"
+    | "previewRef"
+    | "hasPreview"
+    | "tabActive"
+    | "activeEditHandlerRef"
+    | "setCanUndoDraft"
+    | "tool"
+    | "apply"
+    | "attempt"
+    | "setSelection"
+  >;
   node?: DesignNode;
+  worldContainer?: HTMLElement | null;
   box?: Rect;
   viewport: Viewport;
   parentAt: (p: Point) => { id: string | null; box?: Rect; matrix: Matrix };
@@ -53,13 +161,25 @@ interface Props {
 }
 export function VectorEditor({
   editor: e,
-  node,
+  node: target,
+  worldContainer,
   box,
   viewport,
   parentAt,
   close,
   panning,
 }: Props) {
+  const committedBase = e.committed;
+  const node = target ? findLayer(committedBase, target.id) : undefined;
+  const blocked =
+    !e.tabActive ||
+    e.hasPreview ||
+    e.doc !== committedBase ||
+    (!!target && !node?.vector);
+  const canEditNow = () =>
+    !blocked &&
+    e.previewRef.current === null &&
+    e.historyRef.current.present === committedBase;
   const root = useRef<SVGSVGElement>(null),
     group = useRef<SVGGElement>(null);
   const original = useMemo(
@@ -68,78 +188,137 @@ export function VectorEditor({
   );
   const [working, setWorking] = useState<EditablePath[] | null>(null),
     paths = working ?? original;
-  const [selected, select] = useState<Selection | null>(null);
+  const [selected, select] = useState<AnchorIndex[]>([]);
+  const primarySelected = selected.at(-1) ?? null;
+  const selectedKeys = useMemo(
+    () => new Set(selected.map(anchorKey)),
+    [selected],
+  );
+  const isAnchorSelected = (target: AnchorIndex) =>
+    selectedKeys.has(anchorKey(target));
   const [branching, setBranching] = useState(false);
+  const [bendMode, setBendMode] = useState(false);
+  const [altPressed, setAltPressed] = useState(false);
+  const effectiveBend = Boolean(node) && !branching && (bendMode || altPressed);
+  const [hoveredSegment, setHoveredSegment] = useState<SegmentHit | null>(null);
+  const hoverClient = useRef<Pick<Pointer, "clientX" | "clientY"> | null>(null);
+  const [marquee, setMarquee] = useState<Rect | null>(null);
   const [cursor, setCursor] = useState<Point | null>(null);
-  const drag = useRef<{
-    pick: Selection;
-    handle: Handle;
-    pointer: number;
-    start: Point;
-    before: EditablePath[];
-    mirror: boolean;
-    changed: boolean;
-  } | null>(null);
+  const drag = useRef<Drag | null>(null);
   const parent = useRef<ReturnType<Props["parentAt"]> | null>(null);
-  const [matrix, setMatrix] = useState<Matrix>(identity);
-  useLayoutEffect(() => {
-    if (!root.current) return;
-    const element =
+  const layerSvg = useCallback(() => {
+    const world =
+      worldContainer ??
+      root.current?.closest(".editor-canvas")?.querySelector(".canvas-world");
+    return (
       node &&
-      root.current.parentElement?.querySelector<SVGSVGElement>(
-        '[data-node-id="' + CSS.escape(node.id) + '"] > svg',
-      );
-    const local = root.current.getScreenCTM(),
-      paint = element?.getScreenCTM();
-    setMatrix(
-      local && paint
-        ? local.inverse().multiply(paint)
-        : {
-            a: viewport.zoom,
-            b: 0,
-            c: 0,
-            d: viewport.zoom,
-            e: viewport.x,
-            f: viewport.y,
-          },
+      world?.querySelector<SVGSVGElement>(
+        '[data-node-id="' + CSS.escape(node.id) + '"] > svg[viewBox]',
+      )
     );
-  }, [node, viewport, box]);
+  }, [worldContainer, node]);
+  const [layerMatrix, setLayerMatrix] = useState<Matrix | null>(null);
+  const matrixReady = !node || layerMatrix !== null;
+  const matrix = node
+    ? (layerMatrix ?? identity)
+    : {
+        ...identity,
+        a: viewport.zoom,
+        d: viewport.zoom,
+        e: viewport.x,
+        f: viewport.y,
+      };
+  useLayoutEffect(() => {
+    if (!node || blocked) return;
+    const svg = layerSvg();
+    function sync() {
+      const local = screenMatrix(root.current),
+        paint = screenMatrix(svg);
+      const next = local && paint ? local.inverse().multiply(paint) : null;
+      setLayerMatrix(validMatrix(next) ? next : null);
+    }
+    sync();
+    if (!svg) return;
+    const observer = new ResizeObserver(sync);
+    observer.observe(svg);
+    return () => observer.disconnect();
+  }, [node, layerSvg, viewport, box, blocked]);
   const unit = 1 / Math.max(0.001, Math.hypot(matrix.a, matrix.b));
-  function point(ev: Pointer<SVGElement>) {
-    const m = group.current!.getScreenCTM()!.inverse();
-    return transform(m, { x: ev.clientX, y: ev.clientY });
+  function point(ev: Pick<Pointer, "clientX" | "clientY">) {
+    const screen = node
+      ? screenMatrix(root.current) && screenMatrix(layerSvg())
+      : group.current?.getScreenCTM();
+    return matrixReady && validMatrix(screen)
+      ? transform(screen.inverse(), { x: ev.clientX, y: ev.clientY })
+      : null;
+  }
+  function localPoint(ev: Pick<Pointer, "clientX" | "clientY">) {
+    const screen = screenMatrix(root.current);
+    return (
+      screen && transform(screen.inverse(), { x: ev.clientX, y: ev.clientY })
+    );
   }
   function commit(next: EditablePath[]) {
-    if (!node || !box || !node.vector) return;
-    const b = vectorBounds(next),
-      v = node.vector,
-      s = Math.min(box.width / v.width, box.height / v.height);
-    const sx = v.stretch ? box.width / v.width : s,
-      sy = v.stretch ? box.height / v.height : s;
-    const width = b.width * sx,
-      height = b.height * sy;
-    const shift = vector(localTransform(node, box), {
-      x: (b.x + (b.width - v.width) / 2) * sx,
-      y: (b.y + (b.height - v.height) / 2) * sy,
-    });
+    if (!canEditNow() || !node || !box || !node.vector) return;
+    if (
+      !matrixReady ||
+      !screenMatrix(layerSvg()) ||
+      !screenMatrix(root.current)
+    ) {
+      setWorking(null);
+      return;
+    }
+    const container = findLayer(committedBase, node.parentId);
+    const inFlow =
+      container?.type === "frame" &&
+      container.style.layout !== "free" &&
+      !node.style.absolutePosition;
+    const v = node.vector;
+    const b = vectorBounds(next, inFlow ? 0 : 1);
+    const { radial: _radial, ...preserved } = v;
+    let viewBox = b;
+    let style: Partial<DesignNode["style"]> | undefined;
+    if (inFlow) {
+      // Layout owns the box. Keep path coordinates in its original viewBox.
+      viewBox = { x: 0, y: 0, width: v.width, height: v.height };
+      if (
+        b.x < 0 ||
+        b.y < 0 ||
+        b.x + b.width > v.width ||
+        b.y + b.height > v.height
+      )
+        preserved.overflowVisible = true;
+    } else {
+      const s = Math.min(box.width / v.width, box.height / v.height);
+      const sx = v.stretch ? box.width / v.width : s,
+        sy = v.stretch ? box.height / v.height : s;
+      const width = b.width * sx,
+        height = b.height * sy;
+      const shift = vector(localTransform(node, box), {
+        x: (b.x + (b.width - v.width) / 2) * sx,
+        y: (b.y + (b.height - v.height) / 2) * sy,
+      });
+      style = {
+        x: node.style.x + shift.x + (box.width - width) / 2,
+        y: node.style.y + shift.y + (box.height - height) / 2,
+        width: Math.max(1, width),
+        height: Math.max(1, height),
+        widthMode: "fixed",
+        heightMode: "fixed",
+      };
+    }
     e.apply([
       {
         type: "update",
         id: node.id,
-        patch: { vector: { ...encodeVector(next, b), stretch: v.stretch } },
-        style: {
-          x: node.style.x + shift.x + (box.width - width) / 2,
-          y: node.style.y + shift.y + (box.height - height) / 2,
-          width: Math.max(1, width),
-          height: Math.max(1, height),
-          widthMode: "fixed",
-          heightMode: "fixed",
-        },
+        patch: { vector: { ...preserved, ...encodeVector(next, viewBox) } },
+        style,
       },
     ]);
     setWorking(null);
   }
   function finish(closed: boolean) {
+    if (!canEditNow()) return;
     if (node) {
       close();
       return;
@@ -169,80 +348,153 @@ export function VectorEditor({
     e.setSelection([n.id]);
     close();
   }
-  function changePoint(
-    command: "remove" | "split" | "smooth" | "close",
-    delta?: Point,
-  ) {
-    if (!selected) return;
-    const next = structuredClone(paths),
-      c = next[selected.p]?.contours[selected.c],
-      i = selected.a,
-      a = c?.anchors[i];
-    if (!a) return;
-    if (delta)
-      moveNetworkAnchor(next, selected, { x: a.x + delta.x, y: a.y + delta.y });
-    else if (command === "split") {
-      splitSegment(c, i);
-    } else if (command === "close") {
-      if (c.anchors.length > 2) c.closed = !c.closed;
-    } else if (command === "smooth") {
-      if (a.incoming || a.outgoing) {
-        delete a.incoming;
-        delete a.outgoing;
-      } else {
-        const prev = c.anchors[(i + c.anchors.length - 1) % c.anchors.length],
-          n = c.anchors[(i + 1) % c.anchors.length],
-          dx = (n.x - prev.x) / 6,
-          dy = (n.y - prev.y) / 6;
-        a.incoming = { x: a.x - dx, y: a.y - dy };
-        a.outgoing = { x: a.x + dx, y: a.y + dy };
-      }
-    } else {
-      if (
-        node &&
-        c.anchors.length <= 2 &&
-        next.length === 1 &&
-        next[0].contours.length === 1
-      )
-        return;
-      c.anchors.splice(i, 1);
-      if (c.anchors.length < 3) c.closed = false;
-      if (node && c.anchors.length < 2) {
-        next[selected.p].contours.splice(selected.c, 1);
-        if (!next[selected.p].contours.length) next.splice(selected.p, 1);
-      }
-      select(null);
+  const editingNode = Boolean(node);
+  const cancelGesture = useCallback(() => {
+    const track = drag.current;
+    drag.current = null;
+    if (track && root.current?.hasPointerCapture(track.pointer))
+      root.current.releasePointerCapture(track.pointer);
+    if (track && editingNode) setWorking(null);
+    else if (track?.kind === "anchor" && track.previousDraft) {
+      setWorking(track.previousDraft.paths);
+      select(track.previousDraft.selection);
     }
-    if (node) e.attempt(() => commit(next));
-    else setWorking(next);
-  }
+    hoverClient.current = null;
+    setHoveredSegment(null);
+    setMarquee(null);
+    setCursor(null);
+    setAltPressed(false);
+  }, [editingNode]);
+
   useLayoutEffect(() => {
+    cancelGesture();
+    if (editingNode)
+      select((previous) => {
+        const valid = previous.filter(
+          ({ p, c, a }) => original[p]?.contours[c]?.anchors[a],
+        );
+        return valid.length === previous.length ? previous : valid;
+      });
+  }, [original, committedBase, editingNode, e.tool, cancelGesture]);
+
+  useLayoutEffect(() => {
+    if (!blocked) return;
+    cancelGesture();
+    if (e.hasPreview || e.doc !== committedBase) {
+      setWorking(null);
+      if (!editingNode) select([]);
+    }
+    setBendMode(false);
+    setBranching(false);
+  }, [blocked, e.hasPreview, e.doc, committedBase, editingNode, cancelGesture]);
+
+  useLayoutEffect(() => {
+    if (panning) cancelGesture();
+    window.addEventListener("blur", cancelGesture);
+    return () => window.removeEventListener("blur", cancelGesture);
+  }, [panning, cancelGesture]);
+
+  function updateHover(pos: Point) {
+    const nearAnchor = paths.some((path) =>
+      path.contours.some((c) =>
+        c.anchors.some((a) => Math.hypot(a.x - pos.x, a.y - pos.y) <= unit * 6),
+      ),
+    );
+    setHoveredSegment(
+      nearAnchor ? null : nearestSegmentPoint(paths, pos, unit * 8),
+    );
+  }
+  function changePoint(
+    command: "remove" | "split" | "smooth" | "close" | Point,
+  ) {
+    if (!canEditNow() || !primarySelected || drag.current) return;
+    const next = structuredClone(paths);
+    if (typeof command === "object")
+      moveNetworkAnchors(next, selected, command);
+    else if (command === "smooth") toggleAnchorsSmooth(next, selected);
+    else if (command === "remove") {
+      if (!removeNetworkAnchors(next, selected, Boolean(node))) return;
+      select([]);
+    } else {
+      const { p, c, a } = primarySelected;
+      const contour = next[p]?.contours[c];
+      if (!contour?.anchors[a]) return;
+      if (command === "split") {
+        if (
+          selected.length !== 1 ||
+          (!contour.closed && a === contour.anchors.length - 1)
+        )
+          return;
+        splitSegment(contour, a);
+      } else {
+        if (contour.anchors.length < 3) return;
+        contour.closed = !contour.closed;
+      }
+    }
+    setBranching(false);
+    setHoveredSegment(null);
+    if (node) e.attempt(() => commit(next));
+    else setWorking(next.length ? next : newPaths());
+  }
+  const draftHasAnchors =
+    !node && !blocked && paths[0].contours[0].anchors.length > 0;
+  useLayoutEffect(() => {
+    if (!draftHasAnchors) return;
+    e.setCanUndoDraft(true);
+    return () => e.setCanUndoDraft(false);
+  }, [draftHasAnchors, e.setCanUndoDraft]);
+
+  useLayoutEffect(() => {
+    if (blocked) return;
+    const handlers = {
+      selectAll() {
+        if (!canEditNow() || !node) return false;
+        cancelGesture();
+        setBranching(false);
+        select(allAnchors(original));
+        return true;
+      },
+      undo() {
+        if (!canEditNow() || !draftHasAnchors) return false;
+        cancelGesture();
+        const next = structuredClone(paths);
+        const anchors = next[0].contours[0].anchors;
+        anchors.pop();
+        setWorking(next);
+        select(anchors.length ? [{ p: 0, c: 0, a: anchors.length - 1 }] : []);
+        return true;
+      },
+    };
+    e.activeEditHandlerRef.current = handlers;
     const key = (ev: KeyboardEvent) => {
+      if (!canEditNow() || ev.defaultPrevented || ev.isComposing) return;
       if (
-        (ev.target as Element)?.closest?.("input,textarea,select,[role=dialog]")
+        (ev.target as Element)?.closest?.(
+          "input,textarea,select,[contenteditable=true],[role=dialog],.canvas-minimap",
+        )
       )
         return;
-      if (
-        !node &&
-        (ev.metaKey || ev.ctrlKey) &&
-        !ev.shiftKey &&
-        !ev.altKey &&
-        ev.key.toLowerCase() === "z"
-      ) {
-        ev.preventDefault();
-        ev.stopImmediatePropagation();
-        const anchors = paths[0]?.contours[0]?.anchors;
-        if (anchors && anchors.length > 0) {
-          const next = structuredClone(paths);
-          next[0].contours[0].anchors.pop();
-          const rem = next[0].contours[0].anchors.length;
-          setWorking(next);
-          select(rem > 0 ? { p: 0, c: 0, a: rem - 1 } : null);
-          return;
+      if (node && ev.key === "Alt") {
+        setAltPressed(true);
+        if (!drag.current && hoverClient.current && !branching && !panning) {
+          const pos = point(hoverClient.current);
+          if (pos) updateHover(pos);
         }
         return;
       }
-      if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      if ((ev.metaKey || ev.ctrlKey) && !ev.altKey && !ev.shiftKey) {
+        const command = ev.key.toLowerCase();
+        if (
+          (command === "a" && handlers.selectAll()) ||
+          (command === "z" && handlers.undo())
+        ) {
+          ev.preventDefault();
+          ev.stopImmediatePropagation();
+        }
+        return;
+      }
+      if (ev.metaKey || ev.ctrlKey || (ev.altKey && ev.key !== "Escape"))
+        return;
       const arrow = ev.key.startsWith("Arrow");
       if (
         !arrow &&
@@ -252,6 +504,11 @@ export function VectorEditor({
       ev.preventDefault();
       ev.stopImmediatePropagation();
       if (ev.key === "Escape") {
+        cancelGesture();
+        if (bendMode) {
+          setBendMode(false);
+          return;
+        }
         if (branching) {
           setBranching(false);
           return;
@@ -259,152 +516,294 @@ export function VectorEditor({
         close();
         return;
       }
+      if (drag.current) return;
       if (ev.key === "Enter") {
         e.attempt(() => finish(false));
         return;
       }
       if (arrow) {
-        const d = ev.shiftKey ? 10 : 1;
-        changePoint("remove", {
-          x: ev.key === "ArrowRight" ? d : ev.key === "ArrowLeft" ? -d : 0,
-          y: ev.key === "ArrowDown" ? d : ev.key === "ArrowUp" ? -d : 0,
-        });
+        if (!matrixReady) return;
+        const d = (ev.shiftKey ? 10 : 1) * viewport.zoom;
+        changePoint(
+          vector(inverse(matrix), {
+            x: ev.key === "ArrowRight" ? d : ev.key === "ArrowLeft" ? -d : 0,
+            y: ev.key === "ArrowDown" ? d : ev.key === "ArrowUp" ? -d : 0,
+          }),
+        );
       } else changePoint("remove");
     };
+    const keyUp = (ev: KeyboardEvent) => {
+      if (ev.key === "Alt") {
+        setAltPressed(false);
+        if (!bendMode && drag.current?.kind !== "bend") setHoveredSegment(null);
+      }
+    };
     window.addEventListener("keydown", key, true);
-    return () => window.removeEventListener("keydown", key, true);
+    window.addEventListener("keyup", keyUp, true);
+    return () => {
+      if (e.activeEditHandlerRef.current === handlers)
+        e.activeEditHandlerRef.current = null;
+      window.removeEventListener("keydown", key, true);
+      window.removeEventListener("keyup", keyUp, true);
+    };
   });
   function down(ev: Pointer<SVGSVGElement>) {
-    if (ev.button !== 0 || panning) return;
+    if (!canEditNow() || ev.button !== 0 || panning || drag.current) return;
     ev.preventDefault();
     ev.stopPropagation();
-    const pos = point(ev),
-      el = (ev.target as Element).closest<SVGElement>("[data-anchor]");
-    const next = structuredClone(paths);
-    let pick: Selection,
-      handle: Handle = "anchor";
-    if (node && branching && selected) {
-      const target =
-        el && !el.dataset.handle
-          ? {
-              p: Number(el.dataset.path),
-              c: Number(el.dataset.contour),
-              a: Number(el.dataset.anchor),
-            }
-          : undefined;
+    const pos = point(ev);
+    if (!pos) return;
+    const el = (ev.target as Element).closest<SVGElement>("[data-anchor]");
+    let pick = el
+      ? {
+          p: Number(el.dataset.path),
+          c: Number(el.dataset.contour),
+          a: Number(el.dataset.anchor),
+        }
+      : null;
+    let handle = (el?.dataset.handle ?? "anchor") as Handle;
+    const pointer = ev.pointerId;
+    const start = pos;
+    if (node) setAltPressed(ev.altKey);
+    if (node && branching && primarySelected) {
+      const next = structuredClone(paths);
+      const target = handle === "anchor" && pick ? pick : undefined;
       e.attempt(() => {
-        branchVector(next, selected, pos, target);
+        branchVector(next, primarySelected, pos, target);
         commit(next);
         setBranching(false);
-        select(null);
+        select([]);
       });
       return;
     }
-    if (el) {
-      pick = {
-        p: Number(el.dataset.path),
-        c: Number(el.dataset.contour),
-        a: Number(el.dataset.anchor),
-      };
-      handle = (el.dataset.handle ?? "anchor") as Handle;
-      if (!node && pick.a === 0 && next[0].contours[0].anchors.length >= 3) {
-        e.attempt(() => finish(true));
-        return;
+    if (node && !branching && (bendMode || ev.altKey) && handle === "anchor") {
+      if (pick) {
+        const next = structuredClone(paths);
+        toggleAnchorsSmooth(next, [pick]);
+        select([pick]);
+        setHoveredSegment(null);
+        e.attempt(() => commit(next));
+      } else {
+        const hit = nearestSegmentPoint(paths, pos, unit * 10);
+        setHoveredSegment(hit);
+        if (hit) {
+          drag.current = {
+            kind: "bend",
+            hit,
+            before: structuredClone(paths),
+            current: pos,
+            start,
+            pointer,
+          };
+          ev.currentTarget.setPointerCapture(pointer);
+        }
       }
-    } else if (!node) {
-      const c = next[0].contours[0];
-      if (!c.anchors.length) parent.current = parentAt(pos);
-      pick = { p: 0, c: 0, a: c.anchors.length };
-      c.anchors.push(pos);
-      handle = "outgoing";
-      setWorking(next);
-    } else {
-      select(null);
       return;
     }
-    select(pick);
-    ev.currentTarget.setPointerCapture(ev.pointerId);
+    if (node && !pick) {
+      if (branching || (ev.target as Element).closest(".vector-bend-segment"))
+        return;
+      const screenStart = localPoint(ev);
+      if (!screenStart) return;
+      drag.current = {
+        kind: "marquee",
+        start: screenStart,
+        current: screenStart,
+        additive: ev.shiftKey,
+        baseSelection: selected,
+        pointer,
+      };
+      setMarquee(normalizeMarqueeRect(screenStart, screenStart));
+      ev.currentTarget.setPointerCapture(pointer);
+      return;
+    }
+    const next = structuredClone(paths);
+    if (!pick) {
+      const contour = next[0].contours[0];
+      if (!contour.anchors.length) parent.current = parentAt(pos);
+      pick = { p: 0, c: 0, a: contour.anchors.length };
+      contour.anchors.push(pos);
+      handle = "outgoing";
+      setWorking(next);
+    } else if (
+      !node &&
+      pick.a === 0 &&
+      next[0].contours[0].anchors.length >= 3
+    ) {
+      e.attempt(() => finish(true));
+      return;
+    }
+    const selection =
+      node && handle === "anchor"
+        ? resolveAnchorClickSelection(selected, pick, ev.shiftKey)
+        : { onDown: [pick], onClick: [pick] };
+    select(selection.onDown);
+    setHoveredSegment(null);
     let mirror = true;
     if (handle !== "anchor") {
-      const anchor = next[pick.p]?.contours[pick.c]?.anchors[pick.a];
-      const oppKey = handle === "incoming" ? "outgoing" : "incoming";
-      const cur = anchor?.[handle],
-        opp = anchor?.[oppKey];
-      if (anchor && cur && opp) {
+      const anchor = next[pick.p].contours[pick.c].anchors[pick.a];
+      const cur = anchor[handle],
+        opp = anchor[handle === "incoming" ? "outgoing" : "incoming"];
+      if (cur && opp)
         mirror =
           Math.hypot(
             opp.x - (2 * anchor.x - cur.x),
             opp.y - (2 * anchor.y - cur.y),
           ) < Math.max(1.5, unit * 3);
-      }
     }
     drag.current = {
+      kind: "anchor",
       pick,
       handle,
-      start: pos,
-      pointer: ev.pointerId,
+      selected: selection.onDown,
+      onClick: selection.onClick,
+      current: pos,
+      start,
+      pointer,
       before: next,
       mirror,
-      changed: false,
+      previousDraft: node ? undefined : { paths, selection: selected },
     };
+    ev.currentTarget.setPointerCapture(pointer);
   }
   function move(ev: Pointer<SVGSVGElement>) {
     const track = drag.current;
+    if (!canEditNow() || panning || (track && track.pointer !== ev.pointerId))
+      return;
+    if (node) setAltPressed(ev.altKey);
     if (!track) {
-      if (!node && paths[0].contours[0].anchors.length && !panning)
-        setCursor(point(ev));
+      if (!node && paths[0].contours[0].anchors.length) setCursor(point(ev));
+      if (node) {
+        hoverClient.current = (ev.target as Element).closest("[data-anchor]")
+          ? null
+          : { clientX: ev.clientX, clientY: ev.clientY };
+        const pos =
+          !branching && (bendMode || ev.altKey) && hoverClient.current
+            ? point(ev)
+            : null;
+        if (pos) updateHover(pos);
+        else setHoveredSegment(null);
+      }
+      return;
+    }
+    const p = track.kind === "marquee" ? localPoint(ev) : point(ev);
+    if (!p) {
+      cancelGesture();
       return;
     }
     setCursor(null);
     ev.stopPropagation();
-    const p = point(ev);
-    if (
-      !track.changed &&
-      Math.hypot(p.x - track.start.x, p.y - track.start.y) < unit * 2
-    )
+    if (track.kind === "marquee") {
+      track.current = p;
+      setMarquee(normalizeMarqueeRect(track.start, track.current));
       return;
-    track.changed = true;
-    const next = structuredClone(track.before),
-      { p: j, c, k } = { p: track.pick.p, c: track.pick.c, k: track.pick.a };
-    const anchors = next[j].contours[c].anchors,
-      a = anchors[k];
-    if (track.handle === "anchor")
-      moveNetworkAnchor(next, track.pick, {
-        x: a.x + p.x - track.start.x,
-        y: a.y + p.y - track.start.y,
+    }
+    previewGeometry(track, p, ev.altKey);
+  }
+  function previewGeometry(
+    track: AnchorDrag | BendDrag,
+    p: Point,
+    breakMirror: boolean,
+  ) {
+    track.current = p;
+    const delta = { x: p.x - track.start.x, y: p.y - track.start.y };
+    if (!track.preview && Math.hypot(delta.x, delta.y) < unit * 2) return;
+    const next = structuredClone(track.before);
+    if (track.kind === "bend") {
+      bendSegment(next, track.hit, {
+        x: track.hit.point.x + delta.x,
+        y: track.hit.point.y + delta.y,
       });
+    } else if (track.handle === "anchor")
+      moveNetworkAnchors(next, track.selected, delta);
     else {
-      a[track.handle] = p;
-      if (!ev.altKey && track.mirror)
-        a[track.handle === "incoming" ? "outgoing" : "incoming"] = {
-          x: 2 * a.x - p.x,
-          y: 2 * a.y - p.y,
+      const { p: path, c, a } = track.pick;
+      const anchor = next[path].contours[c].anchors[a];
+      anchor[track.handle] = p;
+      if (!breakMirror && track.mirror)
+        anchor[track.handle === "incoming" ? "outgoing" : "incoming"] = {
+          x: 2 * anchor.x - p.x,
+          y: 2 * anchor.y - p.y,
         };
     }
+    track.preview = next;
     setWorking(next);
   }
   function end(ev: Pointer<SVGSVGElement>) {
-    const t = drag.current;
-    if (!t) return;
+    const track = drag.current;
+    if (!track || track.pointer !== ev.pointerId) return;
+    if (!canEditNow()) {
+      cancelGesture();
+      return;
+    }
     ev.stopPropagation();
     drag.current = null;
-    if (node && working && t.changed) e.attempt(() => commit(working));
+    if (track.kind === "marquee") {
+      setMarquee(null);
+      const p = localPoint(ev);
+      if (!p || !matrixReady || !screenMatrix(layerSvg())) return;
+      if (Math.hypot(p.x - track.start.x, p.y - track.start.y) < 2) {
+        if (!track.additive) select([]);
+        return;
+      }
+      const rect = normalizeMarqueeRect(track.start, p);
+      const hits = allAnchors(paths).filter(({ p, c, a }) =>
+        contains(rect, transform(matrix, paths[p].contours[c].anchors[a])),
+      );
+      const base = track.baseSelection;
+      const keys = new Set(base.map(anchorKey));
+      select(
+        track.additive
+          ? [...base, ...hits.filter((hit) => !keys.has(anchorKey(hit)))]
+          : hits,
+      );
+      return;
+    }
+    const release = point(ev);
+    if (!release) {
+      if (node) setWorking(null);
+    } else if (release.x !== track.current.x || release.y !== track.current.y) {
+      previewGeometry(track, release, ev.altKey);
+    }
+    setHoveredSegment(null);
+    hoverClient.current = null;
+    if (release && track.preview && node) {
+      const next = track.preview;
+      e.attempt(() => commit(next));
+      setWorking(null);
+    } else if (!track.preview && track.kind === "anchor") select(track.onClick);
   }
   const a =
-    selected && paths[selected.p]?.contours[selected.c]?.anchors[selected.a];
+    primarySelected &&
+    paths[primarySelected.p]?.contours[primarySelected.c]?.anchors[
+      primarySelected.a
+    ];
+  const bending = drag.current?.kind === "bend";
+  if (blocked) return null;
   return (
     <>
       <svg
         ref={root}
         className="vector-surface"
         aria-label={node ? "矢量编辑" : "钢笔绘制"}
-        onPointerLeave={() => setCursor(null)}
+        onPointerLeave={() => {
+          hoverClient.current = null;
+          setCursor(null);
+          if (drag.current?.kind !== "bend") setHoveredSegment(null);
+        }}
         onPointerDown={down}
         onPointerMove={move}
         onPointerUp={end}
-        onPointerCancel={() => {
-          drag.current = null;
-          if (node) setWorking(null);
+        onPointerCancel={(ev) => {
+          if (!drag.current || drag.current.pointer === ev.pointerId)
+            cancelGesture();
+        }}
+        onLostPointerCapture={(ev) => {
+          if (
+            ev.target === ev.currentTarget &&
+            drag.current?.pointer === ev.pointerId
+          )
+            cancelGesture();
         }}
         onDoubleClick={(ev) => {
           ev.stopPropagation();
@@ -413,6 +812,7 @@ export function VectorEditor({
       >
         <g
           ref={group}
+          visibility={matrixReady ? undefined : "hidden"}
           transform={`matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})`}
         >
           {!node && cursor && paths[0].contours[0].anchors.length > 0 && (
@@ -432,37 +832,60 @@ export function VectorEditor({
             />
           )}
           {paths.map((p, j) => (
-            <g key={j}>
-              <path
-                d={pathData(p.contours)}
-                fill={
-                  p.fill
-                    ? displayColor(
-                        p.fillColor ?? node?.style.color ?? "#161616",
-                        e.doc.colorProfile,
-                      )
-                    : "none"
-                }
-                fillRule={p.fillRule}
-                stroke={
-                  p.strokeWidth
-                    ? displayColor(
-                        p.strokeColor ?? node?.style.color ?? "#161616",
-                        e.doc.colorProfile,
-                      )
-                    : "none"
-                }
-                strokeWidth={p.strokeWidth}
-                strokeLinejoin={p.lineJoin ?? "round"}
-                opacity={p.opacity}
-                fillOpacity={p.fillOpacity}
-                strokeOpacity={p.strokeOpacity}
-                strokeLinecap={p.lineCap ?? "round"}
-              />
-              {p.contours.map((c, k) =>
-                c.anchors.map((v, i) => (
+            <path
+              key={j}
+              d={pathData(p.contours)}
+              fill={
+                p.fill
+                  ? displayColor(
+                      p.fillColor ?? node?.style.color ?? "#161616",
+                      e.doc.colorProfile,
+                    )
+                  : "none"
+              }
+              fillRule={p.fillRule}
+              stroke={
+                p.strokeWidth
+                  ? displayColor(
+                      p.strokeColor ?? node?.style.color ?? "#161616",
+                      e.doc.colorProfile,
+                    )
+                  : "none"
+              }
+              strokeWidth={p.strokeWidth}
+              strokeLinejoin={p.lineJoin ?? "round"}
+              opacity={p.opacity}
+              fillOpacity={p.fillOpacity}
+              strokeOpacity={p.strokeOpacity}
+              strokeLinecap={p.lineCap ?? "round"}
+            />
+          ))}
+          {(effectiveBend || bending) && hoveredSegment && (
+            <path
+              className={
+                bending
+                  ? "vector-bend-segment is-bending"
+                  : "vector-bend-segment"
+              }
+              data-testid="vector-bend-preview"
+              d={segmentPreviewPathData(paths, hoveredSegment)}
+              strokeWidth={3 * unit}
+              style={{ strokeOpacity: 1 }}
+            />
+          )}
+          {paths.map((p, j) =>
+            p.contours.map((c, k) =>
+              c.anchors.map((v, i) => {
+                const active = isAnchorSelected({ p: j, c: k, a: i });
+                return (
                   <circle
-                    key={k + "-" + i}
+                    key={i}
+                    className={
+                      active && selected.length > 1
+                        ? "vector-anchor is-multi-selected"
+                        : "vector-anchor"
+                    }
+                    data-selected={active || undefined}
                     data-path={j}
                     data-contour={k}
                     data-anchor={i}
@@ -470,25 +893,22 @@ export function VectorEditor({
                     cx={v.x}
                     cy={v.y}
                     r={4 * unit}
-                    fill={
-                      selected?.a === i && selected.c === k && selected.p === j
-                        ? "#7159ed"
-                        : "white"
-                    }
+                    fill={active ? "#7159ed" : "white"}
                     stroke="#7159ed"
                     strokeWidth={1.3 * unit}
                   />
-                )),
-              )}
-            </g>
-          ))}
+                );
+              }),
+            ),
+          )}
           {a &&
-            selected &&
+            primarySelected &&
             (["incoming", "outgoing"] as const).map(
               (key) =>
                 a[key] && (
                   <g key={key}>
                     <line
+                      pointerEvents="none"
                       x1={a.x}
                       y1={a.y}
                       x2={a[key].x}
@@ -497,9 +917,9 @@ export function VectorEditor({
                       strokeWidth={unit}
                     />
                     <rect
-                      data-path={selected.p}
-                      data-contour={selected.c}
-                      data-anchor={selected.a}
+                      data-path={primarySelected.p}
+                      data-contour={primarySelected.c}
+                      data-anchor={primarySelected.a}
                       data-handle={key}
                       x={a[key].x - 3 * unit}
                       y={a[key].y - 3 * unit}
@@ -514,6 +934,13 @@ export function VectorEditor({
                 ),
             )}
         </g>
+        {marquee && (
+          <rect
+            className="vector-marquee-rect"
+            data-testid="vector-marquee"
+            {...marquee}
+          />
+        )}
       </svg>
       <div
         className="vector-tools"
@@ -523,13 +950,31 @@ export function VectorEditor({
           <>
             <button
               className="icon-btn icon-btn-sm"
+              aria-label="弯曲工具"
+              data-tip="弯曲工具"
+              data-tip-desc="拖动曲线段直接拉弯，点击锚点切换平滑或尖角（按住 ⌥ 临时启用）"
+              aria-pressed={bendMode}
+              onClick={() => {
+                cancelGesture();
+                setBranching(false);
+                setBendMode(!bendMode);
+              }}
+            >
+              <Spline size={15} />
+            </button>
+            <button
+              className="icon-btn icon-btn-sm"
               title="从锚点连接分支"
               aria-label="从锚点连接分支"
               aria-pressed={branching}
-              disabled={!a}
+              disabled={selected.length !== 1}
               data-tip="从锚点连接分支"
               data-tip-desc="点击空白处延伸，或点击同一区域的不相邻锚点分区"
-              onClick={() => setBranching(!branching)}
+              onClick={() => {
+                cancelGesture();
+                setBendMode(false);
+                setBranching(!branching);
+              }}
             >
               <GitBranch size={14} />
             </button>
@@ -538,7 +983,7 @@ export function VectorEditor({
               title="插入中点"
               aria-label="插入中点"
               data-tip="插入中点"
-              disabled={!a}
+              disabled={selected.length !== 1}
               onClick={() => changePoint("split")}
             >
               <Plus size={14} />
@@ -548,31 +993,39 @@ export function VectorEditor({
               title="删除锚点"
               aria-label="删除锚点"
               data-tip="删除锚点"
-              disabled={!a}
+              disabled={!selected.length}
               onClick={() => changePoint("remove")}
             >
               <Minus size={14} />
             </button>
             <button
               className="icon-btn icon-btn-sm"
-              title="切换平滑锚点"
-              aria-label="切换平滑锚点"
-              data-tip="切换平滑锚点"
-              disabled={!a}
+              title="平滑 / 尖角"
+              aria-label="平滑 / 尖角"
+              data-tip="平滑 / 尖角"
+              disabled={!selected.length}
               onClick={() => changePoint("smooth")}
             >
               <GitCommitHorizontal size={15} />
             </button>
             <button
               className="icon-btn icon-btn-sm"
-              title="闭合或打开路径"
-              aria-label="闭合或打开路径"
-              data-tip="闭合或打开路径"
-              disabled={!a}
+              title="闭合 / 断开"
+              aria-label="闭合 / 断开"
+              data-tip="闭合 / 断开"
+              disabled={!selected.length}
               onClick={() => changePoint("close")}
             >
               <CornerUpLeft size={14} />
             </button>
+            {selected.length > 1 && (
+              <small
+                className="fp-count-pill"
+                style={{ alignSelf: "center", whiteSpace: "nowrap" }}
+              >
+                已选 {selected.length} 点
+              </small>
+            )}
           </>
         )}
         <button

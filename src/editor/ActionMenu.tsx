@@ -1,8 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
-import { editActions, type ActionId } from "./actions";
-import { canCombine, canMask } from "../domain/boolean-shapes";
-import { instanceAncestor, instanceOwner, isLocked } from "../domain/tree";
+import { editActions, isEditActionEnabled, type ActionId } from "./actions";
 import type { EditorController } from "./useEditor";
 import { useModalDialog } from "./useModalDialog";
 
@@ -43,7 +41,14 @@ export function CommandPalette({
   };
   const category = (action: (typeof editActions)[number]) =>
     !term && recent.includes(action.id) ? "最近使用" : action.category;
-  const groups = ["最近使用", "编辑", "组织与组件", "排列与对齐", "视图"];
+  const groups = [
+    "最近使用",
+    "编辑",
+    "组织与组件",
+    "排列与对齐",
+    "矢量与路径",
+    "视图",
+  ];
   const items = editActions
     .filter(
       (a) =>
@@ -60,68 +65,13 @@ export function CommandPalette({
           : 0),
     );
 
-  const nodes = e.selected;
-  const locked = nodes.some((n) => isLocked(e.doc, n.id));
-  const inside = nodes.some((n) => instanceAncestor(e.doc, n.id));
-  const sameParent = nodes.every((n) => n.parentId === nodes[0]?.parentId);
-
-  const disabled = (item: (typeof editActions)[number]) => {
-    if (item.selection && !e.selection.length) return true;
-    const id = item.id;
-    if (id === "createComponent") return !!e.componentUnavailable;
-    if (id === "undo") return !e.canUndo;
-    if (id === "redo") return !e.canRedo;
-    if (id === "tidy") return !e.smartGrid;
-    if (id === "mask") return !canMask(e.doc, e.selection);
-    if (id === "releaseMask")
-      return !(
-        nodes.length === 1 &&
-        !!nodes[0].maskSourceId &&
-        !inside &&
-        !locked
-      );
-    if (["union", "subtract", "intersect", "exclude"].includes(id))
-      return !canCombine(e.doc, e.selection);
-    if (id === "ungroup")
-      return !(nodes.some((n) => n.type === "group") && !locked && !inside);
-    if (id.startsWith("distribute"))
-      return !(nodes.length >= 3 && !locked && !inside);
-    if (id.startsWith("align"))
-      return !(
-        (nodes.length > 1 || !!nodes[0]?.parentId) &&
-        !locked &&
-        !inside
-      );
-    if (
-      [
-        "group",
-        "wrapFrame",
-        "autoLayout",
-        "front",
-        "back",
-        "forward",
-        "backward",
-      ].includes(id)
-    )
-      return !(
-        sameParent &&
-        !locked &&
-        !inside &&
-        !(id === "autoLayout" && nodes.some((n) => instanceOwner(e.doc, n.id)))
-      );
-    if (id === "wrapSection") return locked || inside;
-    if (id === "toggleDevStatus")
-      return (
-        locked ||
-        !nodes.some(
-          (n) => n.type === "frame" || n.type === "section" || !!n.componentSet,
-        )
-      );
-    if (["cut", "delete", "duplicate"].includes(id)) return locked || inside;
-    if (id === "pasteStyle") return locked || !e.canPasteStyle;
-    if (["hide", "rename"].includes(id)) return locked;
-    return false;
-  };
+  const enabledIds = new Set(
+    items
+      .filter((item) => isEditActionEnabled(item.id, e.actionEligibility))
+      .map((item) => item.id),
+  );
+  const disabled = (item: (typeof editActions)[number]) =>
+    !enabledIds.has(item.id);
 
   const enabledIndices = items
     .map((item, idx) => (!disabled(item) ? idx : -1))

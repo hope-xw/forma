@@ -147,7 +147,7 @@ async (page) => {
     );
     await button("撤销").click();
     await page
-      .locator("#right-panel")
+      .locator(".app:visible .right-panel")
       .screenshot({ path: "output/playwright/grid-tracks-panel.png" });
     await field("轨道方向").selectOption("row");
     await field("第 1 行模式").selectOption("px");
@@ -219,7 +219,7 @@ async (page) => {
     const fixture =
       (process.env.INIT_CWD ?? process.cwd()) +
       "/scripts/fixtures/roboto-flex/RobotoFlex.ttf";
-    await page.locator('input[accept=".ttf,.otf"]').setInputFiles({
+    await page.locator('input[accept*=".ttf"][accept*=".otf"]').setInputFiles({
       name: "Roboto Flex.ttf",
       mimeType: "font/ttf",
       buffer: await readFile(fixture),
@@ -234,7 +234,7 @@ async (page) => {
     await field("字体特性 liga").selectOption("0");
     await field("wdth 轴值").scrollIntoViewIfNeeded();
     await page
-      .locator("#right-panel")
+      .locator(".app:visible .right-panel")
       .screenshot({ path: "output/playwright/font-axis-panel.png" });
     await page.getByText("高级字体设置", { exact: true }).click();
     assert(

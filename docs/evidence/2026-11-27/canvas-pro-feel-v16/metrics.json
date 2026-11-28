@@ -1,0 +1,104 @@
+{
+  "version": "0.16.0",
+  "date": "2026-11-27",
+  "environment": {
+    "os": "macOS arm64 (Apple Silicon)",
+    "node": "25.8.0",
+    "browser": "Playwright Chromium (production vite preview, 2x Retina QA)"
+  },
+  "unitTests": {
+    "total": 1065,
+    "passed": 1064,
+    "failed": 0,
+    "skipped": 1,
+    "deltaVsV15": 52
+  },
+  "architecture": {
+    "violations": 0,
+    "asAny": "1/1",
+    "cssImportant": "3/25",
+    "mainBundleKb": 372.98,
+    "mainBundleGzipKb": 131.9
+  },
+  "microBenchmarks": {
+    "spatialIndex10kNodes": {
+      "pointQueryUs": { "indexed": 4.5, "linear": 184.0, "speedup": "40.9x" },
+      "rectQueryUs": { "indexed": 9.37, "linear": 132.75, "speedup": "14.2x" },
+      "visibleRootsUs": { "indexed": 1.37, "linear": 69.63, "speedup": "50.8x" },
+      "smallestContainerUs": { "indexed": 4.87, "linear": 229.17, "speedup": "47.1x" },
+      "parityMatches": "1024/1024"
+    },
+    "handlePreview8320Layers": {
+      "beforeFullTransactMs": "51.8-87.6",
+      "afterFastPathP95Ms": 0.03
+    }
+  },
+  "browserE2E": {
+    "passedSuites": 17,
+    "totalSuites": 17,
+    "canvasProFeel": {
+      "zoomRange": [0.02, 64],
+      "paintedHudPixels": 694,
+      "wheelBurst": {
+        "events": 30,
+        "liveFrames": 30,
+        "canvasReactRenders": 0,
+        "maxError": 0.000487,
+        "maxDriftPx": 0.000519
+      },
+      "verifiedDragUndos": 4,
+      "nativeAndPreviewRetained": { "radii": [24, 24, 24, 24], "gap": 26 },
+      "vectorAnchorErrorPx": 0.000045,
+      "committedPathErrorPx": 0.000007,
+      "minimapPressJumpPx": 0,
+      "bufferedLargeDocRenders": 0,
+      "boards": 128,
+      "minimapTravelPx": 6219.76,
+      "shortWindow": { "width": 1024, "height": 480 }
+    },
+    "complex8288Layers": {
+      "layers": 8288,
+      "boards": 128,
+      "vectors": 4160,
+      "instances": 192,
+      "importMs": 1281,
+      "dragP50Ms": 240,
+      "dragP95Ms": 242,
+      "rafP50Ms": 17,
+      "rafP95Ms": 17,
+      "rafMaxMs": 17,
+      "rafOver25ms": 0,
+      "heapMiB": 88
+    },
+    "layerTree10000Layers": {
+      "layers": 10000,
+      "importMs": 442,
+      "selectMs": 87,
+      "mountedRows": 38,
+      "zoomMs": 72,
+      "dragMs": 241,
+      "nativeDownloadMs": 106,
+      "reactDownloadMs": 233,
+      "heapMiB": 76
+    }
+  },
+  "exportedReactProject": {
+    "canvasProFeel": "install, build and browser passed (radii [24,24,24,24], gap 26, 0 pageerror)"
+  },
+  "desktopPackage": {
+    "dmgFilename": "Forma-0.16.0-arm64.dmg",
+    "dmgBytes": 125686563,
+    "dmgSha256": "cfb4ea1cdcd5b21286f4b591cd640f081309d71cafbea040dd0ee625a8c505b9",
+    "zipFilename": "Forma-0.16.0-arm64.zip",
+    "zipBytes": 121243927,
+    "zipSha256": "2ed5bf0da41576412fd8093bfcec300538b9f38753cb96f6f285b79f51299d85",
+    "readOnlyDmgVerified": true,
+    "releaseNotesVersions": 21
+  },
+  "screenshots": [
+    "01-dark-handles-and-minimap.png",
+    "02-light-handles-contrast.png",
+    "03-light-pixel-grid-and-menu.png",
+    "04-dark-128boards-minimap.png"
+  ]
+}

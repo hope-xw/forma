@@ -1,6 +1,12 @@
 import { useLayoutEffect, useRef } from "react";
+import { anchoredFocusOwners, canRestoreFocus } from "./useAnchoredPopover";
 /** Isolates modal keyboard input from canvas commands and returns focus on close. */
-export function useModalDialog(open: boolean, close: () => void, modal = true) {
+export function useModalDialog(
+  open: boolean,
+  close: () => void,
+  modal = true,
+  { restoreFocus = true }: { restoreFocus?: boolean } = {},
+) {
   const ref = useRef<HTMLDivElement>(null),
     closeRef = useRef(close);
   closeRef.current = close;
@@ -58,8 +64,14 @@ export function useModalDialog(open: boolean, close: () => void, modal = true) {
     document.addEventListener("keydown", key, true);
     return () => {
       document.removeEventListener("keydown", key, true);
-      if (previous?.isConnected) previous.focus();
+      if (
+        restoreFocus &&
+        !anchoredFocusOwners.has(dialog) &&
+        canRestoreFocus(previous) &&
+        document.activeElement !== previous
+      )
+        previous.focus();
     };
-  }, [open, modal]);
+  }, [open, modal, restoreFocus]);
   return ref;
 }

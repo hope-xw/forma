@@ -47,6 +47,7 @@ export async function readSnapshot(
   tx: IDBTransaction,
   key: string,
   snap: StoredSnapshot,
+  fallbackAssets?: ReadonlyMap<string, string>,
 ) {
   if (!isPartitioned(snap)) return snap;
   if (
@@ -83,7 +84,8 @@ export async function readSnapshot(
   });
   if (read !== snap.chunks) throw Error("本机文档存储分片缺失");
   for (const id of snap.assets) {
-    const data = await query(storedAssets.get([key, id]));
+    const data =
+      fallbackAssets?.get(id) ?? (await query(storedAssets.get([key, id])));
     if (typeof data !== "string") throw Error("本机文档缺少资源：" + id);
     assets.set(id, data);
   }

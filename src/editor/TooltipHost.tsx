@@ -14,6 +14,7 @@ interface TipState {
 
 const COLD_DELAY_MS = 260;
 const WARM_WINDOW_MS = 500;
+const TOOLTIP_ID = "forma-global-tooltip";
 const GAP = 9;
 const VIEWPORT_PAD = 8;
 
@@ -349,6 +350,25 @@ export function TooltipHost() {
     el.style.left = `${Math.round(left)}px`;
     el.style.top = `${Math.round(top)}px`;
     el.style.visibility = "visible";
+    const target = tip.target;
+    const previous = target.getAttribute("aria-describedby");
+    const tokens: string[] = previous?.match(/\S+/g) ?? [];
+    if (tokens.includes(TOOLTIP_ID)) return;
+    const described = [...tokens, TOOLTIP_ID].join(" ");
+    target.setAttribute("aria-describedby", described);
+    return () => {
+      const current = target.getAttribute("aria-describedby");
+      if (current === described && previous !== null) {
+        target.setAttribute("aria-describedby", previous);
+      } else if (current) {
+        const remaining = current
+          .split(/\s+/)
+          .filter((id) => id && id !== TOOLTIP_ID)
+          .join(" ");
+        if (remaining) target.setAttribute("aria-describedby", remaining);
+        else target.removeAttribute("aria-describedby");
+      }
+    };
   }, [tip]);
 
   if (!isOwner || !tip) return null;
@@ -357,6 +377,7 @@ export function TooltipHost() {
     <div
       ref={tipRef}
       role="tooltip"
+      id={TOOLTIP_ID}
       className={`forma-tooltip ${tip.warm ? "warm" : ""}`}
       data-side={tip.side}
       style={{ visibility: "hidden" }}

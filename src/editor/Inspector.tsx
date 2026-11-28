@@ -1,3 +1,8 @@
+import {
+  getAlignEligibility,
+  isEditActionEnabled,
+  type ActionId,
+} from "./actions";
 import { maxLayerDimension } from "../domain/document-limits";
 import { editableRules, saveRules } from "../domain/layout-breakpoints";
 import { LayoutBreakpoints } from "./LayoutBreakpoints";
@@ -6,7 +11,7 @@ import { GridTracks } from "./GridTracks";
 import { typeSettings } from "../domain/font-settings";
 import {
   useCallback,
-  useEffect,
+  useContext,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -29,12 +34,12 @@ import {
   AlignCenter,
   AlignRight,
   AlignJustify,
-  AlignEndVertical as ArrowDown,
-  AlignStartHorizontal as ArrowLeft,
-  AlignEndHorizontal as ArrowRight,
-  AlignStartVertical as ArrowUp,
-  AlignCenterHorizontal as Columns3,
-  AlignCenterVertical as Rows3,
+  AlignStartVertical as AlignLeftIcon,
+  AlignCenterVertical as AlignCenterHIcon,
+  AlignEndVertical as AlignRightIcon,
+  AlignStartHorizontal as AlignTopIcon,
+  AlignCenterHorizontal as AlignCenterVIcon,
+  AlignEndHorizontal as AlignBottomIcon,
   AlignHorizontalSpaceAround,
   AlignVerticalSpaceAround,
   AlignVerticalJustifyStart,
@@ -66,6 +71,7 @@ import {
   Code2,
   LayoutPanelTop,
   Scissors,
+  Shapes,
   Sparkles,
   X,
 } from "lucide-react";
@@ -89,8 +95,9 @@ const BLEND_MODE_LABELS: Record<string, string> = {
   color: "颜色",
   luminosity: "明度",
 };
-import type { DesignNode, NodeStyle } from "../domain/document";
+import type { DesignDocument, DesignNode, NodeStyle } from "../domain/document";
 import {
+  ancestors,
   instanceAncestor,
   isLocked,
   instanceOwner,
@@ -98,10 +105,15 @@ import {
   isContainer,
   subtreeIds,
 } from "../domain/tree";
-import { fillUsesTextColor } from "../domain/node";
+import {
+  PopoverSurfaceContext,
+  useAnchoredPopover,
+} from "./useAnchoredPopover";
+import { compositeSurface } from "../domain/surface-color";
+import { fillUsesTextColor, maxShadows } from "../domain/node";
 import { resolveNode } from "../domain/design-system";
 import type { VariableProperty } from "../domain/design-properties";
-import type { EditorController } from "./useEditor";
+import { useGestureEditor, type EditorController } from "./useEditor";
 import { InstanceInspector } from "./InstanceInspector";
 import { ColorField, type PaintChannel } from "./ColorField";
 import { PropertyGlyph, BooleanIcon } from "./property-icons";
@@ -109,12 +121,7 @@ import { GradientEditor } from "./GradientEditor";
 import { PaintStack } from "./PaintStack";
 import { ImageFillTrigger, ImageInspector } from "./ImageInspector";
 import { VectorInspector } from "./VectorInspector";
-import {
-  booleanNames,
-  canMask,
-  canCombine,
-  type BooleanOperation,
-} from "../domain/boolean-shapes";
+import { booleanNames, type BooleanOperation } from "../domain/boolean-shapes";
 import { SelectionColors } from "./SelectionColors";
 import { blendModes } from "../domain/node";
 import { previewGeometry } from "../application/geometry-preview";
@@ -227,9 +234,19 @@ function Field({
               : value,
         );
   const [draft, setDraft] = useState(displayValue);
+  const cancelledRef = useRef(false);
   useLayoutEffect(() => setDraft(displayValue), [displayValue]);
+  const stopScrub = useRef<(() => void) | null>(null);
+  useLayoutEffect(() => () => stopScrub.current?.(), [disabled]);
   const scrub = (ev: React.PointerEvent) => {
-    if (!isNumeric || disabled || typeof value !== "number") return;
+    if (
+      ev.button !== 0 ||
+      stopScrub.current ||
+      !isNumeric ||
+      disabled ||
+      typeof value !== "number"
+    )
+      return;
     ev.preventDefault();
     const startX = ev.clientX;
     const base = percent ? Math.round(value * 100) : value;
@@ -237,6 +254,7 @@ function Field({
     target.setPointerCapture(ev.pointerId);
     let last = base;
     const onMove = (moveEv: PointerEvent) => {
+      if (moveEv.pointerId !== ev.pointerId) return;
       const dx = moveEv.clientX - startX;
       const step = moveEv.shiftKey ? 10 : moveEv.altKey ? 0.1 : 1;
       const rawNext =
@@ -248,10 +266,20 @@ function Field({
         onPreview?.(percent ? String(next / 100) : String(next));
       }
     };
-    const onUp = (event: PointerEvent) => {
+    const detach = () => {
+      stopScrub.current = null;
       target.removeEventListener("pointermove", onMove);
       target.removeEventListener("pointerup", onUp);
       target.removeEventListener("pointercancel", onUp);
+      target.removeEventListener("lostpointercapture", onUp);
+    };
+    stopScrub.current = () => {
+      detach();
+      onPreview?.("");
+    };
+    const onUp = (event: PointerEvent) => {
+      if (event.pointerId !== ev.pointerId) return;
+      detach();
       setDraft(displayValue);
       if (event.type === "pointerup" && last !== base)
         onCommit(
@@ -264,6 +292,7 @@ function Field({
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerup", onUp);
     target.addEventListener("pointercancel", onUp);
+    target.addEventListener("lostpointercapture", onUp);
   };
   return (
     <label
@@ -293,11 +322,15 @@ function Field({
         list={list}
         value={draft}
         placeholder={value === undefined ? "Mixed" : ""}
-        onFocus={(e) => e.currentTarget.select()}
+        onFocus={(e) => {
+          cancelledRef.current = false;
+          e.currentTarget.select();
+        }}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={(event) => {
           const input = event.currentTarget.value;
           setDraft(displayValue);
+          if (disabled || cancelledRef.current) return;
           if ((input !== "" || !isNumeric) && input !== displayValue) {
             if (isNumeric) {
               const computed = evalMath(input);
@@ -312,6 +345,8 @@ function Field({
           }
         }}
         onKeyDown={(e) => {
+          if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229)
+            return;
           if (isNumeric && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
             e.preventDefault();
             if (draft.trim() === "") return;
@@ -325,10 +360,13 @@ function Field({
             onCommit(percent ? String(clamped / 100) : String(clamped));
             return;
           }
-          if (e.key === "Enter") e.currentTarget.blur();
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
           if (e.key === "Escape") {
             setDraft(displayValue);
-            e.currentTarget.value = displayValue;
+            cancelledRef.current = true;
             e.currentTarget.blur();
           }
         }}
@@ -339,6 +377,30 @@ function Field({
     </label>
   );
 }
+const numericRanges: Partial<
+  Record<keyof NodeStyle, [min: number, max: number, integer?: boolean]>
+> = {
+  width: [0, maxLayerDimension],
+  height: [0, maxLayerDimension],
+  radius: [0, 10000],
+  gap: [0, 1000],
+  rowGap: [0, 1000],
+  padding: [0, 1000],
+  strokeWidth: [0, 100],
+  opacity: [0, 1],
+  blur: [0, 100],
+  backdropBlur: [0, 512],
+  rotation: [-360, 360],
+  fontWeight: [100, 900, true],
+  fontSize: [1, 500],
+  lineHeight: [1, 1000],
+  letterSpacing: [-50, 200],
+  columns: [1, 64, true],
+  columnSpan: [1, 64, true],
+  rowSpan: [1, 64, true],
+  gridRowHeight: [1, 10000],
+  minColumnWidth: [0, 10000],
+};
 const paddingEdges = [
   ["left", "左边距"],
   ["top", "上边距"],
@@ -350,7 +412,19 @@ function paddingSides(style: NodeStyle) {
   return style.insets ?? { top: p, right: p, bottom: p, left: p };
 }
 
+const alignHints = {
+  ok: "",
+  preview: "请先确认或取消当前预览",
+  locked: "选中包含锁定图层，请先解锁",
+  instance: "组件实例内部图层不可直接对齐",
+  inFlow: "自动布局内请调整布局对齐，或开启绝对定位后对齐",
+  needMore: "请选中至少 2 个图层或容器内子图层",
+  needThree: "请同时选中至少 3 个同级或独立图层",
+};
+
 export interface InspectorProps {
+  tabActive?: boolean;
+  canvasBackground?: string;
   editor: EditorController;
   tool?: string;
   onExitScale?(): void;
@@ -361,8 +435,107 @@ export interface InspectorProps {
   onApplyOperations?(ops: Operation[]): void;
 }
 
-export function Inspector({
-  editor: e,
+function usePropertyGesture(editor: EditorController, scope: string) {
+  const ownedPreviewRef = useRef<{ key: string; doc: DesignDocument } | null>(
+    null,
+  );
+  const { setLocalPreview, committed, historyRef, apply } = editor;
+  function cancel(key: string) {
+    const owned = ownedPreviewRef.current;
+    if (owned?.key !== key) return;
+    setLocalPreview(owned.doc, null);
+    ownedPreviewRef.current = null;
+  }
+  useLayoutEffect(
+    () => () => {
+      const owned = ownedPreviewRef.current;
+      if (owned) setLocalPreview(owned.doc, null);
+      ownedPreviewRef.current = null;
+    },
+    [scope, setLocalPreview],
+  );
+  function change(key: string, ops: Operation[], preview = false) {
+    if (historyRef.current.present !== committed) return;
+    const owned = ownedPreviewRef.current;
+    if (
+      (owned && owned.key !== key) ||
+      editor.isExternalPreviewRef.current ||
+      editor.previewRef.current !== (owned?.doc ?? null)
+    )
+      return;
+    if (preview && ops.length) {
+      const next = previewGeometry(committed, ops);
+      if (setLocalPreview(owned?.doc ?? null, next))
+        ownedPreviewRef.current = { key, doc: next };
+    } else {
+      cancel(key);
+      if (!preview && ops.length) apply(ops, committed.revision);
+    }
+  }
+  useLayoutEffect(() => {
+    if (editor.hasExternalPreview) ownedPreviewRef.current = null;
+  }, [editor.hasExternalPreview]);
+  const owns = (key: string) =>
+    ownedPreviewRef.current?.key === key &&
+    ownedPreviewRef.current.doc === editor.previewRef.current &&
+    !editor.isExternalPreviewRef.current;
+  return { cancel, change, owns };
+}
+
+function contrastBackground(
+  doc: DesignDocument,
+  node: DesignNode,
+  canvasBackground: string,
+) {
+  const layers = ancestors(doc, node.id).reverse();
+  if (node.type === "button") layers.push(node);
+  const page = compositeSurface(
+    doc.pageBackground ?? canvasBackground,
+    doc.pageBackgroundVisible === false ? 0 : (doc.pageBackgroundOpacity ?? 1),
+    canvasBackground,
+  );
+  function paint(index: number, backdrop: string): string {
+    if (index === layers.length) return backdrop;
+    const layer = resolveNode(doc, layers[index]);
+    const style = layer.style;
+    let surface = backdrop;
+    if (!["text", "group", "slice", "vector"].includes(layer.type)) {
+      surface = compositeSurface(
+        layer.fillToken
+          ? (doc.tokens[layer.fillToken]?.value ?? style.fill)
+          : style.fill,
+        style.fillOpacity ?? 1,
+        backdrop,
+      );
+      surface = (style.paints ?? []).reduceRight(
+        (below, p) =>
+          p.visible ? compositeSurface(p.color, p.opacity, below) : below,
+        surface,
+      );
+    }
+    // Parent opacity applies after its children have been painted as a group.
+    return compositeSurface(
+      paint(index + 1, surface),
+      style.opacity ?? 1,
+      backdrop,
+    );
+  }
+  return paint(0, page);
+}
+
+export function Inspector({ tabActive = true, ...props }: InspectorProps) {
+  const surfaceActive = useContext(PopoverSurfaceContext) && tabActive;
+  return (
+    <PopoverSurfaceContext.Provider value={surfaceActive}>
+      <InspectorPanel {...props} tabActive={surfaceActive} />
+    </PopoverSurfaceContext.Provider>
+  );
+}
+
+function InspectorPanel({
+  tabActive = true,
+  canvasBackground = "#ffffff",
+  editor,
   tool,
   onExitScale,
   onOpenBatchExport,
@@ -370,39 +543,49 @@ export function Inspector({
   agentConfigured = false,
   onApplyOperations,
 }: InspectorProps) {
+  const scope = JSON.stringify([
+    editor.doc.id,
+    editor.doc.activePage,
+    editor.selection,
+  ]);
+  const e = useGestureEditor(editor, scope);
+  const gesture = usePropertyGesture(editor, scope);
+  const previewBlocked = editor.hasExternalPreview;
+  const smoothingPending = useRef<Operation[] | null>(null);
+  useLayoutEffect(() => {
+    smoothingPending.current = null;
+  }, [scope, previewBlocked]);
   const [ratio, setRatio] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [blurOpen, setBlurOpen] = useState(false);
   const [typeDetailsOpen, setTypeDetailsOpen] = useState(false);
   const typeBtnRef = useRef<HTMLButtonElement>(null);
-  const typePopoverRef = useRef<HTMLDivElement>(null);
   const activeTool = tool ?? e.tool;
   const nodes = e.selected.map((n) => resolveNode(e.doc, n)),
     node = nodes[0];
-  const anyLocked = nodes.some((n) => isLocked(e.doc, n.id));
+  const anyLocked = previewBlocked || nodes.some((n) => isLocked(e.doc, n.id));
   useLayoutEffect(() => {
     setRatio(false);
     setTypeDetailsOpen(false);
   }, [e.selection]);
-  useEffect(() => {
-    if (!typeDetailsOpen) return;
-    const onDown = (ev: PointerEvent) => {
-      if (
-        !typePopoverRef.current?.contains(ev.target as Node) &&
-        !typeBtnRef.current?.contains(ev.target as Node)
-      )
-        setTypeDetailsOpen(false);
-    };
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key === "Escape") setTypeDetailsOpen(false);
-    };
-    window.addEventListener("pointerdown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [typeDetailsOpen]);
+  const typeOpen = typeDetailsOpen && tabActive && !anyLocked;
+  const closeTypeDetails = () => setTypeDetailsOpen(false);
+  const typePopoverRef = useRef<HTMLDivElement>(null);
+  // A queued field commit can still hold a handler from the active render.
+  const canEditTypeDetails = () =>
+    tabActive &&
+    typePopoverRef.current?.isConnected &&
+    typeBtnRef.current?.getClientRects().length;
+  useAnchoredPopover({
+    open: typeOpen,
+    triggerRef: typeBtnRef,
+    popoverRef: typePopoverRef,
+    preferredSide: "left",
+    onClose: closeTypeDetails,
+  });
+  useLayoutEffect(() => {
+    if (anyLocked || !tabActive) setTypeDetailsOpen(false);
+  }, [anyLocked, tabActive]);
   useLayoutEffect(() => {
     if (node && (node.style.blur || node.style.backdropBlur)) setBlurOpen(true);
   }, [node?.id, node?.style.blur, node?.style.backdropBlur]);
@@ -434,6 +617,31 @@ export function Inspector({
     const parent = findLayer(e.doc, n.parentId);
     return parent && resolveNode(e.doc, parent);
   };
+  const sizingDisabled =
+    anyLocked || nodes.some((n) => instanceAncestor(e.doc, n.id));
+  function setSizing(modes: Partial<Record<Axis, SizeMode>>) {
+    if (sizingDisabled) return;
+    e.attempt(() =>
+      e.apply(
+        nodes.map((n) => {
+          const style: Partial<NodeStyle> = {};
+          for (const axis of ["width", "height"] as const) {
+            const mode = modes[axis];
+            if (!mode) continue;
+            style[modeKey(axis)] = mode;
+            if (mode === "hug")
+              style[axis === "width" ? "constraintX" : "constraintY"] = "start";
+            if (mode === "fixed")
+              style[axis] = Math.min(
+                maxLayerDimension,
+                Math.max(0, bounds.get(n.id)![axis]),
+              );
+          }
+          return { type: "update", id: n.id, patch: {}, style };
+        }),
+      ),
+    );
+  }
   const sizing = (axis: Axis) => {
     const key = modeKey(axis);
     const canHug = nodes.every(
@@ -454,39 +662,11 @@ export function Inspector({
       <select
         aria-label={axis === "width" ? "宽度模式" : "高度模式"}
         title={axis === "width" ? "宽度模式" : "高度模式"}
-        disabled={nodes.some(
-          (n) => isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-        )}
+        disabled={sizingDisabled}
         value={common((n) => sizingMode(n, parentOf(n), axis)) ?? ""}
-        onChange={(event) => {
-          const mode = event.target.value as SizeMode;
-          e.attempt(() =>
-            e.apply(
-              nodes.map((n) => ({
-                type: "update",
-                id: n.id,
-                patch: {},
-                style: {
-                  [key]: mode,
-                  ...(mode === "hug"
-                    ? {
-                        [axis === "width" ? "constraintX" : "constraintY"]:
-                          "start",
-                      }
-                    : {}),
-                  ...(mode === "fixed"
-                    ? {
-                        [axis]: Math.min(
-                          maxLayerDimension,
-                          Math.max(0, bounds.get(n.id)![axis]),
-                        ),
-                      }
-                    : {}),
-                },
-              })),
-            ),
-          );
-        }}
+        onChange={(event) =>
+          setSizing({ [axis]: event.target.value as SizeMode })
+        }
       >
         <option value="" hidden>
           Mixed
@@ -503,6 +683,15 @@ export function Inspector({
   };
   const common = <T,>(get: (n: DesignNode) => T): T | undefined =>
     nodes.every((n) => get(n) === get(node)) ? get(node) : undefined;
+  const smoothing = common((n) => n.style.cornerSmoothing ?? 0);
+  const smoothingText =
+    smoothing === undefined ? "Mixed" : Math.round(smoothing * 100) + "%";
+  function finishSmoothing() {
+    const ops = smoothingPending.current;
+    smoothingPending.current = null;
+    if (ops && gesture.owns("cornerSmoothing"))
+      e.attempt(() => gesture.change("cornerSmoothing", ops));
+  }
   const layoutDisabled =
     anyLocked || nodes.some((n) => !!instanceOwner(e.doc, n.id));
   const hasInsets = nodes.some((n) => !!n.style.insets);
@@ -537,14 +726,20 @@ export function Inspector({
   const maskImageSource =
     nodes.length > 1 &&
     e.doc.nodes.find((n) => e.selection.includes(n.id))?.image;
-  const canAlign =
-    !inFlow &&
-    !nodes.some(
-      (n) => isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-    ) &&
-    (nodes.length > 1 || !!node.parentId);
+  const allowed = (id: ActionId) =>
+    isEditActionEnabled(id, e.actionEligibility);
+  const { canAlign, canDistribute, reason } = getAlignEligibility(
+    e.doc,
+    e.selection,
+    e.hasPreview,
+  );
+  const distributionReason = reason === "needMore" ? "needThree" : reason;
+  const distributionDescription =
+    distributionReason === "needThree"
+      ? "请同时选中至少 3 个图层，父层与子层同时选中时只计父层。"
+      : undefined;
   const protectedGeometry = (key: string) =>
-    nodes.some((n) => isLocked(e.doc, n.id)) ||
+    anyLocked ||
     (inFlow && (key === "x" || key === "y")) ||
     (nodes.some((n) => instanceAncestor(e.doc, n.id)) &&
       instanceGeometryKeys.has(key)) ||
@@ -570,32 +765,20 @@ export function Inspector({
     prefixText?: string,
   ) => {
     const buildOps = (value: number) => {
-      const clamped =
-        key === "fontWeight"
-          ? Math.max(100, Math.min(900, Math.round(value)))
-          : key === "opacity"
-            ? Math.max(0, Math.min(1, value))
-            : key === "width" || key === "height"
-              ? Math.min(maxLayerDimension, Math.max(0, value))
-              : key === "gap" &&
-                  nodes.every(
-                    (n) =>
-                      (n.style.layout === "row" ||
-                        n.style.layout === "column") &&
-                      !n.style.wrap,
-                  )
-                ? Math.max(-1000, Math.min(1000, value))
-                : [
-                      "radius",
-                      "padding",
-                      "strokeWidth",
-                      "blur",
-                      "backdropBlur",
-                      "gap",
-                      "rowGap",
-                    ].includes(key)
-                  ? Math.max(0, value)
-                  : value;
+      const allowNegativeGap =
+        key === "gap" &&
+        nodes.every(
+          (n) =>
+            (n.style.layout === "row" || n.style.layout === "column") &&
+            !n.style.wrap,
+        );
+      const range = numericRanges[key];
+      const min = allowNegativeGap ? -1000 : (range?.[0] ?? -Infinity);
+      const max = range?.[1] ?? Infinity;
+      const clamped = Math.max(
+        min,
+        Math.min(max, range?.[2] ? Math.round(value) : value),
+      );
       const fixedModePatch =
         key === "width" || key === "height"
           ? { [modeKey(key)]: "fixed" as const }
@@ -638,7 +821,7 @@ export function Inspector({
     };
     return (
       <Field
-        key={key}
+        key={scope + key}
         property={key}
         prefixText={prefixText}
         label={label}
@@ -673,33 +856,13 @@ export function Inspector({
         disabled={protectedGeometry(key)}
         percent={key === "opacity"}
         onPreview={(v) => {
-          if (!v) {
-            e.setPreview(null);
-            return;
-          }
-          const value = Number(v);
-          if (!Number.isFinite(value)) return;
-          try {
-            e.setPreview(previewGeometry(e.committed, buildOps(value)));
-          } catch {
-            /* ignore transient invalid scrub preview */
-          }
+          if (!v) gesture.cancel(key);
+          else if (Number.isFinite(Number(v)))
+            e.attempt(() => gesture.change(key, buildOps(Number(v)), true));
         }}
         onCommit={(v) => {
-          e.setPreview(null);
-          const value = Number(v);
-          if (!Number.isFinite(value)) return;
-          if (key === "width" || key === "height") {
-            e.attempt(() => e.apply(buildOps(value)));
-            return;
-          }
-          const clamped =
-            key === "fontWeight"
-              ? Math.max(100, Math.min(900, Math.round(value)))
-              : key === "opacity"
-                ? Math.max(0, Math.min(1, value))
-                : value;
-          e.update({}, { [key]: clamped });
+          if (Number.isFinite(Number(v)))
+            e.attempt(() => gesture.change(key, buildOps(Number(v))));
         }}
       >
         {binding && (
@@ -715,6 +878,7 @@ export function Inspector({
   const updateEachStyle = (
     change: (n: DesignNode) => Partial<NodeStyle> | undefined,
     preview = false,
+    gestureKey = "style",
   ) =>
     e.attempt(() => {
       const ops = nodes.flatMap((n) => {
@@ -724,8 +888,7 @@ export function Inspector({
           : [];
       });
       if (!ops.length) return;
-      if (preview) e.setPreview(previewGeometry(e.committed, ops));
-      else e.apply(ops);
+      gesture.change(gestureKey, ops, preview);
     });
   type Shadow = NonNullable<NodeStyle["shadows"]>[number];
   const sharedShadowCount = Math.min(
@@ -750,6 +913,7 @@ export function Inspector({
         ),
       }),
       preview,
+      "shadow-" + index,
     );
   const blocked = useMemo(
     () => (moreOpen ? subtreeIds(e.doc, e.selection) : new Set<string>()),
@@ -801,9 +965,7 @@ export function Inspector({
         });
     const contrastBg =
       property === "color" || (property === "base" && keyFor(node) === "color")
-        ? node.type === "button"
-          ? node.style.fill
-          : (parentOf(node)?.style.fill ?? e.doc.pageBackground)
+        ? contrastBackground(e.doc, node, canvasBackground)
         : undefined;
     return (
       <div className="paint-row">
@@ -814,41 +976,34 @@ export function Inspector({
           mixedColor={common(currentColor) === undefined}
           mixedAlpha={common(currentAlpha) === undefined}
           contrastAgainst={contrastBg}
-          disabled={nodes.some((n) => isLocked(e.doc, n.id))}
+          disabled={anyLocked}
           palette={getPalette}
-          onCancelPreview={() => e.setPreview(null)}
-          onPreview={(color, alpha, channel) => {
-            const changes = buildColorOps(color, alpha, channel);
-            if (!changes.length) {
-              e.setPreview(null);
-              return;
-            }
-            try {
-              e.setPreview(previewGeometry(e.committed, changes));
-            } catch {
-              /* ignore preview errors */
-            }
-          }}
-          onChange={(color, alpha, channel) => {
-            e.setPreview(null);
-            const changes = buildColorOps(color, alpha, channel);
-            if (changes.length) e.attempt(() => e.apply(changes));
-          }}
+          onCancelPreview={() => gesture.cancel(property)}
+          onPreview={(color, alpha, channel) =>
+            e.attempt(() =>
+              gesture.change(
+                property,
+                buildColorOps(color, alpha, channel),
+                true,
+              ),
+            )
+          }
+          onChange={(color, alpha, channel) =>
+            e.attempt(() =>
+              gesture.change(property, buildColorOps(color, alpha, channel)),
+            )
+          }
         />
         {binding && (
-          <TokenBinding
-            editor={e}
-            property={binding}
-            disabled={nodes.some((n) => isLocked(e.doc, n.id))}
-          />
+          <TokenBinding editor={e} property={binding} disabled={anyLocked} />
         )}
       </div>
     );
   };
   const hasObjectActions =
-    canMask(e.doc, e.selection) ||
+    allowed("mask") ||
     (nodes.length === 1 && !!node.maskSourceId) ||
-    canCombine(e.doc, e.selection) ||
+    allowed("union") ||
     (nodes.length === 1 &&
       (!!node.booleanOperation ||
         parentOf(node)?.booleanOperation === "compound"));
@@ -868,6 +1023,7 @@ export function Inspector({
     ? childrenOf(e.doc, node.id).length
     : 0;
   const applyScaleOps = (ops: Operation[]) => {
+    if (e.isExternalPreviewRef.current) return;
     if (onApplyOperations) onApplyOperations(ops);
     else e.attempt(() => e.apply(ops));
   };
@@ -875,6 +1031,7 @@ export function Inspector({
     <>
       {activeTool === "scale" && nodes.length > 0 && (
         <ScalePanel
+          previewBlocked={previewBlocked}
           document={e.committed}
           selectedIds={e.selection}
           onApplyOperations={applyScaleOps}
@@ -946,6 +1103,7 @@ export function Inspector({
           data-tip={nodes.every((n) => n.hidden) ? "显示图层" : "隐藏图层"}
           data-tip-kbd="⇧⌘H"
           data-tip-side="top"
+          disabled={!allowed("hide")}
           onClick={() => e.perform("hide")}
         >
           {nodes.every((n) => n.hidden) ? (
@@ -961,6 +1119,7 @@ export function Inspector({
           data-tip={nodes.every((n) => n.locked) ? "解锁图层" : "锁定图层"}
           data-tip-kbd="⇧⌘L"
           data-tip-side="top"
+          disabled={!allowed("lock")}
           onClick={() => e.perform("lock")}
         >
           {nodes.every((n) => n.locked) ? (
@@ -1035,6 +1194,7 @@ export function Inspector({
             </div>
           </section>
           <ExportPanel
+            previewBlocked={previewBlocked}
             document={e.committed}
             node={node}
             onUpdateSettings={(exportSettings) =>
@@ -1049,7 +1209,7 @@ export function Inspector({
           <section>
             <button
               className="danger wide"
-              disabled={anyLocked}
+              disabled={!allowed("delete")}
               onClick={() => e.perform("delete")}
             >
               删除切片
@@ -1061,7 +1221,7 @@ export function Inspector({
         <>
           {hasObjectActions && (
             <div className="object-actions-bar" aria-label="对象布尔与蒙版操作">
-              {canMask(e.doc, e.selection) && (
+              {allowed("mask") && (
                 <button
                   className="icon-btn icon-btn-sm"
                   aria-label={maskImageSource ? "用作位图蒙版" : "用作矢量蒙版"}
@@ -1082,6 +1242,7 @@ export function Inspector({
                     aria-label="蒙版类型"
                     value={node.maskType ?? "vector"}
                     disabled={
+                      previewBlocked ||
                       isLocked(e.doc, node.id) ||
                       !!instanceOwner(e.doc, node.id)
                     }
@@ -1104,15 +1265,13 @@ export function Inspector({
                   data-tip="解除蒙版"
                   data-tip-desc="恢复被裁剪的图层并取消蒙版关联"
                   data-tip-side="top"
-                  disabled={
-                    isLocked(e.doc, node.id) || !!instanceOwner(e.doc, node.id)
-                  }
+                  disabled={!allowed("releaseMask")}
                   onClick={() => e.perform("releaseMask")}
                 >
                   <Blend size={15} />
                 </button>
               )}
-              {canCombine(e.doc, e.selection) && (
+              {allowed("union") && (
                 <div
                   className="boolean-tools"
                   role="group"
@@ -1140,6 +1299,7 @@ export function Inspector({
                     aria-label="子路径运算"
                     value={node.operandOperation ?? "compound"}
                     disabled={
+                      previewBlocked ||
                       isLocked(e.doc, node.id) ||
                       !!instanceOwner(e.doc, node.id)
                     }
@@ -1165,7 +1325,9 @@ export function Inspector({
                   aria-label="布尔运算类型"
                   value={node.booleanOperation}
                   disabled={
-                    isLocked(e.doc, node.id) || !!instanceOwner(e.doc, node.id)
+                    previewBlocked ||
+                    isLocked(e.doc, node.id) ||
+                    !!instanceOwner(e.doc, node.id)
                   }
                   onChange={(ev) =>
                     e.update({
@@ -1191,7 +1353,9 @@ export function Inspector({
                   data-tip="拼合为矢量"
                   data-tip-kbd="⌘E"
                   disabled={
-                    isLocked(e.doc, node.id) || !!instanceOwner(e.doc, node.id)
+                    previewBlocked ||
+                    isLocked(e.doc, node.id) ||
+                    !!instanceOwner(e.doc, node.id)
                   }
                   onClick={() =>
                     e.attempt(() =>
@@ -1204,28 +1368,29 @@ export function Inspector({
               )}
             </div>
           )}
-          <InstanceInspector editor={e} />
+          <fieldset disabled={previewBlocked} style={{ display: "contents" }}>
+            <InstanceInspector editor={e} />
+          </fieldset>
           <section>
             <div className="alignment-toolbar">
               {(
                 [
-                  { id: "left", name: "左对齐", icon: ArrowLeft },
-                  { id: "center", name: "水平居中", icon: Columns3 },
-                  { id: "right", name: "右对齐", icon: ArrowRight },
-                  { id: "top", name: "顶对齐", icon: ArrowUp },
-                  { id: "middle", name: "垂直居中", icon: Rows3 },
-                  { id: "bottom", name: "底对齐", icon: ArrowDown },
+                  { id: "left", name: "左对齐", icon: AlignLeftIcon },
+                  { id: "center", name: "水平居中", icon: AlignCenterHIcon },
+                  { id: "right", name: "右对齐", icon: AlignRightIcon },
+                  { id: "top", name: "顶对齐", icon: AlignTopIcon },
+                  { id: "middle", name: "垂直居中", icon: AlignCenterVIcon },
+                  { id: "bottom", name: "底对齐", icon: AlignBottomIcon },
                 ] as const
               ).map((a) => (
                 <button
                   key={a.id}
+                  data-align-id={a.id}
                   aria-label={a.name}
                   title={a.name}
                   data-tip={a.name}
                   data-tip-desc={
-                    canAlign
-                      ? "按选区边界或父容器对齐图层"
-                      : "请选中至少 2 个图层或容器内子图层"
+                    canAlign ? "按选区边界或父容器对齐图层" : alignHints[reason]
                   }
                   data-tip-side="top"
                   disabled={!canAlign}
@@ -1235,31 +1400,35 @@ export function Inspector({
                 </button>
               ))}
               <button
+                data-align-id="horizontal"
                 title="水平等距分布"
                 aria-label="水平分布"
                 data-tip="水平等距分布"
                 data-tip-desc={
-                  canAlign && nodes.length >= 3
+                  canDistribute
                     ? "使所选图层在水平方向均匀分布间距"
-                    : "请同时选中至少 3 个图层"
+                    : alignHints[distributionReason]
                 }
                 data-tip-side="top"
-                disabled={!canAlign || nodes.length < 3}
+                aria-description={distributionDescription}
+                disabled={!canDistribute}
                 onClick={() => e.align("horizontal")}
               >
                 <AlignHorizontalSpaceAround size={15} />
               </button>
               <button
+                data-align-id="vertical"
                 title="垂直等距分布"
                 aria-label="垂直分布"
                 data-tip="垂直等距分布"
                 data-tip-desc={
-                  canAlign && nodes.length >= 3
+                  canDistribute
                     ? "使所选图层在垂直方向均匀分布间距"
-                    : "请同时选中至少 3 个图层"
+                    : alignHints[distributionReason]
                 }
                 data-tip-side="top"
-                disabled={!canAlign || nodes.length < 3}
+                aria-description={distributionDescription}
+                disabled={!canDistribute}
                 onClick={() => e.align("vertical")}
               >
                 <AlignVerticalSpaceAround size={15} />
@@ -1273,6 +1442,7 @@ export function Inspector({
                   data-tip="智能整理排列"
                   data-tip-desc="自动对齐所选多个图层并统一行列间距"
                   data-tip-side="top"
+                  disabled={!allowed("tidy")}
                   onClick={() => e.perform("tidy")}
                 >
                   <Grid2X2 size={15} />
@@ -1310,10 +1480,13 @@ export function Inspector({
                   data-tip="绝对定位 (Ignore auto layout)"
                   data-tip-desc="使此图层脱离自动布局流，按 X/Y 坐标定位"
                   data-tip-side="left"
-                  disabled={nodes.some(
-                    (n) =>
-                      isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-                  )}
+                  disabled={
+                    previewBlocked ||
+                    nodes.some(
+                      (n) =>
+                        isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
+                    )
+                  }
                   onClick={() =>
                     e.update(
                       {},
@@ -1339,10 +1512,13 @@ export function Inspector({
                   aria-label="顺时针旋转 90°"
                   data-tip="旋转 90°"
                   title="顺时针旋转 90°"
-                  disabled={nodes.some(
-                    (n) =>
-                      isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-                  )}
+                  disabled={
+                    previewBlocked ||
+                    nodes.some(
+                      (n) =>
+                        isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
+                    )
+                  }
                   onClick={() =>
                     updateEachStyle((n) => ({
                       rotation:
@@ -1359,14 +1535,16 @@ export function Inspector({
                     data-tip={i ? "垂直翻转" : "水平翻转"}
                     data-tip-kbd={i ? "⇧V" : "⇧H"}
                     title={i ? "垂直翻转" : "水平翻转"}
-                    disabled={nodes.some(
-                      (n) =>
-                        isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-                    )}
-                    aria-pressed={nodes.every((n) => n.style[key])}
-                    onClick={() =>
-                      e.update({}, { [key]: !nodes.every((n) => n.style[key]) })
+                    disabled={
+                      previewBlocked ||
+                      nodes.some(
+                        (n) =>
+                          isLocked(e.doc, n.id) ||
+                          instanceAncestor(e.doc, n.id),
+                      )
                     }
+                    aria-pressed={nodes.every((n) => n.style[key])}
+                    onClick={() => e.flipSelection(i ? "y" : "x")}
                   >
                     {i ? (
                       <FlipVertical2 size={14} />
@@ -1598,10 +1776,13 @@ export function Inspector({
                   {(() => {
                     const cx = common((n) => n.style.constraintX ?? "start");
                     const cy = common((n) => n.style.constraintY ?? "start");
-                    const locked = nodes.some(
-                      (n) =>
-                        isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-                    );
+                    const locked =
+                      previewBlocked ||
+                      nodes.some(
+                        (n) =>
+                          isLocked(e.doc, n.id) ||
+                          instanceAncestor(e.doc, n.id),
+                      );
                     const on = "var(--figma-blue)",
                       off = "var(--border-strong)";
                     const clickPin = (
@@ -1635,6 +1816,25 @@ export function Inspector({
                         },
                       );
                     };
+                    const pin = (
+                      axis: "constraintX" | "constraintY",
+                      target: "start" | "end" | "center",
+                      label: string,
+                    ) => ({
+                      role: "button",
+                      tabIndex: locked ? -1 : 0,
+                      "aria-label": label,
+                      "aria-disabled": locked,
+                      onClick: (ev: React.MouseEvent) =>
+                        clickPin(axis, target, ev.shiftKey),
+                      onKeyDown: (ev: React.KeyboardEvent) => {
+                        if (ev.key === "Enter" || ev.key === " ") {
+                          ev.preventDefault();
+                          ev.stopPropagation();
+                          clickPin(axis, target, ev.shiftKey);
+                        }
+                      },
+                    });
                     return (
                       <svg
                         className="constraint-diagram constraints-diagram"
@@ -1672,9 +1872,7 @@ export function Inspector({
                           strokeWidth={
                             cx === "start" || cx === "stretch" ? 2.5 : 1.5
                           }
-                          onClick={(ev) =>
-                            clickPin("constraintX", "start", ev.shiftKey)
-                          }
+                          {...pin("constraintX", "start", "左侧约束")}
                         />
                         <line
                           className="pin-hit"
@@ -1686,9 +1884,7 @@ export function Inspector({
                           strokeWidth={
                             cx === "end" || cx === "stretch" ? 2.5 : 1.5
                           }
-                          onClick={(ev) =>
-                            clickPin("constraintX", "end", ev.shiftKey)
-                          }
+                          {...pin("constraintX", "end", "右侧约束")}
                         />
                         <line
                           className="pin-hit"
@@ -1700,9 +1896,7 @@ export function Inspector({
                           strokeWidth={
                             cx === "center" || cx === "scale" ? 2.5 : 1.5
                           }
-                          onClick={(ev) =>
-                            clickPin("constraintX", "center", ev.shiftKey)
-                          }
+                          {...pin("constraintX", "center", "水平居中约束")}
                         />
                         <line
                           className="pin-hit"
@@ -1714,9 +1908,7 @@ export function Inspector({
                           strokeWidth={
                             cy === "start" || cy === "stretch" ? 2.5 : 1.5
                           }
-                          onClick={(ev) =>
-                            clickPin("constraintY", "start", ev.shiftKey)
-                          }
+                          {...pin("constraintY", "start", "顶部约束")}
                         />
                         <line
                           className="pin-hit"
@@ -1728,9 +1920,7 @@ export function Inspector({
                           strokeWidth={
                             cy === "end" || cy === "stretch" ? 2.5 : 1.5
                           }
-                          onClick={(ev) =>
-                            clickPin("constraintY", "end", ev.shiftKey)
-                          }
+                          {...pin("constraintY", "end", "底部约束")}
                         />
                         <line
                           className="pin-hit"
@@ -1742,9 +1932,7 @@ export function Inspector({
                           strokeWidth={
                             cy === "center" || cy === "scale" ? 2.5 : 1.5
                           }
-                          onClick={(ev) =>
-                            clickPin("constraintY", "center", ev.shiftKey)
-                          }
+                          {...pin("constraintY", "center", "垂直居中约束")}
                         />
                       </svg>
                     );
@@ -1756,11 +1944,14 @@ export function Inspector({
                         aria-label={i ? "垂直约束" : "水平约束"}
                         title={i ? "垂直约束" : "水平约束"}
                         value={common((n) => n.style[key] ?? "start") ?? ""}
-                        disabled={nodes.some(
-                          (n) =>
-                            isLocked(e.doc, n.id) ||
-                            instanceAncestor(e.doc, n.id),
-                        )}
+                        disabled={
+                          previewBlocked ||
+                          nodes.some(
+                            (n) =>
+                              isLocked(e.doc, n.id) ||
+                              instanceAncestor(e.doc, n.id),
+                          )
+                        }
                         onChange={(ev) =>
                           e.update(
                             {},
@@ -1991,6 +2182,7 @@ export function Inspector({
                         ) && numeric("columns", "列数", false)}
                         {nodes.length === 1 && !node.style.minColumnWidth && (
                           <GridTracks
+                            previewBlocked={previewBlocked}
                             style={node.style}
                             disabled={protectedGeometry("gridTracks")}
                             commit={(s) => e.update({}, s)}
@@ -2039,10 +2231,13 @@ export function Inspector({
               <SizeLimits
                 editor={e}
                 nodes={nodes}
-                disabled={nodes.some(
-                  (n) =>
-                    isLocked(e.doc, n.id) || !!instanceAncestor(e.doc, n.id),
-                )}
+                disabled={
+                  previewBlocked ||
+                  nodes.some(
+                    (n) =>
+                      isLocked(e.doc, n.id) || !!instanceAncestor(e.doc, n.id),
+                  )
+                }
               />
               {nodes.every((n) => n.type === "frame") &&
                 nodes.every(
@@ -2051,6 +2246,7 @@ export function Inspector({
                     JSON.stringify(editableRules(node.style)),
                 ) && (
                   <LayoutBreakpoints
+                    previewBlocked={previewBlocked}
                     grid={
                       node.style.layout === "grid" && !node.style.minColumnWidth
                     }
@@ -2190,17 +2386,26 @@ export function Inspector({
                     max={100}
                     step={1}
                     style={{ width: "100%", minWidth: 0, margin: 0 }}
-                    value={Math.round(
-                      (common((n) => n.style.cornerSmoothing ?? 0) ?? 0) * 100,
-                    )}
+                    value={Math.round((smoothing ?? 0) * 100)}
+                    aria-valuetext={smoothingText}
                     onChange={(ev) => {
-                      const pct = Number(ev.target.value);
-                      e.update(
-                        {},
-                        {
-                          cornerSmoothing: pct <= 0 ? undefined : pct / 100,
-                        },
-                      );
+                      const cornerSmoothing =
+                        Number(ev.target.value) / 100 || undefined;
+                      const ops = nodes.map((n) => ({
+                        type: "update" as const,
+                        id: n.id,
+                        patch: {},
+                        style: { cornerSmoothing },
+                      }));
+                      smoothingPending.current = ops;
+                      gesture.change("cornerSmoothing", ops, true);
+                    }}
+                    onPointerUp={finishSmoothing}
+                    onKeyUp={finishSmoothing}
+                    onBlur={finishSmoothing}
+                    onPointerCancel={() => {
+                      smoothingPending.current = null;
+                      gesture.cancel("cornerSmoothing");
                     }}
                   />
                   <span
@@ -2210,10 +2415,7 @@ export function Inspector({
                       color: "var(--text-muted)",
                     }}
                   >
-                    {Math.round(
-                      (common((n) => n.style.cornerSmoothing ?? 0) ?? 0) * 100,
-                    )}
-                    %
+                    {smoothingText}
                   </span>
                 </label>
               )}
@@ -2224,16 +2426,32 @@ export function Inspector({
                 <span>文字</span>
                 <div className="section-actions">
                   <StyleBinding editor={e} kind="text" placement="header" />
+                  {nodes.length === 1 && node.type === "text" && (
+                    <button
+                      type="button"
+                      className="icon-btn icon-btn-sm"
+                      aria-label="文字转轮廓"
+                      title="文字转轮廓 ⇧⌘O"
+                      data-tip="文字转轮廓"
+                      data-tip-kbd="⇧⌘O"
+                      data-tip-desc="将当前文字转为可编辑矢量路径（支持系统字体与嵌入字体）"
+                      data-tip-side="left"
+                      disabled={!allowed("outlineText")}
+                      onClick={() => e.perform("outlineText")}
+                    >
+                      <Shapes size={14} />
+                    </button>
+                  )}
                   <button
                     ref={typeBtnRef}
                     type="button"
                     className={`icon-btn icon-btn-sm ${typeDetailsOpen ? "active" : ""}`}
                     aria-label="更多文字样式设置"
-                    aria-expanded={typeDetailsOpen}
+                    aria-expanded={typeOpen}
                     data-tip="文字详情 (Type details)"
                     data-tip-desc="斜体、装饰线、大小写、垂直对齐、溢出截断与文本框缩放"
                     data-tip-side="left"
-                    disabled={anyLocked}
+                    disabled={!tabActive || anyLocked}
                     onClick={() => setTypeDetailsOpen((v) => !v)}
                   >
                     <MoreHorizontal size={14} />
@@ -2264,7 +2482,12 @@ export function Inspector({
                   disabled={anyLocked}
                 />
               </Field>
-              <FontAssets editor={e} nodes={nodes} />
+              <fieldset
+                disabled={previewBlocked}
+                style={{ display: "contents" }}
+              >
+                <FontAssets editor={e} nodes={nodes} />
+              </fieldset>
               <datalist id="forma-font-families">
                 <option value="Inter, -apple-system, sans-serif" />
                 <option value="system-ui, -apple-system, PingFang SC, sans-serif" />
@@ -2418,28 +2641,24 @@ export function Inspector({
                         : "A"}
                 </button>
               </div>
-              {typeDetailsOpen &&
-                !anyLocked &&
+              {typeOpen &&
                 createPortal(
                   <div
                     ref={typePopoverRef}
                     role="dialog"
                     aria-label="文字详情"
                     className="type-details-popover"
-                    style={{
-                      top: Math.max(
-                        12,
-                        Math.min(
-                          typeBtnRef.current?.getBoundingClientRect().top ??
-                            120,
-                          window.innerHeight - 360,
-                        ),
-                      ),
-                      left: Math.max(
-                        12,
-                        (typeBtnRef.current?.getBoundingClientRect().left ??
-                          window.innerWidth - 300) - 278,
-                      ),
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Escape" &&
+                        !event.nativeEvent.isComposing &&
+                        event.nativeEvent.keyCode !== 229 &&
+                        !event.defaultPrevented
+                      ) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        closeTypeDetails();
+                      }
                     }}
                   >
                     <div className="type-details-header">
@@ -2447,9 +2666,10 @@ export function Inspector({
                       <button
                         type="button"
                         className="icon-btn icon-btn-sm"
+                        autoFocus
                         aria-label="关闭文字详情"
                         data-tip="关闭文字详情"
-                        onClick={() => setTypeDetailsOpen(false)}
+                        onClick={closeTypeDetails}
                       >
                         <X size={13} />
                       </button>
@@ -2476,7 +2696,10 @@ export function Inspector({
                               common((n) => n.style.textTransform ?? "none") ===
                               val
                             }
-                            onClick={() => e.update({}, { textTransform: val })}
+                            onClick={() =>
+                              canEditTypeDetails() &&
+                              e.update({}, { textTransform: val })
+                            }
                           >
                             {lbl}
                           </button>
@@ -2507,7 +2730,10 @@ export function Inspector({
                               common((n) => n.style.verticalAlign ?? "top") ===
                               val
                             }
-                            onClick={() => e.update({}, { verticalAlign: val })}
+                            onClick={() =>
+                              canEditTypeDetails() &&
+                              e.update({}, { verticalAlign: val })
+                            }
                           >
                             <Icon size={13} />
                           </button>
@@ -2529,11 +2755,10 @@ export function Inspector({
                               n.style.widthMode === "hug" &&
                               n.style.heightMode === "hug",
                           )}
+                          disabled={sizingDisabled}
                           onClick={() =>
-                            e.update(
-                              {},
-                              { widthMode: "hug", heightMode: "hug" },
-                            )
+                            canEditTypeDetails() &&
+                            setSizing({ width: "hug", height: "hug" })
                           }
                         >
                           自动宽度
@@ -2545,11 +2770,10 @@ export function Inspector({
                               (n.style.widthMode ?? "fixed") === "fixed" &&
                               n.style.heightMode === "hug",
                           )}
+                          disabled={sizingDisabled}
                           onClick={() =>
-                            e.update(
-                              {},
-                              { widthMode: "fixed", heightMode: "hug" },
-                            )
+                            canEditTypeDetails() &&
+                            setSizing({ width: "fixed", height: "hug" })
                           }
                         >
                           自动高度
@@ -2561,11 +2785,10 @@ export function Inspector({
                               (n.style.widthMode ?? "fixed") === "fixed" &&
                               (n.style.heightMode ?? "fixed") === "fixed",
                           )}
+                          disabled={sizingDisabled}
                           onClick={() =>
-                            e.update(
-                              {},
-                              { widthMode: "fixed", heightMode: "fixed" },
-                            )
+                            canEditTypeDetails() &&
+                            setSizing({ width: "fixed", height: "fixed" })
                           }
                         >
                           固定尺寸
@@ -2579,6 +2802,7 @@ export function Inspector({
                       disabled={anyLocked}
                       value={common((n) => n.style.maxLines ?? 0)}
                       onCommit={(v) => {
+                        if (!canEditTypeDetails()) return;
                         const n = Math.round(Number(v));
                         e.update(
                           {},
@@ -2654,13 +2878,20 @@ export function Inspector({
                 alpha={node.style.tint.opacity}
                 palette={getPalette}
                 disabled={anyLocked}
-                onCancelPreview={() => e.setPreview(null)}
+                onCancelPreview={() => gesture.cancel("tint")}
                 onPreview={(color, opacity) =>
-                  updateEachStyle(() => ({ tint: { color, opacity } }), true)
+                  updateEachStyle(
+                    () => ({ tint: { color, opacity } }),
+                    true,
+                    "tint",
+                  )
                 }
                 onChange={(color, opacity) => {
-                  e.setPreview(null);
-                  updateEachStyle(() => ({ tint: { color, opacity } }));
+                  updateEachStyle(
+                    () => ({ tint: { color, opacity } }),
+                    false,
+                    "tint",
+                  );
                 }}
               />
             </section>
@@ -2670,13 +2901,14 @@ export function Inspector({
             (!["text", "group", "vector"].includes(node.type) ||
               node.vector?.fillFromStyle) ? (
               <PaintStack
+                previewBlocked={previewBlocked}
                 system={e.doc.designSystem}
                 layers={node.style.paints}
                 disabled={anyLocked}
                 palette={getPalette}
-                cancelPreview={() => e.setPreview(null)}
+                cancelPreview={() => gesture.cancel("paints")}
                 update={(paints, preview) =>
-                  updateEachStyle(() => ({ paints }), preview)
+                  updateEachStyle(() => ({ paints }), preview, "paints")
                 }
                 headerActions={
                   <>
@@ -2716,7 +2948,13 @@ export function Inspector({
               )}
           </section>
           {nodes.length === 1 && node.type === "vector" && node.vector && (
-            <VectorInspector key={node.id} node={node} editor={e} />
+            <fieldset
+              key={node.id}
+              disabled={previewBlocked || e.hasPreview}
+              style={{ display: "contents" }}
+            >
+              <VectorInspector node={node} editor={e} />
+            </fieldset>
           )}
           {text && colorProperty === "fill" && (
             <section>
@@ -2736,6 +2974,23 @@ export function Inspector({
                 描边
                 <div className="section-actions">
                   <StyleBinding editor={e} kind="stroke" placement="header" />
+                  {nodes.length === 1 &&
+                    (node.type === "rectangle" || node.type === "ellipse") &&
+                    allowed("outlineStroke") && (
+                      <button
+                        type="button"
+                        className="icon-btn icon-btn-sm"
+                        aria-label="轮廓化描边"
+                        title="轮廓化描边 ⇧⌘O"
+                        data-tip="轮廓化描边"
+                        data-tip-kbd="⇧⌘O"
+                        data-tip-desc="将描边转为闭合填充的可编辑矢量轮廓"
+                        data-tip-side="left"
+                        onClick={() => e.perform("outlineStroke")}
+                      >
+                        <Shapes size={14} />
+                      </button>
+                    )}
                   {nodes.some((n) => n.style.strokeWidth) && (
                     <>
                       <button
@@ -2888,13 +3143,14 @@ export function Inspector({
                 <>
                   {nodes.length === 1 && node.style.strokePaints?.length ? (
                     <PaintStack
+                      previewBlocked={previewBlocked}
                       kind="stroke"
                       hideHeader
                       system={e.doc.designSystem}
                       layers={node.style.strokePaints}
                       disabled={anyLocked}
                       palette={getPalette}
-                      cancelPreview={() => e.setPreview(null)}
+                      cancelPreview={() => gesture.cancel("strokePaints")}
                       update={(strokePaints, preview) =>
                         updateEachStyle(
                           () =>
@@ -2906,6 +3162,7 @@ export function Inspector({
                                   strokeSides: undefined,
                                 },
                           preview,
+                          "strokePaints",
                         )
                       }
                     />
@@ -2960,7 +3217,7 @@ export function Inspector({
                                 {
                                   strokeSides: {
                                     ...node.style.strokeSides!,
-                                    [edge]: Math.min(64, n),
+                                    [edge]: Math.min(100, n),
                                   },
                                 },
                               );
@@ -3049,11 +3306,13 @@ export function Inspector({
                   title="添加投影"
                   aria-label="添加投影"
                   data-tip="添加投影效果"
-                  data-tip-desc="新增一层可自定义偏移与模糊度的投影（最多 8 层）"
+                  data-tip-desc={`新增一层可自定义偏移与模糊度的投影（最多 ${maxShadows} 层）`}
                   data-tip-side="left"
                   disabled={
                     anyLocked ||
-                    nodes.some((n) => (n.style.shadows?.length ?? 0) >= 32)
+                    nodes.some(
+                      (n) => (n.style.shadows?.length ?? 0) >= maxShadows,
+                    )
                   }
                   onClick={() =>
                     updateEachStyle((n) => ({
@@ -3212,7 +3471,7 @@ export function Inspector({
                       common((n) => n.style.shadows![index].opacity) ===
                       undefined
                     }
-                    onCancelPreview={() => e.setPreview(null)}
+                    onCancelPreview={() => gesture.cancel("shadow-" + index)}
                     onPreview={(color, opacity, channel) =>
                       changeShadow(
                         index,
@@ -3325,6 +3584,7 @@ export function Inspector({
           {nodes.length === 1 &&
             (node.type === "frame" || node.type === "section") && (
               <LayoutGuidesInspector
+                previewBlocked={previewBlocked}
                 node={node}
                 locked={anyLocked}
                 onChange={(layoutGuides) =>
@@ -3343,6 +3603,7 @@ export function Inspector({
           <SelectionColors editor={e} />
           {nodes.length === 1 && (
             <ExportPanel
+              previewBlocked={previewBlocked}
               document={e.committed}
               node={node}
               onUpdateSettings={(exportSettings) =>
@@ -3372,11 +3633,14 @@ export function Inspector({
                         anyLocked ||
                         nodes.some((n) => !!instanceAncestor(e.doc, n.id))
                       }
-                      value={common((n) => n.parentId) ?? ""}
+                      value={common((n) => n.parentId ?? "") ?? "__mixed__"}
                       onChange={(ev) =>
                         e.reparent(e.selection, ev.target.value || null)
                       }
                     >
+                      <option value="__mixed__" hidden>
+                        Mixed
+                      </option>
                       <option value="">页面根层</option>
                       {e.doc.nodes
                         .filter(
@@ -3401,22 +3665,27 @@ export function Inspector({
                       disabled={anyLocked}
                     />
                   </div>
-                  {node.control && (
+                  {nodes.every((n) => Boolean(n.control)) && (
                     <Field
                       label="可访问名称"
                       disabled={anyLocked}
-                      value={node.control.label}
+                      value={common((n) => n.control?.label ?? "")}
                       onCommit={(label) =>
-                        e.update({ control: { ...node.control!, label } })
+                        e.attempt(() =>
+                          e.apply(
+                            nodes.map((n) => ({
+                              type: "update",
+                              id: n.id,
+                              patch: { control: { ...n.control!, label } },
+                            })),
+                          ),
+                        )
                       }
                     />
                   )}
                   <button
                     className="danger wide"
-                    disabled={
-                      anyLocked ||
-                      nodes.some((n) => !!instanceAncestor(e.doc, n.id))
-                    }
+                    disabled={!allowed("delete")}
                     title="组件内部图层需先分离实例"
                     onClick={() => e.perform("delete")}
                   >

@@ -149,16 +149,16 @@ export function planScaleSelection(
     if (s.strokeSides) {
       next.strokeSides = {
         ...(s.strokeSides.top !== undefined
-          ? { top: scaleValue(s.strokeSides.top, factor, 0, 64) }
+          ? { top: scaleValue(s.strokeSides.top, factor, 0, 100) }
           : {}),
         ...(s.strokeSides.right !== undefined
-          ? { right: scaleValue(s.strokeSides.right, factor, 0, 64) }
+          ? { right: scaleValue(s.strokeSides.right, factor, 0, 100) }
           : {}),
         ...(s.strokeSides.bottom !== undefined
-          ? { bottom: scaleValue(s.strokeSides.bottom, factor, 0, 64) }
+          ? { bottom: scaleValue(s.strokeSides.bottom, factor, 0, 100) }
           : {}),
         ...(s.strokeSides.left !== undefined
-          ? { left: scaleValue(s.strokeSides.left, factor, 0, 64) }
+          ? { left: scaleValue(s.strokeSides.left, factor, 0, 100) }
           : {}),
       };
     }

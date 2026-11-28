@@ -129,7 +129,7 @@ async (page) => {
   await details(/^组件变体/);
   await f("选择变体属性").selectOption("尺寸");
   await page
-    .locator("#right-panel")
+    .locator(".app:visible .right-panel")
     .screenshot({ path: "output/playwright/author-variants-panel.png" });
   await b("移出变体集").click();
   await page.getByText(/仍有实例使用此变体/).waitFor();

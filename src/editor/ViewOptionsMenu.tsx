@@ -1,8 +1,11 @@
+import { MIN_ZOOM, MAX_ZOOM } from "../domain/geometry";
+import { clampZoom } from "../application/canvas-camera";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Check, ChevronDown, Eye, EyeOff } from "lucide-react";
 import "./figma-panels.css";
 
 export interface CanvasViewOptions {
+  showMinimap?: boolean;
   showRulers: boolean;
   showPixelGrid: boolean;
   showLayoutGuides: boolean;
@@ -22,13 +25,14 @@ export interface ViewOptionsMenuProps {
   uiHidden: boolean;
 }
 
-const ZOOM_PRESETS = [0.5, 1, 2] as const;
+const ZOOM_PRESETS = [0.25, 0.5, 1, 2] as const;
 
 const VIEW_TOGGLES: {
   key: keyof CanvasViewOptions;
   label: string;
   kbd?: string;
 }[] = [
+  { key: "showMinimap", label: "画布小地图", kbd: "⇧M" },
   { key: "showRulers", label: "标尺与辅助线", kbd: "⇧R" },
   { key: "showLayoutGuides", label: "布局参考网格", kbd: "⌃G" },
   { key: "showPixelGrid", label: "像素网格", kbd: "⌘'" },
@@ -36,10 +40,6 @@ const VIEW_TOGGLES: {
   { key: "snapEnabled", label: "智能吸附对齐" },
   { key: "showComments", label: "显示画布评论", kbd: "⇧C" },
 ];
-
-function clampZoom(z: number): number {
-  return Math.min(8, Math.max(0.05, Math.round(z * 1000) / 1000));
-}
 
 export function ViewOptionsMenu({
   zoom,
@@ -161,6 +161,7 @@ export function ViewOptionsMenu({
             type="button"
             role="menuitem"
             className="fp-menu-item"
+            disabled={zoom >= MAX_ZOOM}
             onClick={() => {
               onZoomChange(clampZoom(zoom * 1.25));
               setOpen(false);
@@ -175,6 +176,7 @@ export function ViewOptionsMenu({
             type="button"
             role="menuitem"
             className="fp-menu-item"
+            disabled={zoom <= MIN_ZOOM}
             onClick={() => {
               onZoomChange(clampZoom(zoom / 1.25));
               setOpen(false);
@@ -231,12 +233,17 @@ export function ViewOptionsMenu({
 
           {VIEW_TOGGLES.map((item) => {
             const checked = options[item.key];
+            const label = item.kbd ? `${item.label} (${item.kbd})` : item.label;
             return (
               <button
                 key={item.key}
                 type="button"
                 role="menuitemcheckbox"
                 aria-checked={checked}
+                aria-label={label}
+                title={label}
+                data-tip={item.label}
+                data-tip-kbd={item.kbd}
                 className={`fp-menu-item ${checked ? "is-checked" : ""}`}
                 onClick={() => onToggleOption(item.key)}
               >

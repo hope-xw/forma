@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MasterVariants } from "./MasterVariants";
 import { ChevronDown, Minus, Plus, Search, X } from "lucide-react";
+import { useAnchoredPopover } from "./useAnchoredPopover";
 import { useModalDialog } from "./useModalDialog";
 import type { EditorController } from "./useEditor";
 import { localMasters } from "../domain/component-masters";
@@ -228,22 +229,21 @@ function SlotSwapPicker({
   onSelect(choice: string): void;
   allowReset?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [requestedOpen, setOpen] = useState(false);
+  const open = requestedOpen && !disabled;
   const [query, setQuery] = useState("");
   const trigger = useRef<HTMLButtonElement>(null);
   const popup = useModalDialog(open, () => setOpen(false));
-  useEffect(() => {
-    if (!open) return;
-    const outside = (ev: PointerEvent) => {
-      if (
-        !popup.current?.contains(ev.target as Node) &&
-        !trigger.current?.contains(ev.target as Node)
-      )
-        setOpen(false);
-    };
-    window.addEventListener("pointerdown", outside);
-    return () => window.removeEventListener("pointerdown", outside);
-  }, [open, popup]);
+  useAnchoredPopover({
+    open,
+    triggerRef: trigger,
+    popoverRef: popup,
+    preferredSide: "left",
+    onClose: () => setOpen(false),
+  });
+  useLayoutEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
 
   const currentLabel =
     value === undefined
@@ -264,8 +264,6 @@ function SlotSwapPicker({
     return { items: list.slice(0, 60), total: list.length };
   }, [options, query]);
 
-  const rect = trigger.current?.getBoundingClientRect();
-
   return (
     <>
       <button
@@ -277,6 +275,7 @@ function SlotSwapPicker({
         aria-haspopup="dialog"
         disabled={disabled}
         title={currentLabel}
+        data-tip={currentLabel}
         onClick={() => {
           setQuery("");
           setOpen((v) => !v);
@@ -294,28 +293,10 @@ function SlotSwapPicker({
             aria-modal="true"
             aria-label={`选择 ${ariaLabel}`}
             tabIndex={-1}
-            style={{
-              position: "fixed",
-              left: Math.min(
-                window.innerWidth - 282,
-                Math.max(10, (rect?.left ?? 0) - 80),
-              ),
-              top: Math.max(
-                10,
-                Math.min(window.innerHeight - 320, (rect?.bottom ?? 0) + 5),
-              ),
-            }}
-            onKeyDown={(ev) => {
-              if (ev.key === "Escape") {
-                ev.stopPropagation();
-                setOpen(false);
-              }
-            }}
           >
             <label className="binding-search">
               <Search size={12} />
               <input
-                autoFocus
                 aria-label={`搜索 ${ariaLabel}`}
                 placeholder={`搜索 ${options.length.toLocaleString()} 个组件变体…`}
                 value={query}
@@ -384,9 +365,11 @@ export function InstanceProperties({
 }) {
   const libs = Object.values(e.doc.libraries ?? {});
   const selectionKey = JSON.stringify(selection.map(({ root }) => root.id));
-  const locked = selection.some(({ root }) => isLocked(e.doc, root.id));
+  const locked =
+    Boolean(e.previewRef?.current && e.doc !== e.committed) ||
+    selection.some(({ root }) => isLocked(e.doc, root.id));
   const commit = (ops: Operation[]) => {
-    if (ops.length) e.attempt(() => e.apply(ops));
+    if (ops.length && !e.previewRef?.current) e.attempt(() => e.apply(ops));
   };
   const selectedComponentKeys = new Set(
     selection.map(({ source }) =>

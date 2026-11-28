@@ -1,0 +1,134 @@
+{
+  "version": "0.17.0",
+  "date": "2026-11-27",
+  "platform": "macOS arm64",
+  "node": "25.8.0",
+  "initiative": "docs/initiatives/2026-11-27-canvas-pro-feel-phase2",
+  "unitTests": {
+    "total": 1325,
+    "passed": 1324,
+    "failed": 0,
+    "skipped": 1,
+    "deltaVsV016": 260
+  },
+  "architecture": {
+    "violations": 0,
+    "asAny": "1/1",
+    "cssImportant": "3/25",
+    "indexBundleKb": 373.27,
+    "indexBundleGzipKb": 132.03
+  },
+  "independentCodeReview": {
+    "rounds": 6,
+    "finalVerdict": "PASS (0 P0 / 0 P1)"
+  },
+  "browserE2E": {
+    "suitesPassed": 18,
+    "suitesTotal": 18,
+    "exportVerified": ["canvas-phase2"],
+    "canvasPhase2": {
+      "alignmentControls": 8,
+      "boards": 128,
+      "nodes": 2176,
+      "cachedBoards": 128,
+      "liveDOM": 2176,
+      "cachedDOM": 128,
+      "movedAnchors": 2,
+      "bentSegments": 1,
+      "reopenedOutlines": 2,
+      "previewedOutlines": 2
+    },
+    "complexBenchmark": [
+      {
+        "layers": 259,
+        "boards": 4,
+        "vectors": 130,
+        "instances": 6,
+        "importMs": 216,
+        "initialDomNodes": 259,
+        "dragP50": 244,
+        "dragP95": 247,
+        "rafP50": 17,
+        "rafP95": 17,
+        "rafMax": 17,
+        "rafOver25ms": 0,
+        "heapMiB": 53
+      },
+      {
+        "layers": 8288,
+        "boards": 128,
+        "vectors": 4160,
+        "instances": 192,
+        "importMs": 1054,
+        "initialDomNodes": 128,
+        "dragP50": 240,
+        "dragP95": 259,
+        "rafP50": 17,
+        "rafP95": 17,
+        "rafMax": 17,
+        "rafOver25ms": 0,
+        "heapMiB": 64
+      }
+    ],
+    "layerTreeBenchmark": [
+      {
+        "count": 100,
+        "importMs": 71,
+        "selectMs": 126,
+        "mountedRows": 100,
+        "zoomMs": 67,
+        "dragMs": 130,
+        "heapMiB": 26
+      },
+      {
+        "count": 1000,
+        "importMs": 72,
+        "selectMs": 59,
+        "mountedRows": 38,
+        "zoomMs": 56,
+        "dragMs": 126,
+        "heapMiB": 22
+      },
+      {
+        "count": 10000,
+        "importMs": 440,
+        "selectMs": 92,
+        "mountedRows": 38,
+        "zoomMs": 87,
+        "dragMs": 261,
+        "heapMiB": 103
+      }
+    ],
+    "canvasProFeel": {
+      "zoomRange": [0.02, 64],
+      "burstLiveFrames": 30,
+      "burstRenders": 0,
+      "maxDriftPx": 0.000518798828125,
+      "vectorAnchorErrorPx": 0.000045129989811640956,
+      "bufferedLargeDocRenders": 0,
+      "minimapPressJumpPx": 0
+    }
+  },
+  "screenshots": [
+    "docs/evidence/2026-11-27/canvas-pro-feel-v17/01-alignment-toolbar-closeup-light.png",
+    "docs/evidence/2026-11-27/canvas-pro-feel-v17/02-artboard-section-titles-dark.png",
+    "docs/evidence/2026-11-27/canvas-pro-feel-v17/03-lod-128boards-far-zoom-dark.png",
+    "docs/evidence/2026-11-27/canvas-pro-feel-v17/04-vector-marquee-bend-outline-light.png"
+  ],
+  "desktopDistribution": {
+    "electron": "45.4.1",
+    "dmg": {
+      "filename": "Forma-0.17.0-arm64.dmg",
+      "bytes": 125718050,
+      "sha256": "4965a45501e7f8bd06f3aecf666619b4d785b17f3ab0c089ebfa2228a3ef8638"
+    },
+    "zip": {
+      "filename": "Forma-0.17.0-arm64.zip",
+      "bytes": 121283857,
+      "sha256": "5171709b570bda668fa53511f1f5819954eedd79b53ea848bdcbf59397da0f1c"
+    },
+    "receipt": "docs/evidence/2026-11-27/desktop-0.17.0.json",
+    "readOnlyDmgVerified": true,
+    "previousDmgIntact": true
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -16,6 +16,7 @@ import "./figma-panels.css";
 export interface LayoutGuidesInspectorProps {
   node: DesignNode;
   locked: boolean;
+  previewBlocked?: boolean;
   onChange(guides: NonNullable<DesignNode["style"]["layoutGuides"]>): void;
 }
 
@@ -56,16 +57,66 @@ function createDefaultGuide(): LayoutGuide {
   };
 }
 
-function clampInt(raw: string, min: number, max: number, fallback: number) {
-  const n = Math.round(Number(raw));
-  if (!Number.isFinite(n)) return fallback;
-  return Math.min(max, Math.max(min, n));
-}
-
-function clampNum(raw: string, min: number, max: number, fallback: number) {
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return fallback;
-  return Math.min(max, Math.max(min, Math.round(n * 100) / 100));
+function GuideNumberInput({
+  value,
+  min,
+  max,
+  step = 0.01,
+  disabled,
+  onCommit,
+  ...props
+}: {
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  disabled: boolean;
+  onCommit(value: number): void;
+  "aria-label": string;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const cancelled = useRef(false);
+  useEffect(() => {
+    if (disabled) setDraft(null);
+  }, [disabled]);
+  return (
+    <input
+      {...props}
+      type="number"
+      min={min}
+      max={max}
+      step={step}
+      disabled={disabled}
+      value={draft ?? value}
+      onChange={(ev) => setDraft(ev.currentTarget.value)}
+      onBlur={() => {
+        const raw = draft?.trim();
+        setDraft(null);
+        if (cancelled.current || disabled || !raw) {
+          cancelled.current = false;
+          return;
+        }
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed)) return;
+        const rounded =
+          step === 1 ? Math.round(parsed) : Math.round(parsed * 100) / 100;
+        const next = Math.min(max, Math.max(min, rounded));
+        if (next !== value) onCommit(next);
+      }}
+      onKeyDown={(ev) => {
+        if (
+          ev.nativeEvent.isComposing ||
+          (ev.key !== "Enter" && ev.key !== "Escape")
+        )
+          return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        cancelled.current = ev.key === "Escape";
+        if (cancelled.current) setDraft(null);
+        ev.currentTarget.blur();
+      }}
+    />
+  );
 }
 
 function normalizeHex(raw: string, fallback: string): string {
@@ -106,12 +157,18 @@ function GuideHexInput({
   ariaLabel: string;
   onCommit(hex: string): void;
 }) {
+  const cancelledRef = useRef(false);
   const [draft, setDraft] = useState(value.toUpperCase());
   useEffect(() => {
     setDraft(value.toUpperCase());
   }, [value]);
 
   const commit = () => {
+    if (cancelledRef.current || disabled) {
+      cancelledRef.current = false;
+      setDraft(value.toUpperCase());
+      return;
+    }
     const normalized = normalizeHex(draft, value);
     setDraft(normalized);
     if (normalized.toUpperCase() !== value.toUpperCase()) {
@@ -132,10 +189,10 @@ function GuideHexInput({
         if (ev.nativeEvent.isComposing) return;
         if (ev.key === "Enter") {
           ev.preventDefault();
-          commit();
           ev.currentTarget.blur();
         } else if (ev.key === "Escape") {
           ev.preventDefault();
+          cancelledRef.current = true;
           setDraft(value.toUpperCase());
           ev.currentTarget.blur();
         }
@@ -146,15 +203,18 @@ function GuideHexInput({
 
 export function LayoutGuidesInspector({
   node,
-  locked,
+  locked: layerLocked,
+  previewBlocked = false,
   onChange,
 }: LayoutGuidesInspectorProps) {
+  const locked = layerLocked || previewBlocked;
   const guides = node.style.layoutGuides ?? [];
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const canAdd = !locked && guides.length < MAX_GUIDES;
 
   const updateGuide = (id: string, patch: Partial<LayoutGuide>) => {
+    if (locked) return;
     onChange(guides.map((g) => (g.id === id ? { ...g, ...patch } : g)));
   };
 
@@ -337,20 +397,15 @@ export function LayoutGuidesInspector({
                       />
                       <label className="fp-inline-field fp-opacity-field">
                         <span>不透明</span>
-                        <input
-                          type="number"
+                        <GuideNumberInput
                           min={0}
                           max={100}
                           step={1}
                           aria-label={`参考网格 ${idx + 1} 不透明度`}
                           disabled={locked}
                           value={opacityPct}
-                          onChange={(ev) =>
-                            updateGuide(guide.id, {
-                              opacity:
-                                clampInt(ev.target.value, 0, 100, opacityPct) /
-                                100,
-                            })
+                          onCommit={(opacity) =>
+                            updateGuide(guide.id, { opacity: opacity / 100 })
                           }
                         />
                         <em>%</em>
@@ -361,23 +416,13 @@ export function LayoutGuidesInspector({
                       <div className="fp-guide-grid">
                         <label className="fp-inline-field">
                           <span>间距</span>
-                          <input
-                            type="number"
+                          <GuideNumberInput
                             min={1}
                             max={2000}
                             aria-label="网格大小"
                             disabled={locked}
                             value={guide.size}
-                            onChange={(ev) =>
-                              updateGuide(guide.id, {
-                                size: clampNum(
-                                  ev.target.value,
-                                  1,
-                                  2000,
-                                  guide.size,
-                                ),
-                              })
-                            }
+                            onCommit={(size) => updateGuide(guide.id, { size })}
                           />
                           <em>px</em>
                         </label>
@@ -388,24 +433,17 @@ export function LayoutGuidesInspector({
                           <span>
                             {guide.kind === "columns" ? "列数" : "行数"}
                           </span>
-                          <input
-                            type="number"
+                          <GuideNumberInput
                             min={1}
                             max={64}
+                            step={1}
                             aria-label={
                               guide.kind === "columns" ? "列数" : "行数"
                             }
                             disabled={locked}
                             value={guide.count}
-                            onChange={(ev) =>
-                              updateGuide(guide.id, {
-                                count: clampInt(
-                                  ev.target.value,
-                                  1,
-                                  64,
-                                  guide.count,
-                                ),
-                              })
+                            onCommit={(count) =>
+                              updateGuide(guide.id, { count })
                             }
                           />
                         </label>
@@ -438,8 +476,7 @@ export function LayoutGuidesInspector({
                             <span>
                               {guide.kind === "columns" ? "列宽" : "行高"}
                             </span>
-                            <input
-                              type="number"
+                            <GuideNumberInput
                               min={1}
                               max={2000}
                               aria-label={
@@ -447,15 +484,8 @@ export function LayoutGuidesInspector({
                               }
                               disabled={locked}
                               value={guide.size}
-                              onChange={(ev) =>
-                                updateGuide(guide.id, {
-                                  size: clampNum(
-                                    ev.target.value,
-                                    1,
-                                    2000,
-                                    guide.size,
-                                  ),
-                                })
+                              onCommit={(size) =>
+                                updateGuide(guide.id, { size })
                               }
                             />
                           </label>
@@ -466,8 +496,7 @@ export function LayoutGuidesInspector({
                             <span>
                               {guide.alignment === "stretch" ? "边距" : "偏移"}
                             </span>
-                            <input
-                              type="number"
+                            <GuideNumberInput
                               min={0}
                               max={2000}
                               aria-label={
@@ -477,15 +506,8 @@ export function LayoutGuidesInspector({
                               }
                               disabled={locked}
                               value={guide.offset}
-                              onChange={(ev) =>
-                                updateGuide(guide.id, {
-                                  offset: clampNum(
-                                    ev.target.value,
-                                    0,
-                                    2000,
-                                    guide.offset,
-                                  ),
-                                })
+                              onCommit={(offset) =>
+                                updateGuide(guide.id, { offset })
                               }
                             />
                           </label>
@@ -493,22 +515,14 @@ export function LayoutGuidesInspector({
 
                         <label className="fp-inline-field">
                           <span>槽宽</span>
-                          <input
-                            type="number"
+                          <GuideNumberInput
                             min={0}
                             max={500}
                             aria-label="槽宽"
                             disabled={locked}
                             value={guide.gutter}
-                            onChange={(ev) =>
-                              updateGuide(guide.id, {
-                                gutter: clampNum(
-                                  ev.target.value,
-                                  0,
-                                  500,
-                                  guide.gutter,
-                                ),
-                              })
+                            onCommit={(gutter) =>
+                              updateGuide(guide.id, { gutter })
                             }
                           />
                         </label>

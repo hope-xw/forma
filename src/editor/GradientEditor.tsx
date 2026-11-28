@@ -1,15 +1,58 @@
 import { maxGradientStops } from "../domain/document-limits";
 import { previewGeometry } from "../application/geometry-preview";
-import { useContext } from "react";
+import { useContext, useRef, useLayoutEffect } from "react";
 import { displayColor } from "../domain/color-profile";
 import { FileColorContext } from "./ColorProfileDialog";
 import type { DesignSystem } from "../domain/design-system-schema";
-import type { NodeStyle } from "../domain/document";
+import type { DesignDocument, NodeStyle } from "../domain/document";
 import { gradientCss } from "../compiler/paints";
 import { resolveNode } from "../domain/design-system";
 import { isLocked } from "../domain/tree";
 import type { EditorController } from "./useEditor";
+import { DraftNumberInput } from "./GridTracks";
+import type { Operation } from "../domain/commands";
 import { ColorField } from "./ColorField";
+/** A gesture can replace or release only the exact preview document it published. */
+export function useInspectorPreview(e: EditorController, scope: string) {
+  const owned = useRef<DesignDocument | null>(null);
+  const { setPreview, previewRef } = e;
+  function cancel() {
+    if (owned.current && owned.current === previewRef?.current)
+      setPreview(null);
+    owned.current = null;
+  }
+  useLayoutEffect(() => cancel, [scope, setPreview, previewRef]);
+  const foreign = () =>
+    Boolean(previewRef?.current && previewRef.current !== owned.current);
+  const blocked =
+    Boolean(e.previewRef?.current && e.doc !== e.committed) && foreign();
+  function apply(operations: Operation[], preview = false) {
+    if (
+      foreign() ||
+      (e.historyRef && e.historyRef.current.present !== e.committed)
+    )
+      return;
+    if (preview) {
+      const next = previewGeometry(e.committed, operations);
+      owned.current = next;
+      setPreview(next);
+    } else {
+      if (owned.current && owned.current !== previewRef?.current) {
+        owned.current = null;
+        return;
+      }
+      cancel();
+      e.apply(operations);
+    }
+  }
+  return {
+    blocked,
+    apply,
+    cancel,
+    owns: () => !!owned.current && owned.current === previewRef?.current,
+  };
+}
+
 export function GradientEditor({
   editor: e,
   placement = "inline",
@@ -17,6 +60,8 @@ export function GradientEditor({
   editor: EditorController;
   placement?: "inline" | "header" | "body";
 }) {
+  const scope = JSON.stringify([e.doc.id, e.selection]);
+  const preview = useInspectorPreview(e, scope);
   const nodes = e.selected.map((n) => resolveNode(e.doc, n));
   if (
     !nodes.length ||
@@ -30,23 +75,24 @@ export function GradientEditor({
   const locked = nodes.some((n) => isLocked(e.doc, n.id));
   return (
     <GradientControls
+      key={scope}
       system={e.doc.designSystem}
-      disabled={locked}
+      disabled={locked || preview.blocked}
       placement={placement}
       color={nodes[0].style.fill}
       gradient={nodes[0].style.gradient}
       selection={nodes.map((n) => n.style.gradient)}
-      cancelPreview={() => e.setPreview(null)}
-      apply={(change, preview) =>
+      cancelPreview={preview.cancel}
+      apply={(change, previewing) =>
         e.attempt(() => {
+          if (locked) return;
           const operations = nodes.map((n) => ({
             type: "update" as const,
             id: n.id,
             patch: {},
             style: { gradient: change(n.style.gradient, n.style.fill) },
           }));
-          if (preview) e.setPreview(previewGeometry(e.committed, operations));
-          else e.apply(operations);
+          preview.apply(operations, previewing);
         })
       }
     />
@@ -78,7 +124,10 @@ export function GradientControls({
 }) {
   const profile = useContext(FileColorContext);
   const edit = (change: Edit, preview = false) =>
-    apply ? apply(change, preview) : update!(change(gradient, color), preview);
+    !disabled &&
+    (apply
+      ? apply(change, preview)
+      : update!(change(gradient, color), preview));
   const all = selection ?? [gradient];
   const common = <T,>(get: (g: Gradient) => T) =>
     all.every((g) => get(g) === get(gradient)) ? get(gradient) : undefined;
@@ -160,32 +209,31 @@ export function GradientControls({
           {(gradient.type === "linear" || gradient.type === "angular") && (
             <label className="mode-row">
               <span>角度</span>
-              <input
-                type="number"
+              <DraftNumberInput
                 aria-label="渐变角度"
-                min="0"
-                max="360"
+                min={0}
+                max={360}
+                disabled={disabled}
                 placeholder="Mixed"
-                value={common((g) => g?.angle) ?? ""}
-                onChange={(ev) => {
-                  const angle = Number(ev.target.value);
-                  if (angle >= 0 && angle <= 360)
-                    edit(
-                      (g) =>
-                        g && {
-                          ...g,
-                          angle,
-                          linearProjection: undefined,
-                          paintTransform: undefined,
-                        },
-                    );
-                }}
+                value={common((g) => g?.angle)}
+                onCommit={(angle) =>
+                  edit(
+                    (g) =>
+                      g && {
+                        ...g,
+                        angle,
+                        linearProjection: undefined,
+                        paintTransform: undefined,
+                      },
+                  )
+                }
               />
             </label>
           )}
           {gradient.stops.slice(0, sharedStops).map((stop, index) => (
             <div className="gradient-stop-row" key={index}>
               <ColorField
+                disabled={disabled}
                 label={`色标 ${index + 1}`}
                 color={stop.color}
                 alpha={stop.opacity}
@@ -193,7 +241,7 @@ export function GradientControls({
                 mixedAlpha={
                   common((g) => g?.stops[index].opacity) === undefined
                 }
-                onCancelPreview={cancelPreview}
+                onCancelPreview={disabled ? undefined : cancelPreview}
                 onPreview={
                   cancelPreview
                     ? (color, opacity, channel) =>
@@ -246,21 +294,15 @@ export function GradientControls({
                     ))}
                 </select>
               )}
-              <input
-                type="number"
+              <DraftNumberInput
                 aria-label={`色标 ${index + 1} 位置`}
                 title="位置 %"
-                min="0"
-                max="100"
+                min={0}
+                max={100}
+                disabled={disabled}
                 placeholder="Mixed"
-                value={
-                  common((g) => Math.round(g!.stops[index].offset * 100)) ?? ""
-                }
-                onChange={(ev) => {
-                  const value = Number(ev.target.value);
-                  if (value >= 0 && value <= 100)
-                    editStop(index, { offset: value / 100 });
-                }}
+                value={common((g) => Math.round(g!.stops[index].offset * 100))}
+                onCommit={(value) => editStop(index, { offset: value / 100 })}
               />
               <button
                 title="删除色标"

@@ -40,6 +40,114 @@ interface FileRecord {
   current: StoredSnapshot;
   previous?: StoredSnapshot;
 }
+
+type ImageSize = { width: number; height: number };
+interface CachedAsset {
+  data: string;
+  dimensions?: ImageSize;
+  // A normal load remembers stored metadata without hashing the payload.
+  ok?: boolean;
+}
+
+function addAssetPayload(
+  assets: Map<string, Set<string>>,
+  id: string,
+  data: string,
+) {
+  const payloads = assets.get(id);
+  if (payloads) payloads.add(data);
+  else assets.set(id, new Set([data]));
+}
+
+async function readablePartitionGeneration(
+  tx: IDBTransaction,
+  key: string,
+  snapshot: StoredSnapshot | undefined,
+  baseline: number,
+  verifiedAsset: (id: string, data: string) => CachedAsset | undefined,
+  fallbackAssets?: ReadonlyMap<string, string>,
+): Promise<number | undefined> {
+  if (!isPartitioned(snapshot) || !isValidGeneration(snapshot.generation))
+    return undefined;
+  if (snapshot.generation <= baseline) return snapshot.generation;
+  try {
+    // A damaged manifest can list extra assets that the assembled document omits.
+    const manifestAssets = new Map<string, string>();
+    const assets = new Map<string, Set<string>>();
+    for (const id of new Set(snapshot.assets)) {
+      if (!/^(img|font)-[a-f0-9]{64}$/.test(id)) return undefined;
+      const data =
+        fallbackAssets?.get(id) ??
+        (await query<unknown>(tx.objectStore(assetStore).get([key, id])));
+      if (typeof data !== "string") return undefined;
+      manifestAssets.set(id, data);
+      addAssetPayload(assets, id, data);
+    }
+    const doc = parseDocument(
+      await readSnapshot(tx, key, snapshot, manifestAssets),
+    );
+    for (const scope of [doc, ...Object.values(doc.libraries ?? {})])
+      for (const table of [scope.images, scope.fonts])
+        for (const [id, asset] of Object.entries(table ?? {}))
+          addAssetPayload(assets, id, asset.data);
+    const sizes = new Map<string, ImageSize>();
+    let readable = true;
+    for (const [id, payloads] of assets)
+      for (const data of payloads) {
+        const entry = verifiedAsset(id, data);
+        if (!entry?.ok) readable = false;
+        else if (entry.dimensions) sizes.set(id, entry.dimensions);
+      }
+    if (!readable) return undefined;
+    checkImageMetadata(doc, sizes);
+    return snapshot.generation;
+  } catch (error) {
+    if (isTransientStorageReadError(error)) throw error;
+    return undefined;
+  }
+}
+
+function partitionAssetIds(snapshot: StoredSnapshot | undefined): string[] {
+  return isPartitioned(snapshot) && Array.isArray(snapshot.assets)
+    ? snapshot.assets.filter((id): id is string => typeof id === "string")
+    : [];
+}
+
+async function pruneDocumentParts(
+  parts: IDBObjectStore,
+  fileKey: string,
+  live: Set<number>,
+) {
+  const range =
+    typeof IDBKeyRange === "undefined" ? undefined : partitionRange(fileKey);
+  function prune(key: IDBValidKey) {
+    if (
+      Array.isArray(key) &&
+      key[0] === fileKey &&
+      (!isValidGeneration(key[1]) || !live.has(key[1]))
+    )
+      parts.delete(key);
+  }
+  if (typeof parts.getAllKeys === "function") {
+    for (const key of await query(parts.getAllKeys(range))) prune(key);
+    return;
+  }
+  if (!live.size && range) {
+    parts.delete(range);
+    return;
+  }
+  await new Promise<void>((resolve, reject) => {
+    const request = parts.openCursor(range);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) return resolve();
+      prune(cursor.key);
+      cursor.continue();
+    };
+  });
+}
+
 export interface DocumentRepository {
   load(): Promise<DesignDocument | null>;
   save(
@@ -120,18 +228,16 @@ async function retiredLegacyKeys(
   );
 }
 
-async function retireLegacyKey(
+function retireLegacyKey(
   store: IDBObjectStore,
+  record: RetiredLegacyKeys,
   key: string,
   queueRemoval: boolean,
 ) {
-  const record = await retiredLegacyKeys(store);
-  if (!queueRemoval && record.keys.includes(key)) return false;
   if (!record.keys.includes(key)) record.keys.push(key);
   if (queueRemoval && !record.pendingLocalStorageRemovals.includes(key))
     record.pendingLocalStorageRemovals.push(key);
   store.put(record, retiredLegacyRecordKey);
-  return true;
 }
 
 // Acknowledge localStorage removal independently of project-memory cleanup.
@@ -857,11 +963,7 @@ export class BrowserDocumentRepository implements DocumentRepository {
   private database() {
     return openDatabase();
   }
-  private knownAssets = new Map<string, string>();
-  private readonly knownSizes = new Map<
-    string,
-    { width: number; height: number }
-  >();
+  private knownAssets = new Map<string, CachedAsset>();
   private async read(
     which: "current" | "previous",
     remember = false,
@@ -922,7 +1024,7 @@ export class BrowserDocumentRepository implements DocumentRepository {
       which === "previous" &&
       failed &&
       (failed.generation !== observed.generation ||
-        (failed.lifetimeToken && failed.lifetimeToken !== token))
+        (failed.lifetimeToken ?? null) !== (token ?? null))
     )
       throw new Error("此文件已在另一个标签页更新，请刷新页面打开最新版本");
     let doc: DesignDocument;
@@ -946,14 +1048,15 @@ export class BrowserDocumentRepository implements DocumentRepository {
     if (which === "previous") this.recoveryBaseline = observed;
     if (remember && isPartitioned(snapshot)) {
       this.knownAssets.clear();
-      this.knownSizes.clear();
       for (const scope of [doc, ...Object.values(doc.libraries ?? {})]) {
         for (const [id, image] of Object.entries(scope.images ?? {})) {
-          this.knownAssets.set(id, image.data);
-          this.knownSizes.set(id, { width: image.width, height: image.height });
+          this.knownAssets.set(id, {
+            data: image.data,
+            dimensions: { width: image.width, height: image.height },
+          });
         }
         for (const [id, font] of Object.entries(scope.fonts ?? {}))
-          this.knownAssets.set(id, font.data);
+          this.knownAssets.set(id, { data: font.data });
       }
     }
     return doc;
@@ -1075,167 +1178,263 @@ export class BrowserDocumentRepository implements DocumentRepository {
       const split = useLargeDocumentFormat(document)
         ? splitDocument(document)
         : undefined;
-      for (const [id, data] of split?.assets ?? [])
-        if (this.knownAssets.get(id) !== data) {
-          const dimensions = await verifyEncodedAsset(id, data);
-          if (dimensions) this.knownSizes.set(id, dimensions);
-        }
-      if (split) checkImageMetadata(document, this.knownSizes);
+      const incomingAssets = new Map<string, CachedAsset>();
+      const incomingSizes = new Map<string, ImageSize>();
+      for (const [id, data] of split?.assets ?? []) {
+        const cached = this.knownAssets.get(id);
+        const entry =
+          cached?.data === data
+            ? cached
+            : {
+                data,
+                ok: true,
+                dimensions: await verifyEncodedAsset(id, data),
+              };
+        incomingAssets.set(id, entry);
+        if (entry.dimensions) incomingSizes.set(id, entry.dimensions);
+      }
+      if (split) checkImageMetadata(document, incomingSizes);
       const db = await this.database();
       const cleanupReady = await flushFileCleanup(db, this.key).then(
         () => true,
         () => false,
       );
-      const tx = db.transaction(
-          [storeName, catalogName, partStore, assetStore],
-          "readwrite",
-        ),
-        done = transactionDone(tx);
-      // Consume abort completion even when a request rejects first.
-      void done.catch(() => {});
-      const store = tx.objectStore(storeName),
-        recovery =
-          this.generation === 0 || this.failedLoadBaseline
-            ? this.recoveryBaseline
-            : undefined,
-        baseline = recovery?.generation ?? this.generation,
-        next = baseline + 1;
-      let entry: FileSummary;
-      let nextEpoch: number;
-      let fenceIntent: FenceIntent | undefined;
-      try {
-        if (
-          this.loadFailedWithoutBaseline ||
-          (this.failedLoadBaseline && !recovery)
-        )
-          throw new Error("当前设计快照无法读取，请从文件菜单恢复上个版本");
-        const old = await query<FileRecord | undefined>(store.get(this.key));
-        if (
-          migratingLegacy &&
-          !(await retireLegacyKey(store, this.key, false))
-        ) {
-          await done;
-          return false;
-        }
-        if (!cleanupReady && !old && legacyCleanupKeys().includes(this.key)) {
-          const intents = await cleanupIntents(store);
-          if (!intents.some((row) => row.fileKey === this.key))
-            store.put(
-              [...intents, { fileKey: this.key }],
-              pendingCleanupRecordKey,
-            );
-        }
-        const previousSummary =
-          old &&
-          (await query<FileSummary | undefined>(
-            tx.objectStore(catalogName).get(this.key),
-          ));
-        const token =
-          old?.lifetimeToken ??
-          previousSummary?.lifetimeToken ??
-          crypto.randomUUID();
-        if (this.lifetimeToken && this.lifetimeToken !== token)
-          throw new FileLifetimeMismatchError(
-            "该设计文件已在其他窗口更新或替换，请刷新文件列表后重试",
-          );
-        if (
-          (old?.generation ?? 0) !== baseline ||
-          (recovery?.lifetimeToken && recovery.lifetimeToken !== token)
-        )
-          throw Error(
-            "此文件已在另一个标签页更新。请先下载当前设计，再重新打开文件。",
-          );
-        const oldDocId = await storedDocumentId(tx, this.key, old?.current);
-        const prevEpoch = old?.replacementEpoch ?? 1;
-        if (
-          this.documentEpoch !== undefined &&
-          prevEpoch !== this.documentEpoch &&
-          !options?.replacedDocument
-        )
-          throw new FileLifetimeMismatchError(
-            "此文件已在另一个标签页更新，请重新打开文件",
-          );
-        const isReplacement = Boolean(
-          recovery ||
-          (oldDocId && oldDocId !== document.id) ||
-          options?.replacedDocument,
-        );
-        nextEpoch = old ? prevEpoch + Number(isReplacement) : 1;
-        if (isReplacement) {
-          const intents = await fenceIntents(store);
-          fenceIntent = {
-            fileKey: this.key,
-            docId: document.id,
-            opId: crypto.randomUUID(),
-          };
-          store.put(
-            [...intents.filter((row) => row.fileKey !== this.key), fenceIntent],
-            pendingFenceRecordKey,
-          );
-        }
-        // Explicit recovery retains the last readable snapshot as the backup.
-        // The corrupt header may not even contain an iterable asset list.
-        const retained = recovery ? old?.previous : old?.current;
-        const discarded = recovery ? old?.current : old?.previous;
-        const keep = new Set(isPartitioned(retained) ? retained.assets : []);
-        const obsolete = isPartitioned(discarded) ? discarded : undefined;
-        const oldAssets = Array.isArray(obsolete?.assets)
-          ? obsolete.assets
-          : [];
-        const already = recovery ? keep : new Set([...keep, ...oldAssets]);
-        const current = split
-          ? await writeSnapshot(tx, this.key, next, split, already)
-          : document;
-        if (isPartitioned(current))
-          for (const id of current.assets) keep.add(id);
-        if (obsolete) {
-          const generation = recovery ? baseline : obsolete.generation;
-          if (isValidGeneration(generation))
-            tx.objectStore(partStore).delete(
-              partitionRange(this.key, generation),
-            );
-          for (const id of oldAssets)
-            if (typeof id === "string" && !keep.has(id))
-              tx.objectStore(assetStore).delete([this.key, id]);
-        }
-        store.put(
-          {
-            generation: next,
-            replacementEpoch: nextEpoch,
-            current,
-            previous: retained,
-            lifetimeToken: token,
-          },
-          this.key,
-        );
-        entry = summary(this.key, document, Date.now(), token);
-        tx.objectStore(catalogName).put(entry);
-        await done;
-      } catch (error) {
+      const verifiedAssets = new Map<string, Map<string, CachedAsset>>();
+      const recovery =
+        this.generation === 0 || this.failedLoadBaseline
+          ? (this.recoveryBaseline ??
+            (options?.replacedDocument ? this.failedLoadBaseline : undefined))
+          : undefined;
+      const baseline = recovery?.generation ?? this.generation;
+      const lifetimeToken = this.lifetimeToken;
+      const documentEpoch = this.documentEpoch;
+      for (let attempt = 1; ; attempt++) {
+        const tx = db.transaction(
+            [storeName, catalogName, partStore, assetStore],
+            "readwrite",
+          ),
+          done = transactionDone(tx);
+        // Consume abort completion even when a request rejects first.
+        void done.catch(() => {});
+        const store = tx.objectStore(storeName);
+        let entry: FileSummary;
+        let next: number;
+        let nextEpoch: number;
+        let fenceIntent: FenceIntent | undefined;
         try {
-          tx.abort();
-        } catch {
-          /* Already aborted or complete. */
+          if (
+            this.loadFailedWithoutBaseline ||
+            (this.failedLoadBaseline && !recovery)
+          )
+            throw new Error("当前设计快照无法读取，请从文件菜单恢复上个版本");
+          const old = await query<FileRecord | undefined>(store.get(this.key));
+          const migration = migratingLegacy
+            ? await retiredLegacyKeys(store)
+            : undefined;
+          if (migration?.keys.includes(this.key)) {
+            await done;
+            return false;
+          }
+          const previousSummary =
+            old &&
+            (await query<FileSummary | undefined>(
+              tx.objectStore(catalogName).get(this.key),
+            ));
+          const storedToken =
+            old?.lifetimeToken ?? previousSummary?.lifetimeToken;
+          const token = storedToken ?? crypto.randomUUID();
+          if (lifetimeToken && lifetimeToken !== token)
+            throw new FileLifetimeMismatchError(
+              "该设计文件已在其他窗口更新或替换，请刷新文件列表后重试",
+            );
+          if (
+            (old?.generation ?? 0) !== baseline ||
+            (recovery &&
+              (recovery.lifetimeToken ?? null) !== (storedToken ?? null))
+          )
+            throw Error(
+              "此文件已在另一个标签页更新。请先下载当前设计，再重新打开文件。",
+            );
+          const pendingVerifications = new Map<string, Set<string>>();
+          const verifiedAsset = (id: string, data: string) => {
+            const incoming = incomingAssets.get(id);
+            if (incoming?.data === data && incoming.ok) return incoming;
+            const known = this.knownAssets.get(id);
+            if (known?.data === data && known.ok) return known;
+            const checked = verifiedAssets.get(id)?.get(data);
+            if (checked) return checked;
+            addAssetPayload(pendingVerifications, id, data);
+            return undefined;
+          };
+          const retained = recovery ? old?.previous : old?.current;
+          const obsolete = recovery ? old?.current : old?.previous;
+          const retainedGeneration = await readablePartitionGeneration(
+            tx,
+            this.key,
+            retained,
+            baseline,
+            verifiedAsset,
+            split?.assets,
+          );
+          const obsoleteGeneration = await readablePartitionGeneration(
+            tx,
+            this.key,
+            obsolete,
+            baseline,
+            verifiedAsset,
+          );
+          if (pendingVerifications.size) {
+            // Web Crypto can outlive an active IDB transaction. Re-read the
+            // record and its bytes under a fresh write lock after hashing.
+            tx.abort();
+            await done.catch(() => {});
+            if (attempt >= 3)
+              throw Error("本机文档资源在保存期间已变更，请重试");
+            for (const [id, payloads] of pendingVerifications) {
+              const results =
+                verifiedAssets.get(id) ?? new Map<string, CachedAsset>();
+              verifiedAssets.set(id, results);
+              for (const data of payloads) {
+                const isIncoming = incomingAssets.get(id)?.data === data;
+                try {
+                  const dimensions = await verifyEncodedAsset(id, data);
+                  const checked = { data, ok: true, dimensions };
+                  results.set(data, checked);
+                  if (isIncoming) {
+                    incomingAssets.set(id, checked);
+                    if (dimensions) incomingSizes.set(id, dimensions);
+                  }
+                } catch (error) {
+                  if (isIncoming || isTransientStorageReadError(error))
+                    throw error;
+                  results.set(data, { data, ok: false });
+                }
+              }
+            }
+            if (split) checkImageMetadata(document, incomingSizes);
+            continue;
+          }
+          next =
+            Math.max(
+              baseline,
+              retainedGeneration ?? 0,
+              obsoleteGeneration ?? 0,
+            ) + 1;
+          if (!isValidGeneration(baseline) || !isValidGeneration(next))
+            throw Error(
+              "当前文件保存次数已达存储上限，请先导出 .forma 备份并新建文件",
+            );
+          if (migration) retireLegacyKey(store, migration, this.key, false);
+          if (!cleanupReady && !old && legacyCleanupKeys().includes(this.key)) {
+            const intents = await cleanupIntents(store);
+            if (!intents.some((row) => row.fileKey === this.key))
+              store.put(
+                [...intents, { fileKey: this.key }],
+                pendingCleanupRecordKey,
+              );
+          }
+          const nextPrevious =
+            isPartitioned(retained) && retainedGeneration === undefined
+              ? undefined
+              : retained;
+          const oldDocId = await storedDocumentId(tx, this.key, old?.current);
+          const prevEpoch = old?.replacementEpoch ?? 1;
+          if (
+            documentEpoch !== undefined &&
+            prevEpoch !== documentEpoch &&
+            !options?.replacedDocument
+          )
+            throw new FileLifetimeMismatchError(
+              "此文件已在另一个标签页更新，请重新打开文件",
+            );
+          const isReplacement = Boolean(
+            recovery ||
+            (oldDocId && oldDocId !== document.id) ||
+            options?.replacedDocument,
+          );
+          nextEpoch = old ? prevEpoch + Number(isReplacement) : 1;
+          if (isReplacement) {
+            const intents = await fenceIntents(store);
+            fenceIntent = {
+              fileKey: this.key,
+              docId: document.id,
+              opId: crypto.randomUUID(),
+            };
+            store.put(
+              [
+                ...intents.filter((row) => row.fileKey !== this.key),
+                fenceIntent,
+              ],
+              pendingFenceRecordKey,
+            );
+          }
+          const keep = new Set(partitionAssetIds(nextPrevious));
+          const oldAssets = partitionAssetIds(obsolete);
+          if (retained !== nextPrevious)
+            for (const id of partitionAssetIds(retained)) oldAssets.push(id);
+          const already = recovery
+            ? new Set<string>()
+            : new Set([...keep, ...oldAssets]);
+          const assets = tx.objectStore(assetStore);
+          for (const [id, data] of split?.assets ?? []) {
+            if (!already.has(id)) continue;
+            const stored = await query<unknown>(assets.get([this.key, id]));
+            if (stored !== data || stored === "") already.delete(id);
+          }
+          // Stray chunks at next can extend past the incoming snapshot's last chunk.
+          const parts = tx.objectStore(partStore);
+          if (split) parts.delete(partitionRange(this.key, next));
+          const current = split
+            ? await writeSnapshot(tx, this.key, next, split, already)
+            : document;
+          if (isPartitioned(current))
+            for (const id of current.assets) keep.add(id);
+          for (const id of oldAssets)
+            if (!keep.has(id)) assets.delete([this.key, id]);
+          store.put(
+            {
+              generation: next,
+              replacementEpoch: nextEpoch,
+              current,
+              previous: nextPrevious,
+              lifetimeToken: token,
+            },
+            this.key,
+          );
+          entry = summary(this.key, document, Date.now(), token);
+          tx.objectStore(catalogName).put(entry);
+          const live = new Set<number>();
+          if (isPartitioned(current)) live.add(current.generation);
+          if (retainedGeneration !== undefined) live.add(retainedGeneration);
+          await pruneDocumentParts(parts, this.key, live);
+          await done;
+        } catch (error) {
+          try {
+            tx.abort();
+          } catch {
+            /* Already aborted or complete. */
+          }
+          throw error;
         }
-        throw error;
+        this.loadFailedWithoutBaseline = false;
+        this.generation = next;
+        this.documentEpoch = nextEpoch;
+        this.recoveryBaseline = undefined;
+        this.failedLoadBaseline = undefined;
+        this.lifetimeToken = entry.lifetimeToken;
+        this.knownAssets = incomingAssets;
+        upsertCatalog(entry);
+        if (fenceIntent)
+          await flushFenceIntent(db, fenceIntent).catch(() => {});
+        if (cleanupReady)
+          await clearFileMemoryTombstone(this.key, {
+            activeDocId: document.id,
+            activeDocGeneration: next,
+            activeDocEpoch: nextEpoch,
+            activeLifetimeToken: entry.lifetimeToken,
+          }).catch(() => {});
+        return true;
       }
-      this.loadFailedWithoutBaseline = false;
-      this.generation = next;
-      this.documentEpoch = nextEpoch;
-      this.recoveryBaseline = undefined;
-      this.failedLoadBaseline = undefined;
-      this.lifetimeToken = entry.lifetimeToken;
-      this.knownAssets = split?.assets ?? new Map();
-      upsertCatalog(entry);
-      if (fenceIntent) await flushFenceIntent(db, fenceIntent).catch(() => {});
-      if (cleanupReady)
-        await clearFileMemoryTombstone(this.key, {
-          activeDocId: document.id,
-          activeDocGeneration: next,
-          activeDocEpoch: nextEpoch,
-          activeLifetimeToken: entry.lifetimeToken,
-        }).catch(() => {});
-      return true;
     });
   }
 }
@@ -1421,7 +1620,12 @@ export async function deleteLocalFile(
               [...rows.filter((row) => row.fileKey !== fileKey), intent],
               pendingCleanupRecordKey,
             );
-            await retireLegacyKey(store, fileKey, true);
+            retireLegacyKey(
+              store,
+              await retiredLegacyKeys(store),
+              fileKey,
+              true,
+            );
             tx.objectStore(partStore).delete(partitionRange(fileKey));
             tx.objectStore(assetStore).delete(partitionRange(fileKey));
             tx.objectStore(storeName).delete(fileKey);

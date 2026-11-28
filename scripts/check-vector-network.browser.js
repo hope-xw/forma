@@ -116,6 +116,7 @@ async (page) => {
   await button("选择图层 Board").click();
   await button("预览").click();
   const preview = page.locator('[data-design-id="glyph"] > svg path');
+  await preview.first().waitFor();
   const fills = await preview.evaluateAll((els) =>
     els.map((e) => e.getAttribute("fill").toLowerCase()),
   );

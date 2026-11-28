@@ -96,7 +96,7 @@ async (page) => {
   await slot.selectOption(option);
   await slot.scrollIntoViewIfNeeded();
   await page
-    .locator("#right-panel")
+    .locator(".app:visible .right-panel")
     .screenshot({ path: "output/playwright/nested-instance-panel.png" });
   const assert = async (text) => {
     if (

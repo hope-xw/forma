@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { type ChangeEvent, useLayoutEffect, useRef, useState } from "react";
 import {
   ChevronRight,
   Crop,
@@ -9,8 +9,79 @@ import {
 } from "lucide-react";
 import type { EditorController } from "./useEditor";
 import type { DesignNode } from "../domain/document";
-import { isLocked } from "../domain/tree";
+import { instanceAncestor, isLocked } from "../domain/tree";
 import { readImage } from "../infrastructure/image-import";
+import { useInspectorPreview } from "./GradientEditor";
+import type { Operation } from "../domain/commands";
+
+const pendingImports = new WeakMap<
+  EditorController["historyRef"],
+  Map<string, object>
+>();
+
+function useImageImport(e: EditorController, nodeId: string) {
+  const requestGenRef = useRef(0);
+  useLayoutEffect(
+    () => () => {
+      requestGenRef.current++;
+    },
+    [e.doc.id, nodeId],
+  );
+  return async (ev: ChangeEvent<HTMLInputElement>) => {
+    const file = ev.currentTarget.files?.[0];
+    ev.currentTarget.value = "";
+    if (
+      !file ||
+      e.previewRef?.current ||
+      isLocked(e.doc, nodeId) ||
+      instanceAncestor(e.doc, nodeId)
+    )
+      return;
+    const generation = ++requestGenRef.current;
+    // Header and body pickers share the latest request for this editor and layer.
+    const requests =
+      pendingImports.get(e.historyRef) ?? new Map<string, object>();
+    pendingImports.set(e.historyRef, requests);
+    const token = {};
+    requests.set(nodeId, token);
+    const docId = e.committed.id;
+    const lifetime = e.getCurrentLifetimeToken?.();
+    const epoch = e.getCurrentDocumentEpoch?.();
+    function isCurrent() {
+      const doc = e.historyRef.current.present;
+      return (
+        requestGenRef.current === generation &&
+        requests.get(nodeId) === token &&
+        doc.id === docId &&
+        e.getCurrentLifetimeToken?.() === lifetime &&
+        e.getCurrentDocumentEpoch?.() === epoch &&
+        !e.previewRef?.current &&
+        doc.nodes.some((n) => n.id === nodeId) &&
+        !isLocked(doc, nodeId) &&
+        !instanceAncestor(doc, nodeId)
+      );
+    }
+    try {
+      const { id, image } = await readImage(file);
+      if (!isCurrent()) return;
+      e.apply([
+        { type: "putImage", id, image },
+        {
+          type: "update",
+          id: nodeId,
+          patch: {
+            image: { assetId: id, fit: "cover", zoom: 1, x: 50, y: 50 },
+          },
+        },
+      ]);
+    } catch (error) {
+      if (isCurrent())
+        e.setError(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (requests.get(nodeId) === token) requests.delete(nodeId);
+    }
+  };
+}
 export function ImageFillTrigger({
   editor: e,
   node,
@@ -18,8 +89,15 @@ export function ImageFillTrigger({
   editor: EditorController;
   node: DesignNode;
 }) {
+  const chooseImage = useImageImport(e, node.id);
   const input = useRef<HTMLInputElement>(null);
-  const locked = isLocked(e.doc, node.id);
+  const previewBlocked = Boolean(
+    e.previewRef?.current && e.doc !== e.committed,
+  );
+  const locked =
+    previewBlocked ||
+    isLocked(e.doc, node.id) ||
+    Boolean(instanceAncestor(e.doc, node.id));
   const hasImage = Boolean(node.image && e.doc.images?.[node.image.assetId]);
   return (
     <>
@@ -39,31 +117,10 @@ export function ImageFillTrigger({
       <input
         ref={input}
         type="file"
+        disabled={locked}
         hidden
         accept="image/png,image/jpeg,image/webp,image/gif"
-        onChange={async (ev) => {
-          const file = ev.target.files?.[0];
-          ev.target.value = "";
-          if (!file) return;
-          const docId = e.committed.id;
-          try {
-            const { id, image } = await readImage(file);
-            if (e.historyRef.current.present.id !== docId)
-              throw new Error("文件已切换");
-            e.apply([
-              { type: "putImage", id, image },
-              {
-                type: "update",
-                id: node.id,
-                patch: {
-                  image: { assetId: id, fit: "cover", zoom: 1, x: 50, y: 50 },
-                },
-              },
-            ]);
-          } catch (err) {
-            e.setError(err instanceof Error ? err.message : String(err));
-          }
-        }}
+        onChange={chooseImage}
       />
     </>
   );
@@ -78,18 +135,41 @@ export function ImageInspector({
   node: DesignNode;
   hideWhenEmpty?: boolean;
 }) {
+  const chooseImage = useImageImport(e, node.id);
   const input = useRef<HTMLInputElement>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const fill = node.image,
     asset = fill && e.doc.images?.[fill.assetId];
+  const preview = useInspectorPreview(
+    e,
+    JSON.stringify([e.doc.id, node.id, fill?.assetId, advancedOpen]),
+  );
+  const locked =
+    isLocked(e.doc, node.id) || Boolean(instanceAncestor(e.doc, node.id));
+  const pending = useRef<Operation | null>(null);
+  const cancelAdjustment = () => {
+    pending.current = null;
+    preview.cancel();
+  };
+  const finishAdjustment = () => {
+    const operation = pending.current;
+    pending.current = null;
+    if (operation && !locked && preview.owns())
+      e.attempt(() => preview.apply([operation]));
+  };
+  const disabled = locked || preview.blocked;
+  function update(patch: Partial<DesignNode>) {
+    if (!disabled && !e.previewRef?.current) e.update(patch);
+  }
   if (hideWhenEmpty && (!fill || !asset)) return null;
   return (
-    <fieldset className="image-inspector" disabled={isLocked(e.doc, node.id)}>
+    <fieldset className="image-inspector">
       <div className="section-title">
         图像填充
         <div>
           {!hideWhenEmpty && (
             <button
+              disabled={disabled}
               title="选择图像"
               aria-label="选择图像"
               data-tip="选择图像"
@@ -102,11 +182,13 @@ export function ImageInspector({
             <button
               type="button"
               className="icon-btn icon-btn-sm"
+              disabled={disabled}
               aria-label="在画布裁切"
               data-tip="在画布裁切"
               data-tip-desc="拖动图像调整焦点，拖右下角改变倍率，Enter 完成"
               aria-pressed={e.cropping === node.id}
               onClick={() => {
+                if (disabled || e.previewRef?.current) return;
                 e.setTool("select");
                 e.setEditing(null);
                 e.setCropping(e.cropping === node.id ? null : node.id);
@@ -117,10 +199,11 @@ export function ImageInspector({
           )}
           {fill && (
             <button
+              disabled={disabled}
               title="移除图像"
               aria-label="移除图像"
               data-tip="移除图像"
-              onClick={() => e.update({ image: undefined })}
+              onClick={() => update({ image: undefined })}
             >
               <Trash2 size={13} />
             </button>
@@ -130,32 +213,11 @@ export function ImageInspector({
       {!hideWhenEmpty && (
         <input
           ref={input}
+          disabled={disabled}
           type="file"
           hidden
           accept="image/png,image/jpeg,image/webp,image/gif"
-          onChange={async (ev) => {
-            const file = ev.target.files?.[0];
-            ev.target.value = "";
-            if (!file) return;
-            const docId = e.committed.id;
-            try {
-              const { id, image } = await readImage(file);
-              if (e.historyRef.current.present.id !== docId)
-                throw new Error("文件已切换");
-              e.apply([
-                { type: "putImage", id, image },
-                {
-                  type: "update",
-                  id: node.id,
-                  patch: {
-                    image: { assetId: id, fit: "cover", zoom: 1, x: 50, y: 50 },
-                  },
-                },
-              ]);
-            } catch (err) {
-              e.setError(err instanceof Error ? err.message : String(err));
-            }
-          }}
+          onChange={chooseImage}
         />
       )}
       {fill && asset && (
@@ -164,10 +226,11 @@ export function ImageInspector({
             <img src={asset.data} alt="" />
             <span title={asset.width + " × " + asset.height}>{asset.name}</span>
             <select
+              disabled={disabled}
               aria-label="图像适配"
               value={fill.fit}
               onChange={(ev) =>
-                e.update({
+                update({
                   image: { ...fill, fit: ev.target.value as typeof fill.fit },
                 })
               }
@@ -181,6 +244,7 @@ export function ImageInspector({
               type="button"
               className="icon-btn icon-btn-sm"
               title="顺时针旋转 90°"
+              disabled={disabled}
               aria-label="顺时针旋转 90°"
               data-tip="顺时针旋转 90°"
               data-tip-desc="将图像填充顺时针旋转 90°"
@@ -189,7 +253,7 @@ export function ImageInspector({
                 const cur =
                   ((Math.round(fill.rotation ?? 0) % 360) + 360) % 360;
                 const next = (cur + 90) % 360;
-                e.update({
+                update({
                   image: {
                     ...fill,
                     rotation: next === 0 ? undefined : next,
@@ -218,6 +282,7 @@ export function ImageInspector({
               const scale = i === 2;
               return (
                 <ImageNumber
+                  disabled={disabled}
                   key={k}
                   label={
                     [
@@ -231,7 +296,7 @@ export function ImageInspector({
                   min={scale ? (k === "tileScale" ? 0.1 : 1) : 0}
                   max={scale ? 8 : 100}
                   step={0.1}
-                  commit={(n) => e.update({ image: { ...fill, [k]: n } })}
+                  commit={(n) => update({ image: { ...fill, [k]: n } })}
                 />
               );
             })}
@@ -240,6 +305,7 @@ export function ImageInspector({
             <summary>图像调色</summary>
             <div className="image-adjustment-fields">
               <ImageNumber
+                disabled={disabled}
                 label="图像不透明度"
                 prefix="不透明度"
                 value={Math.round((fill.opacity ?? 1) * 100)}
@@ -248,7 +314,7 @@ export function ImageInspector({
                 step={1}
                 suffix="%"
                 commit={(value) =>
-                  e.update({
+                  update({
                     image: {
                       ...fill,
                       opacity: value === 100 ? undefined : value / 100,
@@ -259,6 +325,7 @@ export function ImageInspector({
               {(["brightness", "contrast", "saturation"] as const).map(
                 (key, i) => (
                   <ImageNumber
+                    disabled={disabled}
                     key={key}
                     label={["亮度", "对比度", "饱和度"][i]}
                     prefix={["亮度", "对比度", "饱和度"][i]}
@@ -268,7 +335,7 @@ export function ImageInspector({
                     step={1}
                     suffix="%"
                     commit={(n) =>
-                      e.update({
+                      update({
                         image: {
                           ...fill,
                           [key]: n === 100 ? undefined : n / 100,
@@ -285,20 +352,21 @@ export function ImageInspector({
                 data-tip="重置图像调色"
                 data-tip-desc="恢复默认亮度、对比度、饱和度、高级调色与旋转角度"
                 disabled={
-                  [fill.brightness, fill.contrast, fill.saturation].every(
+                  disabled ||
+                  ([fill.brightness, fill.contrast, fill.saturation].every(
                     (v) => (v ?? 1) === 1,
                   ) &&
-                  [
-                    fill.exposure,
-                    fill.temperature,
-                    fill.tint,
-                    fill.highlights,
-                    fill.shadows,
-                    fill.rotation,
-                  ].every((v) => !v)
+                    [
+                      fill.exposure,
+                      fill.temperature,
+                      fill.tint,
+                      fill.highlights,
+                      fill.shadows,
+                      fill.rotation,
+                    ].every((v) => !v))
                 }
                 onClick={() =>
-                  e.update({
+                  update({
                     image: {
                       ...fill,
                       brightness: undefined,
@@ -375,19 +443,58 @@ export function ImageInspector({
                           {label}
                         </span>
                         <input
+                          disabled={disabled}
                           type="range"
                           aria-label={label}
                           min={-100}
                           max={100}
                           step={1}
                           value={pct}
+                          onPointerDown={(ev) =>
+                            ev.currentTarget.setPointerCapture(ev.pointerId)
+                          }
+                          onPointerUp={finishAdjustment}
+                          onPointerCancel={cancelAdjustment}
+                          onLostPointerCapture={cancelAdjustment}
+                          onBlur={finishAdjustment}
+                          onKeyUp={(ev) => {
+                            if (
+                              [
+                                "ArrowLeft",
+                                "ArrowRight",
+                                "ArrowDown",
+                                "ArrowUp",
+                                "Home",
+                                "End",
+                                "PageUp",
+                                "PageDown",
+                              ].includes(ev.key)
+                            )
+                              finishAdjustment();
+                          }}
+                          onKeyDown={(ev) => {
+                            if (ev.key === "Escape") {
+                              ev.preventDefault();
+                              ev.stopPropagation();
+                              cancelAdjustment();
+                            }
+                          }}
                           onChange={(ev) => {
-                            const v = Number(ev.target.value);
-                            e.update({
-                              image: {
-                                ...fill,
-                                [key]: v === 0 ? undefined : v / 100,
+                            if (locked || preview.blocked) return;
+                            const v = ev.currentTarget.valueAsNumber;
+                            const operation: Operation = {
+                              type: "update",
+                              id: node.id,
+                              patch: {
+                                image: {
+                                  ...fill,
+                                  [key]: v === 0 ? undefined : v / 100,
+                                },
                               },
+                            };
+                            e.attempt(() => {
+                              preview.apply([operation], true);
+                              if (preview.owns()) pending.current = operation;
                             });
                           }}
                         />
@@ -414,6 +521,7 @@ export function ImageInspector({
 }
 
 function ImageNumber({
+  disabled,
   label,
   prefix,
   value,
@@ -424,6 +532,7 @@ function ImageNumber({
   commit,
 }: {
   label: string;
+  disabled: boolean;
   prefix: string;
   value: number;
   min: number;
@@ -438,6 +547,7 @@ function ImageNumber({
       <input
         type="number"
         aria-label={label}
+        disabled={disabled}
         key={value}
         defaultValue={value}
         min={min}
@@ -451,6 +561,7 @@ function ImageNumber({
           else if (next !== value) commit(next);
         }}
         onKeyDown={(ev) => {
+          if (ev.nativeEvent.isComposing) return;
           if (ev.key === "Enter") ev.currentTarget.blur();
           if (ev.key === "Escape") {
             ev.currentTarget.value = String(value);

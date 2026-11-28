@@ -1,6 +1,6 @@
 {
   "name": "design-platform",
-  "version": "0.15.0",
+  "version": "0.18.0",
   "description": "Forma — Web & 移动 H5 设计与 React/TypeScript 工程交付工作台",
   "author": "Forma Team",
   "license": "MIT",
@@ -130,6 +130,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "svgpath": "^2.6.0",
+    "wawoff2": "2.0.1",
     "zod": "^4.0.0"
   },
   "devDependencies": {

@@ -2,6 +2,29 @@
 
 本文按发版时间倒序记录每个版本的完整更新内容、问题修复与兼容说明。产品内「版本日志」面板会展示面向设计师的精简摘要，日常小修补会归并到下一次重要更新中统一呈现。详细维护规范见[发布与归并规则](specs/VERSIONING-AND-DESKTOP.md#4-文件菜单里的版本日志)。
 
+## 0.18.0 · 2026-11-28
+
+- 新增跨平台零依赖系统字体扫描与解析模块（electron/system-fonts.mjs）及桌面端 IPC / Vite 回环仅限本机接口（electron/main.mjs、electron/preload.cjs、vite.config.ts），支持 48 MiB 预算与并发控制、单面 TTC 规范化提取（同时兼容 harfbuzzjs 与 opentype.js）以及基于 CSS 字体栈顺序的按字形自动回退；src/infrastructure/font-import.ts 与 text-outline.ts 全面支持 TTF / OTF / TTC / OTC / WOFF1 / 按需懒加载 WOFF2（wawoff2 独立分包不增大主入口），升级 UAX #14 中英换行与连字拆分，支持默认中文标题「让好设计，发生。」与中英混排一键转矢量轮廓并保持导出工程一致
+- 新增统一视口自适应弹层钩子（src/editor/useAnchoredPopover.ts）与标准 Forma UI3 轻提示组件（src/editor/ToastHost.tsx），接入 ColorField、TokenBinding（变量/样式双弹层）、ComponentProperties（SlotSwapPicker）与 Inspector（高级字体设置）；实测 1440×900 / 1280×720 / 1024×600 / 1024×480 四档视口 × 256/280px 右栏共 40 组弹层用例严格满足 ≥ 12px 视口边距，ToastHost 锚定活跃画布顶部居中并动态避让弹层与底部工具栏；同步在 canvas-feel.css 归入 @layer panels（0 !important）并修复 Chromium 下 .editor-canvas 4px 滚动漂移
+- 对右侧属性面板全部 15 个子面板与主 Inspector 开展全量缺陷清零：补齐 PrototypeInspector 次级规则 URL/过渡/变量编辑与 Escape/IME 保护；修复 DevModePanel 按文档/节点隔离备注草稿与 tablist 键盘导航；修复 ExportPanel 首字失焦与 batch-export.ts 路径漂移；修复 SelectionColors 纳入 tint/fillFromStyle 及稳定会话 key 防改色卸载取色器；修复 ImageInspector 异步换图竞态与滑块单步撤销；统一 GradientEditor / VectorInspector / ScalePanel / GridTracks / LayoutGuidesInspector / LayoutBreakpoints / SizeLimits 草稿校验与越界回滚；对齐 node.ts 与 scale-tool.ts 独立边描边上限至 100px；修正 PanelDivider 多 Tab 唯一容器 ID 避免跨标签跳宽，并全量接入外部 AI 提案预览保护与逐节点控制类型保留
+- 同步强化底层图形与存储可靠性：src/domain/vector-outline.ts 引入精确 Paper.js 拓扑并集、106-bit 双双精度/精确十进制游标弧线求解与 OBB 分离轴分量分组（600 条分散折线耗时由 26.05s 压降至 ~10ms）；src/infrastructure/storage.ts 加固加载失败替换基线、资源字节实值核验、活跃代次零孤儿分片清理与可读分区单调代次分配（防陈旧标签覆写与损坏备份耗尽代次）
+- 经 18 轮独立只读 Codex CLI 复审清零全部 P0/P1（正式签核 PASS — 0 P0 / 0 P1），通过全仓 1,570 / 1,571 单元测试（0 失败，1 跳过需浏览器原生 IndexedDB，净增 +246 项）、架构门禁（0 违规，as any 1/1，CSS !important 3/25）、24/24 真实 Chromium 静态预览 E2E（含新增 inspector-ux 与 storage）、canvas-phase2 导出 React 工程独立安装构建运行验收及 4 张深浅 2× Retina 视觉实拍人工复核
+
+## 0.17.0 · 2026-11-27
+
+- 新增统一画板/分区/组件标题组件（src/editor/ArtboardLabel.tsx）并与 Canvas.tsx 共用 beginNodeDrag 状态机：支持根画板、分区（.section-title-pill）、组件集、主组件、组件实例及分区内直接子画板拖拽移动、智能吸附、Shift 轴锁、Option/Alt 复制（clipboard.ts 完整克隆独立组件集及嵌套变体）、多选联动、基于最终几何的分区重挂、悬停外框、右键菜单与画布原位 IME 安全重命名；同步在 useEditor.ts、Canvas.tsx、CornerRadiusHandles.tsx 与 GridHandles.tsx 加固同步 previewRef 守卫，防止外部 AI 提案在 React 重渲染前被本地拖拽或改名误清
+- 修正 Inspector.tsx 全部 6 枚对齐图标与 2 枚分布图标映射（left/center/right 对应 AlignStart/Center/EndVertical，top/middle/bottom 对应 AlignStart/Center/EndHorizontal，标注 data-align-id 与精确禁用原因提示）；在 editing.ts 与 actions.ts 统一各入口可用性校验，放行自动布局内 absolutePosition 绝对定位子图层对齐与自由拖拽，修复不等宽重叠分布端点移动与 firstChildOnTop 反序图层置顶顺序，并完善旋转/翻转/minWidth/Hug 子图层的组边界重算（commands.ts）
+- 新增 50–150 屏远景画板智能 LOD 缓存与动静切换系统（src/application/board-lod.ts 零 React/DOM、src/editor/board-tile-cache.ts 分帧 Canvas2D 结构化绘制、src/editor/BoardLodTile.tsx Display P3 独立画布切换）：支持 0.38/0.42 滞回防闪烁、48 MiB / 180 项 LRU 预算、4 ms/帧时间片调度、完整分支签名原地失效与保守图形保活（布尔/蒙版/阴影/混合/半透明叠加/未裁剪大路径保活），在 128 屏 8,288 层复杂基准中将初始 DOM 节点由 8,288 降至 128（-98.5%）、导入耗时由 1,281 ms 降至 1,054 ms、堆内存由 88 降至 64 MiB、平移 85 帧 rAF 17ms 零掉帧
+- 新增高级矢量编辑与原地轮廓化能力（src/domain/vector-path.ts、src/domain/vector-outline.ts、src/infrastructure/text-outline.ts、src/editor/VectorEditor.tsx、src/editor/VectorInspector.tsx）：支持屏幕空间多锚点框选、Shift 增减、⌘A 全选、批量拖拽/微调/删点/平滑与 Bend 弯曲工具（Option/Alt 临时弯曲 + 单击切换平滑/尖角）；新增描边轮廓化（含虚线百分比/严格 CSS 空白与数字语法校验、O(1) 视口无关弧线预检缓存）与文字转轮廓（⇧⌘O，支持 sourceTextShape 与 doc.fonts HarfBuzz glyphToPath 及全 Unicode RTL/Bidi 保护），通过原地 convertToVector 事务保留稳定 ID、入站原型引用与图层序
+- 通过 6 轮独立只读代码复审清零全部 P0/P1（PASS 0 P0 / 0 P1），新增 260 项单元测试（全仓 1,324/1,325 通过，架构 0 违规，as any 1/1，CSS !important 3/25），18/18 项真实 Chromium E2E（含新增 canvas-phase2）、canvas-phase2 导出 React 工程独立安装构建运行验收及 4 张 2× Retina 视觉实拍全部通过
+
+## 0.16.0 · 2026-11-27
+
+- 新增零 React 高频相机频道（src/application/canvas-camera.ts，CameraChannel rAF 实时驱动 DOM/Canvas + 72ms 停稳防抖回写 React）与纯领域网格桶空间索引（src/domain/spatial-index.ts，万层点命中 184→4.50µs、最小容器命中 229→4.87µs、视口根查询 69.6→1.37µs），将画布缩放域由 5%–800% 扩展至 2%–6400%（src/domain/geometry.ts）
+- 新增画布直接操控体系（src/application/canvas-handles.ts、CornerRadiusHandles.tsx、AutoLayoutHandles.tsx）：支持矩形/画板/按钮四角圆点直拖（统一 / Option 单角 / Shift 4px 步进）与 row/column 自动布局粉色内边距/间距直拖（单边 / Option 对称 / Option+Shift 四边同步 / Shift 4px 步进），严格守卫组件实例、锁定、space-between、容器断点与双插序变量绑定，并通过 geometry-preview.ts 快路径将 8,320 层复杂稿预览延迟降至 0.030 ms P95，松手单步原子提交并支持 ⌘Z 撤销
+- 新增单层高 DPI Canvas2D 覆盖层（CanvasOverlayHud.tsx）与右下角玻璃态画布小地图（CanvasMinimap.tsx、minimap-layout.ts、canvas-feel.css 全部归入 @layer panels 零 !important）：呈现高倍像素网格、带起止截线的增强吸附红线与旋转包围盒 Alt/DevMode 测距；小地图支持 ⇧M / 顶栏按钮 / 视图菜单切换、点击瞬移、蓝框零跳变拖拽与方向键平移，常规小稿与短窗口默认折叠、单页 >= 6 根画板且画布 >= 1080×540 自动展开
+- 同步接入 Canvas.tsx、CanvasRulers.tsx、VectorEditor.tsx（直播世界矩阵修复缩放锚点漂移）与 ViewOptionsMenu.tsx；新增 52 项专项单测（全仓 1,064/1,065 通过）、canvas-pro-feel 端到端与 React 导出独立运行验收及 2× Retina 双主题视觉实拍归档
+
 ## 0.15.0 · 2026-11-27
 
 - 新增纯 Node 零 DOM 共享运行时能力层（server/runtime-capabilities.ts），提供 list_open_tabs、render_artboard_preview（离线 SVG 渲染图）、export_react_code（真实 Forma 编译器输出 React/TSX/CSS Tokens）与 delegate_design_task 4 项高阶能力

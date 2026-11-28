@@ -1,15 +1,16 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 import { Crosshair } from "lucide-react";
 import { resolveNode } from "../domain/design-system";
 import { displayColor } from "../domain/color-profile";
 import { FileColorContext } from "./ColorProfileDialog";
-import { subtreeIds, isLocked } from "../domain/tree";
+import { subtreeIds, isLocked, isVisible } from "../domain/tree";
 import type { EditorController } from "./useEditor";
 import type { Operation } from "../domain/commands";
 import { ColorField } from "./ColorField";
 
 type Slot =
   | { id: string; kind: "fill" | "stroke" | "color"; variableName?: string }
+  | { id: string; kind: "tint" }
   | { id: string; kind: "paint" | "strokePaint"; index: number }
   | {
       id: string;
@@ -24,8 +25,13 @@ type Slot =
 export function SelectionColors({ editor }: { editor: EditorController }) {
   const profile = useContext(FileColorContext);
   const [open, setOpen] = useState(false);
+  const activeSlot = useRef<string | null>(null);
+  const previewBlocked = Boolean(
+    editor.previewRef?.current && editor.doc !== editor.committed,
+  );
   const palette = useMemo(() => {
     const result = new Map<string, Slot[]>();
+    if (!open) return result;
     const included = subtreeIds(editor.doc, editor.selection);
     const sys = editor.doc.designSystem;
     for (const layer of editor.doc.nodes) {
@@ -39,7 +45,20 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
         items.push(slot);
         result.set(id, items);
       };
-      if (!["group", "text", "vector"].includes(n.type) && !s.gradient) {
+      if (s.tint && s.tint.opacity > 0 && isVisible(editor.doc, layer.id))
+        add(s.tint.color, { id: n.id, kind: "tint" });
+      const styleVectorFill =
+        n.vector?.fillFromStyle &&
+        n.vector.paths.some(
+          (p) =>
+            p.fill && !p.fillColor && p.opacity !== 0 && p.fillOpacity !== 0,
+        );
+      const paintsSurface = !n.vector?.fillFromStyle || styleVectorFill;
+      if (
+        (styleVectorFill || !["group", "text", "vector"].includes(n.type)) &&
+        !s.gradient &&
+        s.fillOpacity !== 0
+      ) {
         const varId = layer.variableBindings?.fill;
         add(
           n.fillToken
@@ -52,7 +71,7 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
           },
         );
       }
-      if (s.gradient) {
+      if (paintsSurface && s.gradient && s.fillOpacity !== 0) {
         s.gradient.stops.forEach((stop, index) =>
           add(stop.color, { id: n.id, kind: "gradientStop", index }),
         );
@@ -62,9 +81,10 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
           add(shadow.color, { id: n.id, kind: "shadow", index });
       });
       for (const kind of ["paints", "strokePaints"] as const) {
+        if (kind === "paints" && !paintsSurface) continue;
         if (kind === "strokePaints" && s.strokeVisible === false) continue;
         s[kind]?.forEach((paint, index) => {
-          if (!paint.visible) return;
+          if (!paint.visible || paint.opacity === 0) return;
           if (paint.gradient)
             paint.gradient.stops.forEach((stop, stopIndex) =>
               add(stop.color, {
@@ -86,12 +106,13 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
       if (n.type === "vector" && n.vector) {
         let usesLayerColor = false;
         n.vector.paths.forEach((p, index) => {
-          if (p.fill) {
+          if (p.opacity === 0) return;
+          if (p.fill && p.fillOpacity !== 0) {
             if (p.fillColor)
               add(p.fillColor, { id: n.id, kind: "vectorFill", index });
-            else usesLayerColor = true;
+            else if (!n.vector!.fillFromStyle) usesLayerColor = true;
           }
-          if (p.strokeWidth) {
+          if (p.strokeWidth && p.strokeOpacity !== 0) {
             if (p.strokeColor)
               add(p.strokeColor, { id: n.id, kind: "vectorStroke", index });
             else usesLayerColor = true;
@@ -122,7 +143,8 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
       if (
         !s.strokePaints?.length &&
         (s.strokeWidth || Object.values(s.strokeSides ?? {}).some(Boolean)) &&
-        s.strokeVisible !== false
+        s.strokeVisible !== false &&
+        s.strokeOpacity !== 0
       ) {
         const varId = layer.variableBindings?.stroke;
         add(s.stroke ?? s.color, {
@@ -133,12 +155,17 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
       }
     }
     return result;
-  }, [editor.doc, editor.selection]);
+  }, [editor.doc, editor.selection, open]);
 
   const entries = [...palette.entries()];
 
   function replaceColor(oldColor: string, nextColor: string, slots: Slot[]) {
-    if (nextColor.toLowerCase() === oldColor) return;
+    if (
+      previewBlocked ||
+      editor.previewRef?.current ||
+      nextColor.toLowerCase() === oldColor
+    )
+      return;
     const updates = new Map<string, Extract<Operation, { type: "update" }>>();
     const byId = new Map(editor.doc.nodes.map((n) => [n.id, n]));
     for (const slot of slots) {
@@ -158,6 +185,10 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
         op.style = { ...op.style, [slot.kind]: nextColor };
         if (slot.kind === "fill")
           op.patch = { ...op.patch, fillToken: undefined };
+      } else if (slot.kind === "tint") {
+        const tint = resolveNode(editor.doc, layer).style.tint;
+        if (tint)
+          op.style = { ...op.style, tint: { ...tint, color: nextColor } };
       } else if (slot.kind === "paint" || slot.kind === "strokePaint") {
         const stack = slot.kind === "strokePaint" ? "strokePaints" : "paints";
         const paints = [
@@ -277,18 +308,35 @@ export function SelectionColors({ editor }: { editor: EditorController }) {
           )}
         </summary>
         {entries.map(([color, slots]) => {
+          const slotKeys = slots.map((slot) =>
+            JSON.stringify([
+              slot.id,
+              slot.kind,
+              "index" in slot ? slot.index : null,
+              slot.kind === "gradientStop" ? slot.paintIndex : null,
+              slot.kind === "gradientStop" && Boolean(slot.stroke),
+            ]),
+          );
+          const rowKey =
+            activeSlot.current && slotKeys.includes(activeSlot.current)
+              ? activeSlot.current
+              : slotKeys[0];
           const varName = slots.find(
             (s) => "variableName" in s && s.variableName,
           );
           const matchingIds = [...new Set(slots.map((s) => s.id))];
           return (
-            <div className="selection-color-row" key={color}>
+            <div className="selection-color-row" key={rowKey}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <ColorField
                   label={"选区颜色 " + color}
                   color={color}
                   allowAlpha={false}
-                  onChange={(value) => replaceColor(color, value, slots)}
+                  disabled={previewBlocked}
+                  onChange={(value) => {
+                    activeSlot.current = rowKey;
+                    replaceColor(color, value, slots);
+                  }}
                 />
                 {varName &&
                   "variableName" in varName &&

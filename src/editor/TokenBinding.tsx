@@ -1,7 +1,8 @@
 import { isLocked } from "../domain/tree";
 import { displayColor } from "../domain/color-profile";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
+import { useAnchoredPopover } from "./useAnchoredPopover";
 import { useModalDialog } from "./useModalDialog";
 import { Variable, Unlink, Search, LayoutGrid, Plus } from "lucide-react";
 import type { EditorController } from "./useEditor";
@@ -22,46 +23,50 @@ import { emptyDesignSystem } from "../domain/design-system-schema";
 export function TokenBinding({
   editor: e,
   property,
-  disabled = false,
+  disabled: controlDisabled = false,
 }: {
   editor: EditorController;
   property: VariableProperty;
   disabled?: boolean;
 }) {
-  const [open, setOpen] = useState(false),
+  const disabled =
+    controlDisabled || Boolean(e.previewRef?.current && e.doc !== e.committed);
+  const [requestedOpen, setOpen] = useState(false),
     [query, setQuery] = useState("");
+  const open = requestedOpen && !disabled;
   const trigger = useRef<HTMLButtonElement>(null),
     popup = useModalDialog(open, () => setOpen(false));
-  const rect = trigger.current?.getBoundingClientRect();
-  useEffect(() => {
-    if (!open) return;
-    const outside = (ev: PointerEvent) => {
-      if (
-        !popup.current?.contains(ev.target as Node) &&
-        !trigger.current?.contains(ev.target as Node)
-      )
-        setOpen(false);
-    };
-    window.addEventListener("pointerdown", outside);
-    return () => window.removeEventListener("pointerdown", outside);
-  }, [open, popup]);
+  useAnchoredPopover({
+    open,
+    triggerRef: trigger,
+    popoverRef: popup,
+    preferredSide: "left",
+    onClose: () => setOpen(false),
+  });
+  useLayoutEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
   const ids = e.selected.map((n) => n.variableBindings?.[property]);
   const allSame = ids.every((x) => x === ids[0]);
   const id = allSame ? ids[0] : undefined;
   const mixedBound = !allSame && ids.some(Boolean);
   const system = e.doc.designSystem;
   const token = id ? system?.variables[id] : undefined;
-  const variables = Object.values(system?.variables ?? {}).filter(
-    (v) =>
-      v.type === propertyType(property) &&
-      (!v.scopes.length || v.scopes.includes(property)) &&
-      v.name.toLowerCase().includes(query.toLowerCase()),
-  );
+  const variables = open
+    ? Object.values(system?.variables ?? {}).filter(
+        (v) =>
+          v.type === propertyType(property) &&
+          (!v.scopes.length || v.scopes.includes(property)) &&
+          v.name.toLowerCase().includes(query.toLowerCase()),
+      )
+    : [];
   return (
     <div className={`token-binding ${token || mixedBound ? "bound" : ""}`}>
       <button
         ref={trigger}
         className="binding-trigger"
+        aria-expanded={open}
+        aria-haspopup="dialog"
         disabled={disabled}
         aria-label={`绑定变量 ${property}`}
         data-tip={
@@ -91,6 +96,7 @@ export function TokenBinding({
           aria-label={`解除变量 ${property}`}
           data-tip="解除变量绑定，保留当前值"
           onClick={() =>
+            !e.previewRef?.current &&
             e.attempt(() =>
               e.apply(
                 e.selected.map((n) => detachVariable(e.doc, n, property)),
@@ -107,31 +113,13 @@ export function TokenBinding({
             ref={popup}
             aria-modal="true"
             tabIndex={-1}
-            style={{
-              position: "fixed",
-              left: Math.min(
-                window.innerWidth - 282,
-                Math.max(10, (rect?.left ?? 0) - 245),
-              ),
-              top: Math.max(
-                10,
-                Math.min(window.innerHeight - 310, (rect?.bottom ?? 0) + 5),
-              ),
-            }}
             className="binding-popover"
             role="dialog"
             aria-label={`选择变量 ${property}`}
-            onKeyDown={(ev) => {
-              if (ev.key === "Escape") {
-                ev.stopPropagation();
-                setOpen(false);
-              }
-            }}
           >
             <label className="binding-search">
               <Search size={12} />
               <input
-                autoFocus
                 aria-label={`搜索变量 ${property}`}
                 placeholder="搜索变量"
                 value={query}
@@ -162,6 +150,7 @@ export function TokenBinding({
                   key={v.id}
                   title={v.description}
                   onClick={() => {
+                    if (e.previewRef?.current) return;
                     e.attempt(() =>
                       e.apply(
                         e.selected.map((n) => bindVariable(n, property, v.id)),
@@ -212,34 +201,34 @@ export function StyleBinding({
   placement?: "inline" | "header" | "body";
 }) {
   const [creating, setCreating] = useState(false),
-    [open, setOpen] = useState(false),
+    [requestedOpen, setOpen] = useState(false),
     [name, setName] = useState("");
+  const locked =
+    !e.selected.length ||
+    Boolean(e.previewRef?.current && e.doc !== e.committed) ||
+    e.selected.some((n) => isLocked(e.doc, n.id));
+  const source = e.selected[0];
+  const bindings = e.selected.map((n) => n.styleBindings?.[kind]);
+  const mixedBound = bindings.some((id) => id !== bindings[0]);
+  const id = mixedBound ? undefined : bindings[0];
+  const bound = Boolean(id) || mixedBound;
+  const open = requestedOpen && !locked && !bound && placement === "header";
+  const close = () => {
+    setOpen(false);
+    setCreating(false);
+  };
   const trigger = useRef<HTMLButtonElement>(null),
-    popup = useModalDialog(open, () => {
-      setOpen(false);
-      setCreating(false);
-    });
-  useEffect(() => {
-    if (!open) return;
-    const outside = (ev: PointerEvent) => {
-      if (
-        !popup.current?.contains(ev.target as Node) &&
-        !trigger.current?.contains(ev.target as Node)
-      ) {
-        setOpen(false);
-        setCreating(false);
-      }
-    };
-    window.addEventListener("pointerdown", outside);
-    return () => window.removeEventListener("pointerdown", outside);
-  }, [open, popup]);
-  const locked = e.selected.some((n) => isLocked(e.doc, n.id));
-  const source = e.selected[0],
-    id = e.selected.every(
-      (n) => n.styleBindings?.[kind] === source.styleBindings?.[kind],
-    )
-      ? source.styleBindings?.[kind]
-      : "";
+    popup = useModalDialog(open, close);
+  useAnchoredPopover({
+    open,
+    triggerRef: trigger,
+    popoverRef: popup,
+    preferredSide: "left",
+    onClose: close,
+  });
+  useLayoutEffect(() => {
+    if (locked || (bound && placement === "header")) close();
+  }, [locked, bound, placement]);
   const system = e.doc.designSystem;
   const styles = Object.values(system?.styles ?? {}).filter(
     (s) =>
@@ -267,8 +256,7 @@ export function StyleBinding({
     }[kind] + "/New style";
 
   if (placement === "header") {
-    if (id) return null;
-    const rect = trigger.current?.getBoundingClientRect();
+    if (bound) return null;
     return (
       <>
         <button
@@ -279,6 +267,7 @@ export function StyleBinding({
           title={`应用或新建${kindLabel}`}
           aria-label={`应用或新建${kindLabel}`}
           aria-expanded={open}
+          aria-haspopup="dialog"
           data-tip={kindLabel}
           data-tip-desc={
             styles.length
@@ -296,27 +285,9 @@ export function StyleBinding({
               ref={popup}
               aria-modal="true"
               tabIndex={-1}
-              style={{
-                position: "fixed",
-                left: Math.min(
-                  window.innerWidth - 252,
-                  Math.max(10, (rect?.left ?? 0) - 216),
-                ),
-                top: Math.max(
-                  10,
-                  Math.min(window.innerHeight - 280, (rect?.bottom ?? 0) + 5),
-                ),
-              }}
               className="binding-popover style-picker-popover"
               role="dialog"
               aria-label={`选择${kindLabel}`}
-              onKeyDown={(ev) => {
-                if (ev.key === "Escape") {
-                  ev.stopPropagation();
-                  setOpen(false);
-                  setCreating(false);
-                }
-              }}
             >
               <div className="style-picker-head">
                 <span>{kindLabel}</span>
@@ -341,6 +312,7 @@ export function StyleBinding({
                   className="style-create"
                   onSubmit={(ev) => {
                     ev.preventDefault();
+                    if (locked || e.previewRef?.current) return;
                     e.attempt(() => {
                       const style = captureStyle(
                           e.doc,
@@ -381,6 +353,7 @@ export function StyleBinding({
                   type="button"
                   className="binding-option"
                   onClick={() => {
+                    if (e.previewRef?.current) return;
                     e.attempt(() =>
                       e.apply(
                         e.selected.map((n) => applyReusableStyle(n, s, kind)),
@@ -416,7 +389,7 @@ export function StyleBinding({
     );
   }
 
-  if (placement === "body" && !id) {
+  if (placement === "body" && !bound) {
     return null;
   }
 
@@ -427,6 +400,7 @@ export function StyleBinding({
         aria-label={`${kind}样式`}
         value={id ?? ""}
         onChange={(ev) => {
+          if (locked || e.previewRef?.current) return;
           const style = system?.styles[ev.target.value];
           e.attempt(() =>
             e.apply(
@@ -439,7 +413,9 @@ export function StyleBinding({
           );
         }}
       >
-        <option value="">{kindLabel}</option>
+        <option value="" disabled={mixedBound}>
+          {mixedBound ? "Mixed" : kindLabel}
+        </option>
         {styles.map((s) => (
           <option value={s.id} key={s.id}>
             {s.name}
@@ -447,16 +423,19 @@ export function StyleBinding({
           </option>
         ))}
       </select>
-      {id && (
+      {bound && (
         <button
           disabled={locked}
           title="解除样式"
           aria-label={`解除${kind}样式`}
           data-tip="解除样式"
           onClick={() =>
+            !e.previewRef?.current &&
             e.attempt(() =>
               e.apply(
-                e.selected.map((n) => detachReusableStyle(e.doc, n, kind)),
+                e.selected
+                  .filter((n) => n.styleBindings?.[kind])
+                  .map((n) => detachReusableStyle(e.doc, n, kind)),
               ),
             )
           }
@@ -483,6 +462,7 @@ export function StyleBinding({
           className="style-create"
           onSubmit={(ev) => {
             ev.preventDefault();
+            if (locked || e.previewRef?.current) return;
             e.attempt(() => {
               const style = captureStyle(e.doc, source, kind, name.trim()),
                 next = structuredClone(
@@ -540,14 +520,16 @@ export function ModeSelectors({
             : (allValues[0] ?? "");
         return (
           <label className="mode-row" key={c.id}>
-            <span>{c.name}</span>
+            <span data-tip={c.name}>{c.name}</span>
             <select
               disabled={
-                !document && e.selected.some((n) => isLocked(e.doc, n.id))
+                Boolean(e.previewRef?.current && e.doc !== e.committed) ||
+                (!document && e.selected.some((n) => isLocked(e.doc, n.id)))
               }
               aria-label={`模式 ${c.name}`}
               value={mode}
               onChange={(ev) =>
+                !e.previewRef?.current &&
                 e.attempt(() => {
                   if (document) {
                     const next = structuredClone(system);

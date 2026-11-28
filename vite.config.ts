@@ -1,11 +1,14 @@
+import { resolveSystemFonts } from "./electron/system-fonts.mjs";
 import pkg from "./package.json";
 import {
   defineConfig,
   type Connect,
   type ViteDevServer,
   type PreviewServer,
+  type Plugin,
 } from "vite";
 import http from "node:http";
+import { readFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import {
@@ -18,11 +21,127 @@ import react from "@vitejs/plugin-react";
 function isLoopbackRequest(req: http.IncomingMessage): boolean {
   const host = req.headers.host ?? "";
   return (
-    /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host) &&
+    (host === "::1" ||
+      /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host)) &&
     ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(
       req.socket.remoteAddress ?? "",
     )
   );
+}
+
+// Keep the two response slots until the socket drains or closes, including slow readers.
+let activeFontResponses = 0;
+export const localFontRequest: Connect.NextHandleFunction = async (
+  req,
+  res,
+  next,
+) => {
+  if (req.url !== "/api/system-fonts/resolve") return next();
+  const origin = req.headers.origin;
+  const host = req.headers.host;
+  if (
+    !isLoopbackRequest(req) ||
+    (origin && origin !== "http://" + host && origin !== "https://" + host)
+  ) {
+    res.writeHead(403).end();
+    return;
+  }
+  if (req.method !== "POST") {
+    res.writeHead(405, { Allow: "POST" }).end();
+    return;
+  }
+  if (
+    req.headers["content-type"]?.split(";")[0].trim() !== "application/json"
+  ) {
+    res.writeHead(415).end();
+    return;
+  }
+  if (activeFontResponses >= 2) {
+    req.resume();
+    res
+      .writeHead(429, {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      })
+      .end(
+        JSON.stringify({
+          ok: false,
+          code: "BUSY",
+          error: "系统字体解析繁忙，请稍后重试",
+        }),
+      );
+    return;
+  }
+  activeFontResponses++;
+  const release = () => {
+    res.off("finish", release);
+    res.off("close", release);
+    activeFontResponses--;
+  };
+  res.once("finish", release);
+  res.once("close", release);
+  try {
+    const chunks: Buffer[] = [];
+    let size = 0;
+    for await (const chunk of req.iterator({ destroyOnReturn: false })) {
+      size += chunk.length;
+      if (size > 128 * 1024) {
+        req.resume();
+        res
+          .writeHead(413, {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store",
+          })
+          .end(
+            JSON.stringify({
+              ok: false,
+              code: "BUDGET_EXCEEDED",
+              error: "系统字体请求超过 128 KiB",
+            }),
+          );
+        return;
+      }
+      chunks.push(chunk);
+    }
+    const faces = await resolveSystemFonts(
+      JSON.parse(Buffer.concat(chunks).toString("utf8")),
+    );
+    res
+      .writeHead(200, {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      })
+      .end(JSON.stringify({ faces }));
+  } catch (error) {
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? error.code
+        : undefined;
+    const status =
+      code === "BUSY"
+        ? 429
+        : code === "BUDGET_EXCEEDED"
+          ? 413
+          : error instanceof SyntaxError || error instanceof TypeError
+            ? 400
+            : 500;
+    res
+      .writeHead(status, {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      })
+      .end(
+        JSON.stringify({
+          ok: false,
+          code: code ?? (status === 400 ? "INVALID_REQUEST" : "RESOLVE_FAILED"),
+          error: error instanceof Error ? error.message : "系统字体解析失败",
+        }),
+      );
+  }
+};
+
+function serveLocalFonts(server: ViteDevServer | PreviewServer) {
+  server.middlewares.use(localFontRequest);
 }
 
 function isLoopbackPortListening(port: number): Promise<boolean> {
@@ -169,9 +288,56 @@ function serveLocalAgent(server: ViteDevServer | PreviewServer) {
   server.middlewares.use(middleware);
 }
 
+// wawoff2 2.0.1 exports its Emscripten Module only in its Node branch.
+// Both browser bundlers must give decompress.js that same Module so its
+// onRuntimeInitialized callback fires when the embedded WASM is ready.
+const decoderBinding = /[/\\]wawoff2[/\\]build[/\\]decompress_binding\.js$/;
+function browserBinding(source: string) {
+  return source + "\nmodule.exports = Module;\n";
+}
+function browserWoff2(): Plugin {
+  const empty = "\0wawoff2-browser-builtins";
+  return {
+    name: "wawoff2-browser-binding",
+    enforce: "pre",
+    transform(source, id) {
+      if (decoderBinding.test(id))
+        return { code: browserBinding(source), map: null };
+    },
+    resolveId(id, importer) {
+      // fs and path only occur inside the binding's unreachable Node branch.
+      if (
+        (id === "fs" || id === "path") &&
+        importer &&
+        decoderBinding.test(importer)
+      )
+        return empty;
+    },
+    load(id) {
+      if (id === empty) return "export default {}";
+    },
+  };
+}
+
 export default defineConfig({
-  worker: { format: "es" },
-  optimizeDeps: { exclude: ["harfbuzzjs"] },
+  worker: { format: "es", plugins: () => [browserWoff2()] },
+  optimizeDeps: {
+    exclude: ["harfbuzzjs"],
+    include: ["wawoff2/decompress.js"],
+    esbuildOptions: {
+      plugins: [
+        {
+          name: "wawoff2-browser-binding",
+          setup(build) {
+            build.onLoad({ filter: decoderBinding }, async ({ path }) => ({
+              contents: browserBinding(await readFile(path, "utf8")),
+              loader: "js",
+            }));
+          },
+        },
+      ],
+    },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -199,6 +365,12 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    browserWoff2(),
+    {
+      name: "forma-local-fonts",
+      configureServer: serveLocalFonts,
+      configurePreviewServer: serveLocalFonts,
+    },
     {
       name: "forma-local-libraries",
       configureServer: serveLocalLibraries,

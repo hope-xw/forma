@@ -14,6 +14,23 @@ export type EditablePath = Omit<
   NonNullable<DesignNode["vector"]>["paths"][number],
   "d" | "junctions"
 > & { contours: Contour[] };
+export function hasVisibleVectorStroke(
+  n: DesignNode,
+  p: Pick<
+    EditablePath,
+    "strokeWidth" | "strokeColor" | "strokeOpacity" | "opacity"
+  >,
+) {
+  return (
+    n.style.strokeVisible !== false &&
+    p.strokeWidth > 0 &&
+    (p.strokeColor ?? n.style.color) !== "transparent" &&
+    (p.strokeOpacity ?? 1) > 0 &&
+    (p.opacity ?? 1) > 0 &&
+    (!!p.strokeColor || (n.style.colorOpacity ?? 1) > 0)
+  );
+}
+
 const mix = (a: Point, b: Point, t: number) => ({
   x: a.x + (b.x - a.x) * t,
   y: a.y + (b.y - a.y) * t,
@@ -139,7 +156,7 @@ export function mapContours(
   }));
 }
 /** Cubic extrema give the actual painted bounds, including round stroke caps. */
-export function vectorBounds(paths: EditablePath[]): Rect {
+export function vectorBounds(paths: EditablePath[], minimumSize = 1): Rect {
   let left = Infinity,
     top = Infinity,
     right = -Infinity,
@@ -190,8 +207,8 @@ export function vectorBounds(paths: EditablePath[]): Rect {
   return {
     x: left,
     y: top,
-    width: Math.max(1, right - left),
-    height: Math.max(1, bottom - top),
+    width: Math.max(minimumSize, right - left),
+    height: Math.max(minimumSize, bottom - top),
   };
 }
 export const editablePaths = (
@@ -305,4 +322,290 @@ export function encodeVector(
       };
     }),
   };
+}
+
+export const sameAnchor = (a: AnchorIndex, b: AnchorIndex) =>
+  a.p === b.p && a.c === b.c && a.a === b.a;
+
+export const anchorKey = ({ p, c, a }: AnchorIndex) => `${p}:${c}:${a}`;
+
+export function allAnchors(paths: EditablePath[]): AnchorIndex[] {
+  return paths.flatMap((path, p) =>
+    path.contours.flatMap((contour, c) =>
+      contour.anchors.map((_, a) => ({ p, c, a })),
+    ),
+  );
+}
+
+function anchorAt(paths: EditablePath[], { p, c, a }: AnchorIndex) {
+  return paths[p]?.contours[c]?.anchors[a];
+}
+
+export function anchorsInRect(
+  paths: EditablePath[],
+  rect: Rect,
+): AnchorIndex[] {
+  return allAnchors(paths).filter((index) => {
+    const { x, y } = anchorAt(paths, index)!;
+    return (
+      x >= rect.x &&
+      x <= rect.x + rect.width &&
+      y >= rect.y &&
+      y <= rect.y + rect.height
+    );
+  });
+}
+
+export function moveNetworkAnchors(
+  paths: EditablePath[],
+  selected: readonly AnchorIndex[],
+  delta: Point,
+): void {
+  const moving = new Set<Anchor>(),
+    junctions = new Set<string>();
+  for (const index of selected) {
+    const anchor = anchorAt(paths, index);
+    if (!anchor) continue;
+    moving.add(anchor);
+    if (anchor.junction) junctions.add(anchor.junction);
+  }
+  if (junctions.size) {
+    for (const path of paths)
+      for (const { anchors } of path.contours)
+        for (const a of anchors)
+          if (a.junction && junctions.has(a.junction)) moving.add(a);
+  }
+  for (const a of moving)
+    Object.assign(a, moveAnchor(a, { x: a.x + delta.x, y: a.y + delta.y }));
+}
+
+export function isDrawableContour({ anchors, closed }: Contour): boolean {
+  return (
+    anchors.length >= 2 ||
+    (closed &&
+      anchors.length === 1 &&
+      !!(anchors[0].outgoing || anchors[0].incoming))
+  );
+}
+
+export function removeNetworkAnchors(
+  paths: EditablePath[],
+  selected: readonly AnchorIndex[],
+  keepMinimumPath = true,
+): boolean {
+  const deletions = new Map<Contour, Set<number>>();
+  for (const { p, c, a } of selected) {
+    const contour = paths[p]?.contours[c];
+    if (!contour?.anchors[a]) continue;
+    const indices = deletions.get(contour) ?? new Set<number>();
+    indices.add(a);
+    deletions.set(contour, indices);
+  }
+  if (!deletions.size) return false;
+  const survivors = new Map<Contour, Contour>();
+  for (const [contour, indices] of deletions) {
+    const anchors = contour.anchors.filter((_, i) => !indices.has(i));
+    const closed =
+      contour.closed &&
+      (anchors.length > 2 || anchors.some((a) => a.outgoing || a.incoming));
+    survivors.set(contour, { anchors, closed });
+  }
+  const hasSegment = paths.some((path) =>
+    path.contours.some((c) => isDrawableContour(survivors.get(c) ?? c)),
+  );
+  if (keepMinimumPath && !hasSegment) return false;
+  for (let i = paths.length - 1; i >= 0; i--) {
+    const path = paths[i];
+    path.contours = path.contours.filter((c) => {
+      const remaining = survivors.get(c);
+      if (!remaining) return true;
+      Object.assign(c, remaining);
+      return hasSegment ? isDrawableContour(c) : c.anchors.length > 0;
+    });
+    if (!path.contours.length) paths.splice(i, 1);
+  }
+  return true;
+}
+
+export function toggleAnchorsSmooth(
+  paths: EditablePath[],
+  selected: readonly AnchorIndex[],
+): void {
+  const sharp = selected.every((index) => {
+    const a = anchorAt(paths, index);
+    return !a || a.incoming || a.outgoing;
+  });
+  for (const { p, c, a } of selected) {
+    const contour = paths[p]?.contours[c],
+      anchor = contour?.anchors[a];
+    if (!anchor) continue;
+    if (sharp) {
+      delete anchor.incoming;
+      delete anchor.outgoing;
+    } else if (
+      !anchor.incoming &&
+      !anchor.outgoing &&
+      contour.anchors.length > 1
+    ) {
+      const points = contour.anchors,
+        n = points.length;
+      const prev = a > 0 || contour.closed ? points[(a + n - 1) % n] : anchor;
+      const next = a < n - 1 || contour.closed ? points[(a + 1) % n] : anchor;
+      const divisor = prev === anchor || next === anchor ? 3 : 6;
+      const dx = (next.x - prev.x) / divisor,
+        dy = (next.y - prev.y) / divisor;
+      anchor.incoming = { x: anchor.x - dx, y: anchor.y - dy };
+      anchor.outgoing = { x: anchor.x + dx, y: anchor.y + dy };
+    }
+  }
+}
+
+export interface SegmentHit {
+  p: number;
+  c: number;
+  index: number;
+  t: number;
+  point: Point;
+  distance: number;
+}
+
+export function evalSegmentPoint(a: Anchor, b: Anchor, t: number): Point {
+  if (!a.outgoing && !b.incoming) return mix(a, b, t);
+  const u = 1 - t,
+    c1 = a.outgoing ?? a,
+    c2 = b.incoming ?? b;
+  return {
+    x:
+      u * u * u * a.x +
+      3 * u * u * t * c1.x +
+      3 * u * t * t * c2.x +
+      t * t * t * b.x,
+    y:
+      u * u * u * a.y +
+      3 * u * u * t * c1.y +
+      3 * u * t * t * c2.y +
+      t * t * t * b.y,
+  };
+}
+
+function nearestParameter(a: Anchor, b: Anchor, target: Point) {
+  if (!a.outgoing && !b.incoming) {
+    const dx = b.x - a.x,
+      dy = b.y - a.y,
+      lengthSquared = dx * dx + dy * dy;
+    return lengthSquared
+      ? Math.max(
+          0,
+          Math.min(
+            1,
+            ((target.x - a.x) * dx + (target.y - a.y) * dy) / lengthSquared,
+          ),
+        )
+      : 0;
+  }
+  const squared = (t: number) => {
+    const point = evalSegmentPoint(a, b, t);
+    return (point.x - target.x) ** 2 + (point.y - target.y) ** 2;
+  };
+  const steps = 24;
+  const samples = Array.from({ length: steps + 1 }, (_, i) =>
+    squared(i / steps),
+  );
+  let best = samples[0] <= samples[steps] ? 0 : 1,
+    bestDistance = squared(best);
+  // Refine each sampled minimum, including the two endpoint intervals on looping cubics.
+  for (let i = 0; i <= steps; i++) {
+    if (
+      samples[i] > (samples[i - 1] ?? Infinity) ||
+      samples[i] > (samples[i + 1] ?? Infinity)
+    )
+      continue;
+    let lo = Math.max(0, (i - 1) / steps),
+      hi = Math.min(1, (i + 1) / steps);
+    for (let j = 0; j < 36; j++) {
+      const third = (hi - lo) / 3;
+      if (squared(lo + third) < squared(hi - third)) hi -= third;
+      else lo += third;
+    }
+    const mid = (lo + hi) / 2,
+      t = squared(mid) < samples[i] ? mid : i / steps;
+    const distance = squared(t);
+    if (distance < bestDistance) {
+      best = t;
+      bestDistance = distance;
+    }
+  }
+  return best;
+}
+
+export function nearestSegmentPoint(
+  paths: EditablePath[],
+  target: Point,
+  maxDistance: number,
+): SegmentHit | null {
+  let best: SegmentHit | null = null;
+  for (const [p, path] of paths.entries())
+    for (const [c, contour] of path.contours.entries()) {
+      const points = contour.anchors;
+      if (!isDrawableContour(contour)) continue;
+      const count = points.length - (contour.closed ? 0 : 1);
+      for (let index = 0; index < count; index++) {
+        const a = points[index],
+          b = points[(index + 1) % points.length],
+          c1 = a.outgoing ?? a,
+          c2 = b.incoming ?? b;
+        const limit = best?.distance ?? maxDistance;
+        if (
+          target.x < Math.min(a.x, b.x, c1.x, c2.x) - limit ||
+          target.x > Math.max(a.x, b.x, c1.x, c2.x) + limit ||
+          target.y < Math.min(a.y, b.y, c1.y, c2.y) - limit ||
+          target.y > Math.max(a.y, b.y, c1.y, c2.y) + limit
+        )
+          continue;
+        const t = nearestParameter(a, b, target),
+          point = evalSegmentPoint(a, b, t);
+        const distance = Math.hypot(point.x - target.x, point.y - target.y);
+        if (distance <= maxDistance && (!best || distance < best.distance))
+          best = { p, c, index, t, point, distance };
+      }
+    }
+  return best;
+}
+
+export function bendSegment(
+  paths: EditablePath[],
+  hit: Pick<SegmentHit, "p" | "c" | "index" | "t">,
+  targetPoint: Point,
+): boolean {
+  const contour = paths[hit.p]?.contours[hit.c],
+    points = contour?.anchors;
+  if (
+    !points ||
+    !isDrawableContour(contour) ||
+    !points[hit.index] ||
+    (!contour.closed && hit.index === points.length - 1) ||
+    ![hit.t, targetPoint.x, targetPoint.y].every(Number.isFinite)
+  )
+    return false;
+  const a = points[hit.index],
+    b = points[(hit.index + 1) % points.length];
+  // Real hits are on [0, 1]. Preserve endpoint behavior for out-of-range callers.
+  const basePoint =
+    hit.t < 0 ? a : hit.t > 1 ? b : evalSegmentPoint(a, b, hit.t);
+  const t = Math.max(0.15, Math.min(0.85, hit.t)),
+    u = 1 - t;
+  if (!a.outgoing && !b.incoming) {
+    a.outgoing = mix(a, b, 1 / 3);
+    b.incoming = mix(a, b, 2 / 3);
+  }
+  const dx = targetPoint.x - basePoint.x,
+    dy = targetPoint.y - basePoint.y;
+  const w1 = 3 * u * u * t,
+    w2 = 3 * u * t * t,
+    denom = w1 * w1 + w2 * w2;
+  const c1 = a.outgoing ?? a,
+    c2 = b.incoming ?? b;
+  a.outgoing = { x: c1.x + (dx * w1) / denom, y: c1.y + (dy * w1) / denom };
+  b.incoming = { x: c2.x + (dx * w2) / denom, y: c2.y + (dy * w2) / denom };
+  return true;
 }

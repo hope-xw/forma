@@ -256,48 +256,6 @@ export const CanvasNode = memo(
         className={`design-node ${selection.includes(node.id) ? "selected" : ""} ${node.type === "button" ? "design-button" : ""} ${isAiPreview ? "is-ai-preview" : ""}`}
         style={appliedStyle}
       >
-        {isSection && (
-          <div
-            aria-hidden="true"
-            className="section-title-pill"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: -28,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "3px 8px",
-              borderRadius: 6,
-              background: selection.includes(node.id)
-                ? "#0d99ff"
-                : "rgba(44, 47, 54, 0.9)",
-              color: "#ffffff",
-              fontSize: 11,
-              fontWeight: 600,
-              lineHeight: 1.2,
-              whiteSpace: "nowrap",
-              pointerEvents: "none",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
-            }}
-          >
-            <span>{node.name}</span>
-            {(node.devStatus === "ready" || node.devStatus === "completed") && (
-              <span
-                style={{
-                  padding: "1px 5px",
-                  borderRadius: 4,
-                  fontSize: 9,
-                  fontWeight: 700,
-                  background: "#14ae5c",
-                  color: "#ffffff",
-                }}
-              >
-                {node.devStatus === "completed" ? "Completed" : "Ready for dev"}
-              </span>
-            )}
-          </div>
-        )}
         {isSlice && (
           <div
             aria-hidden="true"

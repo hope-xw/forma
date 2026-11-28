@@ -1,0 +1,112 @@
+{
+  "capturedAt": "2026-11-28T06:23:37.699Z",
+  "url": "http://127.0.0.1:4173/",
+  "deviceScaleFactor": 2,
+  "screenshots": {
+    "01-system-font-outline-pingfang-light.png": {
+      "viewport": "1440x900",
+      "theme": "light",
+      "nodeId": "4c89cb7f-17a9-4f48-a32a-53c67419985e",
+      "nodeType": "vector",
+      "pathLength": 4307,
+      "subpaths": 21,
+      "hasErrorToast": false
+    },
+    "02-color-picker-clamped-low-swatch-light.png": {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "theme": "light",
+      "popover": {
+        "left": 894,
+        "top": 440,
+        "right": 1158,
+        "bottom": 888,
+        "width": 264,
+        "height": 448
+      },
+      "bottomMargin": 12
+    },
+    "03-ui3-toast-top-center-non-overlapping-light.png": {
+      "viewport": "1440x900",
+      "theme": "light",
+      "stage": {
+        "x": 296,
+        "y": 108,
+        "width": 852,
+        "height": 792,
+        "right": 1148,
+        "bottom": 900
+      },
+      "toast": {
+        "x": 601.1,
+        "y": 120,
+        "width": 241.9,
+        "height": 38,
+        "right": 842.9,
+        "bottom": 158
+      },
+      "popover": {
+        "x": 894,
+        "y": 440,
+        "width": 264,
+        "height": 448,
+        "right": 1158,
+        "bottom": 888
+      },
+      "toolbar": {
+        "x": 516.5,
+        "y": 846,
+        "width": 411,
+        "height": 40,
+        "right": 927.5,
+        "bottom": 886
+      },
+      "rightPanel": {
+        "x": 1148,
+        "y": 80,
+        "width": 292,
+        "height": 820,
+        "right": 1440,
+        "bottom": 900
+      },
+      "overlapsPopover": false,
+      "overlapsToolbar": false,
+      "overlapsRightPanel": false
+    },
+    "04-short-viewport-1024x480-popovers-dark.png": {
+      "viewport": {
+        "width": 1024,
+        "height": 480
+      },
+      "theme": "dark",
+      "toast": {
+        "x": 252.1,
+        "y": 120,
+        "width": 241.9,
+        "height": 38,
+        "right": 494,
+        "bottom": 158
+      },
+      "popover": {
+        "x": 498,
+        "y": 20,
+        "width": 264,
+        "height": 448,
+        "right": 762,
+        "bottom": 468
+      },
+      "rightPanel": {
+        "x": 752,
+        "y": 80,
+        "width": 272,
+        "height": 400,
+        "right": 1024,
+        "bottom": 480
+      },
+      "overlapsPopover": false,
+      "popoverWithinViewport": true
+    }
+  }
+}

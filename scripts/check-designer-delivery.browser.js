@@ -74,7 +74,7 @@ async (page) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await button("选择图层 Feedback").click();
     const divider = page.getByRole("separator", { name: "属性栏宽度" }),
-      panel = page.locator("#right-panel");
+      panel = page.locator(".app:visible .right-panel");
     const box = await divider.boundingBox(),
       start = (await panel.boundingBox()).width;
     await page.mouse.move(box.x + 3, box.y + 120);

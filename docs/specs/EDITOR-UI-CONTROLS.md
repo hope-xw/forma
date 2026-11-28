@@ -1,11 +1,19 @@
 # 编辑器功能入口、图标按钮与悬停提示规格
 
-- **最近更新**：2026-11-23
+- **最近更新**：2026-11-27
 - **状态**：已实施并验收
-- **核心实现**：[TooltipHost.tsx](../../src/editor/TooltipHost.tsx)、[ui3-theme.css](../../src/editor/ui3-theme.css)、[Inspector.tsx](../../src/editor/Inspector.tsx)及各编辑器区域组件
+- **核心实现**：[TooltipHost.tsx](../../src/editor/TooltipHost.tsx)、[ui3-theme.css](../../src/editor/ui3-theme.css)、[canvas-feel.css](../../src/editor/canvas-feel.css)、[Inspector.tsx](../../src/editor/Inspector.tsx)、[Canvas.tsx](../../src/editor/Canvas.tsx)及各编辑器区域组件
 - **关联验收**：[编辑器验收记录](../EDITOR-ACCEPTANCE.md)
 
 ---
+
+## 0.16.0 画布一线手感直操与百屏小地图入口
+
+- **宽域缩放与视图菜单**：缩放范围扩展为 `2%–6400%`（`MIN_ZOOM = 0.02`，`MAX_ZOOM = 64`）；[ViewOptionsMenu.tsx](../../src/editor/ViewOptionsMenu.tsx) 顶部首项新增「画布小地图（`⇧M`）」复选项，支持方向键/Home/End/Esc 导航。
+- **画布顶栏小地图开关与右下角浮窗**：[Canvas.tsx](../../src/editor/Canvas.tsx) 画布顶栏末尾新增「画布小地图」图标按钮（`aria-label="画布小地图"`、`aria-pressed`、`data-tip="画布小地图"`、`data-tip-kbd="⇧M"`、`data-tip-desc="在右下角显示百屏缩略导航图，支持点击与拖拽快速定位"`、`data-tip-side="bottom"`）。常规 1–5 屏与短视口（画布可视尺寸 `< 1080×540`）默认折叠；单页根画板 `>= 6` 且画布可视尺寸 `>= 1080×540` 时自动展开，用户手动切换后尊重偏好。展开后的 [CanvasMinimap.tsx](../../src/editor/CanvasMinimap.tsx) 位于画布右下角（短窗口自动上移避让底部工具栏），支持点击瞬移、拖蓝色视口框零跳变平移、双击或按 `0`/`Enter` 适应全部、方向键（`Shift` 加速）键盘平移及 `Esc` 失焦。
+- **画布圆角与自动布局粉色直操手柄**：
+  - [CornerRadiusHandles.tsx](../../src/editor/CornerRadiusHandles.tsx)：单选可编辑 `rectangle`/`frame`/`button`（未锁定、非组件实例、非外部提案预览、屏幕尺寸 `>= 56×56 px`）时在四角内侧展示圆角圆点，可访问名称使用 `画布左上圆角手柄` / `画布右上圆角手柄` / `画布右下圆角手柄` / `画布左下圆角手柄`（避免与右栏属性输入框 `左上圆角` 重名冲突），直接拖拽同步调整四角，`Option/Alt` 单角独立调整，`Shift` 对齐 4px 步进，方向键微调，`Esc` 取消，松手单步原子提交并显示实时圆角胶囊；
+  - [AutoLayoutHandles.tsx](../../src/editor/AutoLayoutHandles.tsx)：单选可编辑 `row`/`column` 自动布局容器（未锁定、非组件实例、非外部提案预览）时在四边内边距与相邻子项间隙显示粉色斜纹带与手柄（`#FF4D8D`），可访问名称为 `画布上内边距手柄` / `画布右内边距手柄` / `画布下内边距手柄` / `画布左内边距手柄` 与 `画布子项间距手柄 N`，支持向内拖调单边内边距、`Option/Alt` 对称调节、`Option+Shift` 四边同步、`Shift` 4px 步进、方向键微调与 `Esc` 取消；`justifyContent === "space-between"` 自动隐藏间距手柄；所有手柄样式位于 `@layer panels`（[canvas-feel.css](../../src/editor/canvas-feel.css)，0 `!important`，双主题可读对比度 ≥ 4.5:1）。
 
 ## 0.8.3 多层描边
 
@@ -231,6 +239,7 @@
 | 缩放百分比读数 | `bottom` | 重置缩放至 100% | `⌘0` | 点击恢复 1:1 实际像素视图 |
 | 放大画布 | `bottom` | 放大画布 | `+` | — |
 | 适应全部内容 | `bottom` | 适应全部内容 | `⇧1` | 居中展示当前页面全部画板（适应选区：⇧2） |
+| 画布小地图 | `bottom` | 画布小地图 | `⇧M` | 在右下角显示百屏缩略导航图，支持点击与拖拽快速定位 |
 
 ### 4. 底部悬浮创作工具栏 — [Canvas.tsx](../../src/editor/Canvas.tsx)、[ShapeTools.tsx](../../src/editor/ShapeTools.tsx)
 
@@ -328,3 +337,16 @@
 ## 0.6.0 工具入口
 
 03.04 钢笔编辑工具栏的「从锚点连接分支」在选中锚点后可用，激活状态由按钮的 `aria-pressed` 表示。04.17 本地主件的「组件变体」内可选择「在画布排列组件集」。已验证的落点、间隔、撤销与选区结果见[专业编辑规格](PROFESSIONAL-EDITING.md)。
+
+## 0.17.0 画板标题、对齐图标与高级矢量轮廓化入口
+
+- **画板/分区/组件标题（[ArtboardLabel.tsx](../../src/editor/ArtboardLabel.tsx)）**：页面根画板、分区（`.section-title-pill`）、组件集、主组件、组件实例及分区内直接子画板均支持点击选中、拖拽整体移动、`Shift` 轴锁与多选联动、`Option/Alt` 拖出复制副本、双击画布原位 IME 安全重命名（未完成组合态切换页签不写入半截草稿）、悬停高亮轮廓及右键自动选中；无障碍名称按节点类型精确区分 `画板` / `分区` / `组件集` / `主组件` / `组件实例`，在空格平移、抓手、绘图、框选与 DevMode 下自动透传让位。
+- **对齐与分布工具条（[Inspector.tsx](../../src/editor/Inspector.tsx)）**：全部 8 枚控件按语义与 Lucide 基准线方向一一对应并标注 `data-align-id`：`left`（`AlignStartVertical` 左对齐）、`center`（`AlignCenterVertical` 水平居中）、`right`（`AlignEndVertical` 右对齐）、`top`（`AlignStartHorizontal` 顶对齐）、`middle`（`AlignCenterHorizontal` 垂直居中）、`bottom`（`AlignEndHorizontal` 底对齐）、`horizontal`（`AlignHorizontalSpaceAround` 水平等距分布）、`vertical`（`AlignVerticalSpaceAround` 垂直等距分布）；与右键菜单、命令面板和领域 `alignOperations` 共享 `isEditActionEnabled`（支持自动布局内 `absolutePosition` 绝对定位子图层，按真实禁用原因展示提示）。
+- **高级矢量编辑与轮廓化（[VectorEditor.tsx](../../src/editor/VectorEditor.tsx)、[VectorInspector.tsx](../../src/editor/VectorInspector.tsx)）**：矢量编辑浮栏支持多锚点框选计数徽标与「弯曲工具（Bend）」切换（默认态按住 `Option/Alt` 临时弯曲曲线段、单击锚点切换平滑/尖角）；描边轮廓化与文字转轮廓统一绑定快捷键 `⇧⌘O`，同步接入右键菜单、命令面板（`⌘K`）与右侧属性栏按钮并共用 `isEditActionEnabled`。
+
+## 0.18.0 系统字体转轮廓、视口自适应弹层与标准 UI3 轻提示规范
+
+- **系统与全格式字体转轮廓（[FontAssets.tsx](../../src/editor/FontAssets.tsx)、[text-outline.ts](../../src/infrastructure/text-outline.ts)）**：文字节点使用系统字体栈（如 `system-ui, sans-serif`）执行 `⇧⌘O` 或右栏「文字转轮廓」时，按「文档嵌入字体 → 桌面端 Electron IPC / 本机回环系统字体 → 浏览器 `queryLocalFonts()`」顺序自动按字形解析真实轮廓（含中英混排多字体自动回退），不再要求先手动导入 TTF/OTF；字体导入控件放宽至 `.ttf,.otf,.ttc,.otc,.woff,.woff2` 六种后缀并支持 TTC/OTC 多字面选择与单面规范提取，未解析到对应本机字形时才给出清晰提示。
+- **视口自适应弹层引擎（[useAnchoredPopover.ts](../../src/editor/useAnchoredPopover.ts)）**：右侧属性面板全部 5 类弹层（颜色选择器 `ColorField`、变量绑定 `VariablePicker`、样式绑定 `StylePicker`、组件插槽替换 `SlotSwapPicker`、高级字体设置 `type-details-popover`）统一接入真实 DOM 尺寸测量 + `ResizeObserver` + 窗口 `resize` / 面板滚动重算，严格保持至少 `12px` 视口边距、底部空间不足自动上移/翻转、按落点 `top` 动态设置 `maxHeight` 内部滚动、有界拖拽零死区，以及切换 Tab/文档会话失活收口与计算可见性安全的键盘焦点恢复。
+- **标准 Forma UI3 顶部轻提示（[ToastHost.tsx](../../src/editor/ToastHost.tsx)）**：废弃旧版右下角全框红边 `.toast`，统一为锚定于当前活跃画布容器顶部居中（`top: 12px`）的 UI3 胶囊浮层，动态避让已展开弹层、底部浮动工具栏、左右面板与小地图；使用 `--bg-elevated` / `--border-subtle` / `--shadow-popover` 与语义图标/柔和色条区分 `info` / `success` / `warning` / `error`，支持最多 4 条队列与 `info`/`success` 4.5s 自动收起（悬停或键盘聚焦暂停计时），11 处懒加载占位独立使用 `.panel-loading-pill` 不再混用轻提示样式。
+- **右栏全量控件交互与无障碍规范**：所有右栏写操作在存在外部 AI 提案预览时统一保护不误清提案；多选不同表单控件编辑可访问名称时逐节点保留原有 `control` 类型；输入草稿统一支持 IME 组合态保护、`Escape` 取消不误提交与越界回滚；`TooltipHost` 自动关联 `aria-describedby`；多 Tab 编辑器为左右栏分配每页签唯一 DOM ID，确保 `PanelDivider` 拖宽与键盘调宽严格作用于当前活跃标签页。

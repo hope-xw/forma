@@ -120,7 +120,15 @@ export async function exportBatchZip(
   nodeIds?: string[],
   options: BatchExportOptions = {},
 ): Promise<Uint8Array> {
-  const targets = collectExportTargets(doc, nodeIds);
+  return exportTargetZip(doc, collectExportTargets(doc, nodeIds), options);
+}
+
+/** Write the records displayed by the picker, including their resolved paths. */
+export async function exportTargetZip(
+  doc: DesignDocument,
+  targets: readonly ExportTarget[],
+  options: BatchExportOptions = {},
+): Promise<Uint8Array> {
   const entries: Record<string, Uint8Array> = {};
 
   for (const target of targets) {

@@ -1,4 +1,10 @@
-import { useMemo, useState } from "react";
+import {
+  type KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Check,
   CheckCircle2,
@@ -21,13 +27,15 @@ import {
   type DevTokenBinding,
   type DevUnit,
 } from "../compiler/dev-inspect";
+import { instanceAncestor, isLocked } from "../domain/tree";
 import "./figma-panels.css";
 
 export interface DevModePanelProps {
   document: DesignDocument;
   selectedIds: string[];
+  previewBlocked?: boolean;
   onSelectNode(id: string): void;
-  onUpdateNode(id: string, patch: Partial<DesignNode>): void;
+  onUpdateNode(id: string, patch: Partial<DesignNode>): boolean | void;
   onOpenFullCode(): void;
   onExportReact(): void;
 }
@@ -111,6 +119,7 @@ function isColorString(v: string | number | boolean): v is string {
 export function DevModePanel({
   document,
   selectedIds,
+  previewBlocked = false,
   onSelectNode,
   onUpdateNode,
   onOpenFullCode,
@@ -120,12 +129,6 @@ export function DevModePanel({
   const [snippetTab, setSnippetTab] = useState<SnippetTab>("css");
   const [platform, setPlatform] = useState<PlatformTab>("web");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-
-  const [addingNote, setAddingNote] = useState(false);
-  const [noteCategory, setNoteCategory] =
-    useState<Annotation["category"]>("spec");
-  const [noteText, setNoteText] = useState("");
-  const [noteProps, setNoteProps] = useState<string[]>([]);
 
   const primaryNode = useMemo(() => {
     const id = selectedIds[0];
@@ -179,38 +182,30 @@ export function DevModePanel({
       Boolean(primaryNode.instance) ||
       Boolean(primaryNode.componentSet));
 
-  const submitAnnotation = () => {
-    if (!primaryNode) return;
-    const text = noteText.trim();
-    if (!text) return;
-    const next: Annotation = {
-      id: crypto.randomUUID(),
-      category: noteCategory,
-      text,
-      ...(noteProps.length ? { properties: noteProps } : {}),
-    };
-    const existing = primaryNode.annotations ?? [];
-    onUpdateNode(primaryNode.id, {
-      annotations: [...existing, next],
-    });
-    setNoteText("");
-    setNoteProps([]);
-    setAddingNote(false);
+  const disabled =
+    !primaryNode ||
+    previewBlocked ||
+    isLocked(document, primaryNode.id) ||
+    Boolean(instanceAncestor(document, primaryNode.id));
+  const current = useRef({
+    documentId: document.id,
+    nodeId: primaryNode?.id,
+    disabled,
+  });
+  current.current = {
+    documentId: document.id,
+    nodeId: primaryNode?.id,
+    disabled,
   };
-
-  const removeAnnotation = (annotationId: string) => {
-    if (!primaryNode) return;
-    const next = (primaryNode.annotations ?? []).filter(
-      (a) => a.id !== annotationId,
-    );
-    onUpdateNode(primaryNode.id, { annotations: next });
-  };
-
-  const toggleNoteProp = (tag: string) => {
-    setNoteProps((prev) =>
-      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
-    );
-  };
+  function updateNode(nodeId: string, patch: Partial<DesignNode>) {
+    if (
+      current.current.documentId !== document.id ||
+      current.current.nodeId !== nodeId ||
+      current.current.disabled
+    )
+      return false;
+    return onUpdateNode(nodeId, patch);
+  }
 
   return (
     <div className="fp-dev-panel" aria-label="开发模式检视器">
@@ -403,9 +398,10 @@ export function DevModePanel({
                       key={opt.value}
                       type="button"
                       className={`fp-dev-status-btn is-${opt.value} ${active ? "is-active" : ""}`}
+                      disabled={disabled}
                       aria-pressed={active}
                       onClick={() =>
-                        onUpdateNode(primaryNode.id, { devStatus: opt.value })
+                        updateNode(primaryNode.id, { devStatus: opt.value })
                       }
                     >
                       {opt.value === "ready" && (
@@ -516,6 +512,7 @@ export function DevModePanel({
                 <div
                   className="fp-platform-pills"
                   role="tablist"
+                  onKeyDown={navigateTabs}
                   aria-label="代码语法平台"
                 >
                   {(
@@ -530,6 +527,7 @@ export function DevModePanel({
                       key={key}
                       type="button"
                       role="tab"
+                      tabIndex={platform === key ? 0 : -1}
                       aria-selected={platform === key}
                       className={platform === key ? "is-active" : ""}
                       onClick={() => setPlatform(key)}
@@ -606,6 +604,7 @@ export function DevModePanel({
               <div
                 className="fp-segmented"
                 role="tablist"
+                onKeyDown={navigateTabs}
                 aria-label="代码格式"
               >
                 {(
@@ -619,6 +618,7 @@ export function DevModePanel({
                     key={tab}
                     type="button"
                     role="tab"
+                    tabIndex={snippetTab === tab ? 0 : -1}
                     aria-selected={snippetTab === tab}
                     className={snippetTab === tab ? "is-active" : ""}
                     onClick={() => setSnippetTab(tab)}
@@ -668,151 +668,13 @@ export function DevModePanel({
           </section>
 
           {/* Persistent Dev Annotations */}
-          <section className="fp-section" aria-label="开发标注">
-            <div className="section-title">
-              <span className="fp-section-heading">
-                开发标注
-                {inspection.annotations.length > 0 && (
-                  <span className="fp-count-pill">
-                    {inspection.annotations.length}
-                  </span>
-                )}
-              </span>
-              <button
-                type="button"
-                className={`icon-btn icon-btn-sm ${addingNote ? "active" : ""}`}
-                aria-label="添加开发标注"
-                aria-expanded={addingNote}
-                title="添加开发标注"
-                data-tip="添加开发标注"
-                data-tip-desc="为开发同学记录规格、交互逻辑或无障碍注意事项"
-                data-tip-side="left"
-                onClick={() => setAddingNote((v) => !v)}
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-
-            {addingNote && (
-              <div className="fp-annotation-form">
-                <div
-                  className="fp-filter-chips"
-                  role="group"
-                  aria-label="标注分类"
-                >
-                  {ANNOTATION_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.key}
-                      type="button"
-                      className={`fp-chip is-cat-${cat.key} ${noteCategory === cat.key ? "is-active" : ""}`}
-                      aria-pressed={noteCategory === cat.key}
-                      onClick={() => setNoteCategory(cat.key)}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-
-                <textarea
-                  aria-label="标注内容"
-                  placeholder="填写规格说明、接口字段、交互边界或无障碍要求…"
-                  rows={3}
-                  value={noteText}
-                  onChange={(ev) => setNoteText(ev.target.value)}
-                />
-
-                <div
-                  className="fp-annotation-props"
-                  role="group"
-                  aria-label="关联属性标签"
-                >
-                  {ANNOTATION_PROP_TAGS.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`fp-prop-tag ${noteProps.includes(tag) ? "is-active" : ""}`}
-                      aria-pressed={noteProps.includes(tag)}
-                      onClick={() => toggleNoteProp(tag)}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="fp-annotation-form-actions">
-                  <button
-                    type="button"
-                    className="fp-dev-action-btn is-green"
-                    disabled={!noteText.trim()}
-                    onClick={submitAnnotation}
-                  >
-                    <MessageSquarePlus size={12} aria-hidden="true" />
-                    保存标注
-                  </button>
-                  <button
-                    type="button"
-                    className="fp-dev-action-btn"
-                    onClick={() => {
-                      setAddingNote(false);
-                      setNoteText("");
-                      setNoteProps([]);
-                    }}
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {inspection.annotations.length === 0 && !addingNote ? (
-              <div className="fp-empty-inline">
-                暂无开发标注，点击右上角 <strong>+</strong> 添加规格或无障碍说明
-              </div>
-            ) : (
-              <div className="fp-annotations-list">
-                {inspection.annotations.map((ann) => {
-                  const catLabel =
-                    ANNOTATION_CATEGORIES.find((c) => c.key === ann.category)
-                      ?.label ?? ann.category;
-                  return (
-                    <div
-                      key={ann.id}
-                      className={`fp-annotation-card is-cat-${ann.category}`}
-                    >
-                      <div className="fp-annotation-head">
-                        <span
-                          className={`fp-annotation-badge is-cat-${ann.category}`}
-                        >
-                          {catLabel}
-                        </span>
-                        <button
-                          type="button"
-                          className="icon-btn icon-btn-sm"
-                          aria-label="删除标注"
-                          title="删除标注"
-                          data-tip="删除标注"
-                          data-tip-side="left"
-                          onClick={() => removeAnnotation(ann.id)}
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                      <p className="fp-annotation-text">{ann.text}</p>
-                      {ann.properties && ann.properties.length > 0 && (
-                        <div className="fp-annotation-chips">
-                          {ann.properties.map((p) => (
-                            <span key={p} className="fp-prop-chip">
-                              {p}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          <AnnotationEditor
+            key={JSON.stringify([document.id, primaryNode.id])}
+            nodeId={primaryNode.id}
+            annotations={inspection.annotations}
+            disabled={disabled}
+            updateNode={updateNode}
+          />
 
           <section className="fp-section fp-dev-quick-footer">
             <button
@@ -835,5 +697,234 @@ export function DevModePanel({
         </div>
       )}
     </div>
+  );
+}
+
+function navigateTabs(event: KeyboardEvent<HTMLDivElement>) {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  const tabs = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>(
+      'button[role="tab"]',
+    ),
+  );
+  const index = tabs.findIndex((tab) => tab === event.target);
+  if (index < 0) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const next =
+    event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? tabs.length - 1
+        : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) %
+          tabs.length;
+  tabs[next].focus();
+  tabs[next].click();
+}
+
+function AnnotationEditor({
+  nodeId,
+  annotations,
+  disabled,
+  updateNode,
+}: {
+  nodeId: string;
+  annotations: Annotation[];
+  disabled: boolean;
+  updateNode: DevModePanelProps["onUpdateNode"];
+}) {
+  const [addingNote, setAddingNote] = useState(false);
+  const [noteCategory, setNoteCategory] =
+    useState<Annotation["category"]>("spec");
+  const [noteText, setNoteText] = useState("");
+  const [noteProps, setNoteProps] = useState<string[]>([]);
+
+  const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState("");
+  // The host can catch transaction errors and return void. Acknowledge the write
+  // only once this layer contains the submitted annotation.
+  useEffect(() => {
+    if (submittedId && annotations.some((note) => note.id === submittedId)) {
+      setSubmittedId(null);
+      setNoteText("");
+      setNoteProps([]);
+      setSaveError("");
+      setAddingNote(false);
+    }
+  }, [annotations, submittedId]);
+  const submitAnnotation = () => {
+    if (disabled) return;
+    const text = noteText.trim();
+    if (!text) return;
+    const next: Annotation = {
+      id: crypto.randomUUID(),
+      category: noteCategory,
+      text,
+      ...(noteProps.length ? { properties: noteProps } : {}),
+    };
+    try {
+      if (updateNode(nodeId, { annotations: [...annotations, next] }) === false)
+        return;
+      setSubmittedId(next.id);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  const removeAnnotation = (annotationId: string) => {
+    if (disabled) return;
+    const next = annotations.filter((a) => a.id !== annotationId);
+    updateNode(nodeId, { annotations: next });
+  };
+
+  const toggleNoteProp = (tag: string) => {
+    setNoteProps((prev) =>
+      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
+    );
+  };
+
+  return (
+    <section className="fp-section" aria-label="开发标注">
+      <div className="section-title">
+        <span className="fp-section-heading">
+          开发标注
+          {annotations.length > 0 && (
+            <span className="fp-count-pill">{annotations.length}</span>
+          )}
+        </span>
+        <button
+          type="button"
+          className={`icon-btn icon-btn-sm ${addingNote ? "active" : ""}`}
+          disabled={disabled}
+          aria-label="添加开发标注"
+          aria-expanded={addingNote}
+          title="添加开发标注"
+          data-tip="添加开发标注"
+          data-tip-desc="为开发同学记录规格、交互逻辑或无障碍注意事项"
+          data-tip-side="left"
+          onClick={() => setAddingNote((v) => !v)}
+        >
+          <Plus size={14} />
+        </button>
+      </div>
+
+      {saveError && <div role="alert">{saveError}</div>}
+      {addingNote && (
+        <div className="fp-annotation-form">
+          <div className="fp-filter-chips" role="group" aria-label="标注分类">
+            {ANNOTATION_CATEGORIES.map((cat) => (
+              <button
+                key={cat.key}
+                type="button"
+                className={`fp-chip is-cat-${cat.key} ${noteCategory === cat.key ? "is-active" : ""}`}
+                aria-pressed={noteCategory === cat.key}
+                onClick={() => setNoteCategory(cat.key)}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          <textarea
+            aria-label="标注内容"
+            placeholder="填写规格说明、接口字段、交互边界或无障碍要求…"
+            rows={3}
+            value={noteText}
+            onChange={(ev) => setNoteText(ev.target.value)}
+          />
+
+          <div
+            className="fp-annotation-props"
+            role="group"
+            aria-label="关联属性标签"
+          >
+            {ANNOTATION_PROP_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className={`fp-prop-tag ${noteProps.includes(tag) ? "is-active" : ""}`}
+                aria-pressed={noteProps.includes(tag)}
+                onClick={() => toggleNoteProp(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          <div className="fp-annotation-form-actions">
+            <button
+              type="button"
+              className="fp-dev-action-btn is-green"
+              disabled={disabled || !noteText.trim()}
+              onClick={submitAnnotation}
+            >
+              <MessageSquarePlus size={12} aria-hidden="true" />
+              保存标注
+            </button>
+            <button
+              type="button"
+              className="fp-dev-action-btn"
+              onClick={() => {
+                setAddingNote(false);
+                setNoteText("");
+                setNoteProps([]);
+              }}
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
+
+      {annotations.length === 0 && !addingNote ? (
+        <div className="fp-empty-inline">
+          暂无开发标注，点击右上角 <strong>+</strong> 添加规格或无障碍说明
+        </div>
+      ) : (
+        <div className="fp-annotations-list">
+          {annotations.map((ann) => {
+            const catLabel =
+              ANNOTATION_CATEGORIES.find((c) => c.key === ann.category)
+                ?.label ?? ann.category;
+            return (
+              <div
+                key={ann.id}
+                className={`fp-annotation-card is-cat-${ann.category}`}
+              >
+                <div className="fp-annotation-head">
+                  <span
+                    className={`fp-annotation-badge is-cat-${ann.category}`}
+                  >
+                    {catLabel}
+                  </span>
+                  <button
+                    type="button"
+                    className="icon-btn icon-btn-sm"
+                    disabled={disabled}
+                    aria-label="删除标注"
+                    title="删除标注"
+                    data-tip="删除标注"
+                    data-tip-side="left"
+                    onClick={() => removeAnnotation(ann.id)}
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+                <p className="fp-annotation-text">{ann.text}</p>
+                {ann.properties && ann.properties.length > 0 && (
+                  <div className="fp-annotation-chips">
+                    {ann.properties.map((p) => (
+                      <span key={p} className="fp-prop-chip">
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }

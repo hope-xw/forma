@@ -1,3 +1,14 @@
+import type { DesignDocument } from "../domain/document";
+import { canCombine, canMask } from "../domain/boolean-shapes";
+import { findLayer } from "../domain/scene-index";
+import {
+  instanceAncestor,
+  instanceOwner,
+  isLocked,
+  selectionRoots,
+} from "../domain/tree";
+import { canOutlineStroke, canOutlineText } from "../domain/vector-outline";
+
 export type ActionId =
   | "createComponent"
   | "createFrame"
@@ -11,6 +22,8 @@ export type ActionId =
   | "pencilTool"
   | "commentTool"
   | "tidy"
+  | "outlineStroke"
+  | "outlineText"
   | "union"
   | "subtract"
   | "intersect"
@@ -56,7 +69,7 @@ export interface EditAction {
   id: ActionId;
   label: string;
   keywords: string;
-  category: "编辑" | "组织与组件" | "排列与对齐" | "视图";
+  category: "编辑" | "组织与组件" | "排列与对齐" | "矢量与路径" | "视图";
   shortcut?: string;
   selection?: boolean;
 }
@@ -215,6 +228,22 @@ export const editActions: EditAction[] = [
     keywords: "group selection",
     category: "组织与组件",
     shortcut: "⌘ G",
+    selection: true,
+  },
+  {
+    id: "outlineStroke",
+    label: "轮廓化描边",
+    keywords: "outline stroke expand convert vector",
+    category: "矢量与路径",
+    shortcut: "⇧⌘O",
+    selection: true,
+  },
+  {
+    id: "outlineText",
+    label: "文字转轮廓",
+    keywords: "outline text convert paths vector",
+    category: "矢量与路径",
+    shortcut: "⇧⌘O",
     selection: true,
   },
   {
@@ -449,3 +478,187 @@ export const editActions: EditAction[] = [
     selection: true,
   },
 ];
+
+export interface ActionEligibilityContext {
+  doc: DesignDocument;
+  selection: readonly string[];
+  canUndo: boolean;
+  canRedo: boolean;
+  canPasteStyle: boolean;
+  hasSmartGrid: boolean;
+  componentUnavailable: boolean;
+  hasPreview?: boolean;
+}
+
+interface AlignEligibility {
+  canAlign: boolean;
+  canDistribute: boolean;
+  reason:
+    | "ok"
+    | "preview"
+    | "locked"
+    | "instance"
+    | "inFlow"
+    | "needMore"
+    | "needThree";
+}
+
+export function getAlignEligibility(
+  doc: DesignDocument,
+  selection: readonly string[],
+  hasPreview = false,
+): AlignEligibility {
+  const blocked = (reason: AlignEligibility["reason"]) => ({
+    canAlign: false,
+    canDistribute: false,
+    reason,
+  });
+  if (hasPreview) return blocked("preview");
+  const roots = selectionRoots(doc, selection);
+  if (roots.some((n) => isLocked(doc, n.id))) return blocked("locked");
+  if (roots.some((n) => instanceAncestor(doc, n.id)))
+    return blocked("instance");
+  if (
+    roots.some((n) => {
+      const parent = findLayer(doc, n.parentId);
+      return (
+        parent?.type === "frame" &&
+        parent.style.layout !== "free" &&
+        !n.style.absolutePosition
+      );
+    })
+  )
+    return blocked("inFlow");
+  if (roots.length < 2 && !roots[0]?.parentId) return blocked("needMore");
+  return {
+    canAlign: true,
+    canDistribute: roots.length >= 3,
+    reason: roots.length >= 3 ? "ok" : "needThree",
+  };
+}
+
+const needsSelection = new Set(
+  editActions.filter((action) => action.selection).map((action) => action.id),
+);
+const previewSafe = new Set<ActionId>([
+  "copy",
+  "copyStyle",
+  "selectAll",
+  "selectMatching",
+  "fit",
+  "fitSelection",
+  "zoom100",
+  "rulers",
+  "scaleTool",
+  "pencilTool",
+  "commentTool",
+]);
+
+export function isEditActionEnabled(
+  id: ActionId,
+  ctx: ActionEligibilityContext,
+): boolean {
+  const { doc, selection } = ctx;
+  if (ctx.hasPreview && !previewSafe.has(id)) return false;
+  if (needsSelection.has(id) && !selection.length) return false;
+  switch (id) {
+    case "alignLeft":
+    case "alignCenter":
+    case "alignRight":
+    case "alignTop":
+    case "alignMiddle":
+    case "alignBottom":
+      return getAlignEligibility(doc, selection).canAlign;
+    case "distributeX":
+    case "distributeY":
+      return getAlignEligibility(doc, selection).canDistribute;
+    case "undo":
+      return ctx.canUndo;
+    case "redo":
+      return ctx.canRedo;
+    case "outlineText":
+      return selection.length === 1 && canOutlineText(doc, selection[0]);
+    case "outlineStroke":
+      return selection.length === 1 && canOutlineStroke(doc, selection[0]);
+    case "tidy":
+      return ctx.hasSmartGrid;
+    case "mask":
+      return canMask(doc, [...selection]);
+    case "union":
+    case "subtract":
+    case "intersect":
+    case "exclude":
+      return canCombine(doc, [...selection]);
+    case "createComponent":
+      return selection.length === 1 && !ctx.componentUnavailable;
+    case "hide":
+    case "rename":
+    case "pasteStyle":
+      return (
+        (id !== "pasteStyle" || ctx.canPasteStyle) &&
+        selection.every((key) => !!findLayer(doc, key) && !isLocked(doc, key))
+      );
+    case "releaseMask":
+      return (
+        selection.length === 1 &&
+        !!findLayer(doc, selection[0])?.maskSourceId &&
+        !instanceOwner(doc, selection[0]) &&
+        !isLocked(doc, selection[0])
+      );
+    case "toggleDevStatus":
+      return (
+        selection.every((key) => !isLocked(doc, key)) &&
+        selection.some((key) => {
+          const n = findLayer(doc, key);
+          return (
+            n?.type === "frame" || n?.type === "section" || !!n?.componentSet
+          );
+        })
+      );
+    case "lock":
+    case "cut":
+    case "delete":
+    case "duplicate":
+    case "ungroup":
+    case "group":
+    case "wrapSection":
+    case "wrapFrame":
+    case "autoLayout":
+    case "front":
+    case "back":
+    case "forward":
+    case "backward": {
+      const roots = selectionRoots(doc, selection);
+      if (!roots.length) return false;
+      if (id === "lock")
+        return roots.every((n) => !n.parentId || !isLocked(doc, n.parentId));
+      if (roots.some((n) => isLocked(doc, n.id) || instanceAncestor(doc, n.id)))
+        return false;
+      switch (id) {
+        case "cut":
+        case "delete":
+        case "duplicate":
+        case "front":
+        case "back":
+        case "forward":
+        case "backward":
+          return true;
+      }
+      if (id === "ungroup")
+        return (
+          roots.some((n) => n.type === "group") &&
+          !roots.some((n) => n.type === "group" && n.instance)
+        );
+      if (id === "autoLayout" && roots.some((n) => n.instance)) return false;
+      const parentId = roots[0].parentId;
+      return (
+        roots.every((n) => n.parentId === parentId) &&
+        (id !== "wrapSection" ||
+          !parentId ||
+          findLayer(doc, parentId)?.type === "section")
+      );
+    }
+    default:
+      return true;
+  }
+}

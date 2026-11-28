@@ -7,7 +7,7 @@ async (page) => {
   const matrix = page.getByRole("group", { name: "容器内对齐" });
   const between = button("两端对齐间距 (Space between)");
   const toggle = button("独立内边距");
-  const panel = page.locator("#right-panel");
+  const panel = page.locator(".app:visible .right-panel");
   const separator = page.getByRole("separator", { name: "属性栏宽度" });
   const values = () =>
     Promise.all(edges.map((edge) => input(edge).inputValue()));
@@ -85,7 +85,7 @@ async (page) => {
   await separator.press("Home");
   await page.setViewportSize({ width: 721, height: 480 });
   await page
-    .locator('button[aria-controls="right-panel"][aria-expanded="false"]')
+    .locator('button[aria-controls^="right-panel"][aria-expanded="false"]')
     .click();
   await measure();
   await toggle.scrollIntoViewIfNeeded();

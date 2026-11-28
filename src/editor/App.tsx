@@ -2,7 +2,11 @@ import { sourceNameFonts } from "./SourceName";
 import { readNativeDocument } from "../infrastructure/native-document";
 import { displayColor, profileLabel } from "../domain/color-profile";
 import { ColorProfileDialog, FileColorContext } from "./ColorProfileDialog";
-import { loadFonts } from "../infrastructure/font-import";
+import {
+  loadFonts,
+  retainDocumentFonts,
+  releaseDocumentFonts,
+} from "../infrastructure/font-import";
 import {
   resolveProjectMemoryScope,
   type ProjectSpace,
@@ -23,6 +27,7 @@ import {
   Eye,
   EyeOff,
   FolderOpen,
+  FolderArchive,
   FileCode2,
   FolderSync,
   History,
@@ -64,9 +69,11 @@ import { prototypeProgram } from "../compiler/runtime";
 import { PrototypeInspector } from "./PrototypeInspector";
 import {
   useCallback,
+  useId,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   useEffect,
   useLayoutEffect,
   lazy,
@@ -129,6 +136,11 @@ import { Inspector } from "./Inspector";
 import { LayersPanel } from "./LayersPanel";
 import { CommandPalette, ShortcutHelp } from "./ActionMenu";
 import { ContextMenu } from "./ContextMenu";
+import {
+  PopoverDocumentSessionContext,
+  PopoverSurfaceContext,
+} from "./useAnchoredPopover";
+import { ToastHost, type ShellNotice, type StatusSeverity } from "./ToastHost";
 import { PanelDivider } from "./PanelDivider";
 import { TooltipHost } from "./TooltipHost";
 import { useEditor } from "./useEditor";
@@ -145,6 +157,36 @@ import {
 } from "../infrastructure/design-import/types";
 
 const UI_THEME_KEY = "forma.ui-theme";
+
+const MINIMAP_KEY = "forma.ui-minimap";
+let unsavedMinimap: boolean | undefined;
+function readMinimapPreference() {
+  if (unsavedMinimap !== undefined) return unsavedMinimap;
+  try {
+    const stored = localStorage.getItem(MINIMAP_KEY);
+    if (stored !== null) return stored === "true";
+  } catch {
+    /* Storage may be unavailable in private sessions. */
+  }
+  return undefined;
+}
+function subscribeMinimap(listener: () => void) {
+  window.addEventListener(MINIMAP_KEY, listener);
+  window.addEventListener("storage", listener);
+  return () => {
+    window.removeEventListener(MINIMAP_KEY, listener);
+    window.removeEventListener("storage", listener);
+  };
+}
+function setMinimapPreference(expanded: boolean) {
+  try {
+    localStorage.setItem(MINIMAP_KEY, String(expanded));
+    unsavedMinimap = undefined;
+  } catch {
+    unsavedMinimap = expanded;
+  }
+  window.dispatchEvent(new Event(MINIMAP_KEY));
+}
 
 const STYLE_GROUPS = [
   { kind: "paint", label: "颜色样式" },
@@ -247,6 +289,11 @@ function CanvasChatDraft({
 
 export interface AppProps extends EditorFileOptions {
   tabActive?: boolean;
+  preloadedFontOwner?: string;
+  shellNotice?: string;
+  shellNotices?: ShellNotice[];
+  onDismissShellNotice?(id: string): void;
+  onActiveAppChange?(tabId: string | null): void;
   workspaceTabs?: BridgeTabSummary[];
   activeWorkspaceTabId?: string | null;
   initialPreset?: QuickStartPreset;
@@ -283,9 +330,65 @@ export interface AppProps extends EditorFileOptions {
   onThemeSync?(theme: "dark" | "light"): void;
 }
 
+type FileChooserOrigin = {
+  originSession: number;
+  originActivationToken: number;
+};
+
 export function App(options: AppProps) {
   const tabActive = options.tabActive !== false;
+  const { activeWorkspaceTabId, onActiveAppChange } = options;
+  useLayoutEffect(() => {
+    if (!tabActive || !activeWorkspaceTabId || !onActiveAppChange) return;
+    onActiveAppChange(activeWorkspaceTabId);
+    return () => onActiveAppChange(null);
+  }, [activeWorkspaceTabId, onActiveAppChange, tabActive]);
   const editor = useEditor({ ...options, active: tabActive });
+  const documentSessionRef = useRef(editor.documentSession);
+  useLayoutEffect(() => {
+    documentSessionRef.current = editor.documentSession;
+  }, [editor.documentSession]);
+  const fontOwnerId = `app-fonts:${useId()}`;
+  const leftPanelId = `left-panel-${useId()}`;
+  const rightPanelId = `right-panel-${useId()}`;
+  const { fonts, libraries } = editor.committed;
+  useEffect(() => {
+    let current = true;
+    const allFonts: NonNullable<typeof fonts> = {};
+    for (const library of Object.values(libraries ?? {}))
+      Object.assign(allFonts, library.fonts);
+    Object.assign(allFonts, fonts);
+    void retainDocumentFonts(fontOwnerId, allFonts).catch((error) => {
+      if (current)
+        editor.setError(error instanceof Error ? error.message : String(error));
+    });
+    // retainDocumentFonts claims the IDs synchronously, before decoding any faces.
+    if (options.preloadedFontOwner)
+      releaseDocumentFonts(options.preloadedFontOwner);
+    return () => {
+      current = false;
+    };
+  }, [
+    fontOwnerId,
+    fonts,
+    libraries,
+    options.preloadedFontOwner,
+    editor.setError,
+  ]);
+  useEffect(() => () => releaseDocumentFonts(fontOwnerId), [fontOwnerId]);
+  const appRef = useRef<HTMLDivElement>(null);
+  const leftPanelRef = useRef<HTMLElement>(null);
+  const rightPanelRef = useRef<HTMLElement>(null);
+  const canvasStageRef = useMemo(
+    () => ({
+      get current() {
+        return (
+          appRef.current?.querySelector<HTMLElement>(".canvas-stage") ?? null
+        );
+      },
+    }),
+    [],
+  );
   const [uiTheme, setUiTheme] = useState<"dark" | "light">(() => {
     try {
       const saved = localStorage.getItem(UI_THEME_KEY);
@@ -354,13 +457,11 @@ export function App(options: AppProps) {
         !document.querySelector('[aria-modal="true"]')
       ) {
         const sections = [
-          "header",
-          "#left-panel",
-          ".editor-canvas",
-          "#right-panel",
-        ]
-          .map((selector) => document.querySelector<HTMLElement>(selector))
-          .filter((el): el is HTMLElement => !!el?.getClientRects().length);
+          appRef.current?.querySelector<HTMLElement>("header"),
+          leftPanelRef.current,
+          canvasStageRef.current,
+          rightPanelRef.current,
+        ].filter((el): el is HTMLElement => !!el?.getClientRects().length);
         if (!sections.length) return;
         const index = sections.findIndex((el) =>
           el.contains(document.activeElement),
@@ -558,6 +659,10 @@ export function App(options: AppProps) {
   ) => setDesignSystemTarget({ view, styleId });
   const [codeOpen, setCodeOpen] = useState(false);
   const [devMode, setDevMode] = useState(false);
+  const showMinimap = useSyncExternalStore(
+    subscribeMinimap,
+    readMinimapPreference,
+  );
   const [showPixelGrid, setShowPixelGrid] = useState(false);
   const [showLayoutGuides, setShowLayoutGuides] = useState(true);
   const [outlineMode, setOutlineMode] = useState(false);
@@ -616,6 +721,7 @@ export function App(options: AppProps) {
   const viewOptions: CanvasViewOptions = useMemo(
     () => ({
       showRulers: editor.rulers,
+      showMinimap,
       showPixelGrid,
       showLayoutGuides,
       outlineMode,
@@ -624,6 +730,7 @@ export function App(options: AppProps) {
     }),
     [
       editor.rulers,
+      showMinimap,
       showPixelGrid,
       showLayoutGuides,
       outlineMode,
@@ -631,8 +738,11 @@ export function App(options: AppProps) {
       showComments,
     ],
   );
-  const toggleViewOption = (key: keyof CanvasViewOptions) => {
+  const toggleViewOption = (key: keyof CanvasViewOptions, next: boolean) => {
     switch (key) {
+      case "showMinimap":
+        setMinimapPreference(next);
+        break;
       case "showRulers":
         editor.setRulers((v) => !v);
         break;
@@ -718,7 +828,16 @@ export function App(options: AppProps) {
   );
   const { beginRead: beginEpisodeRead } = episodeArchive;
   const [promoteModalOpen, setPromoteModalOpen] = useState(false);
-  const [statusToast, setStatusToast] = useState("");
+  const [statusNotice, setStatusNotice] = useState<{
+    text: string;
+    severity: StatusSeverity;
+  } | null>(null);
+  const setStatusToast = useCallback(
+    (text: string, severity: StatusSeverity = "success") => {
+      setStatusNotice({ text, severity });
+    },
+    [],
+  );
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   useEffect(() => {
     setWelcomeDismissed(false);
@@ -803,14 +922,12 @@ export function App(options: AppProps) {
     setPendingProposal(null);
     setActiveProject(project);
     beginEpisodeRead()([]);
-    setStatusToast(message);
+    setStatusToast(
+      message,
+      message === staleProposalMessage ? "warning" : "info",
+    );
     void refreshProjectMemory();
   }
-  useEffect(() => {
-    if (!statusToast) return;
-    const timer = window.setTimeout(() => setStatusToast(""), 4800);
-    return () => window.clearTimeout(timer);
-  }, [statusToast]);
   async function installProjectLibrary(libraryId: string) {
     const start = editor.historyRef.current.present;
     if (ownLibrary(start.libraries, libraryId)) return;
@@ -845,6 +962,29 @@ export function App(options: AppProps) {
   const projectFile = useRef<HTMLInputElement>(null);
   const file = useRef<HTMLInputElement>(null);
   const openAsFile = useRef(false);
+  const pendingFileChooserRef = useRef<
+    (FileChooserOrigin & { asFile: boolean }) | null
+  >(null);
+  const latestInPlaceImportSeqRef = useRef(0);
+  const activeInPlaceImportOriginRef = useRef<FileChooserOrigin | null>(null);
+  useEffect(() => {
+    const input = file.current;
+    const cancel = () => {
+      pendingFileChooserRef.current = null;
+    };
+    input?.addEventListener("cancel", cancel);
+    return () => input?.removeEventListener("cancel", cancel);
+  }, []);
+  const snapshotFileChooser = (asFile: boolean) => ({
+    asFile,
+    originSession: documentSessionRef.current,
+    originActivationToken: editor.activationTokenRef.current,
+  });
+  const showFileChooser = (asFile: boolean) => {
+    openAsFile.current = asFile;
+    pendingFileChooserRef.current = snapshotFileChooser(asFile);
+    file.current?.click();
+  };
   const [externalFile, setExternalFile] = useState<File | undefined>(
     options.externalFile,
   );
@@ -1054,8 +1194,18 @@ export function App(options: AppProps) {
   indexPublishedScene(doc);
   const openMenu = (x: number, y: number, layers?: string[]) =>
     setMenu({ x, y, layers });
-  const runAgent = (operations: Operation[], baseRevision: number) => {
-    editor.apply(operations, baseRevision);
+  const runAgent = (
+    operations: Operation[],
+    baseRevision: number,
+    accepting?: typeof editor.committed,
+  ) => {
+    if (
+      editor.apply(operations, baseRevision, {
+        allowOverExternalPreview:
+          accepting !== undefined && editor.previewRef.current === accepting,
+      }) === false
+    )
+      throw new Error("请先确认或取消当前预览");
   };
   const aiPreviewState = useMemo(() => {
     if (!pendingProposal) return null;
@@ -1079,12 +1229,12 @@ export function App(options: AppProps) {
       return null;
     }
   }, [pendingProposal, editor.committed]);
-  useEffect(() => {
-    if (aiPreviewState) {
-      editor.setPreview(aiPreviewState.previewDoc);
-    } else {
-      editor.setPreview(null);
-    }
+  useLayoutEffect(() => {
+    if (!aiPreviewState) return;
+    const proposal = aiPreviewState.previewDoc;
+    editor.setPreview(proposal);
+    return () =>
+      editor.setPreview((current) => (current === proposal ? null : current));
   }, [aiPreviewState, editor.setPreview]);
   const previousIdentity = useRef({
     file: doc.id,
@@ -1108,7 +1258,7 @@ export function App(options: AppProps) {
       previous.scope !== currentScopeId &&
       (pendingProposal || agentBusyState.busy)
     ) {
-      setStatusToast(staleProposalMessage);
+      setStatusToast(staleProposalMessage, "warning");
     }
     setPendingProposal(null);
     setExternalChatRequest(null);
@@ -1172,6 +1322,7 @@ export function App(options: AppProps) {
       runAgent(
         proposal.transaction.operations,
         proposal.transaction.baseRevision,
+        aiPreviewState?.previewDoc,
       );
       const afterDoc = editor.historyRef.current.present;
       setPendingProposal(null);
@@ -1229,7 +1380,9 @@ export function App(options: AppProps) {
   const discardPendingProposal = () => {
     const discarded = pendingProposal;
     setPendingProposal(null);
-    editor.setPreview(null);
+    editor.setPreview((current) =>
+      current === aiPreviewState?.previewDoc ? null : current,
+    );
     if (discarded?.proposalId && !discarded.taskId) {
       void bridgeSnapshotRef.current
         ?.ackProposal(discarded.proposalId, "discarded")
@@ -1240,7 +1393,10 @@ export function App(options: AppProps) {
     (proposal: PendingIntegrationProposal) => {
       if (proposal.taskId) {
         taskProposalsRef.current.set(proposal.taskId, proposal);
-        setStatusToast("收到外部 Agent 设计任务，可在画布审阅或顶栏任务箱回传");
+        setStatusToast(
+          "收到外部 Agent 设计任务，可在画布审阅或顶栏任务箱回传",
+          "info",
+        );
       }
       setPendingProposal(proposal);
     },
@@ -1258,7 +1414,9 @@ export function App(options: AppProps) {
       runAgent(tx.operations, tx.baseRevision);
       const afterDoc = editor.historyRef.current.present;
       setPendingProposal(null);
-      editor.setPreview(null);
+      editor.setPreview((current) =>
+        current === aiPreviewState?.previewDoc ? null : current,
+      );
       if (meta.proposalId) {
         await bridgeSnapshotRef.current
           ?.ackProposal(meta.proposalId, "applied")
@@ -1318,7 +1476,9 @@ export function App(options: AppProps) {
     async (taskId: string, reason?: string) => {
       if (pendingProposal?.taskId === taskId) {
         setPendingProposal(null);
-        editor.setPreview(null);
+        editor.setPreview((current) =>
+          current === aiPreviewState?.previewDoc ? null : current,
+        );
       }
       taskProposalsRef.current.delete(taskId);
       await bridgeSnapshotRef.current?.rejectTask(taskId, reason);
@@ -1335,9 +1495,11 @@ export function App(options: AppProps) {
       editor.apply([{ type: "setComments", comments: nextComments }]),
     );
   };
-  return (
+  const shell = (
     <FileColorContext.Provider value={doc.colorProfile ?? "srgb"}>
       <div
+        ref={appRef}
+        inert={!tabActive}
         className="app"
         style={sourceNameFonts(doc.fonts)}
         data-theme={uiTheme}
@@ -1380,7 +1542,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载版本日志…
                 </div>
               }
@@ -1487,12 +1649,7 @@ export function App(options: AppProps) {
                 <FilePlus2 size={13} />
                 <span>新建空白文件</span>
               </button>
-              <button
-                onClick={() => {
-                  openAsFile.current = true;
-                  file.current?.click();
-                }}
-              >
+              <button onClick={() => showFileChooser(true)}>
                 <FolderOpen size={13} />
                 <span>打开设计文件…</span>
               </button>
@@ -1700,7 +1857,7 @@ export function App(options: AppProps) {
                   className="icon-btn"
                   aria-label={label}
                   aria-expanded={open}
-                  aria-controls={side + "-panel"}
+                  aria-controls={left ? leftPanelId : rightPanelId}
                   data-tip={(open ? "收起" : "打开") + label}
                   data-tip-side="bottom"
                   onClick={() => togglePanel(side)}
@@ -1949,7 +2106,12 @@ export function App(options: AppProps) {
             </button>
           </div>
         </header>
-        <aside id="left-panel" hidden={!showLeft} className="left-panel">
+        <aside
+          ref={leftPanelRef}
+          id={leftPanelId}
+          hidden={!showLeft}
+          className="left-panel"
+        >
           <nav className="panel-tabs" aria-label="工作区导航">
             <button
               title="图层"
@@ -1996,10 +2158,7 @@ export function App(options: AppProps) {
               data-tip="导入设计文件"
               data-tip-desc="载入 Forma 文件，或从 Sketch、Figma 原档创建新文件"
               data-tip-side="bottom"
-              onClick={() => {
-                openAsFile.current = false;
-                file.current?.click();
-              }}
+              onClick={() => showFileChooser(false)}
             >
               <Upload size={14} />
               <span>导入</span>
@@ -2117,8 +2276,18 @@ export function App(options: AppProps) {
             </div>
           </div>
         </aside>
-        <PanelDivider side="left" visible={showLeft && !compact} />
-        <PanelDivider side="right" visible={showRight && !compact} />
+        <PanelDivider
+          panelRef={leftPanelRef}
+          panelId={leftPanelId}
+          side="left"
+          visible={showLeft && !compact}
+        />
+        <PanelDivider
+          panelRef={rightPanelRef}
+          panelId={rightPanelId}
+          side="right"
+          visible={showRight && !compact}
+        />
         <ErrorBoundary
           scope="workspace"
           title="画布视图遇到意外错误"
@@ -2126,6 +2295,7 @@ export function App(options: AppProps) {
           getRecoveryDocument={() => editor.historyRef.current.present}
         >
           <Canvas
+            active={tabActive}
             onImportDesign={openExternalFile}
             onOpenNativeDesign={(selected) =>
               void openNativeDroppedFile(selected)
@@ -2181,10 +2351,7 @@ export function App(options: AppProps) {
             setWelcomeDismissed(true);
             openInlineAgent();
           }}
-          onImportFile={() => {
-            openAsFile.current = false;
-            file.current?.click();
-          }}
+          onImportFile={() => showFileChooser(false)}
           onDismiss={() => setWelcomeDismissed(true)}
         />
         <CanvasChatDraft
@@ -2227,7 +2394,8 @@ export function App(options: AppProps) {
           }}
         />
         <aside
-          id="right-panel"
+          ref={rightPanelRef}
+          id={rightPanelId}
           className={`right-panel ${devMode ? "is-dev-mode" : ""}`}
           hidden={!showRight}
         >
@@ -2260,6 +2428,7 @@ export function App(options: AppProps) {
                   fallback={<div className="compact-empty">加载开发检查…</div>}
                 >
                   <DevModePanel
+                    previewBlocked={editor.hasExternalPreview}
                     document={editor.committed}
                     selectedIds={editor.selection}
                     onSelectNode={(id) => {
@@ -2332,6 +2501,10 @@ export function App(options: AppProps) {
                   />
                 ) : editor.selected.length && editor.tool !== "frame" ? (
                   <Inspector
+                    tabActive={tabActive && showRight}
+                    canvasBackground={
+                      uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5"
+                    }
                     editor={editor}
                     tool={editor.tool}
                     onExitScale={() => editor.setTool("select")}
@@ -2359,28 +2532,21 @@ export function App(options: AppProps) {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <ColorField
                             label="页面背景色"
+                            disabled={editor.hasExternalPreview}
                             color={
                               doc.pageBackground ??
                               (uiTheme === "dark" ? "#1e1e1e" : "#f5f5f5")
                             }
                             alpha={doc.pageBackgroundOpacity ?? 1}
                             onChange={(color, alpha) =>
-                              editor.attempt(() =>
-                                editor.apply([
-                                  {
-                                    type: "setPageBackground",
-                                    color,
-                                    opacity: alpha,
-                                    visible: true,
-                                  },
-                                ]),
-                              )
+                              editor.updatePageBackground(color, alpha)
                             }
                           />
                         </div>
                         <button
                           type="button"
                           className="icon-btn icon-btn-sm"
+                          disabled={editor.hasExternalPreview}
                           aria-label={
                             doc.pageBackgroundVisible === false
                               ? "显示页面背景"
@@ -2438,6 +2604,7 @@ export function App(options: AppProps) {
                                     key={item.label}
                                     type="button"
                                     className="preset-row-btn"
+                                    disabled={editor.hasExternalPreview}
                                     onClick={() =>
                                       editor.addPresetFrame(
                                         item.label,
@@ -2635,7 +2802,7 @@ export function App(options: AppProps) {
                               data-tip-side="left"
                               onClick={() => setBatchExportOpen(true)}
                             >
-                              +
+                              <FolderArchive size={13} />
                             </button>
                           </div>
                           {exportCount > 0 && (
@@ -2666,7 +2833,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载变量与样式…
                 </div>
               }
@@ -2693,7 +2860,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载本机文件列表…
                 </div>
               }
@@ -2722,7 +2889,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载组件沉淀窗口…
                 </div>
               }
@@ -2757,7 +2924,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载设计导入工具…
                 </div>
               }
@@ -2789,66 +2956,20 @@ export function App(options: AppProps) {
             </Suspense>
           </ErrorBoundary>
         )}
-        {(editor.error || memoryNotice || statusToast) && (
-          <div
-            style={{
-              position: "fixed",
-              right: 20,
-              bottom: 18,
-              zIndex: 90,
-              display: "grid",
-              justifyItems: "end",
-              gap: 6,
-              maxWidth: "calc(100vw - 40px)",
-              pointerEvents: "none",
-            }}
-          >
-            {statusToast && !editor.error && (
-              <div
-                role="status"
-                className="toast project-status-toast"
-                style={{ position: "static" }}
-              >
-                {statusToast}
-              </div>
-            )}
-            {memoryNotice && (
-              <div
-                role="status"
-                className="toast project-status-toast"
-                style={{ position: "static", pointerEvents: "auto" }}
-              >
-                {memoryNotice}
-                <button
-                  className="icon-btn icon-btn-sm"
-                  aria-label="关闭项目记忆提示"
-                  data-tip="关闭项目记忆提示"
-                  data-tip-side="top"
-                  onClick={() => setMemoryNotice("")}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-            {editor.error && (
-              <div
-                role="alert"
-                className="toast"
-                style={{ position: "static", pointerEvents: "auto" }}
-              >
-                {editor.error}
-                <button
-                  className="icon-btn icon-btn-sm"
-                  aria-label="关闭错误"
-                  data-tip="关闭提示"
-                  data-tip-side="top"
-                  onClick={() => editor.setError("")}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
+        {tabActive && (
+          <ToastHost
+            anchorRef={canvasStageRef}
+            error={editor.error}
+            onDismissError={() => editor.setError("")}
+            shellNotice={options.shellNotice}
+            shellNotices={options.shellNotices}
+            onDismissShellNotice={options.onDismissShellNotice}
+            status={statusNotice?.text}
+            statusSeverity={statusNotice?.severity}
+            onDismissStatus={() => setStatusNotice(null)}
+            notice={memoryNotice}
+            onDismissNotice={() => setMemoryNotice("")}
+          />
         )}
         {menu && (
           <ContextMenu
@@ -2874,7 +2995,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载规范校验…
                 </div>
               }
@@ -2914,7 +3035,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载模型配置…
                 </div>
               }
@@ -2940,7 +3061,7 @@ export function App(options: AppProps) {
             <Suspense
               fallback={
                 integrationsOpen ? (
-                  <div role="status" className="toast">
+                  <div role="status" className="panel-loading-pill">
                     加载外部工具集成…
                   </div>
                 ) : null
@@ -3006,7 +3127,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载原型预览…
                 </div>
               }
@@ -3031,7 +3152,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载代码预览…
                 </div>
               }
@@ -3052,7 +3173,7 @@ export function App(options: AppProps) {
           >
             <Suspense
               fallback={
-                <div role="status" className="toast">
+                <div role="status" className="panel-loading-pill">
                   加载工程更新视图…
                 </div>
               }
@@ -3075,20 +3196,44 @@ export function App(options: AppProps) {
           accept={acceptedDesignFiles}
           hidden
           onChange={async (event) => {
+            const chooser =
+              pendingFileChooserRef.current ??
+              snapshotFileChooser(openAsFile.current);
+            pendingFileChooserRef.current = null;
             const input = event.currentTarget;
             const selected = input.files?.[0];
             input.value = "";
             if (!selected) return;
+            const originIsCurrent = () =>
+              editorRef.current.tabActive &&
+              editor.activationTokenRef.current ===
+                chooser.originActivationToken &&
+              documentSessionRef.current === chooser.originSession &&
+              // History is published synchronously, even before the session render.
+              editorRef.current.committed === editor.historyRef.current.present;
+            if (!chooser.asFile && !originIsCurrent()) return;
+            const importSeq = chooser.asFile
+              ? undefined
+              : ++latestInPlaceImportSeqRef.current;
+            if (!chooser.asFile) activeInPlaceImportOriginRef.current = chooser;
+            const canFinish = () =>
+              chooser.asFile ||
+              (latestInPlaceImportSeqRef.current === importSeq &&
+                activeInPlaceImportOriginRef.current === chooser &&
+                originIsCurrent());
             try {
               const external = await isExternalDesign(selected);
+              if (!canFinish()) return;
               checkDesignFileSize(selected.size, external);
               if (external) {
                 openExternalFile(selected);
                 return;
               }
               const content = await readNativeDocument(selected);
+              if (!canFinish()) return;
               await loadFonts(content.fonts);
-              if (openAsFile.current) {
+              if (!canFinish()) return;
+              if (chooser.asFile) {
                 if (options.onOpenFileTab) {
                   const { key } = await createLocalFileWithKey(content);
                   options.onOpenFileTab({ fileKey: key, title: content.name });
@@ -3102,14 +3247,24 @@ export function App(options: AppProps) {
               editor.setSelection([]);
               requestAnimationFrame(() => editor.api.current?.fit());
             } catch (error) {
+              if (!canFinish() || !originIsCurrent()) return;
               editor.setError(
                 `导入失败：${error instanceof Error ? error.message : String(error)}`,
               );
+            } finally {
+              if (activeInPlaceImportOriginRef.current === chooser)
+                activeInPlaceImportOriginRef.current = null;
             }
-            input.value = "";
           }}
         />
       </div>
     </FileColorContext.Provider>
+  );
+  return (
+    <PopoverSurfaceContext.Provider value={tabActive}>
+      <PopoverDocumentSessionContext.Provider value={editor.documentSession}>
+        {shell}
+      </PopoverDocumentSessionContext.Provider>
+    </PopoverSurfaceContext.Provider>
   );
 }

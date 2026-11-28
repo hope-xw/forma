@@ -1,3 +1,21 @@
+import "./canvas-feel.css";
+import { flushSync } from "react-dom";
+import {
+  applyWheelToViewport,
+  createCameraChannel,
+  stepZoomLevel,
+  type CameraChannel,
+} from "../application/canvas-camera";
+import {
+  shouldAutoExpandMinimap,
+  viewportWorldRect,
+  type MinimapNodeSummary,
+} from "../application/minimap-layout";
+import { buildSpatialIndex } from "../domain/spatial-index";
+import { CanvasOverlayHud } from "./CanvasOverlayHud";
+import { CanvasMinimap } from "./CanvasMinimap";
+import { CornerRadiusHandles } from "./CornerRadiusHandles";
+import { AutoLayoutHandles } from "./AutoLayoutHandles";
 import { ImageCropOverlay } from "./ImageCropOverlay";
 import { displayColor } from "../domain/color-profile";
 import { resolveNode } from "../domain/design-system";
@@ -24,7 +42,9 @@ import { CanvasRulers } from "./CanvasRulers";
 import { InlineTextContext } from "./InlineText";
 import { instanceAncestor, instanceOwner } from "../domain/tree";
 import {
+  useCallback,
   useEffect,
+  useEffectEvent,
   useMemo,
   useLayoutEffect,
   useRef,
@@ -36,6 +56,7 @@ import {
   ImagePlus,
   Ruler,
   Maximize,
+  Map as MapIcon,
   Plus,
   Minus,
   Type,
@@ -53,6 +74,7 @@ import {
   createNode,
   type DesignComment,
   type DesignDocument,
+  type DesignNode,
 } from "../domain/document";
 import { transact, type Operation } from "../domain/commands";
 import {
@@ -78,15 +100,35 @@ import {
   type Point,
   type Rect,
   type SnapIndex,
+  type SnapGuide,
   type Viewport,
 } from "../domain/geometry";
 import {
   childrenOf,
   findLayer,
   indexPublishedScene,
+  positionDelta,
 } from "../domain/scene-index";
-import { copySelection, pasteSelection } from "../domain/clipboard";
-import type { EditorController, Tool } from "./useEditor";
+import { duplicateSelectionForDrag } from "../domain/clipboard";
+import {
+  useGestureEditor,
+  type EditorController,
+  type Tool,
+} from "./useEditor";
+import {
+  ArtboardLabel,
+  collectArtboardLabelNodes,
+  shouldAllowArtboardLabelPointer,
+} from "./ArtboardLabel";
+import { BoardLodTile } from "./BoardLodTile";
+import {
+  isBoardLodRenderable,
+  branchHasLayoutGuides,
+  hasMoreDescendantsThan,
+  LOD_MIN_BOARD_NODES,
+  resolveBoardLodMode,
+  resolveLodActive,
+} from "../application/board-lod";
 import { CanvasNode } from "./CanvasNode";
 import { previewGeometry } from "../application/geometry-preview";
 import { VectorEditor } from "./VectorEditor";
@@ -109,7 +151,8 @@ interface Props {
   contextMenu(x: number, y: number, layers?: string[]): void;
   onPlayFlow?: (frameId: string) => void;
   viewOptions?: CanvasViewOptions;
-  onToggleViewOption?(key: keyof CanvasViewOptions): void;
+  onToggleViewOption?(key: keyof CanvasViewOptions, next: boolean): void;
+  active?: boolean;
   onToggleUI?(): void;
   uiHidden?: boolean;
   devMode?: boolean;
@@ -167,7 +210,9 @@ type Gesture =
       working: DesignDocument;
       ids: string[];
       originalIds: string[];
+      fromTitle: boolean;
       shiftToggleId?: string;
+      appliedDelta: Point;
       prefix: Operation[];
       operations: Operation[];
       moved: boolean;
@@ -201,6 +246,46 @@ type Gesture =
       };
     };
 const handles: Handle[] = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
+
+function labelIdAt(target: Element | null) {
+  const label = target?.closest<HTMLElement>(
+    "[data-frame-label-id],[data-section-label-id]",
+  );
+  return label?.dataset.frameLabelId ?? label?.dataset.sectionLabelId;
+}
+function rootIdOf(doc: DesignDocument, id: string) {
+  return ancestors(doc, id).at(-1)?.id ?? id;
+}
+function rootIdsOf(doc: DesignDocument, ids?: Iterable<string>) {
+  const roots = new Set<string>();
+  if (ids) for (const id of ids) roots.add(rootIdOf(doc, id));
+  return roots;
+}
+function selectionBounds(
+  doc: DesignDocument,
+  roots: DesignNode[],
+  bounds: Map<string, Rect>,
+  matrices: Map<string, Matrix>,
+) {
+  return union(
+    roots
+      .filter((node) => isVisible(doc, node.id))
+      .map((node) => {
+        const box = bounds.get(node.id)!;
+        return roots.length === 1
+          ? box
+          : visualBounds(box, matrices.get(node.id)!);
+      }),
+  );
+}
+
+function summaryFill(doc: DesignDocument, resolved: DesignNode) {
+  const token = resolved.fillToken && doc.tokens[resolved.fillToken];
+  return displayColor(
+    token ? token.value : resolved.style.fill,
+    doc.colorProfile,
+  );
+}
 
 function buildPencilVector(rawPoints: Point[]) {
   if (rawPoints.length < 2) return null;
@@ -268,7 +353,8 @@ function buildPencilVector(rawPoints: Point[]) {
 }
 
 export function Canvas({
-  editor: e,
+  editor,
+  active = true,
   contextMenu,
   views,
   prototypeMode,
@@ -288,12 +374,17 @@ export function Canvas({
   onImportDesign,
   onOpenNativeDesign,
 }: Props) {
+  const e = useGestureEditor(
+    editor,
+    JSON.stringify([editor.committed.id, editor.committed.activePage]),
+  );
   const currentTool = e.tool as ExtendedTool;
   const selectTool = (next: ExtendedTool) => {
     e.setEditing(null);
     e.setTool(next as Tool);
   };
   const [localViewOpts, setLocalViewOpts] = useState({
+    showMinimap: undefined as boolean | undefined,
     showPixelGrid: false,
     showLayoutGuides: true,
     outlineMode: false,
@@ -310,8 +401,154 @@ export function Canvas({
     () => views.get(page) ?? { x: 0, y: 0, zoom: 0.7 },
   );
   const [surfaceSize, setSurfaceSize] = useState({ width: 1200, height: 800 });
+  const rootNodes = useMemo(() => childrenOf(e.doc, null), [e.doc]);
+  const rootBoardCount = useMemo(
+    () => rootNodes.filter((node) => node.type === "frame").length,
+    [rootNodes],
+  );
+  const totalNodes = e.doc.nodes.length;
+  const [lodActive, setLodActive] = useState(false);
+  useEffect(() => {
+    setLodActive((prev) =>
+      resolveLodActive(viewport.zoom, prev, rootBoardCount, totalNodes),
+    );
+  }, [viewport.zoom, rootBoardCount, totalNodes]);
+  const isLodActive = resolveLodActive(
+    viewport.zoom,
+    lodActive,
+    rootBoardCount,
+    totalNodes,
+  );
+  const cullRoots = rootNodes.length > 8 && e.doc.nodes.length > 500;
   const viewRef = useRef(viewport);
-  viewRef.current = viewport;
+  const settledViewportRef = useRef(viewport);
+  const worldRef = useRef<HTMLDivElement>(null);
+  const vectorEditorRef = useRef<HTMLDivElement>(null);
+  const overlaysRef = useRef<HTMLDivElement>(null);
+  const zoomReadoutRef = useRef<HTMLButtonElement>(null);
+  const cameraRef = useRef<CameraChannel | null>(null);
+  if (!cameraRef.current)
+    cameraRef.current = createCameraChannel(viewport, { settleMs: 72 });
+  const camera = cameraRef.current;
+  const renderCount = useRef(0);
+  renderCount.current++;
+
+  const paintCamera = useCallback(() => {
+    const stage = surface.current,
+      world = worldRef.current,
+      overlays = overlaysRef.current;
+    if (!stage || !world || !overlays) return;
+    const live = camera.get(),
+      settled = settledViewportRef.current;
+    world.style.transform = `translate(${live.x}px, ${live.y}px) scale(${live.zoom})`;
+    world.style.setProperty("--canvas-zoom", String(live.zoom));
+    stage.dataset.zoom = String(live.zoom);
+    stage.classList.toggle("is-camera-moving", camera.isInteracting());
+    const step = (16 * live.zoom < 10 ? 32 : 16) * live.zoom;
+    stage.style.backgroundImage = live.zoom < 0.16 ? "none" : "";
+    stage.style.backgroundPosition = `${live.x}px ${live.y}px`;
+    stage.style.backgroundSize = `${step}px ${step}px`;
+    const readout = Math.round(live.zoom * 100) + "%";
+    if (
+      zoomReadoutRef.current &&
+      zoomReadoutRef.current.textContent !== readout
+    )
+      zoomReadoutRef.current.textContent = readout;
+    // Keep screen-space adornments anchored until React commits their new coordinates.
+    const ratio = live.zoom / settled.zoom;
+    const dx = live.x - settled.x * ratio,
+      dy = live.y - settled.y * ratio;
+    overlays.style.transform =
+      live === settled ? "" : `translate(${dx}px, ${dy}px) scale(${ratio})`;
+    if (live === settled)
+      overlays.style.removeProperty("--live-overlay-inv-scale");
+    else
+      overlays.style.setProperty("--live-overlay-inv-scale", String(1 / ratio));
+    // Vector artwork follows the overlay, but its tool palette stays at the top of the screen.
+    if (vectorEditorRef.current) {
+      const style = vectorEditorRef.current.style;
+      style.setProperty("--overlay-dx", dx + "px");
+      style.setProperty("--overlay-dy", dy + "px");
+      style.setProperty("--overlay-scale", String(ratio));
+    }
+  }, [camera]);
+  useLayoutEffect(() => {
+    let frame: number | undefined;
+    function commitViewport(next: Viewport) {
+      settledViewportRef.current = next;
+      paintCamera();
+      setViewport(next);
+    }
+    const stopLive = camera.subscribeLive(({ interacting }) => {
+      if (!interacting) {
+        if (frame !== undefined) cancelAnimationFrame(frame);
+        frame = undefined;
+        paintCamera();
+      } else if (frame === undefined) {
+        frame = requestAnimationFrame(() => {
+          frame = undefined;
+          const live = camera.get();
+          if (
+            resolveLodActive(
+              live.zoom,
+              isLodActive,
+              rootBoardCount,
+              totalNodes,
+            ) !== isLodActive
+          ) {
+            flushSync(() => commitViewport(live));
+            return;
+          }
+          if (cullRoots) {
+            // Keep 220 of the 480 prefetched screen pixels in reserve at each edge.
+            const settled = settledViewportRef.current;
+            const view = viewportWorldRect(live, surfaceSize);
+            const left = settled.x + view.x * settled.zoom;
+            const top = settled.y + view.y * settled.zoom;
+            if (
+              left < -260 ||
+              top < -260 ||
+              left + view.width * settled.zoom > surfaceSize.width + 260 ||
+              top + view.height * settled.zoom > surfaceSize.height + 260
+            ) {
+              flushSync(() => commitViewport(live));
+              return;
+            }
+          }
+          paintCamera();
+        });
+      }
+    });
+    const stopSettled = camera.subscribeSettled(commitViewport);
+    return () => {
+      stopLive();
+      stopSettled();
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
+  }, [
+    camera,
+    paintCamera,
+    cullRoots,
+    surfaceSize,
+    isLodActive,
+    rootBoardCount,
+    totalNodes,
+  ]);
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      // StrictMode reconnects effects synchronously on the same channel.
+      queueMicrotask(() => {
+        if (!mounted.current) camera.dispose();
+      });
+    };
+  }, [camera]);
+  useLayoutEffect(() => {
+    settledViewportRef.current = viewport;
+    paintCamera();
+  }, [viewport, paintCamera]);
   useLayoutEffect(() => {
     const el = surface.current;
     if (!el) return;
@@ -329,15 +566,25 @@ export function Canvas({
   const [space, setSpace] = useState(false);
   const spaceRef = useRef(false);
   const gesture = useRef<Gesture | null>(null);
+  const capturedPointer = useRef<number | null>(null);
+  const gesturePreview = useRef<DesignDocument | null>(null);
+  const handleDraggingRef = useRef(false);
+  const onHandleDragActiveChange = useCallback((active: boolean) => {
+    handleDraggingRef.current = active;
+  }, []);
+  const hasExternalPreview =
+    Boolean(e.hasExternalPreview) ||
+    Boolean(aiPreviewNodeIds?.size) ||
+    (e.doc !== e.committed &&
+      !handleDraggingRef.current &&
+      (!gesture.current || e.doc !== gesturePreview.current));
   const [box, setBox] = useState<Rect | null>(null);
   const boxRef = useRef<Rect | null>(null);
   function updateBox(next: Rect | null) {
     boxRef.current = next;
     setBox(next);
   }
-  const [guides, setGuides] = useState<{ axis: "x" | "y"; value: number }[]>(
-    [],
-  );
+  const [guides, setGuides] = useState<SnapGuide[]>([]);
   const [dropCell, setDropCell] = useState<ReturnType<typeof gridDrop>>();
   const [ghost, setGhost] = useState<Rect | null>(null);
   const [snap, setSnap] = useState(true);
@@ -346,28 +593,84 @@ export function Canvas({
   const [alt, setAlt] = useState(false);
   const altRef = useRef(false);
   const [interacting, setInteracting] = useState(false);
-  const effectiveViewOptions: CanvasViewOptions = {
-    showRulers: viewOptions?.showRulers ?? e.rulers,
-    showPixelGrid: viewOptions?.showPixelGrid ?? localViewOpts.showPixelGrid,
-    showLayoutGuides:
-      viewOptions?.showLayoutGuides ?? localViewOpts.showLayoutGuides,
-    outlineMode: viewOptions?.outlineMode ?? localViewOpts.outlineMode,
-    snapEnabled: viewOptions?.snapEnabled ?? snap,
-    showComments: viewOptions?.showComments ?? localViewOpts.showComments,
-  };
-  const handleToggleViewOption = (key: keyof CanvasViewOptions) => {
-    if (onToggleViewOption) {
-      onToggleViewOption(key);
+  const [hoveredLabelId, setHoveredLabelId] = useState<string | null>(null);
+  const [canvasRenamingId, setCanvasRenamingId] = useState<string | null>(null);
+  const artboardLabelsInteractive = shouldAllowArtboardLabelPointer({
+    locked: false,
+    panning: space || currentTool === "hand",
+    tool: currentTool,
+    devMode,
+    interacting,
+    hasMarquee: Boolean(box),
+  });
+  useEffect(() => {
+    if (!active || !artboardLabelsInteractive) setHoveredLabelId(null);
+  }, [active, artboardLabelsInteractive]);
+  useLayoutEffect(() => {
+    setCanvasRenamingId(null);
+    setHoveredLabelId(null);
+  }, [e.committed.id, page, active]);
+  useEffect(() => {
+    if (canvasRenamingId && !findLayer(e.committed, canvasRenamingId))
+      setCanvasRenamingId(null);
+  }, [canvasRenamingId, e.committed]);
+  function capturePointer(id: number) {
+    try {
+      surface.current?.setPointerCapture(id);
+    } catch (error) {
+      // Synthetic presses and released pointers cannot own a drag.
+      if (error instanceof DOMException && error.name === "NotFoundError")
+        return false;
+      throw error;
+    }
+    capturedPointer.current = id;
+    return true;
+  }
+  const clearGesturePreview = useCallback(() => {
+    const owned = gesturePreview.current;
+    gesturePreview.current = null;
+    if (owned && e.previewRef.current === owned)
+      e.setPreview((current) => (current === owned ? null : current));
+  }, [e.previewRef, e.setPreview]);
+  const cancelCanvasGesture = useCallback(() => {
+    const state = gesture.current;
+    if (!state) return;
+    gesture.current = null;
+    if (
+      state.kind === "drag" &&
+      state.prefix.length &&
+      state.base === e.historyRef.current.present
+    )
+      e.setSelection(state.originalIds);
+    const id = capturedPointer.current;
+    capturedPointer.current = null;
+    if (id !== null && surface.current?.hasPointerCapture(id))
+      surface.current.releasePointerCapture(id);
+    if ("base" in state && state.base !== e.historyRef.current.present)
+      gesturePreview.current = null;
+    else clearGesturePreview();
+    setInteracting(false);
+    updateBox(null);
+    setPencilStroke(null);
+    setGhost(null);
+    setDropCell(undefined);
+    setGuides([]);
+  }, [clearGesturePreview, e.historyRef, e.setSelection]);
+  useLayoutEffect(() => {
+    if (hasExternalPreview) {
+      setCanvasRenamingId(null);
+      cancelCanvasGesture();
       return;
     }
-    if (key === "showRulers") e.perform("rulers");
-    else if (key === "snapEnabled") setSnap((s) => !s);
-    else
-      setLocalViewOpts((prev) => ({
-        ...prev,
-        [key]: !prev[key as keyof typeof prev],
-      }));
-  };
+    const current = gesture.current;
+    if (
+      (current?.kind === "rotate" ||
+        current?.kind === "resize" ||
+        current?.kind === "drag") &&
+      current.base !== e.committed
+    )
+      cancelCanvasGesture();
+  }, [hasExternalPreview, e.committed, cancelCanvasGesture]);
   const effectiveComments = comments ?? e.committed.comments ?? [];
   const effectiveActiveCommentId =
     activeCommentId !== undefined ? activeCommentId : localActiveCommentId;
@@ -402,19 +705,74 @@ export function Canvas({
       ),
     [e.doc.tokens, e.doc.colorProfile],
   );
-  const rootNodes = useMemo(() => childrenOf(e.doc, null), [e.doc]);
   const selectedNode =
     roots.length === 1 ? resolveNode(e.doc, roots[0]) : undefined;
   const selectedMatrix =
     roots.length === 1 ? matrices.get(roots[0].id)! : identity;
-  const selectionBox = union(
-    roots
-      .filter((n) => isVisible(e.doc, n.id))
-      .map((n) =>
-        roots.length === 1
-          ? bounds.get(n.id)!
-          : visualBounds(bounds.get(n.id)!, matrices.get(n.id)!),
-      ),
+  const selectionBox = selectionBounds(e.doc, roots, bounds, matrices);
+  const minimapItems = useMemo(() => {
+    const items: MinimapNodeSummary[] = [];
+    const selected = new Set(roots.map((n) => n.id));
+    function collect(node: DesignNode) {
+      if (!(
+        node.type === "frame" ||
+        node.type === "section" ||
+        node.componentSet
+      ))
+        return;
+      const resolved = resolveNode(e.doc, node);
+      if (resolved.hidden) return;
+      const rect = bounds.get(node.id);
+      if (!rect) return;
+      items.push({
+        id: node.id,
+        rect: visualBounds(rect, matrices.get(node.id) ?? identity),
+        kind: node.componentSet
+          ? "component"
+          : node.type === "section"
+            ? "section"
+            : "frame",
+        fill: summaryFill(e.doc, resolved),
+        selected: selected.has(node.id),
+      });
+      if (node.type === "section") childrenOf(e.doc, node.id).forEach(collect);
+    }
+    rootNodes.forEach(collect);
+    return items;
+  }, [rootNodes, bounds, matrices, roots, e.doc]);
+  const minimapBoardCount = useMemo(
+    () => minimapItems.filter((n) => n.kind === "frame").length,
+    [minimapItems],
+  );
+  const minimapExpanded =
+    viewOptions?.showMinimap ??
+    localViewOpts.showMinimap ??
+    shouldAutoExpandMinimap(minimapBoardCount, surfaceSize);
+  const effectiveViewOptions: CanvasViewOptions = {
+    showMinimap: minimapExpanded,
+    showRulers: viewOptions?.showRulers ?? e.rulers,
+    showPixelGrid: viewOptions?.showPixelGrid ?? localViewOpts.showPixelGrid,
+    showLayoutGuides:
+      viewOptions?.showLayoutGuides ?? localViewOpts.showLayoutGuides,
+    outlineMode: viewOptions?.outlineMode ?? localViewOpts.outlineMode,
+    snapEnabled: viewOptions?.snapEnabled ?? snap,
+    showComments: viewOptions?.showComments ?? localViewOpts.showComments,
+  };
+  const handleToggleViewOption = (key: keyof CanvasViewOptions) => {
+    if (onToggleViewOption) {
+      onToggleViewOption(key, !effectiveViewOptions[key]);
+      return;
+    }
+    if (key === "showRulers") e.perform("rulers");
+    else if (key === "snapEnabled") setSnap((s) => !s);
+    else
+      setLocalViewOpts((prev) => ({
+        ...prev,
+        [key]: !effectiveViewOptions[key],
+      }));
+  };
+  const toggleMinimapShortcut = useEffectEvent(() =>
+    handleToggleViewOption("showMinimap"),
   );
   const ready = useRef(false);
   const local = (client: Point) => {
@@ -423,12 +781,18 @@ export function Canvas({
   };
   const world = (client: Point) =>
     screenToWorld(local(client), viewRef.current);
-  function setView(next: Viewport) {
-    views.set(page, next);
-    viewRef.current = next;
-    setViewport(next);
-  }
+  const setView = useCallback(
+    (next: Viewport, live = false) => {
+      if (handleDraggingRef.current) return;
+      views.set(page, next);
+      viewRef.current = next;
+      if (live) camera.setLive(next);
+      else camera.setImmediate(next);
+    },
+    [camera, page, views],
+  );
   function fit(ids?: string[]) {
+    if (handleDraggingRef.current) return;
     const doc = e.historyRef.current.present;
     const geometry = layoutBounds(doc);
     const transforms = sceneTransforms(doc, geometry);
@@ -448,6 +812,7 @@ export function Canvas({
     e.api.current = {
       fit,
       zoom: (factor) => {
+        if (handleDraggingRef.current) return;
         const r = surface.current!.getBoundingClientRect();
         setView(
           zoomAt(viewRef.current, viewRef.current.zoom * factor, {
@@ -457,6 +822,7 @@ export function Canvas({
         );
       },
       zoom100: () => {
+        if (handleDraggingRef.current) return;
         const r = surface.current!.getBoundingClientRect();
         setView(
           zoomAt(viewRef.current, 1, { x: r.width / 2, y: r.height / 2 }),
@@ -472,7 +838,9 @@ export function Canvas({
     };
     if (!ready.current) {
       ready.current = true;
-      if (!views.has(page))
+      const saved = views.get(page);
+      if (saved) setView(saved);
+      else
         fit(
           e.selection.length &&
             e.selection.some((id) => e.doc.nodes.some((n) => n.id === id))
@@ -484,6 +852,10 @@ export function Canvas({
   useEffect(() => {
     const element = surface.current!;
     const wheel = (event: WheelEvent) => {
+      if (handleDraggingRef.current) {
+        event.preventDefault();
+        return;
+      }
       if (
         (event.target as HTMLElement).closest(
           'textarea,[contenteditable="true"]',
@@ -491,28 +863,54 @@ export function Canvas({
       )
         return;
       event.preventDefault();
-      const current = viewRef.current;
-      if (event.ctrlKey || event.metaKey)
-        setView(
-          zoomAt(
-            current,
-            current.zoom * Math.exp(-event.deltaY * 0.008),
-            local({ x: event.clientX, y: event.clientY }),
-          ),
-        );
-      else
-        setView({
-          ...current,
-          x: current.x - (event.shiftKey ? event.deltaY : event.deltaX),
-          y: current.y - (event.shiftKey ? 0 : event.deltaY),
-        });
+      const { deltaX, deltaY, deltaMode, ctrlKey, metaKey, shiftKey } = event;
+      const result = applyWheelToViewport(viewRef.current, {
+        deltaX,
+        deltaY,
+        deltaMode,
+        ctrlKey,
+        metaKey,
+        shiftKey,
+        anchor: local({ x: event.clientX, y: event.clientY }),
+      });
+      setView(result.viewport, true);
     };
     element.addEventListener("wheel", wheel, { passive: false });
     return () => element.removeEventListener("wheel", wheel);
-  }, []);
+  }, [setView]);
   useEffect(() => {
+    const resetInput = () => {
+      spaceRef.current = false;
+      setSpace(false);
+      altRef.current = false;
+      setAlt(false);
+      setHover(null);
+      cancelCanvasGesture();
+    };
+    if (!active) {
+      resetInput();
+      return;
+    }
     const down = (event: KeyboardEvent) => {
       if (document.querySelector('[aria-modal="true"]')) return;
+      if (
+        event.code === "KeyM" &&
+        event.shiftKey &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.isComposing &&
+        !event.repeat &&
+        !event.defaultPrevented &&
+        !(event.target as Element)?.closest?.(
+          'input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="dialog"],[role="menu"],[role="menuitem"],[role="menuitemcheckbox"]',
+        )
+      ) {
+        if (document.querySelector('[role="menu"]')) return;
+        event.preventDefault();
+        toggleMinimapShortcut();
+        return;
+      }
       if (
         event.code === "Space" &&
         !(event.target as HTMLElement).closest(
@@ -524,13 +922,7 @@ export function Canvas({
         setSpace(true);
       }
       if (event.key === "Escape" && gesture.current) {
-        gesture.current = null;
-        e.setPreview(null);
-        updateBox(null);
-        setPencilStroke(null);
-        setGhost(null);
-        setDropCell(undefined);
-        setGuides([]);
+        cancelCanvasGesture();
       } else if (
         event.key === "Escape" &&
         (currentTool === "pencil" ||
@@ -548,26 +940,15 @@ export function Canvas({
         setSpace(false);
       }
     };
-    const blur = () => {
-      spaceRef.current = false;
-      setSpace(false);
-      gesture.current = null;
-      e.setPreview(null);
-      updateBox(null);
-      setPencilStroke(null);
-      setGhost(null);
-      setDropCell(undefined);
-      setGuides([]);
-    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
-    window.addEventListener("blur", blur);
+    window.addEventListener("blur", resetInput);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
-      window.removeEventListener("blur", blur);
+      window.removeEventListener("blur", resetInput);
     };
-  }, [e.setPreview, currentTool]);
+  }, [active, cancelCanvasGesture, currentTool]);
   function targetId(event: ReactPointerEvent | React.MouseEvent) {
     const direct = (event.target as HTMLElement).closest<HTMLElement>(
       "[data-node-id]",
@@ -605,22 +986,14 @@ export function Canvas({
   ) {
     const geometry = cachedGeometry ?? layoutBounds(doc);
     const transforms = cachedMatrices ?? sceneTransforms(doc, geometry);
-    let bestId: string | null = null;
-    let bestArea = Infinity;
-    for (const n of doc.nodes) {
-      if (n.type !== "section" || excluded.has(n.id)) continue;
-      const rect = geometry.get(n.id);
-      if (!rect) continue;
-      const m = transforms.get(n.id) ?? identity;
-      const localPoint = m === identity ? point : transform(inverse(m), point);
-      if (!contains(rect, localPoint)) continue;
-      const area = rect.width * rect.height;
-      if (area >= bestArea) continue;
-      if (isLocked(doc, n.id) || !isVisible(doc, n.id)) continue;
-      bestArea = area;
-      bestId = n.id;
-    }
-    return bestId;
+    return buildSpatialIndex(doc, geometry, transforms).findSmallestContainerAt(
+      point,
+      ({ id, type }) =>
+        type === "section" &&
+        !excluded.has(id) &&
+        !isLocked(doc, id) &&
+        isVisible(doc, id),
+    );
   }
   function containerAt(
     point: Point,
@@ -632,36 +1005,25 @@ export function Canvas({
   ) {
     const geometry = cachedGeometry ?? layoutBounds(doc);
     const transforms = cachedMatrices ?? sceneTransforms(doc, geometry);
-    let bestId: string | null = null;
-    let bestArea = Infinity;
-    for (const n of doc.nodes) {
-      if (
-        (n.type !== "frame" &&
-          n.type !== "section" &&
-          !(includeSets && n.componentSet)) ||
-        excluded.has(n.id)
-      )
-        continue;
-      const rect = geometry.get(n.id);
-      if (!rect) continue;
-      const m = transforms.get(n.id) ?? identity;
-      const localPoint = m === identity ? point : transform(inverse(m), point);
-      if (!contains(rect, localPoint)) continue;
-      const area = rect.width * rect.height;
-      if (area >= bestArea) continue;
-      if (
-        isLocked(doc, n.id) ||
-        instanceOwner(doc, n.id) ||
-        !isVisible(doc, n.id)
-      )
-        continue;
-      bestArea = area;
-      bestId = n.id;
-    }
-    return bestId;
+    return buildSpatialIndex(doc, geometry, transforms).findSmallestContainerAt(
+      point,
+      ({ id, type, order }) =>
+        (type === "frame" ||
+          type === "section" ||
+          (includeSets && !!doc.nodes[order].componentSet)) &&
+        !excluded.has(id) &&
+        !isLocked(doc, id) &&
+        !instanceOwner(doc, id) &&
+        isVisible(doc, id),
+    );
+  }
+  function flushForEditing() {
+    if (camera.isInteracting()) flushSync(() => camera.flush());
+    else if (camera.get() !== viewport)
+      flushSync(() => setViewport(camera.get()));
   }
   function down(event: ReactPointerEvent) {
-    if (event.button === 2) return;
+    if (!active || gesture.current || event.button === 2) return;
     if (
       (event.target as HTMLElement).closest(
         'textarea,[contenteditable="true"],.fp-comments-layer,.fp-comment-popover,.fp-comment-pin',
@@ -691,11 +1053,28 @@ export function Canvas({
       }
       return;
     }
+    const panning =
+      event.button === 1 || spaceRef.current || currentTool === "hand";
+    const selecting =
+      !panning &&
+      !devMode &&
+      (currentTool === "select" || currentTool === "scale");
+    const sectionLabelId = selecting
+      ? labelIdAt(event.target as Element)
+      : undefined;
+    const hit = selecting ? (sectionLabelId ?? targetId(event)) : null;
+    const hitNode = hit ? findLayer(e.committed, hit) : undefined;
+    const deepBox =
+      hitNode && isContainer(hitNode) && (event.metaKey || event.ctrlKey);
+    if (hit && (sectionLabelId || !deepBox)) {
+      beginNodeDrag(event, hit, { directId: Boolean(sectionLabelId) });
+      return;
+    }
     event.preventDefault();
     surface.current?.focus();
-    surface.current?.setPointerCapture(event.pointerId);
+    if (!capturePointer(event.pointerId)) return;
     const point = world({ x: event.clientX, y: event.clientY });
-    if (event.button === 1 || spaceRef.current || currentTool === "hand") {
+    if (panning) {
       gesture.current = {
         kind: "pan",
         start: { x: event.clientX, y: event.clientY },
@@ -764,31 +1143,38 @@ export function Canvas({
       return;
     }
     if (e.cropping) e.setCropping(null);
-    const hit = targetId(event);
-    const hitNode = hit ? findLayer(e.committed, hit) : undefined;
-    if (hitNode && isContainer(hitNode) && (event.metaKey || event.ctrlKey)) {
-      gesture.current = {
-        kind: "box",
-        start: point,
-        add: event.shiftKey ? e.selection : [],
-        deep: true,
-        clickId: hitNode.id,
-      };
-      updateBox({ x: point.x, y: point.y, width: 0, height: 0 });
+    gesture.current = {
+      kind: "box",
+      start: point,
+      add: event.shiftKey ? e.selection : [],
+      deep: event.metaKey || event.ctrlKey,
+      clickId: hitNode?.id,
+    };
+    if (!hitNode && !event.shiftKey) e.setSelection([]);
+    updateBox({ x: point.x, y: point.y, width: 0, height: 0 });
+  }
+  function beginNodeDrag(
+    event: ReactPointerEvent,
+    hit: string,
+    options?: { directId?: boolean },
+  ) {
+    if (gesture.current) return;
+    if (!canStartCanvasEdit()) return;
+    flushForEditing();
+    event.preventDefault();
+    event.stopPropagation();
+    surface.current?.focus();
+    if (
+      !findLayer(e.committed, hit) ||
+      isLocked(e.committed, hit) ||
+      !capturePointer(event.pointerId)
+    )
       return;
-    }
-    if (!hit) {
-      gesture.current = {
-        kind: "box",
-        start: point,
-        add: event.shiftKey ? e.selection : [],
-        deep: event.metaKey || event.ctrlKey,
-      };
-      if (!event.shiftKey) e.setSelection([]);
-      updateBox({ x: point.x, y: point.y, width: 0, height: 0 });
-      return;
-    }
-    const id = shallow(hit, event.metaKey || event.ctrlKey);
+    const point = world({ x: event.clientX, y: event.clientY });
+    if (e.cropping) e.setCropping(null);
+    const id = options?.directId
+      ? hit
+      : shallow(hit, event.metaKey || event.ctrlKey);
     const alreadySelected = e.selection.includes(id);
     const originalIds = alreadySelected
       ? e.selection
@@ -796,7 +1182,12 @@ export function Canvas({
         ? [...e.selection, id]
         : [id];
     let ids = originalIds;
-    if (ids.some((selected) => instanceAncestor(e.doc, selected))) {
+    if (
+      ids.some(
+        (selected) =>
+          isLocked(e.committed, selected) || instanceAncestor(e.doc, selected),
+      )
+    ) {
       if (event.shiftKey && alreadySelected) e.select(id, true);
       else e.setSelection(ids);
       return;
@@ -806,19 +1197,17 @@ export function Canvas({
     let prefix: Operation[] = [];
     if (event.altKey) {
       try {
-        const source = copySelection(working, ids);
         const nodes = selectionRoots(working, ids);
         const parent = nodes.every((n) => n.parentId === nodes[0].parentId)
           ? nodes[0].parentId
           : null;
-        const result = pasteSelection(working, source, parent);
+        const result = duplicateSelectionForDrag(working, ids, parent);
         prefix = result.operations;
         working = transact(working, {
           baseRevision: working.revision,
           operations: prefix,
         });
         ids = result.selection;
-        e.setSelection(ids);
       } catch (error) {
         e.setError(String(error));
         return;
@@ -829,8 +1218,10 @@ export function Canvas({
       start: point,
       base: e.committed,
       working,
+      appliedDelta: { x: 0, y: 0 },
       ids: selectionRoots(working, ids).map((n) => n.id),
       originalIds,
+      fromTitle: Boolean(options?.directId),
       shiftToggleId: event.shiftKey && alreadySelected ? id : undefined,
       prefix,
       operations: prefix,
@@ -840,20 +1231,62 @@ export function Canvas({
   function preview(base: DesignDocument, operations: Operation[]) {
     if (!operations.length) return;
     try {
-      e.setPreview(previewGeometry(base, operations));
+      const next = previewGeometry(base, operations);
+      gesturePreview.current = next;
+      e.setPreview(next);
     } catch (error) {
       e.setError(String(error));
     }
   }
+  function canStartCanvasEdit() {
+    return (
+      !hasExternalPreview &&
+      e.previewRef.current === null &&
+      e.doc === e.committed &&
+      e.historyRef.current.present === e.committed
+    );
+  }
+  function gestureSuperseded(state: Gesture | null) {
+    return (
+      state &&
+      "base" in state &&
+      (hasExternalPreview ||
+        state.base !== e.historyRef.current.present ||
+        (e.previewRef.current !== null &&
+          e.previewRef.current !== gesturePreview.current))
+    );
+  }
   function move(event: ReactPointerEvent) {
     const state = gesture.current;
+    if (state && capturedPointer.current !== event.pointerId) return;
+    if (gestureSuperseded(state)) return cancelCanvasGesture();
     const point = world({ x: event.clientX, y: event.clientY });
     if (!state) {
+      const target = event.target as Element;
+      let labelId = labelIdAt(target) ?? null;
+      if (!labelId && artboardLabelsInteractive) {
+        const hitId =
+          target.closest<HTMLElement>("[data-node-id]")?.dataset.nodeId;
+        let board = findLayer(e.doc, hitId ?? null);
+        while (board && !labelNodeIds.has(board.id))
+          board = findLayer(e.doc, board.parentId);
+        const rect = board && bounds.get(board.id);
+        if (board && board.type !== "section" && rect) {
+          const visual = visualBounds(rect, matrices.get(board.id) ?? identity);
+          if (Math.min(visual.width, visual.height) * viewRef.current.zoom < 32)
+            labelId = board.id;
+        }
+      }
+      if (artboardLabelsInteractive && labelId !== hoveredLabelId)
+        setHoveredLabelId(labelId);
       if (altRef.current || devMode) {
         const directHit = (event.target as HTMLElement).closest<HTMLElement>(
           "[data-node-id]",
         )?.dataset.nodeId;
         setHover(devMode ? (directHit ?? null) : targetId(event));
+      } else if (isLodActive) {
+        const id = targetId(event);
+        setHover(id ? rootIdOf(e.doc, id) : null);
       }
       return;
     }
@@ -884,11 +1317,14 @@ export function Canvas({
       return;
     }
     if (state.kind === "pan") {
-      setView({
-        ...state.viewport,
-        x: state.viewport.x + event.clientX - state.start.x,
-        y: state.viewport.y + event.clientY - state.start.y,
-      });
+      setView(
+        {
+          ...state.viewport,
+          x: state.viewport.x + event.clientX - state.start.x,
+          y: state.viewport.y + event.clientY - state.start.y,
+        },
+        true,
+      );
       return;
     }
     if (state.kind === "box" || state.kind === "draw") {
@@ -936,7 +1372,11 @@ export function Canvas({
     const dx = point.x - state.start.x,
       dy = point.y - state.start.y;
     if (Math.hypot(dx, dy) * viewport.zoom < 2 && !state.moved) return;
-    if (!state.moved) setInteracting(true);
+    if (!state.moved) {
+      setInteracting(true);
+      if (state.kind === "drag" && state.prefix.length)
+        e.setSelection(state.ids);
+    }
     state.moved = true;
     if (state.kind === "resize") {
       if (!state.cache) {
@@ -1084,7 +1524,10 @@ export function Canvas({
         const parent = findLayer(state.working, node.parentId);
         return {
           node,
-          inFlow: parent?.type === "frame" && parent.style.layout !== "free",
+          inFlow:
+            parent?.type === "frame" &&
+            parent.style.layout !== "free" &&
+            !node.style.absolutePosition,
           parentInv: inverse(parent ? transforms.get(parent.id)! : identity),
         };
       });
@@ -1100,14 +1543,14 @@ export function Canvas({
     const { initial, snapIndex, parentData } = state.cache;
     let delta = { x: dx, y: dy };
     if (event.shiftKey)
-      delta = Math.abs(dx) > Math.abs(dy) ? { x: dx, y: 0 } : { x: 0, y: dy };
+      delta = Math.abs(dx) >= Math.abs(dy) ? { x: dx, y: 0 } : { x: 0, y: dy };
     if (effectiveViewOptions.snapEnabled && !event.metaKey && !event.ctrlKey) {
       const result = snapMoveIndexed(
         { ...initial, x: initial.x + delta.x, y: initial.y + delta.y },
         snapIndex,
         5 / viewport.zoom,
       );
-      const allowX = !event.shiftKey || Math.abs(dx) > Math.abs(dy);
+      const allowX = !event.shiftKey || Math.abs(dx) >= Math.abs(dy);
       const allowY = !event.shiftKey || !allowX;
       if (allowX) delta.x += result.dx;
       if (allowY) delta.y += result.dy;
@@ -1118,6 +1561,7 @@ export function Canvas({
         prev.length === 0 && nextGuides.length === 0 ? prev : nextGuides,
       );
     } else setGuides((prev) => (prev.length === 0 ? prev : []));
+    state.appliedDelta = delta;
     const operations: Operation[] = [...state.prefix];
     let flow = false;
     for (const { node, inFlow, parentInv } of parentData) {
@@ -1138,6 +1582,7 @@ export function Canvas({
     }
     const gridParent =
       parentData.length === 1 &&
+      parentData[0].inFlow &&
       findLayer(state.working, parentData[0].node.parentId);
     setDropCell(
       gridParent && gridParent.style.layout === "grid"
@@ -1161,18 +1606,24 @@ export function Canvas({
     preview(state.base, operations);
   }
   function end(event: ReactPointerEvent, cancel = false) {
+    if (gesture.current && capturedPointer.current !== event.pointerId) return;
+    if (cancel || gestureSuperseded(gesture.current)) {
+      cancelCanvasGesture();
+      return;
+    }
     const state = gesture.current;
     gesture.current = null;
+    capturedPointer.current = null;
+    if (!state || state.kind === "pan") return;
     setInteracting(false);
     setGuides([]);
     setGhost(null);
     setDropCell(undefined);
     setPencilStroke(null);
-    e.setPreview(null);
+    clearGesturePreview();
     const point = world({ x: event.clientX, y: event.clientY });
     const drawn = boxRef.current;
     updateBox(null);
-    if (!state || cancel) return;
     e.attempt(() => {
       if (state.kind === "pencil") {
         const built = buildPencilVector(state.points);
@@ -1210,32 +1661,27 @@ export function Canvas({
         }
         const layout = layoutBounds(e.committed),
           matrices = sceneTransforms(e.committed, layout);
-        const geometry = new Map(
-          [...layout].map(([id, r]) => [
-            id,
-            visualBounds(r, matrices.get(id)!),
-          ]),
-        );
+        const index = buildSpatialIndex(e.committed, layout, matrices);
         const context =
           e.selected.length === 1 && isContainer(e.selected[0])
             ? e.selected[0].id
             : null;
-        const ids = e.committed.nodes
+        const ids = index
+          .queryRect(drawn)
           .filter(
-            (n) =>
-              (state.deep || n.parentId === context) &&
-              !isLocked(e.committed, n.id) &&
-              isVisible(e.committed, n.id) &&
-              intersects(drawn, geometry.get(n.id)!) &&
+            ({ id, parentId, rect, order }) =>
+              (state.deep || parentId === context) &&
+              !isLocked(e.committed, id) &&
+              isVisible(e.committed, id) &&
               (!state.deep ||
-                !isContainer(n) ||
-                (contains(drawn, geometry.get(n.id)!) &&
+                !isContainer(e.committed.nodes[order]) ||
+                (contains(drawn, rect) &&
                   contains(drawn, {
-                    x: geometry.get(n.id)!.x + geometry.get(n.id)!.width,
-                    y: geometry.get(n.id)!.y + geometry.get(n.id)!.height,
+                    x: rect.x + rect.width,
+                    y: rect.y + rect.height,
                   }))),
           )
-          .map((n) => n.id);
+          .map((entry) => entry.id);
         e.setSelection([...new Set([...state.add, ...ids])]);
       }
       if (state.kind === "draw") {
@@ -1323,111 +1769,136 @@ export function Canvas({
           state.cache?.transforms ?? sceneTransforms(state.working, geometry);
         const nodes =
           state.cache?.nodes ?? selectionRoots(state.working, state.ids);
-        if (state.moved) {
-          const target = containerAt(
-            point,
-            state.working,
-            subtreeIds(state.working, state.ids),
-            geometry,
-            transforms,
-            true,
-          );
-          const parent = findLayer(state.working, target);
-          const parentRect = target ? geometry.get(target) : null;
-          nodes.forEach((node, i) => {
-            if (parent?.componentSet && node.parentId !== parent.id) {
-              if (nodes.length !== 1) throw Error("请一次拖入一个变体");
-              operations.length = 0;
-              operations.push(...state.prefix);
-              operations.push({
-                type: "includeSetDrawing",
-                id: node.id,
-                setId: parent.id,
-              });
-              return;
-            }
-            const oldParent = findLayer(state.working, node.parentId);
-            const isFlow =
-              oldParent?.type === "frame" && oldParent.style.layout !== "free";
-            // Sections only live at canvas root or inside another section (Figma F06).
-            // Root frames remain root frames unless dropped directly into a section.
-            const destination =
-              node.type === "section"
-                ? parent?.type === "section"
-                  ? target
-                  : sectionParentAt(
-                      point,
-                      state.working,
-                      subtreeIds(state.working, state.ids),
-                      geometry,
-                      transforms,
-                    )
-                : node.type === "frame" && !node.parentId
-                  ? parent?.type === "section"
-                    ? target
-                    : null
-                  : target;
-            if (destination !== node.parentId) {
-              operations.push({
-                type: "move",
-                id: node.id,
-                parentId: destination,
-              });
-              const b = geometry.get(node.id)!;
-              operations.push({
-                type: "update",
-                id: node.id,
-                patch: {},
-                style: poseInParent(
-                  node,
-                  b,
-                  transforms.get(node.id)!,
-                  destination ? (parentRect ?? undefined) : undefined,
-                  transforms.get(destination ?? "") ?? identity,
-                  { x: point.x - state.start.x, y: point.y - state.start.y },
+        const excluded = subtreeIds(state.working, state.ids);
+        const target = containerAt(
+          point,
+          state.working,
+          excluded,
+          geometry,
+          transforms,
+          true,
+        );
+        const targetNode = findLayer(state.working, target);
+        nodes.forEach((node, i) => {
+          const oldParent = findLayer(state.working, node.parentId);
+          // Canvas and section boards stay artboards when dropped over another board's contents.
+          const artboard =
+            (node.type === "frame" || node.componentSet) &&
+            (!oldParent || oldParent.type === "section");
+          if (
+            targetNode?.componentSet &&
+            !state.fromTitle &&
+            (!artboard || nodes.length === 1) &&
+            !node.componentSet &&
+            node.type !== "section" &&
+            node.parentId !== targetNode.id
+          ) {
+            if (nodes.length !== 1) throw Error("请一次拖入一个变体");
+            operations.length = 0;
+            operations.push(...state.prefix, {
+              type: "includeSetDrawing",
+              id: node.id,
+              setId: targetNode.id,
+            });
+            return;
+          }
+          let destination = target;
+          if (node.type === "section" || artboard) {
+            const rect = visualBounds(
+              geometry.get(node.id)!,
+              transforms.get(node.id)!,
+            );
+            const finalRect = {
+              ...rect,
+              x: rect.x + state.appliedDelta.x,
+              y: rect.y + state.appliedDelta.y,
+            };
+            destination = sectionParentAt(
+              {
+                x: finalRect.x + rect.width / 2,
+                y: finalRect.y + rect.height / 2,
+              },
+              state.working,
+              excluded,
+              geometry,
+              transforms,
+            );
+            if (
+              destination === null &&
+              oldParent?.type === "section" &&
+              intersects(
+                finalRect,
+                visualBounds(
+                  geometry.get(oldParent.id)!,
+                  transforms.get(oldParent.id)!,
                 ),
-              });
+              )
+            ) {
+              destination = oldParent.id;
             }
-            const cell =
-              destination &&
-              parent &&
-              nodes.length === 1 &&
-              gridDrop(
-                state.working,
-                parent,
-                point,
-                geometry,
-                transforms.get(parent.id) ?? identity,
-              );
-            if (cell) {
-              operations.push({
-                type: "update",
-                id: node.id,
-                patch: {},
-                style: { gridCell: cell.cell },
-              });
-            } else if (destination && parent?.style.layout !== "free") {
-              const siblings = state.working.nodes.filter(
-                (n) => n.parentId === destination && !state.ids.includes(n.id),
-              );
-              const axis = parent!.style.layout === "row" ? "x" : "y",
-                size = axis === "x" ? "width" : "height";
-              let index = siblings.findIndex(
-                (n) =>
-                  point[axis] <
-                  geometry.get(n.id)![axis] + geometry.get(n.id)![size] / 2,
-              );
-              if (index < 0) index = siblings.length;
-              operations.push({
-                type: "reorder",
-                id: node.id,
-                index: index + i,
-              });
-            } else if (isFlow && destination === node.parentId) {
-              /* only possible for a changed layout in a rejected revision */
-            }
-          });
-        }
+          }
+          const parent = findLayer(state.working, destination);
+          if (destination !== node.parentId) {
+            operations.push({
+              type: "move",
+              id: node.id,
+              parentId: destination,
+            });
+            const b = geometry.get(node.id)!;
+            operations.push({
+              type: "update",
+              id: node.id,
+              patch: {},
+              style: poseInParent(
+                node,
+                b,
+                transforms.get(node.id)!,
+                destination ? geometry.get(destination) : undefined,
+                transforms.get(destination ?? "") ?? identity,
+                state.appliedDelta,
+              ),
+            });
+          }
+          const inFlow =
+            parent?.type === "frame" &&
+            parent.style.layout !== "free" &&
+            !node.style.absolutePosition;
+          const cell =
+            inFlow &&
+            nodes.length === 1 &&
+            gridDrop(
+              state.working,
+              parent,
+              point,
+              geometry,
+              transforms.get(parent.id) ?? identity,
+            );
+          if (cell) {
+            operations.push({
+              type: "update",
+              id: node.id,
+              patch: {},
+              style: { gridCell: cell.cell },
+            });
+          } else if (inFlow) {
+            const siblings = state.working.nodes.filter(
+              (n) => n.parentId === destination && !state.ids.includes(n.id),
+            );
+            const axis = parent.style.layout === "row" ? "x" : "y",
+              size = axis === "x" ? "width" : "height";
+            let index = siblings.findIndex(
+              (n) =>
+                point[axis] <
+                geometry.get(n.id)![axis] + geometry.get(n.id)![size] / 2,
+            );
+            if (index < 0) index = siblings.length;
+            operations.push({
+              type: "reorder",
+              id: node.id,
+              index: index + i,
+            });
+          }
+        });
         if (operations.length) e.apply(operations, state.base.revision);
       }
     });
@@ -1435,14 +1906,30 @@ export function Canvas({
   function beginResize(event: ReactPointerEvent, handle: Handle) {
     event.stopPropagation();
     event.preventDefault();
-    if (!selectionBox || roots.some((n) => isLocked(e.doc, n.id))) return;
-    surface.current?.setPointerCapture(event.pointerId);
+    if (!canStartCanvasEdit() || gesture.current || handleDraggingRef.current)
+      return;
+    const base = e.committed;
+    const items = selectionRoots(base, e.selection);
+    if (
+      !items.length ||
+      items.some((n) => isLocked(base, n.id) || instanceAncestor(base, n.id))
+    )
+      return;
+    const geometry = layoutBounds(base);
+    const box = selectionBounds(
+      base,
+      items,
+      geometry,
+      sceneTransforms(base, geometry),
+    );
+    if (!box) return;
+    if (!capturePointer(event.pointerId)) return;
     gesture.current = {
       kind: "resize",
       start: world({ x: event.clientX, y: event.clientY }),
-      base: e.committed,
-      ids: roots.map((n) => n.id),
-      box: selectionBox,
+      base,
+      ids: items.map((n) => n.id),
+      box,
       handle,
       operations: [],
       moved: false,
@@ -1471,52 +1958,79 @@ export function Canvas({
     };
   }
   function beginRotate(event: ReactPointerEvent) {
-    const n = roots[0],
-      b = bounds.get(n.id)!;
+    event.stopPropagation();
+    event.preventDefault();
+    if (!canStartCanvasEdit() || gesture.current || handleDraggingRef.current)
+      return;
+    const committedNode = findLayer(e.committed, roots[0].id);
+    if (
+      !committedNode ||
+      isLocked(e.committed, committedNode.id) ||
+      instanceAncestor(e.committed, committedNode.id)
+    )
+      return;
+    const geometry = layoutBounds(e.committed);
+    const b = geometry.get(committedNode.id)!;
     const parentInverse = inverse(
-      n.parentId ? matrices.get(n.parentId)! : identity,
+      committedNode.parentId
+        ? sceneTransforms(e.committed, geometry).get(committedNode.parentId)!
+        : identity,
     );
     const p = transform(
         parentInverse,
         world({ x: event.clientX, y: event.clientY }),
       ),
       center = { x: b.x + b.width / 2, y: b.y + b.height / 2 };
-    event.stopPropagation();
-    event.preventDefault();
-    surface.current?.setPointerCapture(event.pointerId);
+    if (!capturePointer(event.pointerId)) return;
+    setInteracting(true);
     gesture.current = {
       kind: "rotate",
       base: e.committed,
-      id: n.id,
+      id: committedNode.id,
       center,
       parentInverse,
       angle: (Math.atan2(p.y - center.y, p.x - center.x) * 180) / Math.PI,
-      initial: n.style.rotation ?? 0,
+      initial: committedNode.style.rotation ?? 0,
       operations: [],
     };
   }
-  const hoverRect = hover && bounds.get(hover);
+  const selectedWorldRect =
+    selectionBox && visualBounds(selectionBox, selectedMatrix);
+  const hoveredBox = hover && bounds.get(hover);
+  const hoverWorldRect =
+    hover &&
+    hoveredBox &&
+    visualBounds(hoveredBox, matrices.get(hover) ?? identity);
   const measure = (() => {
-    if (!hoverRect || !selectionBox || !hover || e.selection.includes(hover))
+    if (
+      !hoverWorldRect ||
+      !selectedWorldRect ||
+      !hover ||
+      e.selection.includes(hover)
+    )
       return null;
     const inside =
-      selectionBox.x >= hoverRect.x &&
-      selectionBox.y >= hoverRect.y &&
-      selectionBox.x + selectionBox.width <= hoverRect.x + hoverRect.width &&
-      selectionBox.y + selectionBox.height <= hoverRect.y + hoverRect.height;
+      selectedWorldRect.x >= hoverWorldRect.x &&
+      selectedWorldRect.y >= hoverWorldRect.y &&
+      selectedWorldRect.x + selectedWorldRect.width <=
+        hoverWorldRect.x + hoverWorldRect.width &&
+      selectedWorldRect.y + selectedWorldRect.height <=
+        hoverWorldRect.y + hoverWorldRect.height;
     if (inside) {
       return {
         inside: true as const,
-        left: selectionBox.x - hoverRect.x,
+        left: selectedWorldRect.x - hoverWorldRect.x,
         right:
-          hoverRect.x + hoverRect.width - (selectionBox.x + selectionBox.width),
-        top: selectionBox.y - hoverRect.y,
+          hoverWorldRect.x +
+          hoverWorldRect.width -
+          (selectedWorldRect.x + selectedWorldRect.width),
+        top: selectedWorldRect.y - hoverWorldRect.y,
         bottom:
-          hoverRect.y +
-          hoverRect.height -
-          (selectionBox.y + selectionBox.height),
-        dx: selectionBox.x - hoverRect.x,
-        dy: selectionBox.y - hoverRect.y,
+          hoverWorldRect.y +
+          hoverWorldRect.height -
+          (selectedWorldRect.y + selectedWorldRect.height),
+        dx: selectedWorldRect.x - hoverWorldRect.x,
+        dy: selectedWorldRect.y - hoverWorldRect.y,
       };
     }
     return {
@@ -1524,40 +2038,33 @@ export function Canvas({
       dx: Math.max(
         0,
         Math.max(
-          hoverRect.x - selectionBox.x - selectionBox.width,
-          selectionBox.x - hoverRect.x - hoverRect.width,
+          hoverWorldRect.x - selectedWorldRect.x - selectedWorldRect.width,
+          selectedWorldRect.x - hoverWorldRect.x - hoverWorldRect.width,
         ),
       ),
       dy: Math.max(
         0,
         Math.max(
-          hoverRect.y - selectionBox.y - selectionBox.height,
-          selectionBox.y - hoverRect.y - hoverRect.height,
+          hoverWorldRect.y - selectedWorldRect.y - selectedWorldRect.height,
+          selectedWorldRect.y - hoverWorldRect.y - hoverWorldRect.height,
         ),
       ),
     };
   })();
   useEffect(() => {
+    if (!active) return;
     const update = (event: KeyboardEvent) => {
       altRef.current = event.altKey;
       setAlt(event.altKey);
-      if (!event.altKey) setHover(null);
-    };
-    const clear = () => {
-      altRef.current = false;
-      setAlt(false);
-      setHover(null);
+      if (!event.altKey && !devMode && !isLodActive) setHover(null);
     };
     window.addEventListener("keydown", update);
     window.addEventListener("keyup", update);
-    window.addEventListener("blur", clear);
     return () => {
       window.removeEventListener("keydown", update);
       window.removeEventListener("keyup", update);
-      window.removeEventListener("blur", clear);
     };
-  }, []);
-  const cullRoots = rootNodes.length > 8 && e.doc.nodes.length > 500;
+  }, [active, devMode, isLodActive]);
   const visibleWorldRect = useMemo<Rect | null>(() => {
     if (!cullRoots) return null;
     const margin = 480;
@@ -1568,25 +2075,118 @@ export function Canvas({
       height: (surfaceSize.height + margin * 2) / viewport.zoom,
     };
   }, [cullRoots, viewport.x, viewport.y, viewport.zoom, surfaceSize]);
+  const selectedRootIds = useMemo(
+    () => rootIdsOf(e.doc, e.selection),
+    [e.doc, e.selection],
+  );
+  const editingId = e.editing ?? e.cropping ?? canvasRenamingId;
+  const editingRootId = useMemo(
+    () => editingId && rootIdOf(e.doc, editingId),
+    [e.doc, editingId],
+  );
+  const hoveredId = hoveredLabelId ?? hover;
+  const hoveredRootId = useMemo(
+    () => hoveredId && rootIdOf(e.doc, hoveredId),
+    [e.doc, hoveredId],
+  );
+  const activeGesture = interacting ? gesture.current : null;
+  const draggingRootIds = useMemo(
+    () =>
+      rootIdsOf(
+        e.doc,
+        activeGesture?.kind === "rotate"
+          ? [activeGesture.id]
+          : activeGesture?.kind === "drag" || activeGesture?.kind === "resize"
+            ? activeGesture.ids
+            : undefined,
+      ),
+    [e.doc, activeGesture],
+  );
+  const aiPreviewRootIds = useMemo(
+    () => rootIdsOf(e.doc, aiPreviewNodeIds),
+    [e.doc, aiPreviewNodeIds],
+  );
   const pinnedRoots = useMemo(() => {
     if (!cullRoots) return null;
-    const set = new Set<string>();
-    for (const id of e.selection) {
-      const chain = ancestors(e.doc, id);
-      set.add(chain.length ? chain[chain.length - 1].id : id);
+    const ids = new Set([
+      ...selectedRootIds,
+      ...draggingRootIds,
+      ...aiPreviewRootIds,
+    ]);
+    if (editingRootId) ids.add(editingRootId);
+    return ids;
+  }, [
+    cullRoots,
+    selectedRootIds,
+    editingRootId,
+    draggingRootIds,
+    aiPreviewRootIds,
+  ]);
+  const visibleRootIds = useMemo(() => {
+    if (!visibleWorldRect) return null;
+    // A position preview only changes selected branches. Keep the full index on the
+    // stable scene and check the few moving roots against the current geometry.
+    const delta = positionDelta(e.doc);
+    const scene = delta?.base ?? e.doc;
+    const geometry = delta ? layoutBounds(scene) : bounds;
+    const transforms = delta ? sceneTransforms(scene, geometry) : matrices;
+    const index = buildSpatialIndex(scene, geometry, transforms);
+    const ids = new Set(
+      index.queryRootsInRect(visibleWorldRect).map((entry) => entry.id),
+    );
+    if (delta) {
+      for (const id of delta.moved.keys()) {
+        if (findLayer(e.doc, id)?.parentId !== null) continue;
+        const rect = visualBounds(
+          bounds.get(id)!,
+          matrices.get(id) ?? identity,
+        );
+        if (intersects(rect, visibleWorldRect)) ids.add(id);
+        else ids.delete(id);
+      }
     }
-    if (e.editing) {
-      const chain = ancestors(e.doc, e.editing);
-      set.add(chain.length ? chain[chain.length - 1].id : e.editing);
-    }
-    return set;
-  }, [cullRoots, e.doc, e.selection, e.editing]);
-  const gridStep =
-    viewport.zoom < 0.16
-      ? 0
-      : 16 * viewport.zoom < 10
-        ? 32 * viewport.zoom
-        : 16 * viewport.zoom;
+    return ids;
+  }, [visibleWorldRect, e.doc, bounds, matrices]);
+  const labelScene = positionDelta(e.doc)?.base ?? e.doc;
+  const labelNodes = useMemo(
+    () => collectArtboardLabelNodes(labelScene),
+    [labelScene],
+  );
+  const labelNodeIds = useMemo(
+    () => new Set(labelNodes.map((node) => node.id)),
+    [labelNodes],
+  );
+  const hoveredLabel = hoveredLabelId
+    ? findLayer(e.doc, hoveredLabelId)
+    : undefined;
+  const hoverRect = hoveredLabel && bounds.get(hoveredLabel.id);
+  function componentLabelRole(node: DesignNode) {
+    if (node.componentSet) return "component-set";
+    if (masters.has(node.id)) return "component";
+    if (node.instance) return "instance";
+  }
+  function startLabelRename(id: string) {
+    if (!canStartCanvasEdit()) return;
+    if (!active || !artboardLabelsInteractive || isLocked(e.committed, id))
+      return;
+    flushForEditing();
+    e.setSelection([id]);
+    setCanvasRenamingId(id);
+  }
+  function commitLabelRename(id: string, nextName: string) {
+    setCanvasRenamingId((current) => (current === id ? null : current));
+    if (!canStartCanvasEdit()) return;
+    const node = findLayer(e.committed, id);
+    if (
+      node &&
+      nextName &&
+      nextName !== node.name &&
+      !isLocked(e.committed, id)
+    )
+      e.attempt(() =>
+        e.apply([{ type: "update", id, patch: { name: nextName } }]),
+      );
+  }
   const pageName =
     e.doc.pages?.find((p) => p.id === e.doc.activePage)?.name ?? "页面 1";
   const pageBgStyle: CSSProperties =
@@ -1708,11 +2308,14 @@ export function Canvas({
             data-tip="缩小画布"
             data-tip-kbd="-"
             data-tip-side="bottom"
-            onClick={() => e.api.current?.zoom(1 / 1.2)}
+            onClick={() =>
+              setZoomExact(stepZoomLevel(viewRef.current.zoom, -1))
+            }
           >
             <Minus size={14} />
           </button>
           <button
+            ref={zoomReadoutRef}
             className="zoom-readout"
             title="缩放至 100%"
             data-tip="重置缩放至 100%"
@@ -1720,9 +2323,7 @@ export function Canvas({
             data-tip-desc="点击恢复 1:1 实际像素视图"
             data-tip-side="bottom"
             onClick={() => e.api.current?.zoom100()}
-          >
-            {Math.round(viewport.zoom * 100)}%
-          </button>
+          />
           <ViewOptionsMenu
             zoom={viewport.zoom}
             options={effectiveViewOptions}
@@ -1742,7 +2343,7 @@ export function Canvas({
             data-tip="放大画布"
             data-tip-kbd="+"
             data-tip-side="bottom"
-            onClick={() => e.api.current?.zoom(1.2)}
+            onClick={() => setZoomExact(stepZoomLevel(viewRef.current.zoom, 1))}
           >
             <Plus size={14} />
           </button>
@@ -1758,6 +2359,19 @@ export function Canvas({
           >
             <Maximize size={15} />
           </button>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="画布小地图"
+            aria-pressed={minimapExpanded}
+            data-tip="画布小地图"
+            data-tip-kbd="⇧M"
+            data-tip-desc="在右下角显示百屏缩略导航图，支持点击与拖拽快速定位"
+            data-tip-side="bottom"
+            onClick={() => handleToggleViewOption("showMinimap")}
+          >
+            <MapIcon size={15} />
+          </button>
         </div>
       </div>
       <div
@@ -1765,7 +2379,7 @@ export function Canvas({
         className={`canvas editor-canvas canvas-stage ${interacting ? "is-interacting" : ""} ${fileDragActive ? "file-drop-active" : ""} ${effectiveViewOptions.outlineMode ? "is-outline-mode" : ""} ${devMode ? "is-dev-mode" : ""} ${space || currentTool === "hand" ? "panning-tool" : currentTool !== "select" && currentTool !== "scale" ? "drawing-tool" : ""}`}
         tabIndex={0}
         aria-label="设计画布"
-        data-zoom={viewport.zoom}
+        data-render-count={renderCount.current}
         onDragOver={(ev) => {
           const types = ev.dataTransfer.types;
           if (
@@ -1874,12 +2488,44 @@ export function Canvas({
             },
           });
         }}
+        onPointerDownCapture={(event) => {
+          if (!active || gesture.current) {
+            event.stopPropagation();
+            return;
+          }
+          if ((event.target as Element).closest(".canvas-minimap")) return;
+          if (
+            event.button === 1 ||
+            (event.button === 0 && (spaceRef.current || currentTool === "hand"))
+          ) {
+            down(event);
+            event.stopPropagation();
+          } else flushForEditing();
+        }}
+        onContextMenuCapture={flushForEditing}
         onPointerDown={down}
         onPointerMove={move}
+        onPointerLeave={() => {
+          setHover(null);
+          setHoveredLabelId(null);
+        }}
         onPointerUp={(event) => end(event)}
         onPointerCancel={(event) => end(event, true)}
+        onLostPointerCapture={(event) => {
+          if (event.target === surface.current) end(event, true);
+        }}
         onDoubleClick={(event) => {
+          if (hasExternalPreview || e.doc !== e.committed) return;
           if (devMode) return;
+          const label = labelIdAt(
+            event.target === surface.current
+              ? document.elementFromPoint(event.clientX, event.clientY)
+              : (event.target as Element),
+          );
+          if (label) {
+            startLabelRename(label);
+            return;
+          }
           const id = targetId(event);
           if (!id) return;
           const node = e.doc.nodes.find((n) => n.id === id)!;
@@ -1901,13 +2547,16 @@ export function Canvas({
         onContextMenu={(event) => {
           if (
             (event.target as HTMLElement).closest(
-              'textarea,[contenteditable="true"]',
+              'input,textarea,[contenteditable="true"]',
             )
           )
             return;
           event.preventDefault();
-          const id = targetId(event);
-          if (!id) e.setSelection([]);
+          const labelId = labelIdAt(event.target as Element);
+          const id = labelId ?? targetId(event);
+          if (labelId) {
+            if (!e.selection.includes(labelId)) e.setSelection([labelId]);
+          } else if (!id) e.setSelection([]);
           else if (
             ![id, ...ancestors(e.doc, id).map((n) => n.id)].some((key) =>
               e.selection.includes(key),
@@ -1915,49 +2564,36 @@ export function Canvas({
           )
             e.setSelection([shallow(id, event.metaKey || event.ctrlKey)]);
           const layers = [
-            ...new Set(
-              document
+            ...new Set([
+              ...(labelId ? [labelId] : []),
+              ...document
                 .elementsFromPoint(event.clientX, event.clientY)
                 .flatMap((el) => {
                   const key = (el as HTMLElement).dataset?.nodeId;
                   return key && !isLocked(e.doc, key) ? [key] : [];
                 }),
-            ),
+            ]),
           ];
           contextMenu(event.clientX, event.clientY, layers);
         }}
-        style={
-          gridStep
-            ? {
-                ...pageBgStyle,
-                backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-                backgroundSize: `${gridStep}px ${gridStep}px`,
-              }
-            : { ...pageBgStyle, backgroundImage: "none" }
-        }
+        style={pageBgStyle}
       >
         <div
+          ref={worldRef}
           className="canvas-world"
-          style={
-            {
-              transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
-              "--canvas-zoom": viewport.zoom,
-              ...tokenVars,
-            } as CSSProperties
-          }
+          style={tokenVars as CSSProperties}
         >
           <InlineTextContext.Provider value={e.editing ? e : null}>
             {rootNodes.map((node) => {
               const rect = bounds.get(node.id);
               if (
-                visibleWorldRect &&
+                visibleRootIds &&
                 rect &&
                 !pinnedRoots?.has(node.id) &&
-                !intersects(
-                  visualBounds(rect, matrices.get(node.id) ?? identity),
-                  visibleWorldRect,
-                )
+                !visibleRootIds.has(node.id)
               ) {
+                const resolved = resolveNode(e.doc, node);
+                if (resolved.hidden) return null;
                 return (
                   <div
                     key={node.id}
@@ -1970,16 +2606,47 @@ export function Canvas({
                       top: rect.y,
                       width: rect.width,
                       height: rect.height,
-                      background: displayColor(
-                        node.style.fill,
-                        e.doc.colorProfile,
-                      ),
-                      borderRadius: node.style.radius,
+                      background: summaryFill(e.doc, resolved),
+                      borderRadius: resolved.style.radius,
                       pointerEvents: "none",
                     }}
                   />
                 );
               }
+              const tileCandidate =
+                isLodActive &&
+                node.type === "frame" &&
+                hasMoreDescendantsThan(e.doc, node.id, LOD_MIN_BOARD_NODES);
+              const lodMode = resolveBoardLodMode({
+                lodActive: isLodActive,
+                node,
+                descendantCount: tileCandidate ? LOD_MIN_BOARD_NODES + 1 : 0,
+                isSelectedBranch: selectedRootIds.has(node.id),
+                isHovered: hoveredRootId === node.id,
+                isEditingBranch: editingRootId === node.id,
+                isDragging: draggingRootIds.has(node.id),
+                isAiPreview: aiPreviewRootIds.has(node.id),
+                outlineMode: effectiveViewOptions.outlineMode,
+                showLayoutGuides: effectiveViewOptions.showLayoutGuides,
+                renderable:
+                  tileCandidate && isBoardLodRenderable(e.doc, node.id, bounds),
+                hasLayoutGuides:
+                  tileCandidate &&
+                  effectiveViewOptions.showLayoutGuides &&
+                  branchHasLayoutGuides(e.doc, node.id),
+              });
+              if (lodMode === "cached" && rect)
+                return (
+                  <BoardLodTile
+                    key={node.id}
+                    document={e.doc}
+                    node={node}
+                    rect={rect}
+                    bounds={bounds}
+                    showLayoutGuides={effectiveViewOptions.showLayoutGuides}
+                    zoom={viewport.zoom}
+                  />
+                );
               return (
                 <CanvasNode
                   key={node.id}
@@ -1995,256 +2662,518 @@ export function Canvas({
             })}
           </InlineTextContext.Provider>
         </div>
-        {(effectiveViewOptions.showPixelGrid || viewport.zoom >= 4) && (
-          <div
-            aria-hidden="true"
-            className="canvas-pixel-grid"
-            style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-              backgroundSize: `${viewport.zoom >= 4 ? viewport.zoom : Math.max(8, viewport.zoom * 8)}px ${viewport.zoom >= 4 ? viewport.zoom : Math.max(8, viewport.zoom * 8)}px`,
-              backgroundImage:
-                "linear-gradient(to right, rgba(128, 128, 128, 0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(128, 128, 128, 0.14) 1px, transparent 1px)",
-            }}
-          />
-        )}
-        {pencilStroke && pencilStroke.length > 1 && (
-          <svg
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              overflow: "visible",
-            }}
-          >
-            <polyline
-              fill="none"
-              stroke="#0d99ff"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              points={pencilStroke
-                .map(
-                  (p) =>
-                    `${viewport.x + p.x * viewport.zoom},${viewport.y + p.y * viewport.zoom}`,
-                )
-                .join(" ")}
-            />
-          </svg>
-        )}
-        {rootNodes.map((node) => {
-          if (node.hidden || (node.type !== "frame" && !node.componentSet))
-            return null;
-          const rect = bounds.get(node.id);
-          if (!rect) return null;
-          if (
-            visibleWorldRect &&
-            !pinnedRoots?.has(node.id) &&
-            !intersects(
-              visualBounds(rect, matrices.get(node.id) ?? identity),
-              visibleWorldRect,
-            )
-          )
-            return null;
-          const left = viewport.x + rect.x * viewport.zoom;
-          const top = viewport.y + rect.y * viewport.zoom - 6;
-          const isComp =
-            masters.has(node.id) || !!node.instance || !!node.componentSet;
-          return (
-            <button
-              key={`lbl-${node.id}`}
-              type="button"
-              className={`frame-label ${e.selection.includes(node.id) ? "selected" : ""} ${isComp ? "is-component" : ""}`}
-              style={{ left, top }}
-              onPointerDown={(ev) => {
-                ev.stopPropagation();
-                if (!isLocked(e.committed, node.id))
-                  e.select(node.id, ev.shiftKey);
-              }}
-              onDoubleClick={(ev) => {
-                ev.stopPropagation();
-                if (!isLocked(e.committed, node.id)) {
-                  e.setSelection([node.id]);
-                  e.setRenaming(node.id);
+        <CanvasOverlayHud
+          camera={camera}
+          surfaceSize={surfaceSize}
+          showPixelGrid={effectiveViewOptions.showPixelGrid}
+          guides={guides}
+          measure={
+            (alt || devMode) && measure && hoverWorldRect && selectedWorldRect
+              ? {
+                  selectionBox: selectedWorldRect,
+                  hoverRect: hoverWorldRect,
+                  ...measure,
                 }
-              }}
-            >
-              {node.name}{" "}
-              <small>
-                {Math.round(rect.width)} × {Math.round(rect.height)}
-              </small>
-            </button>
-          );
-        })}
-        {dropCell && (
-          <div
-            aria-hidden="true"
-            className="grid-drop-preview"
-            style={oriented(dropCell.rect, dropCell.matrix)}
-          >
-            <span>
-              {dropCell.cell.row} × {dropCell.cell.column}
-            </span>
-          </div>
-        )}
-        {selectionBox && !e.editing && !cropNode && e.tool !== "pen" && (
-          <div
-            className="selection-overlay"
-            data-selection-kind={isComponentSelection ? "component" : undefined}
-            style={oriented(selectionBox, selectedMatrix)}
-            data-testid="selection-box"
-          >
-            {selectedNode &&
-              e.tool === "select" &&
-              !prototypeMode &&
-              selectedNode.style.layout === "grid" &&
-              !selectedNode.style.minColumnWidth &&
-              !roots[0].instance &&
-              !instanceAncestor(e.doc, roots[0].id) &&
-              !isLocked(e.doc, roots[0].id) && (
-                <GridHandles
-                  key={roots[0].id}
-                  editor={e}
-                  node={selectedNode}
-                  boxes={bounds}
-                  matrix={selectedMatrix}
-                  zoom={viewport.zoom}
-                />
-              )}
-            <span className="dimension-label">
-              {Math.round(selectionBox.width)} ×{" "}
-              {Math.round(selectionBox.height)}
-            </span>
-            {roots.length === 1 &&
-              !devMode &&
-              !isLocked(e.doc, roots[0].id) &&
-              !instanceAncestor(e.doc, roots[0].id) && (
-                <button
-                  className="rotation-handle"
-                  aria-label="旋转选区"
-                  title="旋转 · Shift 15°"
-                  onPointerDown={beginRotate}
-                />
-              )}
-            {!devMode &&
-              !roots.some(
-                (n) => isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
-              ) &&
-              handles.map((handle) => (
-                <button
-                  key={handle}
-                  className={`resize-handle handle-${handle}`}
-                  aria-label={`调整尺寸 ${handle}`}
-                  onPointerDown={(event) => beginResize(event, handle)}
-                />
-              ))}
-          </div>
-        )}
-        {prototypeMode &&
-          !devMode &&
-          !e.editing &&
-          currentTool === "select" && (
-            <PrototypeWires
-              editor={e}
-              viewport={viewport}
-              bounds={bounds}
-              matrices={matrices}
-              onPlayFlow={onPlayFlow}
-            />
-          )}
-        {e.smartGrid &&
-          !prototypeMode &&
-          !devMode &&
-          !e.editing &&
-          currentTool === "select" && (
-            <SmartHandles
-              editor={e}
-              grid={e.smartGrid}
-              viewport={viewport}
-              matrix={matrices.get(e.smartGrid.parent ?? "") ?? identity}
-            />
-          )}
-        {box &&
-          (drawing ? (
-            <div
+              : null
+          }
+        />
+        <div className="canvas-live-overlays" ref={overlaysRef}>
+          {pencilStroke && pencilStroke.length > 1 && (
+            <svg
+              aria-hidden="true"
               style={{
-                ...scaled(box),
                 position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
                 pointerEvents: "none",
+                overflow: "visible",
               }}
             >
-              <svg
+              <polyline
+                fill="none"
+                stroke="#0d99ff"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={pencilStroke
+                  .map(
+                    (p) =>
+                      `${viewport.x + p.x * viewport.zoom},${viewport.y + p.y * viewport.zoom}`,
+                  )
+                  .join(" ")}
+              />
+            </svg>
+          )}
+          {hoveredLabel &&
+            hoverRect &&
+            artboardLabelsInteractive &&
+            !e.selection.includes(hoveredLabel.id) && (
+              <div
                 aria-hidden="true"
-                className="shape-preview"
-                style={{ width: "100%", height: "100%", position: "static" }}
-                viewBox={`0 0 ${drawing.width} ${drawing.height}`}
-                preserveAspectRatio="none"
-              >
-                <path
-                  d={drawing.paths[0].d}
-                  fill={
-                    drawing.paths[0].fill ? "rgba(13, 153, 255, 0.14)" : "none"
-                  }
-                  stroke="#0d99ff"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-              {box.width > 4 && box.height > 4 && (
-                <span className="dimension-label">
-                  {Math.round(box.width)} × {Math.round(box.height)}
-                </span>
-              )}
-            </div>
-          ) : (
+                className={`artboard-hover-outline ${componentLabelRole(hoveredLabel) ? "is-component" : ""}`}
+                style={oriented(
+                  hoverRect,
+                  matrices.get(hoveredLabel.id) ?? identity,
+                )}
+              />
+            )}
+          {labelNodes.map((node) => {
+            const rect = bounds.get(node.id);
+            if (!rect) return null;
+            const rootId = node.parentId
+              ? rootIdOf(e.doc, node.parentId)
+              : node.id;
+            if (
+              visibleRootIds &&
+              !pinnedRoots?.has(rootId) &&
+              !visibleRootIds.has(rootId)
+            )
+              return null;
+            const visual = visualBounds(
+              rect,
+              matrices.get(node.id) ?? identity,
+            );
+            const selected = e.selection.includes(node.id);
+            const renaming = canvasRenamingId === node.id;
+            const screenW = visual.width * viewport.zoom;
+            const screenH = visual.height * viewport.zoom;
+            if (
+              node.type !== "section" &&
+              !selected &&
+              hoveredLabelId !== node.id &&
+              !renaming &&
+              Math.min(screenW, screenH) < 32
+            )
+              return null;
+            return (
+              <ArtboardLabel
+                labelRole={
+                  node.type === "section"
+                    ? "section"
+                    : (componentLabelRole(node) ?? "frame")
+                }
+                devStatus={
+                  node.devStatus === "none" ? undefined : node.devStatus
+                }
+                maxWidth={
+                  node.type === "section"
+                    ? undefined
+                    : Math.max(44, Math.min(240, Math.floor(screenW)))
+                }
+                key={node.id}
+                nodeId={node.id}
+                name={node.name}
+                width={rect.width}
+                height={rect.height}
+                left={viewport.x + visual.x * viewport.zoom}
+                top={viewport.y + visual.y * viewport.zoom - 8}
+                selected={selected}
+                locked={isLocked(e.committed, node.id)}
+                interactive={artboardLabelsInteractive}
+                renaming={renaming}
+                onSelect={e.select}
+                onBeginDrag={(event, id) =>
+                  beginNodeDrag(event, id, { directId: true })
+                }
+                onHoverChange={setHoveredLabelId}
+                onStartRename={startLabelRename}
+                onCommitRename={commitLabelRename}
+                onCancelRename={() => setCanvasRenamingId(null)}
+              />
+            );
+          })}
+          {dropCell && (
             <div
-              className="marquee"
-              style={{
-                ...scaled(box),
-                ...(drawKind === "ellipse" ? { borderRadius: "50%" } : {}),
-                ...(drawKind === "slice"
-                  ? {
-                      borderStyle: "dashed",
-                      borderColor: "#0d99ff",
-                      background: "rgba(13, 153, 255, 0.06)",
-                    }
-                  : {}),
-                ...(drawKind === "section"
-                  ? {
-                      borderRadius: 8,
-                      borderColor: "#525866",
-                      background: "rgba(99, 102, 241, 0.08)",
-                    }
-                  : {}),
-              }}
+              aria-hidden="true"
+              className="grid-drop-preview"
+              style={oriented(dropCell.rect, dropCell.matrix)}
             >
-              {drawKind && box.width > 4 && box.height > 4 && (
-                <span className="dimension-label">
-                  {Math.round(box.width)} × {Math.round(box.height)}
-                </span>
-              )}
+              <span>
+                {dropCell.cell.row} × {dropCell.cell.column}
+              </span>
             </div>
+          )}
+          {selectionBox && !e.editing && !cropNode && e.tool !== "pen" && (
+            <div
+              className="selection-overlay"
+              data-selection-kind={
+                isComponentSelection ? "component" : undefined
+              }
+              style={oriented(selectionBox, selectedMatrix)}
+              data-testid="selection-box"
+            >
+              {selectedNode &&
+                e.tool === "select" &&
+                !prototypeMode &&
+                selectedNode.style.layout === "grid" &&
+                !selectedNode.style.minColumnWidth &&
+                !roots[0].instance &&
+                !instanceAncestor(e.doc, roots[0].id) &&
+                !isLocked(e.doc, roots[0].id) && (
+                  <GridHandles
+                    key={roots[0].id}
+                    editor={e}
+                    node={selectedNode}
+                    boxes={bounds}
+                    matrix={selectedMatrix}
+                    zoom={viewport.zoom}
+                  />
+                )}
+              {roots.length === 1 &&
+                selectedNode &&
+                active &&
+                !hasExternalPreview &&
+                currentTool === "select" &&
+                !prototypeMode &&
+                !devMode &&
+                !interacting &&
+                !box &&
+                !space && (
+                  <>
+                    <CornerRadiusHandles
+                      onDragActiveChange={onHandleDragActiveChange}
+                      editor={e}
+                      node={selectedNode}
+                      box={selectionBox}
+                      matrix={selectedMatrix}
+                      zoom={viewport.zoom}
+                    />
+                    <AutoLayoutHandles
+                      onDragActiveChange={onHandleDragActiveChange}
+                      editor={e}
+                      node={selectedNode}
+                      box={selectionBox}
+                      bounds={bounds}
+                      matrix={selectedMatrix}
+                      zoom={viewport.zoom}
+                    />
+                  </>
+                )}
+              <span className="dimension-label">
+                {Math.round(selectionBox.width)} ×{" "}
+                {Math.round(selectionBox.height)}
+              </span>
+              {roots.length === 1 &&
+                !hasExternalPreview &&
+                !devMode &&
+                !isLocked(e.doc, roots[0].id) &&
+                !instanceAncestor(e.doc, roots[0].id) && (
+                  <button
+                    className="rotation-handle"
+                    aria-label="旋转选区"
+                    title="旋转 · Shift 15°"
+                    onPointerDown={beginRotate}
+                  />
+                )}
+              {!hasExternalPreview &&
+                !devMode &&
+                !roots.some(
+                  (n) => isLocked(e.doc, n.id) || instanceAncestor(e.doc, n.id),
+                ) &&
+                handles.map((handle) => (
+                  <button
+                    key={handle}
+                    className={`resize-handle handle-${handle}`}
+                    aria-label={`调整尺寸 ${handle}`}
+                    onPointerDown={(event) => beginResize(event, handle)}
+                  />
+                ))}
+            </div>
+          )}
+          {prototypeMode &&
+            !devMode &&
+            !e.editing &&
+            currentTool === "select" && (
+              <PrototypeWires
+                editor={e}
+                viewport={viewport}
+                bounds={bounds}
+                matrices={matrices}
+                onPlayFlow={onPlayFlow}
+              />
+            )}
+          {e.smartGrid &&
+            !prototypeMode &&
+            !devMode &&
+            !e.editing &&
+            currentTool === "select" && (
+              <SmartHandles
+                active={active}
+                editor={e}
+                grid={e.smartGrid}
+                viewport={viewport}
+                matrix={matrices.get(e.smartGrid.parent ?? "") ?? identity}
+              />
+            )}
+          {box &&
+            (drawing ? (
+              <div
+                style={{
+                  ...scaled(box),
+                  position: "absolute",
+                  pointerEvents: "none",
+                }}
+              >
+                <svg
+                  aria-hidden="true"
+                  className="shape-preview"
+                  style={{ width: "100%", height: "100%", position: "static" }}
+                  viewBox={`0 0 ${drawing.width} ${drawing.height}`}
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d={drawing.paths[0].d}
+                    fill={
+                      drawing.paths[0].fill
+                        ? "rgba(13, 153, 255, 0.14)"
+                        : "none"
+                    }
+                    stroke="#0d99ff"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </svg>
+                {box.width > 4 && box.height > 4 && (
+                  <span className="dimension-label">
+                    {Math.round(box.width)} × {Math.round(box.height)}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div
+                className="marquee"
+                style={{
+                  ...scaled(box),
+                  ...(drawKind === "ellipse" ? { borderRadius: "50%" } : {}),
+                  ...(drawKind === "slice"
+                    ? {
+                        borderStyle: "dashed",
+                        borderColor: "#0d99ff",
+                        background: "rgba(13, 153, 255, 0.06)",
+                      }
+                    : {}),
+                  ...(drawKind === "section"
+                    ? {
+                        borderRadius: 8,
+                        borderColor: "#525866",
+                        background: "rgba(99, 102, 241, 0.08)",
+                      }
+                    : {}),
+                }}
+              >
+                {drawKind && box.width > 4 && box.height > 4 && (
+                  <span className="dimension-label">
+                    {Math.round(box.width)} × {Math.round(box.height)}
+                  </span>
+                )}
+              </div>
+            ))}
+          {ghost && (
+            <div className="drag-ghost" style={scaled(ghost)}>
+              拖入容器 / 调整顺序
+            </div>
+          )}
+          {guides.map((guide) => (
+            <span
+              key={guide.axis}
+              className={`snap-guide guide-${guide.axis}`}
+              data-value={guide.value}
+              hidden
+            />
           ))}
-        {ghost && (
-          <div className="drag-ghost" style={scaled(ghost)}>
-            拖入容器 / 调整顺序
-          </div>
-        )}
-        {guides.map((guide, i) => (
-          <div
-            key={i}
-            className={`snap-guide guide-${guide.axis}`}
-            style={
-              guide.axis === "x"
-                ? { left: viewport.x + guide.value * viewport.zoom }
-                : { top: viewport.y + guide.value * viewport.zoom }
-            }
-          />
-        ))}
+          {(alt || devMode) &&
+            measure &&
+            hoverWorldRect &&
+            selectedWorldRect && (
+              <>
+                {measure.inside ? (
+                  <>
+                    {measure.left > 0 && (
+                      <div
+                        className="measure-line measure-line-x"
+                        style={{
+                          left: viewport.x + hoverWorldRect.x * viewport.zoom,
+                          top:
+                            viewport.y +
+                            (selectedWorldRect.y +
+                              selectedWorldRect.height / 2) *
+                              viewport.zoom,
+                          width: measure.left * viewport.zoom,
+                        }}
+                      >
+                        <span>{Math.round(measure.left)}</span>
+                      </div>
+                    )}
+                    {measure.right > 0 && (
+                      <div
+                        className="measure-line measure-line-x"
+                        style={{
+                          left:
+                            viewport.x +
+                            (selectedWorldRect.x + selectedWorldRect.width) *
+                              viewport.zoom,
+                          top:
+                            viewport.y +
+                            (selectedWorldRect.y +
+                              selectedWorldRect.height / 2) *
+                              viewport.zoom,
+                          width: measure.right * viewport.zoom,
+                        }}
+                      >
+                        <span>{Math.round(measure.right)}</span>
+                      </div>
+                    )}
+                    {measure.top > 0 && (
+                      <div
+                        className="measure-line measure-line-y"
+                        style={{
+                          left:
+                            viewport.x +
+                            (selectedWorldRect.x +
+                              selectedWorldRect.width / 2) *
+                              viewport.zoom,
+                          top: viewport.y + hoverWorldRect.y * viewport.zoom,
+                          height: measure.top * viewport.zoom,
+                        }}
+                      >
+                        <span>{Math.round(measure.top)}</span>
+                      </div>
+                    )}
+                    {measure.bottom > 0 && (
+                      <div
+                        className="measure-line measure-line-y"
+                        style={{
+                          left:
+                            viewport.x +
+                            (selectedWorldRect.x +
+                              selectedWorldRect.width / 2) *
+                              viewport.zoom,
+                          top:
+                            viewport.y +
+                            (selectedWorldRect.y + selectedWorldRect.height) *
+                              viewport.zoom,
+                          height: measure.bottom * viewport.zoom,
+                        }}
+                      >
+                        <span>{Math.round(measure.bottom)}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {measure.dx > 0 && (
+                      <div
+                        className="measure-line measure-line-x"
+                        style={{
+                          left:
+                            viewport.x +
+                            Math.min(
+                              selectedWorldRect.x + selectedWorldRect.width,
+                              hoverWorldRect.x + hoverWorldRect.width,
+                            ) *
+                              viewport.zoom,
+                          top:
+                            viewport.y +
+                            (selectedWorldRect.y +
+                              selectedWorldRect.height / 2) *
+                              viewport.zoom,
+                          width: measure.dx * viewport.zoom,
+                        }}
+                      >
+                        <span>{Math.round(measure.dx)}</span>
+                      </div>
+                    )}
+                    {measure.dy > 0 && (
+                      <div
+                        className="measure-line measure-line-y"
+                        style={{
+                          left:
+                            viewport.x +
+                            (selectedWorldRect.x +
+                              selectedWorldRect.width / 2) *
+                              viewport.zoom,
+                          top:
+                            viewport.y +
+                            Math.min(
+                              selectedWorldRect.y + selectedWorldRect.height,
+                              hoverWorldRect.y + hoverWorldRect.height,
+                            ) *
+                              viewport.zoom,
+                          height: measure.dy * viewport.zoom,
+                        }}
+                      >
+                        <span>{Math.round(measure.dy)}</span>
+                      </div>
+                    )}
+                    <div
+                      className="measurement"
+                      style={{
+                        left: viewport.x + hoverWorldRect.x * viewport.zoom,
+                        top: viewport.y + hoverWorldRect.y * viewport.zoom - 26,
+                      }}
+                    >
+                      水平 {Math.round(measure.dx)} · 垂直{" "}
+                      {Math.round(measure.dy)} px
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          {(e.tool === "pen" ||
+            e.doc.nodes.some(
+              (n) => n.id === e.editing && n.type === "vector",
+            )) && (
+            <div className="canvas-vector-editor" ref={vectorEditorRef}>
+              <VectorEditor
+                worldContainer={worldRef.current}
+                key={e.editing ?? "pen"}
+                panning={space}
+                editor={e}
+                node={e.doc.nodes.find(
+                  (n) => n.id === e.editing && n.type === "vector",
+                )}
+                box={bounds.get(e.editing ?? "")}
+                viewport={viewport}
+                parentAt={(p) => {
+                  const id = containerAt(p, e.committed);
+                  return {
+                    id,
+                    box: bounds.get(id ?? ""),
+                    matrix: matrices.get(id ?? "") ?? identity,
+                  };
+                }}
+                close={() => {
+                  e.setTool("select");
+                  e.setEditing(null);
+                }}
+              />
+            </div>
+          )}
+          {cropNode?.image && bounds.has(cropNode.id) && (
+            <ImageCropOverlay
+              key={cropNode.id}
+              editor={e}
+              node={resolveNode(e.committed, cropNode)}
+              box={bounds.get(cropNode.id)!}
+              matrix={matrices.get(cropNode.id)!}
+              zoom={viewport.zoom}
+              style={oriented(
+                bounds.get(cropNode.id)!,
+                matrices.get(cropNode.id)!,
+              )}
+            />
+          )}
+          {effectiveViewOptions.showComments &&
+            effectiveComments.length > 0 && (
+              <CommentsCanvasLayer
+                comments={effectiveComments}
+                viewport={viewport}
+                activeCommentId={effectiveActiveCommentId}
+                onSelectComment={handleSelectComment}
+                onUpdateComments={handleUpdateComments}
+              />
+            )}
+        </div>
         {fileDragActive && (
           <div className="canvas-drop-hint" aria-hidden="true">
             释放以导入 Sketch、Figma、Forma 设计文件或图片 / SVG
@@ -2252,11 +3181,8 @@ export function Canvas({
         )}
         {effectiveViewOptions.showRulers && (
           <CanvasRulers
-            selection={
-              selectionBox
-                ? visualBounds(selectionBox, selectedMatrix)
-                : undefined
-            }
+            camera={camera}
+            selection={selectedWorldRect ?? undefined}
             viewport={viewport}
             guides={e.committed.guides ?? []}
             change={(guides) =>
@@ -2264,183 +3190,16 @@ export function Canvas({
             }
           />
         )}
-        {(alt || devMode) && measure && hoverRect && selectionBox && (
-          <>
-            {measure.inside ? (
-              <>
-                {measure.left > 0 && (
-                  <div
-                    className="measure-line measure-line-x"
-                    style={{
-                      left: viewport.x + hoverRect.x * viewport.zoom,
-                      top:
-                        viewport.y +
-                        (selectionBox.y + selectionBox.height / 2) *
-                          viewport.zoom,
-                      width: measure.left * viewport.zoom,
-                    }}
-                  >
-                    <span>{Math.round(measure.left)}</span>
-                  </div>
-                )}
-                {measure.right > 0 && (
-                  <div
-                    className="measure-line measure-line-x"
-                    style={{
-                      left:
-                        viewport.x +
-                        (selectionBox.x + selectionBox.width) * viewport.zoom,
-                      top:
-                        viewport.y +
-                        (selectionBox.y + selectionBox.height / 2) *
-                          viewport.zoom,
-                      width: measure.right * viewport.zoom,
-                    }}
-                  >
-                    <span>{Math.round(measure.right)}</span>
-                  </div>
-                )}
-                {measure.top > 0 && (
-                  <div
-                    className="measure-line measure-line-y"
-                    style={{
-                      left:
-                        viewport.x +
-                        (selectionBox.x + selectionBox.width / 2) *
-                          viewport.zoom,
-                      top: viewport.y + hoverRect.y * viewport.zoom,
-                      height: measure.top * viewport.zoom,
-                    }}
-                  >
-                    <span>{Math.round(measure.top)}</span>
-                  </div>
-                )}
-                {measure.bottom > 0 && (
-                  <div
-                    className="measure-line measure-line-y"
-                    style={{
-                      left:
-                        viewport.x +
-                        (selectionBox.x + selectionBox.width / 2) *
-                          viewport.zoom,
-                      top:
-                        viewport.y +
-                        (selectionBox.y + selectionBox.height) * viewport.zoom,
-                      height: measure.bottom * viewport.zoom,
-                    }}
-                  >
-                    <span>{Math.round(measure.bottom)}</span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                {measure.dx > 0 && (
-                  <div
-                    className="measure-line measure-line-x"
-                    style={{
-                      left:
-                        viewport.x +
-                        Math.min(
-                          selectionBox.x + selectionBox.width,
-                          hoverRect.x + hoverRect.width,
-                        ) *
-                          viewport.zoom,
-                      top:
-                        viewport.y +
-                        (selectionBox.y + selectionBox.height / 2) *
-                          viewport.zoom,
-                      width: measure.dx * viewport.zoom,
-                    }}
-                  >
-                    <span>{Math.round(measure.dx)}</span>
-                  </div>
-                )}
-                {measure.dy > 0 && (
-                  <div
-                    className="measure-line measure-line-y"
-                    style={{
-                      left:
-                        viewport.x +
-                        (selectionBox.x + selectionBox.width / 2) *
-                          viewport.zoom,
-                      top:
-                        viewport.y +
-                        Math.min(
-                          selectionBox.y + selectionBox.height,
-                          hoverRect.y + hoverRect.height,
-                        ) *
-                          viewport.zoom,
-                      height: measure.dy * viewport.zoom,
-                    }}
-                  >
-                    <span>{Math.round(measure.dy)}</span>
-                  </div>
-                )}
-                <div
-                  className="measurement"
-                  style={{
-                    left: viewport.x + hoverRect.x * viewport.zoom,
-                    top: viewport.y + hoverRect.y * viewport.zoom - 26,
-                  }}
-                >
-                  水平 {Math.round(measure.dx)} · 垂直 {Math.round(measure.dy)}{" "}
-                  px
-                </div>
-              </>
-            )}
-          </>
-        )}
-        {(e.tool === "pen" ||
-          e.doc.nodes.some(
-            (n) => n.id === e.editing && n.type === "vector",
-          )) && (
-          <VectorEditor
-            key={e.editing ?? "pen"}
-            panning={space}
-            editor={e}
-            node={e.doc.nodes.find(
-              (n) => n.id === e.editing && n.type === "vector",
-            )}
-            box={bounds.get(e.editing ?? "")}
-            viewport={viewport}
-            parentAt={(p) => {
-              const id = containerAt(p, e.committed);
-              return {
-                id,
-                box: bounds.get(id ?? ""),
-                matrix: matrices.get(id ?? "") ?? identity,
-              };
-            }}
-            close={() => {
-              e.setTool("select");
-              e.setEditing(null);
-            }}
-          />
-        )}
-        {cropNode?.image && bounds.has(cropNode.id) && (
-          <ImageCropOverlay
-            key={cropNode.id}
-            editor={e}
-            node={resolveNode(e.committed, cropNode)}
-            box={bounds.get(cropNode.id)!}
-            matrix={matrices.get(cropNode.id)!}
-            zoom={viewport.zoom}
-            style={oriented(
-              bounds.get(cropNode.id)!,
-              matrices.get(cropNode.id)!,
-            )}
-          />
-        )}
-        {effectiveViewOptions.showComments && effectiveComments.length > 0 && (
-          <CommentsCanvasLayer
-            comments={effectiveComments}
-            viewport={viewport}
-            activeCommentId={effectiveActiveCommentId}
-            onSelectComment={handleSelectComment}
-            onUpdateComments={handleUpdateComments}
-          />
-        )}
+        <CanvasMinimap
+          camera={camera}
+          viewport={viewport}
+          surfaceSize={surfaceSize}
+          items={minimapItems}
+          expanded={minimapExpanded}
+          onNavigate={(next) => setView(next, true)}
+          onToggleExpanded={() => handleToggleViewOption("showMinimap")}
+          onFitAll={() => fit()}
+        />
       </div>
       <input
         hidden

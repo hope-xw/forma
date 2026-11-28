@@ -1,17 +1,95 @@
 import { Plus, Minus, Columns3 } from "lucide-react";
-import { useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { parseTracks } from "../domain/grid-tracks";
 import type { NodeStyle } from "../domain/node";
 
+/** Numeric inspector fields keep the user's text until the blur that ends the edit. */
+export function DraftNumberInput({
+  value,
+  min,
+  max,
+  step = "any",
+  onCommit,
+  onClear,
+  disabled,
+  ...props
+}: {
+  value?: number;
+  min: number;
+  max: number;
+  step?: number | "any";
+  onCommit(value: number): void;
+  onClear?(): void;
+  disabled?: boolean;
+  "aria-label": string;
+  placeholder?: string;
+  title?: string;
+  style?: CSSProperties;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const cancelledRef = useRef(false);
+  useEffect(() => {
+    setDraft(null);
+  }, [value, disabled]);
+  return (
+    <input
+      {...props}
+      type="number"
+      min={min}
+      max={max}
+      step={step}
+      disabled={disabled}
+      value={draft ?? value ?? ""}
+      onChange={(ev) => setDraft(ev.currentTarget.value)}
+      onKeyDown={(ev) => {
+        if (ev.nativeEvent.isComposing) return;
+        if (ev.key === "Escape" || ev.key === "Enter") {
+          ev.preventDefault();
+          ev.stopPropagation();
+          cancelledRef.current = ev.key === "Escape";
+          ev.currentTarget.blur();
+        }
+      }}
+      onBlur={(ev) => {
+        const input = ev.currentTarget;
+        const cancelled = cancelledRef.current;
+        cancelledRef.current = false;
+        setDraft(null);
+        if (cancelled || disabled || draft === null || input.validity.badInput)
+          return;
+        if (!input.value.trim()) {
+          onClear?.();
+          return;
+        }
+        const next = input.valueAsNumber;
+        if (
+          Number.isFinite(next) &&
+          next >= min &&
+          next <= max &&
+          input.validity.valid &&
+          next !== value
+        )
+          onCommit(next);
+      }}
+    />
+  );
+}
+
 export function GridTracks({
   style,
-  disabled,
-  commit,
+  disabled: locked,
+  previewBlocked = false,
+  commit: write,
 }: {
   style: NodeStyle;
   disabled: boolean;
+  previewBlocked?: boolean;
   commit: (value: Partial<NodeStyle>) => void;
 }) {
+  const disabled = locked || previewBlocked;
+  const commit = (value: Partial<NodeStyle>) => {
+    if (!disabled) write(value);
+  };
   const [axis, setAxis] = useState<"column" | "row">("column");
   const columns = axis === "column";
   const key = columns ? "gridTracks" : "gridRowTracks";
@@ -66,28 +144,16 @@ export function GridTracks({
             <span>
               {name} {i + 1}
             </span>
-            <input
-              key={t.value + ":" + t.unit}
+            <DraftNumberInput
+              key={t.unit + ":" + t.value}
               aria-label={label + "尺寸"}
-              type="number"
-              min="0.01"
-              max="10000"
-              step="any"
-              defaultValue={t.unit === "auto" ? "" : t.value}
+              min={0.01}
+              max={10000}
+              value={t.unit === "auto" ? undefined : t.value}
               disabled={disabled || t.unit === "auto"}
-              onBlur={(ev) => {
-                const value = ev.currentTarget.valueAsNumber;
-                if (
-                  ev.currentTarget.validity.valid &&
-                  Number.isFinite(value) &&
-                  value !== t.value
-                )
-                  store(tracks.map((a, j) => (i === j ? { ...a, value } : a)));
-                else ev.currentTarget.value = String(t.value);
-              }}
-              onKeyDown={(ev) => {
-                if (ev.key === "Enter") ev.currentTarget.blur();
-              }}
+              onCommit={(value) =>
+                store(tracks.map((a, j) => (i === j ? { ...a, value } : a)))
+              }
             />
             <select
               aria-label={label + "模式"}

@@ -24,6 +24,9 @@ contextBridge.exposeInMainWorld("formaDesktop", {
   version,
   platform: process.platform,
   agentConfigured: process.argv.includes("--forma-agent-configured=1"),
+  resolveSystemFonts(req) {
+    return ipcRenderer.invoke("forma:resolve-system-fonts", req);
+  },
   hasConfiguredAgent() {
     return ipcRenderer.invoke("forma:has-configured-agent");
   },

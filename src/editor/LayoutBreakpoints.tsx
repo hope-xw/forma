@@ -1,3 +1,4 @@
+import { DraftNumberInput } from "./GridTracks";
 import { ColorField } from "./ColorField";
 import { Plus, Minus, RotateCcw } from "lucide-react";
 import { useState } from "react";
@@ -18,16 +19,22 @@ export function LayoutBreakpoints({
   grid,
   appearanceOnly = false,
   baseFill = "#ffffff",
-  disabled = false,
-  commit,
+  disabled: locked = false,
+  previewBlocked = false,
+  commit: write,
 }: {
   rules?: LayoutRule[];
   grid: boolean;
   appearanceOnly?: boolean;
   baseFill?: string;
   disabled?: boolean;
+  previewBlocked?: boolean;
   commit: (rules: LayoutRule[] | undefined) => void;
 }) {
+  const disabled = locked || previewBlocked;
+  const commit = (next: LayoutRule[] | undefined) => {
+    if (!disabled) write(next);
+  };
   const [open, setOpen] = useState(false);
   const used = new Set(rules.map((r) => r.maxWidth));
   const add = () => {
@@ -77,48 +84,41 @@ export function LayoutBreakpoints({
             .map(([key, name, min, max]) => (
               <label key={key}>
                 {key === "opacity" ? name + " (%)" : name}
-                <input
-                  type="number"
+                <DraftNumberInput
                   key={String(r[key])}
                   aria-label={"断点 " + (i + 1) + " " + name}
                   min={min}
                   max={max}
-                  step={key === "maxWidth" || key === "columns" ? "1" : "any"}
-                  defaultValue={
+                  disabled={disabled}
+                  step={key === "maxWidth" || key === "columns" ? 1 : "any"}
+                  value={
                     key === "opacity" && r.opacity !== undefined
                       ? Number((r.opacity * 100).toFixed(8))
-                      : (r[key] ?? "")
+                      : r[key]
                   }
                   placeholder="继承"
-                  onBlur={(ev) => {
-                    const input = ev.currentTarget;
-                    const reset = () => {
-                      input.value = input.defaultValue;
-                    };
-                    const value =
-                      input.value === ""
-                        ? undefined
-                        : input.valueAsNumber / (key === "opacity" ? 100 : 1);
+                  onClear={
+                    key === "maxWidth" || r[key] === undefined
+                      ? undefined
+                      : () =>
+                          commit(
+                            rules.map((b, j) =>
+                              j === i ? { ...b, [key]: undefined } : b,
+                            ),
+                          )
+                  }
+                  onCommit={(n) => {
                     if (
-                      !input.validity.valid ||
-                      (key === "maxWidth" &&
-                        (value === undefined ||
-                          rules.some(
-                            (b, j) => j !== i && b.maxWidth === value,
-                          )))
-                    ) {
-                      reset();
+                      key === "maxWidth" &&
+                      rules.some((b, j) => j !== i && b.maxWidth === n)
+                    )
                       return;
-                    }
-                    if (value !== r[key])
-                      commit(
-                        rules.map((b, j) =>
-                          j === i ? { ...b, [key]: value } : b,
-                        ),
-                      );
-                  }}
-                  onKeyDown={(ev) => {
-                    if (ev.key === "Enter") ev.currentTarget.blur();
+                    const value = key === "opacity" ? n / 100 : n;
+                    commit(
+                      rules.map((b, j) =>
+                        j === i ? { ...b, [key]: value } : b,
+                      ),
+                    );
                   }}
                 />
               </label>

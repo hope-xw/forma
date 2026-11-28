@@ -176,7 +176,8 @@ export const shadowSchema = z.object({
   visible: z.boolean().optional(),
   inset: z.boolean(),
 });
-const sideWidth = z.number().min(0).max(64).optional();
+export const maxShadows = 32;
+const sideWidth = z.number().min(0).max(100).optional();
 const paintLayers = z
   .array(
     z.object({
@@ -358,7 +359,7 @@ export const styleSchema = z.object({
       skipLightingEffects: z.boolean().optional(),
     })
     .optional(),
-  shadows: z.array(shadowSchema).max(32).optional(),
+  shadows: z.array(shadowSchema).max(maxShadows).optional(),
 });
 export const nodeSchema = z.object({
   id,

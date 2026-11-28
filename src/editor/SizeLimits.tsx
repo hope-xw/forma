@@ -1,16 +1,22 @@
+import { DraftNumberInput } from "./GridTracks";
 import type { DesignNode } from "../domain/document";
 import { propertyLabels } from "../domain/design-properties";
 import type { EditorController } from "./useEditor";
+import { isLocked } from "../domain/tree";
 import { TokenBinding } from "./TokenBinding";
 export function SizeLimits({
   editor,
   nodes,
-  disabled,
+  disabled: locked,
 }: {
   editor: EditorController;
   nodes: DesignNode[];
   disabled: boolean;
 }) {
+  const disabled =
+    locked ||
+    nodes.some((n) => isLocked(editor.doc, n.id)) ||
+    Boolean(editor.previewRef?.current && editor.doc !== editor.committed);
   return (
     <details className="size-limits advanced-properties">
       <summary>尺寸范围</summary>
@@ -26,36 +32,23 @@ export function SizeLimits({
                 title={propertyLabels[key]}
               >
                 <span>{propertyLabels[key]}</span>
-                <input
+                <DraftNumberInput
                   aria-label={propertyLabels[key]}
-                  type="number"
                   min={1}
                   max={10000}
-                  key={
-                    key +
-                    ":" +
-                    nodes.map((n) => n.id + "=" + n.style[key]).join(",")
-                  }
+                  key={nodes.map((n) => n.id + "=" + n.style[key]).join(",")}
                   placeholder={mixed ? "Mixed" : "—"}
                   disabled={disabled}
-                  defaultValue={mixed ? "" : (value ?? "")}
-                  onKeyDown={(ev) => {
-                    if (ev.key === "Enter") ev.currentTarget.blur();
+                  value={mixed ? undefined : value}
+                  onClear={() => {
+                    if (
+                      (mixed || value !== undefined) &&
+                      !editor.previewRef?.current
+                    )
+                      editor.update({}, { [key]: undefined });
                   }}
-                  onBlur={(ev) => {
-                    const input = ev.currentTarget;
-                    const raw = input.value.trim();
-                    if (mixed && raw === "") return;
-                    if (raw !== "" && !input.validity.valid) {
-                      input.value = mixed ? "" : String(value ?? "");
-                      return;
-                    }
-                    const next = raw === "" ? undefined : Number(raw);
-                    if (next !== undefined && !Number.isFinite(next)) {
-                      input.value = mixed ? "" : String(value ?? "");
-                      return;
-                    }
-                    if (next !== value || (mixed && raw !== ""))
+                  onCommit={(next) => {
+                    if (!editor.previewRef?.current)
                       editor.update({}, { [key]: next });
                   }}
                 />

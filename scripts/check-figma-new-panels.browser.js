@@ -29,7 +29,10 @@ async (page) => {
     .locator('.design-node[data-node-type="section"]')
     .first();
   await sectionNode.waitFor();
-  await sectionNode.locator(".section-title-pill").waitFor();
+  const sectionId = await sectionNode.getAttribute("data-node-id");
+  await page
+    .locator(`.section-title-pill[data-section-label-id="${sectionId}"]`)
+    .waitFor();
 
   // 3. 03.10 Slice (S -> Enter) + 04.21 Batch Export (Shift+Meta/Ctrl+E)
   await canvas.focus();

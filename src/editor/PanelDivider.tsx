@@ -1,17 +1,32 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 
 type Side = "left" | "right";
 export function PanelDivider({
   side,
   visible,
+  panelRef,
+  panelId,
 }: {
   side: Side;
+  panelId?: string;
   visible: boolean;
+  panelRef?: RefObject<HTMLElement | null>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; width: number; previous: string } | null>(
     null,
   );
+  function findPanel(handle: HTMLElement) {
+    return (
+      panelRef?.current ??
+      (panelId
+        ? handle.ownerDocument.getElementById(panelId)
+        : (handle
+            .closest(".app")
+            ?.querySelector<HTMLElement>("#" + side + "-panel") ??
+          handle.ownerDocument.getElementById(side + "-panel")))
+    );
+  }
   const minimum = side === "left" ? 200 : 256;
   const maximum = side === "left" ? 360 : 400;
   const property = "--preferred-" + side;
@@ -38,13 +53,14 @@ export function PanelDivider({
     } catch {
       /* Use the responsive default. */
     }
-    const panel = document.getElementById(side + "-panel")!;
+    const panel = findPanel(handle);
+    if (!panel) return;
     const observer = new ResizeObserver(() => {
       if (panel.offsetWidth) setWidth(panel.offsetWidth);
     });
     observer.observe(panel);
     return () => observer.disconnect();
-  }, [key, maximum, minimum, property, side]);
+  }, [key, maximum, minimum, property, side, panelRef, panelId]);
   return (
     <div
       ref={ref}
@@ -53,19 +69,21 @@ export function PanelDivider({
       role="separator"
       aria-label={side === "left" ? "图层栏宽度" : "属性栏宽度"}
       aria-orientation="vertical"
-      aria-controls={side + "-panel"}
+      aria-controls={panelId ?? `${side}-panel`}
       aria-valuemin={minimum}
       aria-valuemax={maximum}
       aria-valuenow={width}
       tabIndex={0}
       onPointerDown={(e) => {
         if (e.button !== 0 || drag.current) return;
+        const panel = findPanel(e.currentTarget);
+        if (!panel?.offsetWidth) return;
         e.preventDefault();
         e.currentTarget.focus();
         e.currentTarget.setPointerCapture(e.pointerId);
         drag.current = {
           x: e.clientX,
-          width: document.getElementById(side + "-panel")!.offsetWidth,
+          width: panel.offsetWidth,
           previous:
             e.currentTarget.parentElement!.style.getPropertyValue(property),
         };

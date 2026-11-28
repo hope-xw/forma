@@ -1,4 +1,5 @@
-import { useRef, useEffect, type PointerEvent } from "react";
+import { useCallback, useLayoutEffect, useRef, type PointerEvent } from "react";
+import type { DesignDocument } from "../domain/document";
 import {
   arrangeGrid,
   gridPlacement,
@@ -10,11 +11,13 @@ import { transform, vector, inverse, type Matrix } from "../domain/transforms";
 import { previewGeometry } from "../application/geometry-preview";
 import type { Operation } from "../domain/commands";
 export function SmartHandles({
+  active = true,
   editor: e,
   grid,
   viewport,
   matrix,
 }: {
+  active?: boolean;
   editor: EditorController;
   grid: SmartGrid;
   viewport: Viewport;
@@ -26,19 +29,52 @@ export function SmartHandles({
     start: Point;
     ops: Operation[];
     revision: number;
+    pointerId: number;
+    target: HTMLButtonElement;
   } | null>(null);
+  const ownedPreviewRef = useRef<DesignDocument | null>(null);
+  const activeRef = useRef(active);
+  const { setLocalPreview, setPreview, previewRef, hasExternalPreview } = e;
+  const publish = useCallback(
+    (next: DesignDocument | null) => {
+      const owned = ownedPreviewRef.current;
+      if (hasExternalPreview || (previewRef && previewRef.current !== owned))
+        return false;
+      if (owned !== next) {
+        if (setLocalPreview) {
+          if (!setLocalPreview(owned, next)) return false;
+        } else {
+          setPreview(next);
+        }
+        ownedPreviewRef.current = next;
+      }
+      return true;
+    },
+    [hasExternalPreview, previewRef, setLocalPreview, setPreview],
+  );
   const places = gridPlacement(grid);
-  const cancel = () => {
+  const cancel = useCallback(() => {
+    const state = gesture.current;
     gesture.current = null;
-    e.setPreview(null);
-  };
-  useEffect(() => {
-    const onBlur = () => {
-      if (gesture.current) cancel();
+    if (state?.target.hasPointerCapture(state.pointerId))
+      state.target.releasePointerCapture(state.pointerId);
+    const released = publish(null);
+    ownedPreviewRef.current = null;
+    return released;
+  }, [publish]);
+  useLayoutEffect(() => {
+    activeRef.current = active;
+    if (!active) {
+      cancel();
+      return;
+    }
+    window.addEventListener("blur", cancel);
+    return () => {
+      activeRef.current = false;
+      window.removeEventListener("blur", cancel);
+      cancel();
     };
-    window.addEventListener("blur", onBlur);
-    return () => window.removeEventListener("blur", onBlur);
-  }, [e.setPreview]);
+  }, [active, cancel, e.tool, e.selection, e.committed]);
   if (
     !gesture.current &&
     places.some(
@@ -51,7 +87,14 @@ export function SmartHandles({
     type: "gapX" | "gapY" | "item",
     index: number,
   ) {
-    if (ev.button !== 0) return;
+    if (
+      !activeRef.current ||
+      ev.button !== 0 ||
+      gesture.current ||
+      hasExternalPreview ||
+      previewRef?.current
+    )
+      return;
     ev.stopPropagation();
     ev.currentTarget.focus({ preventScroll: true });
     ev.currentTarget.setPointerCapture(ev.pointerId);
@@ -61,11 +104,14 @@ export function SmartHandles({
       start: { x: ev.clientX, y: ev.clientY },
       ops: [],
       revision: e.committed.revision,
+      pointerId: ev.pointerId,
+      target: ev.currentTarget,
     };
   }
   function move(ev: PointerEvent<HTMLButtonElement>) {
     const state = gesture.current;
-    if (!state) return;
+    if (!activeRef.current || !state || state.pointerId !== ev.pointerId)
+      return;
     if (e.committed.revision !== state.revision) {
       cancel();
       return;
@@ -97,16 +143,23 @@ export function SmartHandles({
       );
       state.ops = arrangeGrid({ ...grid, [state.type]: Math.max(0, gap) });
     }
-    e.setPreview(
-      state.ops.length ? previewGeometry(e.committed, state.ops) : null,
-    );
+    if (
+      !publish(
+        state.ops.length ? previewGeometry(e.committed, state.ops) : null,
+      )
+    )
+      cancel();
   }
   function end(ev: PointerEvent<HTMLButtonElement>) {
     const state = gesture.current;
-    if (!state) return;
+    if (!activeRef.current || !state || state.pointerId !== ev.pointerId)
+      return;
     ev.stopPropagation();
-    cancel();
-    if (state.ops.length) e.attempt(() => e.apply(state.ops, state.revision));
+    if (cancel() && state.ops.length)
+      e.attempt(() => e.apply(state.ops, state.revision));
+  }
+  function cancelPointer(ev: PointerEvent<HTMLButtonElement>) {
+    if (gesture.current?.pointerId === ev.pointerId) cancel();
   }
   function handle(
     type: "item" | "gapX" | "gapY",
@@ -129,18 +182,18 @@ export function SmartHandles({
         onPointerDown={(ev) => begin(ev, type, index)}
         onPointerMove={move}
         onPointerUp={end}
-        onPointerCancel={cancel}
-        onLostPointerCapture={() => {
-          if (gesture.current) cancel();
-        }}
+        onPointerCancel={cancelPointer}
+        onLostPointerCapture={cancelPointer}
         onDoubleClick={(ev) => ev.stopPropagation()}
         onKeyDown={(ev) => {
+          if (!activeRef.current) return;
           if (ev.key === "Escape") {
             ev.preventDefault();
             ev.stopPropagation();
             cancel();
             return;
           }
+          if (hasExternalPreview || previewRef?.current) return;
           if (
             type !== "item" &&
             ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(ev.key)

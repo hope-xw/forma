@@ -1,3 +1,8 @@
+import {
+  outlineStrokeOperations,
+  outlineTextFromShapeOperations,
+} from "../domain/vector-outline";
+import { outlineTextNode } from "../infrastructure/text-outline";
 import { createLibraryFromSelection, detachInstance } from "../domain/library";
 import { localMasters } from "../domain/component-masters";
 import { loadFonts } from "../infrastructure/font-import";
@@ -5,9 +10,17 @@ import { readCanvasAsset } from "../infrastructure/asset-import";
 import { importSvg } from "../infrastructure/svg-import";
 import { clipboardRequest } from "../infrastructure/clipboard";
 import { combineShapes, maskSelection } from "../domain/boolean-shapes";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   createNode,
+  type DesignDocument,
   type DesignNode,
   type NodeStyle,
 } from "../domain/document";
@@ -28,6 +41,7 @@ import {
 } from "../domain/editing";
 import {
   ancestors,
+  instanceAncestor,
   insertionParent,
   instanceOwner,
   isLocked,
@@ -40,7 +54,12 @@ import type { Operation } from "../domain/commands";
 import { smartSelection, arrangeGrid } from "../domain/smart-selection";
 import { findMatchingLayers, wrapInSection } from "../domain/section";
 import { useDocument } from "./useDocument";
-import type { ActionId } from "./actions";
+import {
+  getAlignEligibility,
+  isEditActionEnabled,
+  type ActionId,
+  type ActionEligibilityContext,
+} from "./actions";
 export type Tool =
   | "select"
   | "scale"
@@ -72,6 +91,23 @@ const isInput = (target: EventTarget | null) =>
 export function useEditor(options?: import("./useDocument").EditorFileOptions) {
   const document = useDocument(options);
   const { doc, committed, apply, attempt } = document;
+  const tabActive = options?.active !== false;
+  const activeRef = useRef(tabActive);
+  const activationTokenRef = useRef(0);
+  useLayoutEffect(() => {
+    activeRef.current = tabActive;
+    return () => {
+      activeRef.current = false;
+      activationTokenRef.current += 1;
+    };
+  }, [tabActive, document.documentSession]);
+  const hasPreview = document.preview !== null;
+  const { previewRef, historyRef } = document;
+  const activeEditHandlerRef = useRef<{
+    selectAll?(): boolean;
+    undo?(): boolean;
+  } | null>(null);
+  const [canUndoDraft, setCanUndoDraft] = useState(false);
   const [selection, setSelection] = useState<string[]>(
     options?.initialSelection ?? [],
   );
@@ -112,8 +148,21 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     if (editing && !findLayer(committed, editing)) setEditing(null);
   }, [committed, editing]);
   const selections = useRef(new WeakMap<typeof committed, string[]>());
-  selections.current.set(committed, selection);
+  // A drag-copy preview can select IDs that do not exist in the undo snapshot.
+  if (doc === committed || selection.every((id) => findLayer(committed, id)))
+    selections.current.set(committed, selection);
   function undo() {
+    if (
+      hasPreview ||
+      previewRef.current !== null ||
+      historyRef.current.present !== committed
+    )
+      return;
+    if (
+      activeEditHandlerRef.current?.undo?.() ||
+      !isEditActionEnabled("undo", actionEligibility)
+    )
+      return;
     const target = document.historyRef.current.past.at(-1);
     if (!target) return;
     const restored = selections.current.get(target) ?? [];
@@ -121,6 +170,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     setSelection(restored);
   }
   function redo() {
+    if (previewRef.current !== null) return;
     const target = document.historyRef.current.future.at(-1);
     if (!target) return;
     const restored = selections.current.get(target) ?? [];
@@ -145,7 +195,17 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     );
   }
   function update(patch: Partial<DesignNode>, style?: Partial<NodeStyle>) {
+    if (previewRef.current !== null) return;
     attempt(() => apply(editablePatch(selected, patch, style)));
+  }
+  function flipSelection(axis: "x" | "y") {
+    if (
+      !selected.length ||
+      selected.some((n) => isLocked(doc, n.id) || instanceAncestor(doc, n.id))
+    )
+      return;
+    const key = axis === "x" ? "flipX" : "flipY";
+    update({}, { [key]: !selected.every((n) => n.style[key]) });
   }
   function remove() {
     apply(
@@ -195,6 +255,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         operations.push(...resources, { type: "create", node });
         ids.push(node.id);
       }
+      if (previewRef.current !== null) return;
       apply(operations, committed.revision);
       setSelection(ids);
     } catch (error) {
@@ -202,6 +263,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     }
   }
   function pasteText(text: string, inPlace = false) {
+    if (previewRef.current !== null) return;
     const payload = readClipboard(text);
     const current =
       selection.length === 1
@@ -219,6 +281,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         : (api.current?.center() ?? { x: 80, y: 80 });
     if (payload) {
       const commitPaste = () => {
+        if (previewRef.current !== null) return;
         const result = pasteSelection(committed, payload, parent, position);
         apply(result.operations, committed.revision);
         setSelection(result.selection);
@@ -265,6 +328,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
       document.historyRef.current.present.revision !== committed.revision
     )
       throw new Error("剪贴板操作期间文件已变化，剪切未执行，请重试");
+    if (previewRef.current !== null) return;
     if (cut) remove();
   }
   async function paste(inPlace = false) {
@@ -278,9 +342,11 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     if (!text) throw new Error("剪贴板为空或无法读取，请使用 ⌘/Ctrl V 粘贴");
     if (document.historyRef.current.present.revision !== committed.revision)
       throw new Error("剪贴板操作期间文件已变化，请重新粘贴");
+    if (previewRef.current !== null) return;
     pasteText(text, inPlace);
   }
   function add(type: DesignNode["type"]) {
+    if (previewRef.current !== null) return;
     attempt(() => {
       let parentId = insertionParent(
         committed,
@@ -322,7 +388,26 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     );
     apply([{ type: "putLibrary", library: lib }]);
   }
+  const actionEligibility: ActionEligibilityContext = {
+    doc,
+    selection,
+    canUndo: document.canUndo || canUndoDraft,
+    canRedo: document.canRedo,
+    canPasteStyle: !!styleClipboard,
+    hasSmartGrid: !!smartGrid,
+    componentUnavailable: !!componentUnavailable,
+    hasPreview,
+  };
   function perform(id: ActionId) {
+    if (id === "undo") return undo();
+    if (
+      historyRef.current.present !== committed ||
+      !isEditActionEnabled(id, {
+        ...actionEligibility,
+        hasPreview: previewRef.current !== null || hasPreview,
+      })
+    )
+      return;
     attempt(() => {
       const alignments: Partial<Record<ActionId, Alignment>> = {
         alignLeft: "left",
@@ -402,6 +487,44 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
           if (ops.length) apply(ops);
           return;
         }
+        case "outlineStroke": {
+          const result = outlineStrokeOperations(committed, selection[0]);
+          apply(result.operations);
+          setSelection([result.nodeId]);
+          break;
+        }
+        case "outlineText": {
+          if (!activeRef.current) return;
+          const token = activationTokenRef.current;
+          const targetId = selection[0];
+          const shape = outlineTextFromShapeOperations(committed, targetId);
+          if (shape) {
+            apply(shape.operations);
+            setSelection([shape.nodeId]);
+            break;
+          }
+          const baseDoc = committed;
+          const canFinish = () =>
+            activeRef.current &&
+            token === activationTokenRef.current &&
+            historyRef.current.present === baseDoc &&
+            previewRef.current === null;
+          void outlineTextNode(baseDoc, targetId)
+            .then((result) => {
+              if (!canFinish()) return;
+              attempt(() => {
+                apply(result.operations, baseDoc.revision);
+                setSelection([result.nodeId]);
+              });
+            })
+            .catch((error: unknown) => {
+              if (canFinish())
+                document.setError(
+                  error instanceof Error ? error.message : String(error),
+                );
+            });
+          break;
+        }
         case "mask": {
           const result = maskSelection(committed, selection);
           apply(result.operations);
@@ -429,9 +552,6 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
           setSelection([result.id]);
           break;
         }
-        case "undo":
-          undo();
-          break;
         case "redo":
           redo();
           break;
@@ -454,6 +574,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
           remove();
           break;
         case "selectAll": {
+          if (activeEditHandlerRef.current?.selectAll?.()) return;
           const parent = selected.length ? selected[0].parentId : null;
           setSelection(
             committed.nodes
@@ -607,6 +728,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
       ]);
   }
   function nudge(dx: number, dy: number) {
+    if (previewRef.current !== null) return;
     attempt(() => {
       const operations: Operation[] = [];
       for (const n of selectionRoots(committed, selection)) {
@@ -636,30 +758,37 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     });
   }
   const current = useRef({
+    actionEligibility,
+    apply,
     perform,
     pasteText,
     add,
     tool,
+    editing,
     importAssets,
     remove,
     navigate,
     nudge,
+    flipSelection,
     update,
   });
   current.current = {
+    actionEligibility,
+    apply,
     perform,
     pasteText,
     add,
     tool,
+    editing,
     importAssets,
     remove,
     navigate,
     nudge,
+    flipSelection,
     update,
   };
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
-  const tabActive = options?.active !== false;
   useEffect(() => {
     if (!tabActive) return;
     const key = (e: KeyboardEvent) => {
@@ -675,6 +804,26 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         k = e.key.toLowerCase();
       let action: ActionId | undefined;
       if (mod) {
+        if (
+          k === "o" &&
+          e.shiftKey &&
+          !e.altKey &&
+          selectionRef.current.length === 1
+        ) {
+          if (previewRef.current !== null) return;
+          const scene = historyRef.current.present;
+          const editingType = findLayer(scene, current.current.editing)?.type;
+          if (
+            editingType === "text" ||
+            editingType === "button" ||
+            globalThis.document.querySelector('[aria-modal="true"]')
+          )
+            return;
+          const ctx = current.current.actionEligibility;
+          if (isEditActionEnabled("outlineText", ctx)) action = "outlineText";
+          else if (isEditActionEnabled("outlineStroke", ctx))
+            action = "outlineStroke";
+        }
         if (k === "z") action = e.shiftKey ? "redo" : "undo";
         if (k === "y" && !e.metaKey) action = "redo";
         if (k === "a") action = e.altKey ? "selectMatching" : "selectAll";
@@ -702,18 +851,19 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         if (k === "b" && e.altKey && !e.shiftKey) {
           const only =
             selectionRef.current.length === 1
-              ? document.historyRef.current.present.nodes.find(
+              ? historyRef.current.present.nodes.find(
                   (n) => n.id === selectionRef.current[0],
                 )
               : undefined;
           if (
+            previewRef.current === null &&
             only?.instance &&
-            !isLocked(document.historyRef.current.present, only.id)
+            !isLocked(historyRef.current.present, only.id)
           ) {
             e.preventDefault();
-            document.attempt(() =>
-              document.apply(
-                detachInstance(document.historyRef.current.present, only.id),
+            attempt(() =>
+              current.current.apply(
+                detachInstance(historyRef.current.present, only.id),
               ),
             );
             return;
@@ -722,17 +872,18 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         if (k === "e" && !e.shiftKey && !e.altKey) {
           const only =
             selectionRef.current.length === 1
-              ? document.historyRef.current.present.nodes.find(
+              ? historyRef.current.present.nodes.find(
                   (n) => n.id === selectionRef.current[0],
                 )
               : undefined;
           if (
+            previewRef.current === null &&
             only?.booleanOperation &&
-            !isLocked(document.historyRef.current.present, only.id)
+            !isLocked(historyRef.current.present, only.id)
           ) {
             e.preventDefault();
-            document.attempt(() =>
-              document.apply([{ type: "flattenBoolean", id: only.id }]),
+            attempt(() =>
+              current.current.apply([{ type: "flattenBoolean", id: only.id }]),
             );
             return;
           }
@@ -744,37 +895,13 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         if (k === "r" && e.shiftKey) action = "rulers";
         if (k === "a" && e.shiftKey) action = "autoLayout";
         if (
-          k === "h" &&
+          (k === "h" || k === "v") &&
           e.shiftKey &&
           !e.altKey &&
           selectionRef.current.length
         ) {
           e.preventDefault();
-          current.current.update(
-            {},
-            {
-              flipX: !document.historyRef.current.present.nodes.find(
-                (n) => n.id === selectionRef.current[0],
-              )?.style.flipX,
-            },
-          );
-          return;
-        }
-        if (
-          k === "v" &&
-          e.shiftKey &&
-          !e.altKey &&
-          selectionRef.current.length
-        ) {
-          e.preventDefault();
-          current.current.update(
-            {},
-            {
-              flipY: !document.historyRef.current.present.nodes.find(
-                (n) => n.id === selectionRef.current[0],
-              )?.style.flipY,
-            },
-          );
+          current.current.flipSelection(k === "h" ? "x" : "y");
           return;
         }
         if (e.code === "Digit1" && e.shiftKey) action = "fit";
@@ -796,7 +923,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         setEditing(null);
         setTool("select");
         setSelection((s) => {
-          const node = document.historyRef.current.present.nodes.find(
+          const node = historyRef.current.present.nodes.find(
             (n) => n.id === s.at(-1),
           );
           return node?.parentId ? [node.parentId] : [];
@@ -880,9 +1007,17 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     };
     const onCopy = (e: ClipboardEvent) => {
       if (isInput(e.target) || !selectionRef.current.length) return;
-      document.attempt(() => {
+      if (
+        e.type === "cut" &&
+        !isEditActionEnabled("cut", {
+          ...current.current.actionEligibility,
+          hasPreview: previewRef.current !== null,
+        })
+      )
+        return;
+      attempt(() => {
         const payload = copySelection(
-          document.historyRef.current.present,
+          historyRef.current.present,
           selectionRef.current,
         );
         if (!e.clipboardData) throw new Error("系统剪贴板不可写，原图层已保留");
@@ -893,7 +1028,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
       });
     };
     const onPaste = (e: ClipboardEvent) => {
-      if (isInput(e.target)) return;
+      if (isInput(e.target) || previewRef.current !== null) return;
       if (e.clipboardData?.files.length) {
         e.preventDefault();
         void current.current.importAssets(Array.from(e.clipboardData.files));
@@ -904,7 +1039,7 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
         e.clipboardData?.getData("text/plain");
       if (!text) return;
       e.preventDefault();
-      document.attempt(() => current.current.pasteText(text));
+      attempt(() => current.current.pasteText(text));
     };
     window.addEventListener("keydown", key);
     window.addEventListener("copy", onCopy);
@@ -916,9 +1051,27 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
       window.removeEventListener("cut", onCopy);
       window.removeEventListener("paste", onPaste);
     };
-  }, [document.attempt, document.historyRef, tabActive]);
+  }, [attempt, historyRef, previewRef, tabActive]);
   return {
     ...document,
+    activationTokenRef,
+    tabActive,
+    hasPreview,
+    flipSelection,
+    updatePageBackground(
+      color: string,
+      opacity: number,
+      visible = historyRef.current.present.pageBackgroundVisible ?? true,
+    ) {
+      attempt(() =>
+        apply([{ type: "setPageBackground", color, opacity, visible }]),
+      );
+    },
+    activeEditHandlerRef,
+    setCanUndoDraft,
+    actionEligibility,
+    canUndo: isEditActionEnabled("undo", actionEligibility),
+    canRedo: isEditActionEnabled("redo", actionEligibility),
     canPasteStyle: !!styleClipboard,
     componentUnavailable,
     saveComponent,
@@ -947,8 +1100,20 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
     perform,
     importAssets,
     update,
-    align: (alignment: Alignment) =>
-      attempt(() => apply(alignOperations(committed, selection, alignment))),
+    align: (alignment: Alignment) => {
+      if (historyRef.current.present !== committed) return;
+      const { canAlign, canDistribute } = getAlignEligibility(
+        committed,
+        selection,
+        hasPreview || previewRef.current !== null,
+      );
+      if (
+        alignment === "horizontal" || alignment === "vertical"
+          ? canDistribute
+          : canAlign
+      )
+        attempt(() => apply(alignOperations(committed, selection, alignment)));
+    },
     reparent: (ids: string[], parentId: string | null, index?: number) =>
       attempt(() => {
         if (
@@ -995,3 +1160,32 @@ export function useEditor(options?: import("./useDocument").EditorFileOptions) {
   };
 }
 export type EditorController = ReturnType<typeof useEditor>;
+
+// Legacy canvas and subpanel gestures consume the setter-shaped interface.
+// Keep their ownership local to the mounted surface.
+export function useGestureEditor(
+  editor: EditorController,
+  scope: string,
+): EditorController {
+  const owned = useRef<DesignDocument | null>(null);
+  const { previewRef, setLocalPreview } = editor;
+  const setPreview = useCallback<EditorController["setPreview"]>(
+    (update) => {
+      const current = previewRef.current;
+      const next = typeof update === "function" ? update(current) : update;
+      if (!current) owned.current = null;
+      if (next === current) return;
+      if (setLocalPreview(owned.current, next)) owned.current = next;
+      else if (!next) owned.current = null;
+    },
+    [previewRef, setLocalPreview],
+  );
+  useLayoutEffect(
+    () => () => {
+      if (owned.current) setLocalPreview(owned.current, null);
+      owned.current = null;
+    },
+    [scope, setLocalPreview],
+  );
+  return { ...editor, setPreview };
+}

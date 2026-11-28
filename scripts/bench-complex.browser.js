@@ -54,11 +54,19 @@ async (page) => {
         }),
       ),
     });
+    const lastId = nodes.at(-1).id;
+    const lastRoot = nodes.findLast((n) => !n.parentId).id;
     await page
-      .locator('[data-node-id="' + nodes.at(-1).id + '"]')
+      .locator(
+        `[data-node-id="${lastId}"], [data-node-id="${lastRoot}"][data-lod="cached"]`,
+      )
+      .first()
       .waitFor({ state: "attached", timeout: 90000 });
     await afterPaint();
     const importMs = Math.round(performance.now() - start);
+    const initialDomNodes = await page
+      .locator(".canvas-world .design-node")
+      .count();
     // Select an instance through the tree and keep screen coordinates stable between trials.
     const target = nodes.find((n) => n.instance);
     const id = target.id,
@@ -126,6 +134,7 @@ async (page) => {
       vectors: nodes.filter((n) => n.vector).length,
       instances: nodes.filter((n) => n.instance).length,
       importMs,
+      initialDomNodes,
       dragSamplesMs: moveTimes,
       dragP50: percentile(moveTimes, 0.5),
       dragP95: percentile(moveTimes, 0.95),

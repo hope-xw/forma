@@ -11,6 +11,8 @@ const names = chosen.length
   : [
       "workspace-home",
       "multi-tab",
+      "canvas-pro-feel",
+      "canvas-phase2",
       "mcp-agent-runtime",
       "color-profile",
       "professional-editor",
@@ -45,6 +47,7 @@ const names = chosen.length
       "studio",
       "editor-panels",
       "inspector-layout",
+      "inspector-ux",
       "panel-dialogs",
       "release-notes",
       "panel-parity",
@@ -81,7 +84,7 @@ if (engine !== "chromium") {
 await mkdir("output/playwright", { recursive: true });
 try {
   for (const name of names) {
-    if (!/^[a-z-]+$/.test(name)) throw new Error("Invalid check name");
+    if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error("Invalid check name");
     const file =
       name === "layer-tree" || name === "complex"
         ? "bench-" + name + ".browser.js"

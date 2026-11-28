@@ -11,7 +11,12 @@ import {
   remapDesignBindings,
 } from "./design-system";
 import { z } from "zod";
-import { documentSchema, parseDocument, type DesignDocument } from "./document";
+import {
+  documentSchema,
+  parseDocument,
+  type DesignDocument,
+  type DesignNode,
+} from "./document";
 import { layoutBounds, union, type Point } from "./geometry";
 import { currentPageOnly } from "./pages";
 import {
@@ -255,3 +260,108 @@ export function pasteSelection(
   return { operations, selection: payload.roots.map((id) => idMap.get(id)!) };
 }
 import { remapInteraction } from "./prototype";
+
+/** Duplicate in the current document, keeping locally authored component sets editable. */
+export function duplicateSelectionForDrag(
+  doc: DesignDocument,
+  ids: string[],
+  parentId: string | null,
+) {
+  const payload = copySelection(doc, ids);
+  const result = pasteSelection(doc, payload, parentId);
+  if (!payload.document.nodes.some((node) => node.componentSet)) return result;
+
+  // pasteSelection emits one create per payload node, in document order (not tree order).
+  const creates = result.operations.filter((op) => op.type === "create");
+  const copies = new Map(
+    payload.document.nodes.map((node, i) => [node.id, creates[i].node]),
+  );
+  const updatedLibraries = new Map<
+    string,
+    NonNullable<DesignDocument["libraries"]>[string]
+  >();
+  const families = new Map<string, DesignNode[]>();
+  for (const node of payload.document.nodes) {
+    if (!node.componentSet) continue;
+    const { libraryId, componentId } = node.componentSet;
+    const topRoot = ancestors(payload.document, node.id).at(-1) ?? node;
+    const key = JSON.stringify([libraryId, componentId, topRoot.id]);
+    const sets = families.get(key);
+    if (sets) sets.push(node);
+    else families.set(key, [node]);
+  }
+  for (const sets of families.values()) {
+    const set = sets[0];
+    const { libraryId, componentId } = set.componentSet!;
+    const ids = subtreeIds(
+      payload.document,
+      sets.map((s) => s.id),
+    );
+    const idMap = new Map([...ids].map((id) => [id, copies.get(id)!.id]));
+    const library = doc.libraries?.[libraryId];
+    const source = library?.components.find(
+      (entry) => entry.id === componentId,
+    );
+    if (!library || !source) throw Error("无法复制组件集，找不到源组件定义");
+    const component = structuredClone(source);
+    component.id = crypto.randomUUID();
+    component.name = source.name.slice(0, 197) + " 副本";
+    const variants = component.variants.flatMap((variant, index) => {
+      const master = index === 0 ? source.master?.nodeId : variant.masterNodeId;
+      const newMaster = master && idMap.get(master);
+      if (!newMaster) return [];
+      // Master synchronization matches template keys by drawing ID. Remap the
+      // snapshot as well so nested layers keep their exposed properties.
+      for (const node of variant.nodes) {
+        node.id = idMap.get(node.id) ?? node.id;
+        if (node.parentId)
+          node.parentId = idMap.get(node.parentId) ?? node.parentId;
+        if (node.maskSourceId)
+          node.maskSourceId = idMap.get(node.maskSourceId) ?? node.maskSourceId;
+        remapInteraction(node, idMap);
+      }
+      variant.masterNodeId = newMaster;
+      return [variant];
+    });
+    if (!variants.length) throw Error("组件集内没有可复制的变体主件");
+    // The first surviving drawing is the default, stored on the component.
+    component.variants = variants;
+    const first = variants[0];
+    component.master = { documentId: doc.id, nodeId: first.masterNodeId! };
+    const drawing = creates.find(
+      (op) => op.node.id === first.masterNodeId,
+    )!.node;
+    drawing.name = component.name;
+    first.nodes.find((node) => node.parentId === null)!.name = component.name;
+    delete first.masterNodeId;
+    if (component.exposed) {
+      component.exposed = component.exposed.filter((prop) =>
+        variants.some((variant) =>
+          variant.nodes.some(
+            (node) =>
+              node.templateKey === prop.target &&
+              (prop.kind !== "swap" || !!node.nestedSlot) &&
+              (prop.kind !== "text" ||
+                node.type === "text" ||
+                node.type === "button"),
+          ),
+        ),
+      );
+    }
+    for (const set of sets)
+      copies.get(set.id)!.componentSet = {
+        libraryId,
+        componentId: component.id,
+      };
+    const updated = updatedLibraries.get(libraryId) ?? {
+      ...library,
+      components: [...library.components],
+      revision: library.revision + 1,
+    };
+    updated.components.push(component);
+    updatedLibraries.set(libraryId, updated);
+  }
+  for (const library of updatedLibraries.values())
+    result.operations.push({ type: "putLibrary", library });
+  return result;
+}

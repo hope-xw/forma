@@ -14,8 +14,8 @@ export interface Rect extends Point {
 export interface Viewport extends Point {
   zoom: number;
 }
-export const MIN_ZOOM = 0.05,
-  MAX_ZOOM = 8;
+export const MIN_ZOOM = 0.02,
+  MAX_ZOOM = 64;
 export function union(rects: Rect[]): Rect | null {
   if (!rects.length) return null;
   const x = Math.min(...rects.map((r) => r.x)),
@@ -303,30 +303,60 @@ export function resizeRect(
     height,
   };
 }
+export interface SnapGuide {
+  axis: "x" | "y";
+  value: number;
+  start?: number;
+  end?: number;
+  kind?: "edge" | "center" | "ruler";
+}
+type SnapSource =
+  { kind: "ruler" } | { kind: "edge" | "center"; start: number; end: number };
 export interface SnapIndex {
   x: number[];
   y: number[];
-}
-function sortedUnique(values: number[]) {
-  values.sort((a, b) => a - b);
-  const out: number[] = [];
-  for (let i = 0; i < values.length; i++) {
-    if (i === 0 || values[i] !== values[i - 1]) out.push(values[i]);
-  }
-  return out;
+  spans?: Record<SnapGuide["axis"], Record<number, SnapSource>>;
 }
 export function createSnapIndex(
   targets: readonly Rect[],
-  pageGuides: readonly { axis: "x" | "y"; value: number }[] = [],
+  pageGuides: readonly SnapGuide[] = [],
 ): SnapIndex {
-  const xs: number[] = [];
-  const ys: number[] = [];
-  for (const g of pageGuides) (g.axis === "x" ? xs : ys).push(g.value);
-  for (const t of targets) {
-    xs.push(t.x, t.x + t.width / 2, t.x + t.width);
-    ys.push(t.y, t.y + t.height / 2, t.y + t.height);
+  const spans: NonNullable<SnapIndex["spans"]> = { x: {}, y: {} };
+  function record(
+    axis: SnapGuide["axis"],
+    value: number,
+    start: number,
+    end: number,
+    kind: "edge" | "center",
+  ) {
+    const previous = spans[axis][value];
+    if (previous?.kind === "ruler") return;
+    // Collinear objects share one segment. A coincident edge takes precedence over a center.
+    spans[axis][value] = previous
+      ? {
+          kind: previous.kind === "edge" ? "edge" : kind,
+          start: Math.min(previous.start, start),
+          end: Math.max(previous.end, end),
+        }
+      : { kind, start, end };
   }
-  return { x: sortedUnique(xs), y: sortedUnique(ys) };
+  for (const { axis, value } of pageGuides)
+    spans[axis][value] = { kind: "ruler" };
+  for (const { x, y, width, height } of targets) {
+    const right = x + width,
+      bottom = y + height;
+    record("x", x, y, bottom, "edge");
+    record("x", x + width / 2, y, bottom, "center");
+    record("x", right, y, bottom, "edge");
+    record("y", y, x, right, "edge");
+    record("y", y + height / 2, x, right, "center");
+    record("y", bottom, x, right, "edge");
+  }
+  const sorted = (sources: Record<number, SnapSource>) =>
+    Object.keys(sources)
+      .map(Number)
+      .sort((a, b) => a - b);
+  return { x: sorted(spans.x), y: sorted(spans.y), spans };
 }
 function nearestInSorted(sorted: readonly number[], target: number) {
   let lo = 0,
@@ -348,8 +378,8 @@ export function snapMoveIndexed(
   rect: Rect,
   index: SnapIndex,
   threshold: number,
-): { dx: number; dy: number; guides: { axis: "x" | "y"; value: number }[] } {
-  const guides: { axis: "x" | "y"; value: number }[] = [];
+): { dx: number; dy: number; guides: SnapGuide[] } {
+  const guides: SnapGuide[] = [];
   let dx = 0,
     dy = 0;
   for (const axis of ["x", "y"] as const) {
@@ -378,6 +408,19 @@ export function snapMoveIndexed(
     if (guide !== undefined) guides.push({ axis, value: guide });
     if (axis === "x") dx = offset;
     else dy = offset;
+  }
+  for (const guide of guides) {
+    const source = index.spans?.[guide.axis][guide.value];
+    if (!source) continue;
+    guide.kind = source.kind;
+    if (source.kind === "ruler") continue;
+    const vertical = guide.axis === "x";
+    const start = vertical ? rect.y + dy : rect.x + dx;
+    guide.start = Math.min(start, source.start);
+    guide.end = Math.max(
+      start + (vertical ? rect.height : rect.width),
+      source.end,
+    );
   }
   return { dx, dy, guides };
 }

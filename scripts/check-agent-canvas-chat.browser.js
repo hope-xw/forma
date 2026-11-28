@@ -541,7 +541,7 @@ async (page) => {
     assert.ok(firstFrameId, "Expected at least one frame on canvas");
     await page.locator(`[data-layer-id="${firstFrameId}"] .layer-main`).click();
     const rightAiBtn = page
-      .locator("#right-panel")
+      .locator(".app:visible .right-panel")
       .getByRole("button", { name: "用 AI 生成或编辑选中图层", exact: true });
     await button("AI 设计助手").click();
     await rightAiBtn.waitFor();
@@ -852,7 +852,7 @@ async (page) => {
     await page.getByLabel("设计需求", { exact: true }).fill(htmlPrompt);
     await Promise.all([critiqueRequest(), button("生成设计").click()]);
     await page
-      .locator("#left-panel")
+      .locator(".left-panel")
       .getByRole("button", { name: "停止生成", exact: true })
       .click();
     await button("生成设计").waitFor();
@@ -1148,7 +1148,7 @@ async (page) => {
     const navId = instances[0].id;
     await page.locator(`[data-layer-id="${navId}"] .layer-main`).click();
     const axis = page
-      .locator("#right-panel")
+      .locator(".app:visible .right-panel")
       .getByLabel("实例 State", { exact: true });
     assert.equal(await axis.inputValue(), "日常态");
     await axis.selectOption("大促态");

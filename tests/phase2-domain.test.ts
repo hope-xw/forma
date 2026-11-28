@@ -144,7 +144,9 @@ test("stroke sides override individual widths, visibility and alignment control 
   assert.equal(nodeCss(n, doc).border, 0);
   assert.equal(n.style.strokeWidth, 6);
   assert.equal(n.style.strokeSides?.right, 8);
-  n.style.strokeSides = { left: 65 };
+  n.style.strokeSides = { left: 80 };
+  assert.doesNotThrow(() => parseDocument(doc));
+  n.style.strokeSides = { left: 101 };
   assert.throws(() => parseDocument(doc));
 });
 test("typography and effect visibility agree in compiled CSS and rendered runtime markup", () => {
